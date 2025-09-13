@@ -46,3 +46,14 @@ export const menuItems = [
     route: "/logout",
   },
 ];
+
+export const menuNavbar = [
+  { path: '/dashboard', title: 'Home' },
+  { path: '/academy', title: 'Academy' },
+  { path: '/report', title: 'Weekly Report' },
+  { path: '/scoring', title: 'KPI Scoring' },
+  { path: '/operasional', title: 'Operasional' },
+  { path: '/attendance', title: 'Attendance' },
+  { path: '/operasional/picketSchedule', title: 'Picket Schedule' },
+  { path: '/profile', title: 'Profile' },
+]
