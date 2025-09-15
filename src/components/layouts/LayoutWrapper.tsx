@@ -20,11 +20,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="flex">
+    <div className="flex h-screen overflow-y-scroll scrollbar-hide overscroll-none">
       <Sidebar isActive={isActive} setIsActive={setIsActive} />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1">
         <Navbar isActive={isActive} setIsActive={setIsActive} />
-        <main className="p-6">{children}</main>
+       <div className={`p-5 mt-20 transition-all duration-300 ease-in-out ${isActive ? 'ml-[270px]' : 'ml-[60px]'}`}>{children}</div>
       </div>
     </div>
   );
