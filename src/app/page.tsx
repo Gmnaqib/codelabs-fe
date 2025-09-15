@@ -1,4 +1,4 @@
-import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard } from "@/features/dashboard/components"
+import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard, PicketCard } from "@/features/dashboard/components"
 import React from 'react'
 
 const Dashboard = () => {
@@ -9,6 +9,7 @@ const Dashboard = () => {
             <MonthlyProgressCard />
             <CashBillsCard />
             <AnnouncementCard />
+            <PicketCard />
 
         </div>
     </div>
