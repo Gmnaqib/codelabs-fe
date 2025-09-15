@@ -1,4 +1,4 @@
-import { AttendanceCard, MonthlyProgressCard } from "@/features/dashboard/components"
+import { AttendanceCard, MonthlyProgressCard, CashBillsCard } from "@/features/dashboard/components"
 import React from 'react'
 
 const Dashboard = () => {
@@ -7,6 +7,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-3 mr-72">
             <AttendanceCard />
             <MonthlyProgressCard />
+            <CashBillsCard />
         </div>
     </div>
   )
