@@ -81,12 +81,12 @@ const TableField = ({
           </Table>
         </div>
 
-        <div className="overflow-x-auto max-w-[985px]">
+        <div className="overflow-x-auto max-w-[968px]">
           <Table>
             <TableHeader>
               <TableRow>
                 {daysArray.map((day, index) => (
-                  <TableHead key={index} className="w-[115px] min-w-[115px] text-center">
+                  <TableHead key={index} className={`text-center ${activePage === "Piket" ? "" : "w-[115px] min-w-[115px]"}`}>
                     {day}
                   </TableHead>
                 ))}
@@ -98,7 +98,9 @@ const TableField = ({
                   {daysArray.map((day, index) => (
                     <TableCell
                       key={index}
-                      className="w-[115px] min-w-[115px] text-center"
+                      className={`text-center ${
+                        activePage === "Piket" ? "" : "w-[115px] min-w-[115px]"
+                      }`}
                     >
                       {renderCellContent(activePage, day, i)}
                     </TableCell>
