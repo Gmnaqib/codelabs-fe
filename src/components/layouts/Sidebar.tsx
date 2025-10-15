@@ -17,7 +17,7 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-screen bg-[#2080D9] transition-all duration-300 ease-in-out z-50 
+      className={`fixed top-0 left-0 h-screen bg-primary transition-all duration-300 ease-in-out z-50 
         ${isActive ? "w-[270px] py-10" : "w-[60px] py-5"}`}
     >
       <div className="flex flex-col relative h-full">

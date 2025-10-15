@@ -7,7 +7,7 @@ const InputField = (props: InputFieldProps) => {
     const {label, type, placeholder} = props
     return (
         <div className='flex flex-col gap-2'>
-            <Label>{label}</Label>
+            {label && <Label>{label}</Label>}
             <Input type={type} placeholder={placeholder} />
         </div>
     )

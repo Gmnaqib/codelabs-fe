@@ -8,7 +8,7 @@ const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
   
   return (
-    <div className="flex gap-5">
+    <div className="flex gap-5 bg-secondary">
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-3 mr-72">
             <AttendanceCard />
             <MonthlyProgressCard />
@@ -23,7 +23,6 @@ const Dashboard = () => {
           mode="single"
           selected={date}
           onSelect={setDate}
-          className="rounded-md border"
         />
         <KPIRangkings />
         </div>
