@@ -11,9 +11,9 @@ const Operasional = () => {
   const getHeaders = () => {
     switch (activePage) {
       case "Tematik":
-        return ["NIM", "Nama", "Tematik"]
+        return ["NIM", "Nama"]
       case "Piket":
-        return ["NIM", "Nama", "Piket"]
+        return ["NIM", "Nama"]
       default:
         return ["NIM", "Nama"]
     }

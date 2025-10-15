@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Menubar } from "./MenuBar"
+import { Checkbox } from "../ui/checkbox"
 
 interface TableFieldProps {
   headers: string[]
@@ -15,8 +16,8 @@ interface TableFieldProps {
   year?: number
   data?: Record<string, string>[]
   visibleDays?: number
-  activePage: string                // dari parent
-  onPageChange: (menu: string) => void // callback ke parent
+  activePage: string
+  onPageChange: (menu: string) => void
 }
 
 const TableField = ({
@@ -32,7 +33,23 @@ const TableField = ({
   onPageChange,
 }: TableFieldProps) => {
   const daysInMonth = new Date(year, month, 0).getDate()
-  const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+  const isPiket = activePage === "Piket"
+
+  const daysArray = isPiket
+    ? Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`)
+    : Array.from({ length: daysInMonth }, (_, i) => i + 1)
+
+  const renderCellContent = (page: string, day: string | number, rowIndex: number) => {
+    switch (page) {
+      case "Absensi":
+        return "-"
+      case "Tematik":
+      case "Piket":
+        return <Checkbox />
+      default:
+        return "-"
+    }
+  }
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
@@ -41,6 +58,7 @@ const TableField = ({
         activeMenu={activePage}
         onChange={onPageChange}
       />
+
       <div className="flex">
         <div className="flex-none">
           <Table>
@@ -63,12 +81,12 @@ const TableField = ({
           </Table>
         </div>
 
-        <div className="overflow-x-auto max-w-[1030px]">
+        <div className="overflow-x-auto max-w-[985px]">
           <Table>
             <TableHeader>
               <TableRow>
-                {daysArray.map((day) => (
-                  <TableHead key={day} className="w-[115px] min-w-[115px]">
+                {daysArray.map((day, index) => (
+                  <TableHead key={index} className="w-[115px] min-w-[115px] text-center">
                     {day}
                   </TableHead>
                 ))}
@@ -77,12 +95,12 @@ const TableField = ({
             <TableBody>
               {data.map((_, i) => (
                 <TableRow key={i}>
-                  {daysArray.map((day) => (
+                  {daysArray.map((day, index) => (
                     <TableCell
-                      key={day}
+                      key={index}
                       className="w-[115px] min-w-[115px] text-center"
                     >
-                      -
+                      {renderCellContent(activePage, day, i)}
                     </TableCell>
                   ))}
                 </TableRow>
