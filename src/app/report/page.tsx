@@ -4,13 +4,12 @@ import { DropdownField } from '@/components/custom-ui/DropdownField'
 import FilterMonth from '@/components/custom-ui/FilterMonth'
 import InputField from '@/components/custom-ui/InputField'
 import { TableField } from '@/components/custom-ui/TableField'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import React, { useState } from 'react'
 
 const WeeklyReport = () => {
-   const [activePage, setActivePage] = useState<string>("Absensi")
+  const [activePage, setActivePage] = useState<string>("")
   return (
     <div>
       <Card>

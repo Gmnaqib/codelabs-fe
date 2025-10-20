@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Menubar } from "../MenuBar"
-import { operasional, report, attendance } from "./headerConfig"
+import { operasional, report, attendance, scoring } from "./headerConfig"
 import { renderCellContent } from "./renderCellContent"
 import { Button } from "@/components/ui/button"
 
@@ -50,6 +50,7 @@ const TableField = ({
 }: TableFieldProps) => {
   const [isReport, setIsReport] = useState(false)
   const [isAttendance, setIsAttendance] = useState(false)
+  const [isScoring, setIsScoring] = useState(false)
 
   useEffect(() => {
     const normalizedActive = (activePage ?? "").toString().trim().toLowerCase()
@@ -64,8 +65,14 @@ const TableField = ({
       (typeof window !== "undefined" &&
         window.location.pathname.toLowerCase().includes("/attendance"))
 
+    const checkScoring =
+      normalizedActive === "scoring" ||
+      (typeof window !== "undefined" &&
+        window.location.pathname.toLowerCase().includes("/scoring"))
+
     setIsReport(checkReport)
     setIsAttendance(checkAttendance)
+    setIsScoring(checkScoring)
   }, [activePage])
 
   let headersConfig: Record<string, string[]>
@@ -74,7 +81,9 @@ const TableField = ({
     headersConfig = report
   } else if (isAttendance) {
     headersConfig = attendance
-  } else {
+  } else if (isScoring) {
+    headersConfig = scoring
+  }else {
     headersConfig = customHeaderConfig ?? operasional
   }
 
@@ -119,7 +128,7 @@ const TableField = ({
                     className="border-b w-[25%] truncate text-center"
                   >
                     {header === "Action" ? (
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 justify-center">
                         <Button size="sm" variant="outline">Edit</Button>
                         <Button size="sm" variant="outline">Detail</Button>
                       </div>
@@ -163,6 +172,41 @@ const TableField = ({
             {data.map((row, i) => (
               <TableRow key={i}>
                 {attendanceHeaders.map((header, j) => (
+                  <TableCell key={j}>{row[header] ?? "-"}</TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    )
+  }
+
+  if (isScoring) {
+    const scoringHeaders = scoring[activePage] ?? []
+
+    return (
+      <div className="w-full rounded-lg overflow-hidden">
+        {showMenu && (
+          <Menubar
+            menus={Object.keys(scoring)}
+            activeMenu={activePage}
+            onChange={onPageChange}
+          />
+        )}
+
+        <Table className="table-fixed w-full">
+          <TableHeader>
+            <TableRow>
+              {scoringHeaders.map((header, id) => (
+                <TableHead key={id}>{header}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((row, i) => (
+              <TableRow key={i}>
+                {scoringHeaders.map((header, j) => (
                   <TableCell key={j}>{row[header] ?? "-"}</TableCell>
                 ))}
               </TableRow>

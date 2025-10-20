@@ -1,8 +1,11 @@
+"use client"
+import { TableField } from '@/components/custom-ui/TableField';
 import { Card } from '@/components/ui/card'
-import React from 'react'
+import React, { useState } from 'react'
 import { FaTasks } from "react-icons/fa";
 
 const KPIScoring = () => {
+  const [activePage, setActivePage] = useState<string>("research")
   return (
     <div>
       <p>• 25% of points from Attendance, 25% of points from Branding, 25% of points from Research, 5% of points from Competition.</p>
@@ -28,7 +31,12 @@ const KPIScoring = () => {
                     <p className='font-semibold text-2xl text-red-400'>Danger</p>
                 </div>
             </div>
-            </div>
+        </div>
+        <TableField 
+          activePage={activePage}
+          onPageChange={setActivePage}
+          showMenu={true} 
+        />
       </Card>
     </div>
   )
