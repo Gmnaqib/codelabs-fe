@@ -16,7 +16,7 @@ const DialogField = (props: DialogFieldProps) => {
   return (
     <Dialog>
       <div className="w-full text-center">
-        <DialogTrigger className='bg-[#2080d9] rounded-full text-white font-medium text-lg py-1 w-fit px-5 hover:cursor-pointer'>{name}</DialogTrigger>
+        <DialogTrigger className='bg-[#2080d9] rounded-full text-white font-medium text-lg py-3 w-fit px-5 hover:cursor-pointer'>{name}</DialogTrigger>
       </div>
       <DialogContent className=''>
         <DialogHeader>

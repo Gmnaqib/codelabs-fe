@@ -6,7 +6,7 @@ import { InputFieldProps } from '@/types/InputFieldProps'
 const InputField = (props: InputFieldProps) => {
     const {label, type, placeholder} = props
     return (
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col bg-white gap-2'>
             {label && <Label>{label}</Label>}
             <Input type={type} placeholder={placeholder} />
         </div>
