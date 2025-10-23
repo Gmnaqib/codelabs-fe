@@ -15,13 +15,16 @@ const Navbar = ({ isActive }: NavbarProps) => {
   const { user } = useAuth()
 
   const current = menuNavbar.find(item => item.path === pathname)
-  const title = current?.title || ''
+  let title = current?.title || ''
+  if (pathname === "/") {
+  title = "Home"
+}
 
   return (
     <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0'>
       <div className="flex w-full justify-between items-center">
         <div>
-          <p className='font-bold text-lg'>{title}</p>
+          <p className='font-bold text-lg ml-[275px]'>{title}</p>
         </div>
         <Link href="/profile">
           <div className="flex items-center gap-3">
