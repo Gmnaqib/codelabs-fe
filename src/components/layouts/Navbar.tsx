@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { Dispatch, SetStateAction } from 'react'
 import { menuNavbar } from '@/config/menu' // sesuaikan path
+import { useAuth } from '@/context/AuthContext'
 
 interface NavbarProps {
   isActive: boolean,
@@ -11,6 +12,7 @@ interface NavbarProps {
 
 const Navbar = ({ isActive }: NavbarProps) => {
   const pathname = usePathname()
+  const { user } = useAuth()
 
   const current = menuNavbar.find(item => item.path === pathname)
   const title = current?.title || ''
@@ -27,9 +29,9 @@ const Navbar = ({ isActive }: NavbarProps) => {
               <Image src="/icon/profile.png" alt="profile" width={25} height={0} className='rounded-full' />
             </div>
             <div>
-              <p className='text-sm'>Operational</p>
+              <p className='text-sm'>{user ? user.name : "Loading..."}</p>
               <p className='text-xs'>
-                as a <span className='font-bold'>Minister Of Operation</span>
+               as a <span className='font-bold'>{user? user?.role : "Loading..."}</span>
               </p>
             </div>
           </div>

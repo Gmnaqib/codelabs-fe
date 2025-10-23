@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { loginUser } from "@/services/auth/authService"
 import { useRouter } from "next/navigation" // ✅ ganti router versi App Router
-import { useAuth } from "@/app/context/AuthContext"
+import { useAuth } from "@/context/AuthContext"
 
 const LoginForm = () => {
   const [nim, setNim] = useState("")
