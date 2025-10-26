@@ -1,15 +1,63 @@
-"use client"
-import InputField from '@/components/custom-ui/InputField'
-import { Card } from '@/components/ui/card'
-import React, { useState } from 'react'
-import TableField from '@/components/custom-ui/TableField/TableField'
-import FilterMonth from '@/components/custom-ui/FilterMonth'
+"use client";
+
+import { Card } from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
+import TableField from "@/components/custom-ui/TableField/TableField";
+import InputField from "@/components/custom-ui/InputField";
+import FilterMonth from "@/components/custom-ui/FilterMonth";
+import { getAttendance, getUsers } from "@/services/attendance/attendanceService";
 
 const Operasional = () => {
-  const [activePage, setActivePage] = useState<string>("Absensi")
+  const [activePage, setActivePage] = useState("Absensi");
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [attendanceData, userData] = await Promise.all([
+          getAttendance(2025, 10),
+          getUsers(),
+        ]);
+        setAttendance(attendanceData);
+        setUsers(userData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // 🧠 Gabungkan data absensi agar 1 user hanya 1 baris
+  const userAttendanceMap = attendance.reduce(
+    (acc: Record<string, any[]>, att) => {
+      if (!acc[att.userId]) acc[att.userId] = [];
+      acc[att.userId].push(att);
+      return acc;
+    },
+    {}
+  );
+
+  const combinedData = Object.keys(userAttendanceMap)
+    .map((userId) => {
+      const user = users.find((u) => u._id === userId);
+      const userRecords = userAttendanceMap[userId] || [];
+
+      return {
+        _id: userId,
+        NIM: user?.nim ?? "-",
+        Nama: user?.name ?? "-",
+        records: userRecords, // semua data absensi user ini dalam sebulan
+      };
+    })
+    .sort((a, b) => {
+      if (a.Nama < b.Nama) return -1;
+      if (a.Nama > b.Nama) return 1;
+      return 0;
+    });
 
   return (
-    <div className="">
+    <div>
       <Card>
         <div className="flex gap-7">
           <InputField type="string" placeholder="Search by NIM or Name" />
@@ -19,11 +67,12 @@ const Operasional = () => {
           <TableField
             activePage={activePage}
             onPageChange={setActivePage}
+            data={combinedData}
           />
         </div>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default Operasional
+export default Operasional;
