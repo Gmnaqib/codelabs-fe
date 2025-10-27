@@ -11,11 +11,6 @@ export const menuItems = [
     route: "/",
   },
   {
-    title: "Academy",
-    icon: IoMdListBox,
-    route: "/academy",
-  },
-  {
     title: "Weekly Report",
     icon: RiFileChartFill,
     route: "/report",

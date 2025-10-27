@@ -15,12 +15,15 @@ export const renderCellContent = (
   page: string,
   day: string | number,
   rowIndex: number,
-  data?: any[]
+  data?: any[],
+  checkedState?: Record<string, boolean>,
+  onToggle?: (page: string, rowIndex: number, day: string | number) => void
 ) => {
+  // === ABSENSI: tetap pakai logic lama (records per user) ===
   if (page === "Absensi" && data) {
     const user = data[rowIndex];
     const record = user?.records?.find((r: any) => {
-      const recordDate = new Date(r.date).getDate(); 
+      const recordDate = new Date(r.date).getDate();
       return recordDate === Number(day);
     });
 
@@ -37,13 +40,27 @@ export const renderCellContent = (
     return <MinusCircle size={18} className="text-gray-400 mx-auto" />;
   }
 
+  // === TEMATIK / PIKET: gunakan user._id bila tersedia agar konsisten dengan key dari GET ===
   switch (page) {
     case "Tematik":
-    case "Piket":
-      return <Checkbox />;
+    case "Piket": {
+      // ambil id user dari data jika ada, fallback ke rowIndex untuk safety
+      const row = data?.[rowIndex];
+      const id = row?._id ?? rowIndex;
+      const key = `${page}-${id}-${day}`; // sama pola dengan yang kita set waktu GET
+
+      const checked = checkedState?.[key] ?? false;
+      return (
+        <Checkbox
+          checked={checked}
+          onCheckedChange={() => onToggle?.(page, rowIndex, day)}
+        />
+      );
+    }
+
     case "Data":
       if (day === "Status") return <StatusField />;
-      if (day === "Permission") return <DropdownField />;
+      if (day === "Permission") return <DropdownField title="tes" menu={["tes"]}/>;
       if (day === "Detail") return <ActionField />;
       return "-";
     case "Kehadiran":

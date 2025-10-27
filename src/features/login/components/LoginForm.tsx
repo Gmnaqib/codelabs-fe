@@ -5,7 +5,7 @@ import InputField from "@/components/custom-ui/InputField"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { loginUser } from "@/services/auth/authService"
-import { useRouter } from "next/navigation" // ✅ ganti router versi App Router
+import { useRouter } from "next/navigation" 
 import { useAuth } from "@/context/AuthContext"
 
 const LoginForm = () => {
@@ -13,7 +13,7 @@ const LoginForm = () => {
   const [password, setPassword] = useState("")
   const { login, isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(false)
-  const router = useRouter() // ✅ letakkan di sini, bukan di dalam handleLogin
+  const router = useRouter() 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,8 +28,6 @@ const LoginForm = () => {
       const res = await loginUser(nim, password)
       console.log("Login success:", res)
       alert("Login berhasil ✅")
-
-      // ✅ redirect ke dashboard setelah login
       router.push("/")
     } catch (err: any) {
       console.error("Login failed:", err.response?.data || err.message)

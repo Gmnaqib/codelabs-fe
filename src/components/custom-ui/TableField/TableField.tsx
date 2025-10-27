@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -11,6 +13,12 @@ import { Menubar } from "../MenuBar";
 import { operasional, report, attendance, scoring } from "./headerConfig";
 import { renderCellContent } from "./renderCellContent";
 import { Button } from "@/components/ui/button";
+import {
+  createOperationalRecord,
+  deleteOperationalRecord,
+  getOperationalRecords,
+} from "@/services/operational/operationalService";
+import { getAllResearchRecords } from "@/services/research/researchService";
 
 interface TableFieldRow {
   _id?: string;
@@ -38,27 +46,119 @@ const TableField = ({
   month = new Date().getMonth() + 1,
   year = new Date().getFullYear(),
   showMenu = true,
-  data = [
-    { NIM: "23001", Nama: "Ramdani", _id: "1", records: [] },
-    { NIM: "23002", Nama: "Tes", _id: "2", records: [] },
-  ],
-  reportData = [
-    {
-      "Research Plan": "Implementasi sistem absensi AI",
-      Week: "Week 1",
-      Progress: "50%",
-    },
-    {
-      "Research Plan": "Integrasi API Strapi",
-      Week: "Week 2",
-      Progress: "70%",
-    },
-  ],
+  data = [{ NIM: "", Nama: "", _id: "", records: [] }],
 }: TableFieldProps) => {
   const [isReport, setIsReport] = useState(false);
   const [isAttendance, setIsAttendance] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
+  const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
+  const [recordIds, setRecordIds] = useState<Record<string, string>>({});
+   const [researchData, setResearchData] = useState<any[]>([]);
 
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAllResearchRecords();
+        setResearchData(data); // simpan ke state
+      } catch (error) {
+        console.error("Gagal mengambil data research:", error);
+      }
+    };
+
+    fetchData();
+  }, []); 
+
+  // === GET Data Operational Records ===
+  useEffect(() => {
+  const fetchRecords = async () => {
+    if (activePage !== "Tematik") return;
+
+    try {
+      const allRecords = await getOperationalRecords("thematic");
+
+      const newChecked: Record<string, boolean> = {};
+      const newRecordIds: Record<string, string> = {};
+
+      allRecords.forEach((record: any) => {
+        const date = new Date(record.date);
+        const day = date.getDate();
+        const key = `Tematik-${record.userId}-${day}`;
+
+        newChecked[key] = true;
+        newRecordIds[key] = record._id; // simpan _id untuk delete nanti
+      });
+
+      setCheckedState(newChecked);
+      setRecordIds(newRecordIds);
+    } catch (error) {
+      console.error("❌ Error fetching operational records:", error);
+    }
+  };
+
+  fetchRecords();
+}, [activePage]);
+
+
+  // === HANDLE TOGGLE CHECKBOX ===
+  const handleToggleCheckbox = async (
+  page: string,
+  rowIndex: number,
+  day: string | number
+) => {
+  const user = data[rowIndex];
+  const key = `${page}-${user._id}-${day}`;
+  const currentlyChecked = checkedState[key] ?? false;
+
+  setCheckedState((prev) => ({
+    ...prev,
+    [key]: !currentlyChecked,
+  }));
+
+  // === POST jika di-check ===
+  if (page === "Tematik" && !currentlyChecked) {
+    const targetDate = new Date(year, month - 1, Number(day));
+    const isoDate = targetDate.toISOString();
+
+    try {
+      const response = await createOperationalRecord(user._id!, "thematic", isoDate);
+      console.log("✅ Record dibuat:", response);
+
+      // update state dengan recordId baru
+      setRecordIds((prev) => ({
+        ...prev,
+        [key]: response.data._id,
+      }));
+    } catch (error) {
+      console.error("❌ Error membuat record thematic:", error);
+    }
+  }
+
+  // === DELETE jika di-uncheck ===
+  if (page === "Tematik" && currentlyChecked) {
+    const recordId = recordIds[key];
+    if (!recordId) {
+      console.error("Record ID tidak ditemukan untuk", key);
+      return;
+    }
+
+    try {
+      await deleteOperationalRecord(recordId);
+      console.log("🗑️ Record dihapus:", recordId);
+
+      // hapus dari mapping recordIds
+      setRecordIds((prev) => {
+        const newMap = { ...prev };
+        delete newMap[key];
+        return newMap;
+      });
+    } catch (error) {
+      console.error("❌ Gagal menghapus record:", error);
+    }
+  }
+};
+
+
+  // === DETEKSI MODE HALAMAN ===
   useEffect(() => {
     const normalizedActive = (activePage ?? "").toString().trim().toLowerCase();
 
@@ -82,6 +182,7 @@ const TableField = ({
     setIsScoring(checkScoring);
   }, [activePage]);
 
+  // === KONFIGURASI HEADER ===
   let headersConfig: Record<string, string[]>;
 
   if (isReport) {
@@ -102,7 +203,7 @@ const TableField = ({
     ? Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`)
     : Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  // === MODE REPORT ===
+  // === REPORT MODE ===
   if (isReport) {
     const reportKey = Object.keys(report)[0];
     const reportHeaders = report[reportKey] ?? [];
@@ -116,7 +217,6 @@ const TableField = ({
             onChange={onPageChange}
           />
         )}
-
         <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
@@ -126,36 +226,41 @@ const TableField = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {reportData.map((row, i) => (
-              <TableRow key={i}>
-                {reportHeaders.map((header, j) => (
-                  <TableCell
-                    key={j}
-                    className="border-b w-[25%] truncate text-center"
-                  >
-                    {header === "Action" ? (
-                      <div className="flex gap-3 justify-center">
-                        <Button size="sm" variant="outline">
-                          Edit
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          Detail
-                        </Button>
-                      </div>
-                    ) : (
-                      row[header] ?? "-"
-                    )}
+            {researchData.length > 0 ? (
+              researchData.map((item, i) => (
+                <TableRow key={i}>
+                  <TableCell className="text-center">{item.title}</TableCell>
+                  <TableCell className="text-center">{`Week ${item.week}`}</TableCell>
+                  <TableCell className="text-center">{item.progress}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex gap-3 justify-center">
+                      <Button size="sm" variant="outline">
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        Detail
+                      </Button>
+                    </div>
                   </TableCell>
-                ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={reportHeaders.length}
+                  className="text-center py-6"
+                >
+                  Tidak ada data research
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>
     );
   }
 
-  // === MODE ATTENDANCE ===
+  // === ATTENDANCE MODE ===
   if (isAttendance) {
     const attendanceKey = Object.keys(attendance)[0];
     const attendanceHeaders = attendance[attendanceKey] ?? [];
@@ -192,7 +297,7 @@ const TableField = ({
     );
   }
 
-  // === MODE SCORING ===
+  // === SCORING MODE ===
   if (isScoring) {
     const scoringHeaders = scoring[activePage] ?? [];
 
@@ -228,7 +333,7 @@ const TableField = ({
     );
   }
 
-  // === MODE OPERASIONAL ===
+  // === OPERASIONAL MODE ===
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {showMenu && (
@@ -240,7 +345,6 @@ const TableField = ({
       )}
 
       <div className="flex">
-        {/* Kolom Nama + NIM */}
         <div className="flex-none">
           <Table>
             <TableHeader>
@@ -262,7 +366,6 @@ const TableField = ({
           </Table>
         </div>
 
-        {/* Kolom Hari */}
         <div className="overflow-x-auto max-w-[960px]">
           <Table>
             <TableHeader>
@@ -275,27 +378,36 @@ const TableField = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((_, i) => (
+              {data.map((row, i) => (
                 <TableRow key={i}>
-                  {daysArray.map((day, index) => (
-                    <TableCell
-                      key={index}
-                      className={`text-center ${
-                        activePage === "Piket"
-                          ? ""
-                          : "w-[115px] min-w-[115px]"
-                      }`}
-                    >
-                      {renderCellContent(activePage, day, i, data)}
-                    </TableCell>
-                  ))}
+                  {daysArray.map((day, index) => {
+                    const key = `${activePage}-${row._id}-${day}`;
+                    return (
+                      <TableCell
+                        key={index}
+                        className={`text-center ${
+                          activePage === "Piket"
+                            ? ""
+                            : "w-[115px] min-w-[115px]"
+                        }`}
+                      >
+                        {renderCellContent(
+                          activePage,
+                          day,
+                          i,
+                          data,
+                          checkedState,
+                          handleToggleCheckbox
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
 
-        {/* Kolom Total */}
         <div className="flex-none">
           <Table>
             <TableHeader>
