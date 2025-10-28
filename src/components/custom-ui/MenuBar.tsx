@@ -21,7 +21,7 @@ export function Menubar({ menus, onChange, activeMenu }: MenuBarProps) {
                 totalMenus={arr.length}
                 className={cn(
                 "p-3 font-semibold border transition-colors",
-                isActive ? "bg-primary text-white  border-primary" : "bg-white text-muted-foreground  border-muted-foreground"
+                isActive ? "bg-primary text-white border-primary" : "text-muted-foreground border-muted-foreground"
               )}
               >
                 {menu}

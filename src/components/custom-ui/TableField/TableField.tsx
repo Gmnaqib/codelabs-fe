@@ -59,7 +59,7 @@ const TableField = ({
     const fetchData = async () => {
       try {
         const data = await getAllResearchRecords();
-        setResearchData(data); // simpan ke state
+        setResearchData(data);
       } catch (error) {
         console.error("Gagal mengambil data research:", error);
       }
@@ -68,7 +68,6 @@ const TableField = ({
     fetchData();
   }, []); 
 
-  // === GET Data Operational Records ===
   useEffect(() => {
   const fetchRecords = async () => {
     if (activePage !== "Tematik") return;
@@ -85,7 +84,7 @@ const TableField = ({
         const key = `Tematik-${record.userId}-${day}`;
 
         newChecked[key] = true;
-        newRecordIds[key] = record._id; // simpan _id untuk delete nanti
+        newRecordIds[key] = record._id; 
       });
 
       setCheckedState(newChecked);
@@ -99,7 +98,6 @@ const TableField = ({
 }, [activePage]);
 
 
-  // === HANDLE TOGGLE CHECKBOX ===
   const handleToggleCheckbox = async (
   page: string,
   rowIndex: number,
@@ -114,7 +112,6 @@ const TableField = ({
     [key]: !currentlyChecked,
   }));
 
-  // === POST jika di-check ===
   if (page === "Tematik" && !currentlyChecked) {
     const targetDate = new Date(year, month - 1, Number(day));
     const isoDate = targetDate.toISOString();
@@ -123,7 +120,6 @@ const TableField = ({
       const response = await createOperationalRecord(user._id!, "thematic", isoDate);
       console.log("✅ Record dibuat:", response);
 
-      // update state dengan recordId baru
       setRecordIds((prev) => ({
         ...prev,
         [key]: response.data._id,
@@ -133,7 +129,6 @@ const TableField = ({
     }
   }
 
-  // === DELETE jika di-uncheck ===
   if (page === "Tematik" && currentlyChecked) {
     const recordId = recordIds[key];
     if (!recordId) {
@@ -145,7 +140,6 @@ const TableField = ({
       await deleteOperationalRecord(recordId);
       console.log("🗑️ Record dihapus:", recordId);
 
-      // hapus dari mapping recordIds
       setRecordIds((prev) => {
         const newMap = { ...prev };
         delete newMap[key];
@@ -157,8 +151,6 @@ const TableField = ({
   }
 };
 
-
-  // === DETEKSI MODE HALAMAN ===
   useEffect(() => {
     const normalizedActive = (activePage ?? "").toString().trim().toLowerCase();
 
@@ -182,7 +174,6 @@ const TableField = ({
     setIsScoring(checkScoring);
   }, [activePage]);
 
-  // === KONFIGURASI HEADER ===
   let headersConfig: Record<string, string[]>;
 
   if (isReport) {
@@ -203,7 +194,6 @@ const TableField = ({
     ? Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`)
     : Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  // === REPORT MODE ===
   if (isReport) {
     const reportKey = Object.keys(report)[0];
     const reportHeaders = report[reportKey] ?? [];
@@ -260,7 +250,6 @@ const TableField = ({
     );
   }
 
-  // === ATTENDANCE MODE ===
   if (isAttendance) {
     const attendanceKey = Object.keys(attendance)[0];
     const attendanceHeaders = attendance[attendanceKey] ?? [];
@@ -275,12 +264,17 @@ const TableField = ({
           />
         )}
 
-        <Table>
+        <div className="flex items-center w-full px-3 gap-3 bg-white pt-5">
+          <p className="font-bold text-xl">Today</p>
+          <p className="text-primary font-bold text-sm cursor-pointer">Hide</p>
+        </div>
+
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
-              {attendanceHeaders.map((header, id) => (
-                <TableHead key={id}>{header}</TableHead>
-              ))}
+                  {attendanceHeaders.map((header, id) => (
+                  <TableHead key={id}>{header}</TableHead>
+                ))}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -297,7 +291,6 @@ const TableField = ({
     );
   }
 
-  // === SCORING MODE ===
   if (isScoring) {
     const scoringHeaders = scoring[activePage] ?? [];
 
@@ -333,7 +326,6 @@ const TableField = ({
     );
   }
 
-  // === OPERASIONAL MODE ===
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {showMenu && (

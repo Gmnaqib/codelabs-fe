@@ -28,7 +28,6 @@ const Operasional = () => {
     fetchData();
   }, []);
 
-  // 🧠 Gabungkan data absensi agar 1 user hanya 1 baris
   const userAttendanceMap = attendance.reduce(
     (acc: Record<string, any[]>, att) => {
       if (!acc[att.userId]) acc[att.userId] = [];
