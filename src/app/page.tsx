@@ -1,6 +1,6 @@
 "use client"
 import { Calendar } from "@/components/ui/calendar"
-import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard, PicketCard, InProgressCard } from "@/features/dashboard/components"
+import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard, PicketCard, InProgressCard, TotalMembers } from "@/features/dashboard/components"
 import KPIRangkings from "@/features/dashboard/components/KPIRangkings"
 import React, { useState } from 'react'
 
@@ -16,7 +16,17 @@ const Dashboard = () => {
             <AnnouncementCard />
             <PicketCard />
             <InProgressCard /> 
+            <TotalMembers/>
+            <TotalMembers/>
+            <TotalMembers/>
+            <TotalMembers/>
         </div>
+        {/* <div className="grid grid-cols-1 gap-5 xl:grid-cols-3 mr-72">
+          <TotalMembers/>
+          <TotalMembers/>
+          <TotalMembers/>
+          <TotalMembers/>
+        </div> */}
         <div className="flex flex-col gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
           <p className='font-semibold '>Schedule</p>
           <Calendar

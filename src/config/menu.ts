@@ -31,9 +31,14 @@ export const menuItems = [
     route: "/attendance",
   },
   {
-    title: "Picket Schedule",
-    icon: MdDashboard,
-    route: "/operasional/picketSchedule",
+    title: "Assessments",
+    icon: FaFingerprint,
+    route: "/assessments",
+  },
+  {
+    title: "Members",
+    icon: FaFingerprint,
+    route: "/members",
   },
   {
     title: "Log Out",

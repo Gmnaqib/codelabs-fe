@@ -46,7 +46,7 @@ const Operasional = () => {
         _id: userId,
         NIM: user?.nim ?? "-",
         Nama: user?.name ?? "-",
-        records: userRecords, // semua data absensi user ini dalam sebulan
+        records: userRecords, 
       };
     })
     .sort((a, b) => {

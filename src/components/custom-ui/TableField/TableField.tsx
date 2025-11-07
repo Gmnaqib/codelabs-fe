@@ -251,45 +251,44 @@ const TableField = ({
   }
 
   if (isAttendance) {
-    const attendanceKey = Object.keys(attendance)[0];
-    const attendanceHeaders = attendance[attendanceKey] ?? [];
+  const attendanceHeaders = attendance[activePage] ?? [];
 
-    return (
-      <div className="w-full rounded-lg overflow-hidden">
-        {showMenu && (
-          <Menubar
-            menus={Object.keys(attendance)}
-            activeMenu={activePage}
-            onChange={onPageChange}
-          />
-        )}
+  return (
+    <div className="w-full rounded-lg overflow-hidden">
+      {showMenu && (
+        <Menubar
+          menus={Object.keys(attendance)}
+          activeMenu={activePage}
+          onChange={onPageChange}
+        />
+      )}
 
-        <div className="flex items-center w-full px-3 gap-3 bg-white pt-5">
-          <p className="font-bold text-xl">Today</p>
-          <p className="text-primary font-bold text-sm cursor-pointer">Hide</p>
-        </div>
-
-        <Table className="w-full">
-          <TableHeader>
-            <TableRow>
-                  {attendanceHeaders.map((header, id) => (
-                  <TableHead key={id}>{header}</TableHead>
-                ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((row, i) => (
-              <TableRow key={i}>
-                {attendanceHeaders.map((header, j) => (
-                  <TableCell key={j}>{(row as any)[header] ?? "-"}</TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="flex items-center w-full px-3 gap-3 bg-white pt-5">
+        <p className="font-bold text-xl">Today</p>
+        <p className="text-primary font-bold text-sm cursor-pointer">Hide</p>
       </div>
-    );
-  }
+
+      <Table className="w-full">
+        <TableHeader>
+          <TableRow>
+            {attendanceHeaders.map((header, id) => (
+              <TableHead key={id}>{header}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((row, i) => (
+            <TableRow key={i}>
+              {attendanceHeaders.map((header, j) => (
+                <TableCell key={j}>{(row as any)[header] ?? "-"}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
 
   if (isScoring) {
     const scoringHeaders = scoring[activePage] ?? [];
