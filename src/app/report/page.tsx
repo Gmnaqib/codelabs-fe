@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import React, { useState } from "react";
 import { createResearchRecord } from "@/services/research/researchService";
 import { Button } from "@/components/ui/button";
+import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 
 const WeeklyReport = () => {
   const [activePage, setActivePage] = useState<string>("");
@@ -58,8 +59,8 @@ const WeeklyReport = () => {
   };
 
   return (
-    <div>
-      <Card>
+      <ProtectedRoute>
+        <Card>
         <div className="flex w-full justify-between">
           <div className="flex gap-7">
             <FilterMonth />
@@ -132,7 +133,7 @@ const WeeklyReport = () => {
           showMenu={false}
         />
       </Card>
-    </div>
+      </ProtectedRoute>
   );
 };
 

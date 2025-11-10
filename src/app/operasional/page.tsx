@@ -6,6 +6,7 @@ import TableField from "@/components/custom-ui/TableField/TableField";
 import InputField from "@/components/custom-ui/InputField";
 import FilterMonth from "@/components/custom-ui/FilterMonth";
 import { getAttendance, getUsers } from "@/services/attendance/attendanceService";
+import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 
 const Operasional = () => {
   const [activePage, setActivePage] = useState("Absensi");
@@ -56,7 +57,8 @@ const Operasional = () => {
     });
 
   return (
-    <div>
+    <ProtectedRoute>
+      <div>
       <Card>
         <div className="flex gap-7">
           <InputField type="string" placeholder="Search by NIM or Name" />
@@ -71,6 +73,7 @@ const Operasional = () => {
         </div>
       </Card>
     </div>
+    </ProtectedRoute>
   );
 };
 

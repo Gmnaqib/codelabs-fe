@@ -6,13 +6,15 @@ import InputField from '@/components/custom-ui/InputField';
 import { TableField } from '@/components/custom-ui/TableField';
 import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea';
+import ProtectedRoute from '@/features/login/components/ProtectedRoute';
 import React, { useState } from 'react'
 import { FaTasks } from "react-icons/fa";
 
 const KPIScoring = () => {
   const [activePage, setActivePage] = useState<string>("research")
   return (
-    <div className=''>
+    <ProtectedRoute>
+      <div className=''>
       <p className='text-muted-foreground mb-5'><span className='font-bold'>• 25%</span> of points from Attendance, <span className="font-bold">25%</span> of points from Branding, <span className="font-bold">25%</span> of points from Research, <span className="font-bold">5%</span> of points from Competition.</p>
       <Card>
         <div className="flex justify-between">
@@ -62,6 +64,7 @@ const KPIScoring = () => {
         />
       </Card>
     </div>
+    </ProtectedRoute>
   )
 }
 

@@ -7,6 +7,8 @@ import Image from "next/image"
 import { loginUser } from "@/services/auth/authService"
 import { useRouter } from "next/navigation" 
 import { useAuth } from "@/context/AuthContext"
+import { toast } from "sonner"
+import { showErrorToast } from "@/lib/toastHelper"
 
 const LoginForm = () => {
   const [nim, setNim] = useState("")
@@ -26,12 +28,12 @@ const LoginForm = () => {
     setLoading(true)
     try {
       const res = await loginUser(nim, password)
-      console.log("Login success:", res)
-      alert("Login berhasil ✅")
+      toast.success("Login berhasil")
       router.push("/")
     } catch (err: any) {
-      console.error("Login failed:", err.response?.data || err.message)
-      alert("Login gagal ❌")
+     showErrorToast("Oops! Please check again your NIM and password", {
+      duration: 5000,
+  })
     } finally {
       setLoading(false)
     }
@@ -62,7 +64,7 @@ const LoginForm = () => {
             <div className="flex flex-col gap-4 w-full">
               <InputField
                 label="NIM"
-                type="text"
+                type="number"
                 placeholder="Type your NIM here"
                 value={nim}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -92,3 +94,4 @@ const LoginForm = () => {
 }
 
 export default LoginForm
+
