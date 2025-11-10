@@ -6,14 +6,12 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { loginUser } from "@/services/auth/authService"
 import { useRouter } from "next/navigation" 
-import { useAuth } from "@/context/AuthContext"
 import { toast } from "sonner"
 import { showErrorToast } from "@/lib/toastHelper"
 
 const LoginForm = () => {
   const [nim, setNim] = useState("")
   const [password, setPassword] = useState("")
-  const { login, isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(false)
   const router = useRouter() 
 
