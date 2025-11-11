@@ -10,7 +10,7 @@ import { CardFieldProps } from '@/types/CardFieldProps'
 const CardField = (props: CardFieldProps) => {
   const { title, children, icon } = props
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col h-full'>
       <Card className='flex-1'>
         <CardHeader>
           <CardTitle className='flex text-lg gap-3 items-center'>

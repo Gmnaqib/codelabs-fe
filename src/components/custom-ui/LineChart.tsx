@@ -35,31 +35,36 @@ const LineChart = () => {
         data: {
           labels: ["January", "February", "March", "April", "May", "Jun", "Aug", "Sep", "Oct", "Nov", "Dec"],
           datasets: [
-           {
-              label: "User Growth",
+            {
+              label: "Research Points",
               data: [10, 30, 45, 60, 80, 75, 20, 35, 64, 77, 90, 79],
               borderWidth: 2,
               borderColor: "rgb(75, 192, 192)",
               tension: 0.3,
             },
             {
-              label: "Active Users",
+              label: "Attendance Points",
               data: [5, 15, 40, 32, 60, 65, 50, 45, 50, 70, 66, 85],
               borderWidth: 2,
-              borderColor: "rgb(255, 99, 132)", 
+              borderColor: "rgb(255, 99, 132)",
               tension: 0.3,
             },
           ],
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,
+          maintainAspectRatio: false, // ✅ biar ngikut height container
+          resizeDelay: 0,             // ✅ penting biar tidak nge-freeze ukuran
         },
       });
     }
   }, []);
 
-  return <canvas ref={chartRef} />;
+  return (
+    <div className="w-full h-full relative">
+      <canvas ref={chartRef} className="!w-full !h-full" />
+    </div>
+  );
 };
 
 export default LineChart;
