@@ -5,14 +5,13 @@ import AverageMonthly from "@/features/dashboard/components/AverageMonthly"
 import KPIRangkings from "@/features/dashboard/components/KPIRangkings"
 import OperationalCash from "@/features/dashboard/components/OperationalCash"
 import OrganizationStatistics from "@/features/dashboard/components/OrganizationStatistics"
+import OrganizationSummary from "@/features/dashboard/components/OrganizationSummary"
 import ResearchPercentage from "@/features/dashboard/components/ResearchPercentage"
 import ProtectedRoute from "@/features/login/components/ProtectedRoute"
 import React, { useState } from 'react'
-import TableField from "@/components/custom-ui/TableField/TableField";
 
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
-  const [activePage, setActivePage] = useState("organization");
   
   return (
     <ProtectedRoute>
@@ -29,11 +28,7 @@ const Dashboard = () => {
             <OperationalCash/>
             <OrganizationStatistics className="col-span-2 h-full"/>
             <ResearchPercentage/>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true} 
-            />
+            <OrganizationSummary className="col-span-3 h-full"/>
         </div>
         <div className="flex flex-col gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
           <p className='font-semibold '>Schedule</p>
