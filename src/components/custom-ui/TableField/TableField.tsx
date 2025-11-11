@@ -4,10 +4,10 @@ import React from "react";
 import { Menubar } from "../MenuBar";
 import { operasional, report, attendance, scoring } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
-import ReportTable from "./TableSection/ReportTable";
 import AttendanceTable from "./TableSection/AttendanceTable";
 import ScoringTable from "./TableSection/ScoringTable";
 import OperationalTable from "./TableSection/OperationalTable";
+import ReportTable from "./TableSection/ReportTable";
 
 interface Props {
   activePage: string;
