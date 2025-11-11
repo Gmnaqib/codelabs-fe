@@ -19,3 +19,8 @@ export const scoring: Record<string, string[]> = {
   operational: ["Type of Absence	", "Type of Absence	", "Point"],
   branding: ["Content Name", "Type", "Status", "Point", "Action"]
 }
+
+export const organization: Record<string, string[]> = {
+  Attendance: ["No", "Name", "Attendance", "Thematic", "Picket", "Points"],
+  ResearchPoints: ["No", "Name", "Unfinished", "Finished", "Approved", "Approved", "Points"],
+};

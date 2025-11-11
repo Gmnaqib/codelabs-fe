@@ -1,17 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { 
-  getOperationalRecords, 
-  createOperationalRecord, 
-  deleteOperationalRecord 
+import {
+  getOperationalRecords,
+  createOperationalRecord,
+  deleteOperationalRecord,
 } from "@/services/operational/operationalService";
 import { getAllResearchRecords } from "@/services/research/researchService";
 
-export const useTableLogic = (activePage: string, month: number, year: number, data: any[]) => {
+export const useTableLogic = (
+  activePage: string,
+  month: number,
+  year: number,
+  data: any[],
+  onPageChange: (page: string) => void
+) => {
   const [isReport, setIsReport] = useState(false);
   const [isAttendance, setIsAttendance] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
+  const [isOrganization, setIsOrganization] = useState(false);
+
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
   const [researchData, setResearchData] = useState<any[]>([]);
@@ -23,7 +31,7 @@ export const useTableLogic = (activePage: string, month: number, year: number, d
         const res = await getAllResearchRecords();
         setResearchData(res);
       } catch (e) {
-        console.error("Gagal ambil data research:", e);
+        console.error("❌ Gagal ambil data research:", e);
       }
     };
     fetchResearch();
@@ -56,7 +64,11 @@ export const useTableLogic = (activePage: string, month: number, year: number, d
   }, [activePage]);
 
   // === Toggle Checkbox ===
-  const handleToggleCheckbox = async (page: string, rowIndex: number, day: string | number) => {
+  const handleToggleCheckbox = async (
+    page: string,
+    rowIndex: number,
+    day: string | number
+  ) => {
     const user = data[rowIndex];
     const key = `${page}-${user._id}-${day}`;
     const current = checkedState[key] ?? false;
@@ -92,17 +104,61 @@ export const useTableLogic = (activePage: string, month: number, year: number, d
   };
 
   // === Halaman aktif ===
-  useEffect(() => {
-    const norm = (activePage ?? "").trim().toLowerCase();
-    setIsReport(norm === "report" || window?.location.pathname.includes("/report"));
-    setIsAttendance(norm === "attendance" || window?.location.pathname.includes("/attendance"));
-    setIsScoring(norm === "scoring" || window?.location.pathname.includes("/scoring"));
-  }, [activePage]);
+  // === Halaman aktif ===
+useEffect(() => {
+  const norm = (activePage ?? "").trim().toLowerCase();
+  const currentPath = typeof window !== "undefined" ? window.location.pathname.toLowerCase() : "";
+
+  // 🧩 Peta relasi sub-halaman → kategori utamanya
+  const categoryMap: Record<string, string> = {
+    report: "report",
+
+    attendance: "organization",
+    researchpoints: "organization",
+
+    organization: "organization",
+
+    permissions: "attendance",
+    totalattendance: "attendance",
+
+    scoring: "scoring",
+    research: "scoring",
+    competition: "scoring",
+    operational: "scoring",
+    branding: "scoring",
+
+    absensi: "operasional",
+    tematik: "operasional",
+    piket: "operasional",
+  };
+
+  const category =
+    categoryMap[norm] ||
+    (currentPath.includes("/report") ? "report" :
+    currentPath.includes("/attendance") ? "attendance" :
+    currentPath.includes("/scoring") ? "scoring" :
+    currentPath.includes("/organization") ? "organization" :
+    "operasional");
+
+  setIsReport(category === "report");
+  setIsAttendance(category === "attendance");
+  setIsScoring(category === "scoring");
+  setIsOrganization(category === "organization");
+  if (category === "organization" && activePage.toLowerCase() === "organization") {
+    onPageChange("Attendance"); // otomatis buka tab Attendance
+  }
+
+  if (category === "attendance" && activePage.toLowerCase() === "attendance") {
+    onPageChange("Permissions"); // otomatis buka tab Permissions
+  }
+}, [activePage]);
+
 
   return {
     isReport,
     isAttendance,
     isScoring,
+    isOrganization,
     checkedState,
     recordIds,
     researchData,

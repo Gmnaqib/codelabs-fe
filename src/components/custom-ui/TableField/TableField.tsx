@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { Menubar } from "../MenuBar";
-import { operasional, report, attendance, scoring } from "./headerConfig";
+import { operasional, report, attendance, scoring, organization } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 import ReportTable from "./TableSection/ReportTable";
 import AttendanceTable from "./TableSection/AttendanceTable";
 import ScoringTable from "./TableSection/ScoringTable";
+import OperationalTable from "./TableSection/OperationalTable";
+import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 
 interface Props {
   activePage: string;
@@ -31,16 +32,17 @@ const TableField = ({
     isReport,
     isAttendance,
     isScoring,
+    isOrganization,
     checkedState,
     researchData,
     handleToggleCheckbox,
-  } = useTableLogic(activePage, month, year, data);
+  } = useTableLogic(activePage, month, year, data, onPageChange);
 
-  // Tentukan konfigurasi header
   let headersConfig: Record<string, string[]> =
     isReport ? report :
     isAttendance ? attendance :
     isScoring ? scoring :
+    isOrganization? organization :
     customHeaderConfig ?? operasional;
 
   if (isReport)
@@ -66,6 +68,16 @@ const TableField = ({
   if (isScoring)
     return (
       <ScoringTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={showMenu}
+        data={data}
+      />
+    );
+
+  if (isOrganization)
+    return (
+      <OrganizationSummaryTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}

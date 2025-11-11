@@ -8,9 +8,11 @@ import OrganizationStatistics from "@/features/dashboard/components/Organization
 import ResearchPercentage from "@/features/dashboard/components/ResearchPercentage"
 import ProtectedRoute from "@/features/login/components/ProtectedRoute"
 import React, { useState } from 'react'
+import TableField from "@/components/custom-ui/TableField/TableField";
 
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [activePage, setActivePage] = useState("organization");
   
   return (
     <ProtectedRoute>
@@ -27,6 +29,11 @@ const Dashboard = () => {
             <OperationalCash/>
             <OrganizationStatistics className="col-span-2 h-full"/>
             <ResearchPercentage/>
+            <TableField
+              activePage={activePage}
+              onPageChange={setActivePage}
+              showMenu={true} 
+            />
         </div>
         <div className="flex flex-col gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
           <p className='font-semibold '>Schedule</p>

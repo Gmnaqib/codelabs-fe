@@ -1,9 +1,8 @@
 import React from "react";
 import { Checkbox } from "../../ui/checkbox";
 import { MinusCircle, FileMinus, Thermometer, Clock, CheckCircle2 } from "lucide-react";
-import StatusField from "./StatusField";
-import ActionField from "./ActionField";
 import { DropdownField } from "../DropdownField";
+import { Button } from "@/components/ui/button";
 
 export const renderCellContent = (
   page: string,
@@ -35,12 +34,12 @@ export const renderCellContent = (
     case "Piket":
       return <Checkbox checked={checked} onCheckedChange={() => onToggle(page, rowIndex, day)} />;
     case "Data":
-      if (day === "Status") return <StatusField />;
+      if (day === "Status") return  <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs">Active</span>;
       if (day === "Permission") return <DropdownField title="tes" menu={["tes"]} />;
-      if (day === "Detail") return <ActionField />;
+      if (day === "Detail") return <Button>View</Button>;
       return "-";
     case "Kehadiran":
-      return day === "Action" ? <ActionField /> : <Checkbox />;
+      return day === "Action" ? <Button>View</Button> : <Checkbox />;
     default:
       return "-";
   }
