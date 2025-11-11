@@ -22,65 +22,46 @@ interface CheckedRecord {
   recordId: string;
 }
 
+// ✅ Move helper functions out of component
+const getTodayKey = () => {
+  return ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()];
+};
+
+const getWeekNumber = (date: Date) => {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
+  return Math.ceil((days + firstDay.getDay() + 1) / 7);
+};
+
 const PicketCard = () => {
   const [picketData, setPicketData] = useState<PicketPerson[]>([]);
   const [checkedRecords, setCheckedRecords] = useState<CheckedRecord[]>([]);
 
-  // Convert current day ke key field API
-  const getTodayKey = () => {
-    const days = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
-    return days[new Date().getDay()];
-  };
-
-  const getWeekNumber = (date: Date) => {
-    const firstDay = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor(
-      (date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000)
-    );
-    return Math.ceil((days + firstDay.getDay() + 1) / 7);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ⭐ GET schedule piket (rotated)
         const res = await getPicketSchedules();
         const today = getTodayKey();
-        const schedule = res.data[0]?.days?.[today] || [];
 
-        let names = schedule.map((s: any) => ({
+        const schedule = res?.data?.[0]?.days?.[today] ?? [];
+        const names: PicketPerson[] = schedule.map((s: any) => ({
           name: s.userName,
           userId: s.userId,
         }));
 
         const week = getWeekNumber(new Date());
-        const validNames = names.filter((n: any) => n.name !== "-");
+        const validNames = names.filter((n) => n.name !== "-");
+
         const rotated = validNames
           .slice(week % validNames.length)
           .concat(validNames.slice(0, week % validNames.length));
 
-        const final = names.map((s: any) =>
-          s.name === "-" ? { name: "-", userId: "-" } : rotated.shift()!
+        setPicketData(
+          names.map((s) => (s.name === "-" ? { name: "-", userId: "-" } : rotated.shift()!))
         );
 
-        setPicketData(final);
-
-        // ⭐ GET record checklist (userId & recordId)
         const rec = await getPicketRecords();
-        const checked = rec.map((r: any) => ({
-          userId: r.userId,
-          recordId: r._id,
-        }));
-
-        setCheckedRecords(checked);
+        setCheckedRecords(rec.map((r: any) => ({ userId: r.userId, recordId: r._id })));
       } catch (err) {
         console.error(err);
       }
@@ -89,88 +70,61 @@ const PicketCard = () => {
     fetchData();
   }, []);
 
-  const vacuumCleaner = picketData.slice(0, 3);
-  const tableCleaner = picketData.slice(3, 6);
-
-  // ⭐ Ketika checkbox diclick
   const handleCheckboxChange = async (userId: string) => {
-  const existing = checkedRecords.find((rec) => rec.userId === userId);
+    const existing = checkedRecords.find((rec) => rec.userId === userId);
 
-  try {
-    if (existing) {
-      // ✅ UNCHECK → DELETE record
-      await deletePicketRecord(existing.recordId);
-      setCheckedRecords((prev) => prev.filter((rec) => rec.userId !== userId));
+    try {
+      if (existing) {
+        await deletePicketRecord(existing.recordId);
+        setCheckedRecords((prev) => prev.filter((rec) => rec.userId !== userId));
+        toast.success("Picket checklist removed!");
+      } else {
+        const res = await postPicketRecord({
+          userId,
+          type: "picket",
+          date: new Date().toISOString(),
+        });
 
-      toast.success("Picket checklist removed!");
-    } else {
-      // ✅ CHECK → POST record
-      const res = await postPicketRecord({
-        userId,
-        type: "picket",
-        date: new Date().toISOString(),
-      });
-
-      setCheckedRecords((prev) => [
-        ...prev,
-        { userId, recordId: res.data._id },
-      ]);
-
-      toast.success("Picket marked as completed!");
+        setCheckedRecords((prev) => [...prev, { userId, recordId: res.data._id }]);
+        toast.success("Picket marked as completed!");
+      }
+    } catch {
+      toast.error("Failed! Please try again.");
     }
-  } catch (error) {
-    console.error("Failed to update record:", error);
+  };
 
-    toast.error("Failed! Please try again.");
-  }
-};
-
+  const groups = [
+    { title: "Vacuum Cleaner", data: picketData.slice(0, 3) },
+    { title: "Table Cleaner & Research Tool Cleaner", data: picketData.slice(3, 6) },
+  ];
 
   return (
     <CardField title="Picket Schedule Today" icon={<IoIosWarning size={22} />}>
-      <div className="flex flex-col gap-3">
-        <p className="font-semibold text-lg">Vacuum Cleaner</p>
-
-        <div className="flex flex-col gap-3">
-          {vacuumCleaner.map((person, index) => (
-            <div key={index} className="flex items-center space-x-2 justify-between">
-              <label htmlFor={`vacuum-${index}`} className="text-base font-normal">
-                {person.name}
-              </label>
-              <Checkbox
-                id={`vacuum-${index}`}
-                checked={checkedRecords.some((rec) => rec.userId === person.userId)}
-                onCheckedChange={() => handleCheckboxChange(person.userId)}
-              />
+      <div className="flex flex-col gap-5">
+        {groups.map((group, groupIndex) => (
+          <div key={groupIndex}>
+            <p className="font-semibold text-lg">{group.title}</p>
+            <div className="flex flex-col gap-3">
+              {group.data.map((person, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <label htmlFor={`${groupIndex}-${index}`}>{person.name}</label>
+                  <Checkbox
+                    id={`${groupIndex}-${index}`}
+                    checked={checkedRecords.some((rec) => rec.userId === person.userId)}
+                    onCheckedChange={() => handleCheckboxChange(person.userId)}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
 
-        <p className="font-semibold text-lg">
-          Table Cleaner & Research Tool Cleaner
-        </p>
-
-        <div className="flex flex-col gap-3">
-          {tableCleaner.map((person, index) => (
-            <div key={index} className="flex items-center space-x-2 justify-between">
-              <label htmlFor={`table-${index}`} className="text-base font-normal">
-                {person.name}
-              </label>
-              <Checkbox
-                id={`table-${index}`}
-                checked={checkedRecords.some((rec) => rec.userId === person.userId)}
-                onCheckedChange={() => handleCheckboxChange(person.userId)}
-              />
-            </div>
-          ))}
-        </div>
-
-        <p className="text-sm text-center mt-2">
+        <p className="text-sm text-center mt-4">
           If someone is not picket, please contact Ops Ministry{" "}
-          <span className="font-semibold text-[#2080D9]">
-            <Link href="https://t.me/Erwinhafizz">Erwin</Link>
-          </span>{" "}
-          to be given a fine.
+          <Link href="https://t.me/Erwinhafizz" className="font-semibold text-[#2080D9]">
+            Erwin
+          </Link>
+          .
         </p>
       </div>
     </CardField>
