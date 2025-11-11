@@ -10,6 +10,7 @@ import {
   deletePicketRecord,
 } from "@/services/schedule/scheduleService";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 interface PicketPerson {
   name: string;
@@ -93,32 +94,37 @@ const PicketCard = () => {
 
   // ⭐ Ketika checkbox diclick
   const handleCheckboxChange = async (userId: string) => {
-    const existing = checkedRecords.find((rec) => rec.userId === userId);
+  const existing = checkedRecords.find((rec) => rec.userId === userId);
 
-    try {
-      if (existing) {
-        // ✅ UNCHECK → DELETE record
-        await deletePicketRecord(existing.recordId);
-        setCheckedRecords((prev) =>
-          prev.filter((rec) => rec.userId !== userId)
-        );
-      } else {
-        // ✅ CHECK → POST record
-        const res = await postPicketRecord({
-          userId,
-          type: "picket",
-          date: new Date().toISOString(),
-        });
+  try {
+    if (existing) {
+      // ✅ UNCHECK → DELETE record
+      await deletePicketRecord(existing.recordId);
+      setCheckedRecords((prev) => prev.filter((rec) => rec.userId !== userId));
 
-        setCheckedRecords((prev) => [
-          ...prev,
-          { userId, recordId: res.data._id },
-        ]);
-      }
-    } catch (error) {
-      console.error("Failed to update record:", error);
+      toast.success("Picket checklist removed!");
+    } else {
+      // ✅ CHECK → POST record
+      const res = await postPicketRecord({
+        userId,
+        type: "picket",
+        date: new Date().toISOString(),
+      });
+
+      setCheckedRecords((prev) => [
+        ...prev,
+        { userId, recordId: res.data._id },
+      ]);
+
+      toast.success("Picket marked as completed!");
     }
-  };
+  } catch (error) {
+    console.error("Failed to update record:", error);
+
+    toast.error("Failed! Please try again.");
+  }
+};
+
 
   return (
     <CardField title="Picket Schedule Today" icon={<IoIosWarning size={22} />}>
