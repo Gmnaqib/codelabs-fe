@@ -2,14 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { IoIosWarning } from "react-icons/io";
 import Link from "next/link";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import CardField from "@/components/custom-ui/CardField";
 import { getPicketSchedules } from "@/services/schedule/scheduleService";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PicketCard = () => {
   const [picketData, setPicketData] = useState<string[]>([]);
 
-  // Ambil nama hari sekarang
   const getTodayKey = () => {
     const days = [
       "sunday",
@@ -23,7 +22,6 @@ const PicketCard = () => {
     return days[new Date().getDay()];
   };
 
-  // Hitung minggu ke-berapa dalam tahun
   const getWeekNumber = (date: Date) => {
     const firstDay = new Date(date.getFullYear(), 0, 1);
     const days = Math.floor(
@@ -39,13 +37,8 @@ const PicketCard = () => {
         const today = getTodayKey();
         const schedule = res.data[0]?.days?.[today] || [];
 
-        // Ambil nama
         let names = schedule.map((s: any) => s.userName);
 
-        // Tambah placeholder kalau < 6
-        while (names.length < 6) names.push("-");
-
-        // Rotasi tiap minggu (nama valid saja, "-" tetap)
         const week = getWeekNumber(new Date());
         const validNames = names.filter((n:any) => n !== "-");
         const rotated = validNames
