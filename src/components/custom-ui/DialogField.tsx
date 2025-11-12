@@ -1,25 +1,29 @@
 "use client";
+
 import React, { useState, ReactElement, isValidElement } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { DialogFieldProps } from "@/types/DialogFieldProps";
 import { Button } from "../ui/button";
 
-interface ExtendedDialogFieldProps extends DialogFieldProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  onSubmit?: () => void; 
-  onCancel?: () => void;
-}
-
-const DialogField = (props: ExtendedDialogFieldProps) => {
-  const { name, title, children, open: controlledOpen, onOpenChange, onSubmit, onCancel } = props;
+const DialogField = (props: DialogFieldProps) => {
+  const {
+    name,
+    title,
+    children,
+    variant = "default",
+    open: controlledOpen,
+    onOpenChange,
+    onSubmit,
+    onCancel,
+    onTriggerClick,
+  } = props;
 
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -39,29 +43,37 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <div className="w-full text-center">
-        <DialogTrigger asChild>
-          <button className="bg-[#2080d9] rounded-full text-white font-medium text-lg py-3 w-fit px-5 hover:bg-[#1a6cb8] transition-all">
-            {name}
-          </button>
-        </DialogTrigger>
-      </div>
+      <DialogTrigger asChild>
+        <Button
+          variant={variant}
+          onClick={onTriggerClick}
+        >
+          {name}
+        </Button>
+      </DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-2xl">{title}</DialogTitle>
+      <DialogPortal>
+        <DialogContent className="fixed left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold mb-3">
+              {title}
+            </DialogTitle>
+          </DialogHeader>
 
           {isValidElement(children) && typeof (children as any).type !== "string"
-          ? React.cloneElement(children as ReactElement<any>, { closeDialog })
-          : children}
+            ? React.cloneElement(children as ReactElement<any>, { closeDialog })
+            : children}
 
-
-          <div className="flex justify-center gap-4 mt-3">
-            <Button variant="outline" onClick={handleCancel}>Cancel</Button>
-            <Button onClick={onSubmit}>Submit</Button>
+          <div className="flex justify-center gap-4 mt-5">
+            <Button variant="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+           {onSubmit && ( 
+              <Button onClick={onSubmit}>Submit</Button>
+            )}
           </div>
-        </DialogHeader>
-      </DialogContent>
+        </DialogContent>
+      </DialogPortal>
     </Dialog>
   );
 };

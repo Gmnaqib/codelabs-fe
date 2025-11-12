@@ -62,7 +62,7 @@ const WeeklyReport = () => {
       setProgress("");
       setLink("");
       setChallenge("");
-      setIsDialogOpen(false); // auto close dialog
+      setIsDialogOpen(false);
     } catch (error) {
       showErrorToast("Gagal menambahkan research.", { duration: 5000 });
     }
