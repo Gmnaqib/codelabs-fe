@@ -34,7 +34,6 @@ const KPIRangkings = () => {
   }, [])
 
   const sortedUsers = [...users].sort((a, b) => {
-    // karena belum ada point, sementara urutkan alfabetis
     return filter === "highest"
       ? a.name.localeCompare(b.name)
       : b.name.localeCompare(a.name)
@@ -55,11 +54,10 @@ const KPIRangkings = () => {
         />
       </div>
 
-      <div className="max-h-64 overflow-y-auto flex flex-col gap-4 scrollbar-none mt-3">
+      <div className="max-h-64 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
         {sortedUsers.map((user, index) => (
           <div key={user._id} className="flex gap-3 items-center">
             <div className="relative">
-              {/* Gambar masih default */}
               <Image
                 src="/icon/profile.png"
                 alt="profile"

@@ -36,7 +36,7 @@ export function DropdownField(props: DropdownFieldProps) {
             variant="outline"
             className="flex items-center justify-between text-base"
           >
-            {selected} <IoIosArrowDown className="ml-2" />
+            {selected} <IoIosArrowDown className="ml-2 text-blue-500" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">

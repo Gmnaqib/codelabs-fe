@@ -7,8 +7,8 @@ import { IoIosWarning } from 'react-icons/io'
 
 const OperationalCash = () => {
   return (
-    <CardField title="Total Members" icon={<IoIosWarning size={22} />}>
-      <div className="flex w-full flex-col gap-4">
+    <CardField title="Total Operational Cash" icon={<IoIosWarning size={22} />}>
+      <div className="flex w-full flex-col gap-5">
             <div className="flex gap-4">
                 <p className='font-semibold text-2xl'>Rp 15.000.000</p>
             </div>

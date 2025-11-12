@@ -25,7 +25,7 @@ const TotalMembers = () => {
 
   return (
     <CardField title="Total Members" icon={<IoIosWarning size={22} />}>
-      <div className="flex w-full flex-col gap-4">
+      <div className="flex w-full flex-col gap-5">
             <p className='font-bold text-2xl'>{totalUsers !== null ? `${totalUsers} Peoples` : "Loading..."}</p>
             <Button className='w-fit px-4 py-0 text-base'>See More</Button>
           </div>
