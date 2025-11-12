@@ -9,14 +9,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DialogFieldProps } from "@/types/DialogFieldProps";
+import { Button } from "../ui/button";
 
 interface ExtendedDialogFieldProps extends DialogFieldProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onSubmit?: () => void; 
+  onCancel?: () => void;
 }
 
 const DialogField = (props: ExtendedDialogFieldProps) => {
-  const { name, title, children, open: controlledOpen, onOpenChange } = props;
+  const { name, title, children, open: controlledOpen, onOpenChange, onSubmit, onCancel } = props;
 
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
@@ -27,8 +30,12 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
     else setInternalOpen(nextOpen);
   };
 
-  // buat fungsi agar bisa dipanggil dari child
   const closeDialog = () => handleOpenChange(false);
+
+  const handleCancel = () => {
+    if (onCancel) onCancel();
+    closeDialog();
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -43,12 +50,16 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl">{title}</DialogTitle>
-          <DialogDescription>
-            {/* pastikan children bisa menerima prop closeDialog */}
-            {isValidElement(children)
-              ? React.cloneElement(children as ReactElement<any>, { closeDialog })
-              : children}
-          </DialogDescription>
+
+          {isValidElement(children) && typeof (children as any).type !== "string"
+          ? React.cloneElement(children as ReactElement<any>, { closeDialog })
+          : children}
+
+
+          <div className="flex justify-center gap-4 mt-3">
+            <Button variant="outline" onClick={handleCancel}>Cancel</Button>
+            <Button onClick={onSubmit}>Submit</Button>
+          </div>
         </DialogHeader>
       </DialogContent>
     </Dialog>

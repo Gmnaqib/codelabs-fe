@@ -57,11 +57,13 @@ const KPIScoring = () => {
             </DialogField>
           </div>
         </div>
-        <TableField 
-          activePage={activePage}
-          onPageChange={setActivePage}
-          showMenu={true} 
-        />
+        <div className="px-5">
+          <TableField 
+            activePage={activePage}
+            onPageChange={setActivePage}
+            showMenu={true} 
+          />
+        </div>
       </Card>
     </div>
     </ProtectedRoute>

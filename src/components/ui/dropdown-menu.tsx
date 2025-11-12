@@ -26,7 +26,7 @@ function DropdownMenuTrigger({
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
-      {...props} className="rounded-full bg-white text-muted-foreground border border-muted-foreground data-[state=open]:border-2 data-[state=open]:border-primary transition-colors"
+      {...props} className="rounded-full text-black focus-visible:border-none focus-visible:ring-primary/50 focus-visible:ring-[2px] bg-white border border-muted-foreground data-[state=open]:border-2 data-[state=open]:border-primary transition-colors"
     />
   )
 }

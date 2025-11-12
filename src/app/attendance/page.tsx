@@ -23,11 +23,13 @@ const Attendance = () => {
         <FilterMonth/>
       </div>
 
-      <TableField 
-        activePage={activePage}
-        onPageChange={setActivePage}
-        showMenu={true}
-      />
+      <div className="px-5">
+        <TableField 
+          activePage={activePage}
+          onPageChange={setActivePage}
+          showMenu={true}
+        />
+      </div>
 
     </div>
     </ProtectedRoute>

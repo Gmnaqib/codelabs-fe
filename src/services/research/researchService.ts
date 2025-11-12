@@ -2,7 +2,7 @@ import { axiosClient } from "@/lib/axiosClient";
 
 export const getAllResearchRecords = async () => {
   const res = await axiosClient.get("/research/my");
-  return res.data.data; // sesuai struktur respons kamu
+  return res.data.data;
 };
 
 export const createResearchRecord = async (payload: any) => {

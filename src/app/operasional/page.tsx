@@ -64,7 +64,7 @@ const Operasional = () => {
           <InputField type="string" placeholder="Search by NIM or Name" />
           <FilterMonth />
         </div>
-        <div className="mt-4">
+        <div className="mt-4 px-5">
           <TableField
             activePage={activePage}
             onPageChange={setActivePage}
