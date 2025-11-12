@@ -14,3 +14,8 @@ export const getResearchById = async (id: string) => {
   const res = await axiosClient.get(`/research/${id}`);
   return res.data.data;
 };
+
+export async function updateResearchRecord(id: string, payload: any) {
+  const { data } = await axiosClient.patch(`/research/${id}`, payload)
+  return data
+}

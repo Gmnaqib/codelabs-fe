@@ -14,12 +14,22 @@ interface DropdownFieldProps {
   label?: string;
   menu?: string[];
   title?: string;
+  value?: string;
   onChange?: (value: string) => void;
 }
 
-export function DropdownField(props: DropdownFieldProps) {
-  const { title = "Select...", menu = [], label, onChange } = props;
-  const [selected, setSelected] = React.useState(title);
+export function DropdownField({
+  title = "Select...",
+  menu = [],
+  label,
+  onChange,
+  value,
+}: DropdownFieldProps) {
+  const [selected, setSelected] = React.useState(value || title);
+
+  React.useEffect(() => {
+    if (value) setSelected(value);
+  }, [value]);
 
   const handleSelect = (item: string) => {
     setSelected(item);
@@ -36,9 +46,11 @@ export function DropdownField(props: DropdownFieldProps) {
             variant="outline"
             className="flex items-center justify-between text-base font-light"
           >
-            {selected} <IoIosArrowDown className="ml-2 text-ring" />
+            {selected || title}
+            <IoIosArrowDown className="ml-2 text-ring" />
           </Button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent className="w-56">
           {menu.map((item, index) => (
             <DropdownMenuItem key={index} onClick={() => handleSelect(item)}>
