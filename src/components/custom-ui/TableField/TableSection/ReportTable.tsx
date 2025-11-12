@@ -1,7 +1,14 @@
 "use client";
 
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Menubar } from "../../MenuBar";
 import { report } from "../headerConfig";
@@ -25,7 +32,11 @@ const ReportTable = ({
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {showMenu && (
-        <Menubar menus={Object.keys(report)} activeMenu={activePage} onChange={onPageChange} />
+        <Menubar
+          menus={Object.keys(report)}
+          activeMenu={activePage}
+          onChange={onPageChange}
+        />
       )}
 
       <Table className="w-full table-fixed">
@@ -41,8 +52,12 @@ const ReportTable = ({
             researchData.map((item, i) => (
               <TableRow key={i}>
                 <TableCell className="text-center">{item.title}</TableCell>
-                <TableCell className="text-center">{`Week ${item.week}`}</TableCell>
-                <TableCell className="text-center">{item.progress}</TableCell>
+                <TableCell className="text-center">
+                  {`Week ${item.week}`}
+                </TableCell>
+                <TableCell className="text-center">
+                  {item.progress}
+                </TableCell>
                 <TableCell className="text-center">
                   <div className="flex gap-3 justify-center">
                     <Button size="sm" variant="outline">
@@ -57,7 +72,10 @@ const ReportTable = ({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={reportHeaders.length} className="text-center py-6">
+              <TableCell
+                colSpan={reportHeaders.length}
+                className="text-center py-6"
+              >
                 Tidak ada data research
               </TableCell>
             </TableRow>

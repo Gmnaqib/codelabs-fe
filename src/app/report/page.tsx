@@ -21,7 +21,9 @@ const WeeklyReport = () => {
   const [link, setLink] = useState("");
   const [challenge, setChallenge] = useState("");
 
-  // 🔒 kontrol dialog open/close
+  const [filterWeek, setFilterWeek] = useState("All");
+  const [filterProgress, setFilterProgress] = useState("All");
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSubmit = async () => {
@@ -52,22 +54,17 @@ const WeeklyReport = () => {
     };
 
     try {
-      const res = await createResearchRecord(payload);
+      await createResearchRecord(payload);
       toast.success("Data Berhasil Ditambahkan");
 
-      // reset form
       setTitle("");
       setWeek("");
       setProgress("");
       setLink("");
       setChallenge("");
-
-      // 🚀 TUTUP DIALOG SECARA OTOMATIS
-      setIsDialogOpen(false);
+      setIsDialogOpen(false); // auto close dialog
     } catch (error) {
-      showErrorToast("Gagal menambahkan research.", {
-        duration: 5000,
-      });
+      showErrorToast("Gagal menambahkan research.", { duration: 5000 });
     }
   };
 
@@ -76,17 +73,22 @@ const WeeklyReport = () => {
       <div className="flex w-full justify-between mb-10">
         <div className="flex gap-7">
           <FilterMonth />
+
           <DropdownField
             key="week-filter"
             title="Week"
             menu={["All", "Week 1", "Week 2", "Week 3", "Week 4"]}
+            onChange={(value) => setFilterWeek(value)}
           />
+
           <DropdownField
             key="progress-filter"
             title="Progress"
             menu={["All", "Finished", "Unfinished"]}
+            onChange={(value) => setFilterProgress(value)}
           />
         </div>
+
         <div>
           <DialogField
             name="Add New Plan"
@@ -146,6 +148,8 @@ const WeeklyReport = () => {
             activePage={activePage}
             onPageChange={setActivePage}
             showMenu={false}
+            filterWeek={filterWeek}
+            filterProgress={filterProgress}
           />
         </div>
       </Card>

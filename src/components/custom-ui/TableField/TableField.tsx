@@ -17,6 +17,8 @@ interface Props {
   data?: any[];
   customHeaderConfig?: Record<string, string[]>;
   showMenu?: boolean;
+  filterWeek?: string;
+  filterProgress?: string;
 }
 
 const TableField = ({
@@ -27,6 +29,8 @@ const TableField = ({
   year = new Date().getFullYear(),
   data = [],
   showMenu = true,
+  filterWeek = "All",
+  filterProgress = "All",
 }: Props) => {
   const {
     isReport,
@@ -39,11 +43,26 @@ const TableField = ({
   } = useTableLogic(activePage, month, year, data, onPageChange);
 
   let headersConfig: Record<string, string[]> =
-    isReport ? report :
-    isAttendance ? attendance :
-    isScoring ? scoring :
-    isOrganization? organization :
-    customHeaderConfig ?? operasional;
+    isReport
+      ? report
+      : isAttendance
+      ? attendance
+      : isScoring
+      ? scoring
+      : isOrganization
+      ? organization
+      : customHeaderConfig ?? operasional;
+
+  const filteredData = researchData.filter((item: any) => {
+    const matchWeek =
+      filterWeek === "All" || `Week ${item.week}` === filterWeek;
+
+    const matchProgress =
+      filterProgress === "All" ||
+      item.progress.toLowerCase() === filterProgress.toLowerCase();
+
+    return matchWeek && matchProgress;
+  });
 
   if (isReport)
     return (
@@ -51,7 +70,7 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        researchData={researchData}
+        researchData={filteredData}
       />
     );
 
