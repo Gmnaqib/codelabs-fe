@@ -94,14 +94,17 @@ const TableField = ({
     );
 
   if (isAttendance)
-    return (
-      <AttendanceTable
-        activePage={activePage}
-        onPageChange={onPageChange}
-        showMenu={showMenu}
-        searchQuery={searchQuery}
-      />
-    );
+  return (
+    <AttendanceTable
+      activePage={activePage}
+      onPageChange={onPageChange}
+      showMenu={showMenu}
+      searchQuery={searchQuery}
+      month={month}     
+      year={year}      
+    />
+  );
+
 
   if (isScoring)
     return (

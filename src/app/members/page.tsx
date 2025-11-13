@@ -8,10 +8,22 @@ import { TableField } from "@/components/custom-ui/TableField";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { getAllUsers, createUser } from "@/services/users/userService";
 
-const Members = () => {
-  const [users, setUsers] = useState([]);
+type UserType = {
+  nim: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  subriset: string;
+};
 
-  // 🔥 FORM STATE
+const Members = () => {
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState("All Role");
+  const [filterSubriset, setFilterSubriset] = useState("All SubRiset");
+  const [filterStatus, setFilterStatus] = useState("All Status");
+
   const [form, setForm] = useState({
     nim: "",
     name: "",
@@ -26,12 +38,11 @@ const Members = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  // 🔥 FETCH USERS
   const fetchData = async () => {
     try {
       const data = await getAllUsers();
 
-      const mapped = data.map((u: any) => ({
+      const mapped: UserType[] = data.map((u: any) => ({
         nim: u.nim,
         name: u.name,
         email: u.email,
@@ -54,7 +65,20 @@ const Members = () => {
     fetchData();
   }, []);
 
-  // 🔥 HANDLE CREATE MEMBER
+  const filteredUsers = users
+    .filter((u) =>
+      u.name.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((u) =>
+      filterRole === "All Role" ? true : u.role === filterRole
+    )
+    .filter((u) =>
+      filterSubriset === "All SubRiset" ? true : u.subriset === filterSubriset
+    )
+    .filter((u) =>
+      filterStatus === "All Status" ? true : u.status === filterStatus
+    );
+
   const handleCreateMember = async () => {
     try {
       const payload = {
@@ -67,8 +91,7 @@ const Members = () => {
         role: form.role || "User",
       };
 
-      const res = await createUser(payload);
-      console.log("Created:", res);
+      await createUser(payload);
 
       await fetchData();
       alert("User created successfully!");
@@ -82,7 +105,6 @@ const Members = () => {
         role: "",
         password: "password",
       });
-
     } catch (err) {
       console.error(err);
       alert("Failed to create member");
@@ -92,29 +114,56 @@ const Members = () => {
   return (
     <ProtectedRoute>
       <div className="w-full flex flex-col">
+
         {/* FILTERS */}
         <div className="flex w-full justify-between mb-4">
           <div className="flex gap-4">
-            <InputField type="string" placeholder="Search by Name" />
 
+            {/* SEARCH */}
+            <InputField
+              type="text"
+              placeholder="Search by Name"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {/* ROLE FILTER */}
             <DropdownField
-              title="All Role"
+              title={filterRole}
               menu={["All Role", "User", "Minister", "Admin", "President"]}
+              onSelect={(v) => setFilterRole(v)}
             />
 
+            {/* SUBRISET FILTER */}
             <DropdownField
-              title="All SubRiset"
-              menu={["All SubRiset", "UI/UX", "Mobile", "IOT", "Web", "Game", "Data", "Other"]}
+              title={filterSubriset}
+              menu={[
+                "All SubRiset",
+                "UI/UX",
+                "Mobile",
+                "IOT",
+                "Web",
+                "Game",
+                "Data",
+                "Other",
+              ]}
+              onSelect={(v) => setFilterSubriset(v)}
             />
 
+            {/* STATUS FILTER */}
             <DropdownField
-              title="All Status"
+              title={filterStatus}
               menu={["All Status", "Active", "Inactive", "Graduated"]}
+              onSelect={(v) => setFilterStatus(v)}
             />
           </div>
 
-          {/* CREATE MEMBER */}
-          <DialogField name="Create New Member" title="Create New Member" onSubmit={handleCreateMember}>
+          {/* CREATE NEW MEMBER */}
+          <DialogField
+            name="Create New Member"
+            title="Create New Member"
+            onSubmit={handleCreateMember}
+          >
             <InputField
               placeholder="1023456"
               label="NIM"
@@ -181,8 +230,9 @@ const Members = () => {
           activePage="members"
           onPageChange={() => {}}
           showMenu={false}
-          data={users}
+          data={filteredUsers}
         />
+
       </div>
     </ProtectedRoute>
   );

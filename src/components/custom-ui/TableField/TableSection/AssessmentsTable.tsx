@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Menubar } from "@/components/custom-ui/MenuBar";
-import { assessments } from "../headerConfig";
 import DialogField from "../../DialogField";
 import { DropdownField } from "../../DropdownField";
+import { members } from "../headerConfig";
 
 interface Props {
   activePage: string;
@@ -28,13 +28,13 @@ const AssessmentsTable = ({
   showMenu = true,
   data = [],
 }: Props) => {
-  const headers = assessments[activePage] || [];
+  const headers = members[activePage] || [];
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {showMenu && (
         <Menubar
-          menus={Object.keys(assessments)}
+          menus={Object.keys(members)}
           activeMenu={activePage}
           onChange={onPageChange}
         />

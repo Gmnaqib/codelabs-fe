@@ -1,8 +1,8 @@
 import { MdDashboard } from "react-icons/md";
-import { IoMdListBox } from "react-icons/io";
 import { FaListCheck, FaFingerprint } from "react-icons/fa6";
 import { HiOutlineLogout } from "react-icons/hi";
 import { RiFileChartFill } from "react-icons/ri";
+import { IoIosPeople } from "react-icons/io";
 
 export const menuItems = [
   {
@@ -37,7 +37,7 @@ export const menuItems = [
   },
   {
     title: "Members",
-    icon: FaFingerprint,
+    icon: IoIosPeople,
     route: "/members",
   },
   {
