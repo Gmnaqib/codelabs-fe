@@ -1,11 +1,12 @@
 "use client";
 
 import { CalendarMonthYearPicker } from "@/components/custom-ui/CalendarMonthYearPicker";
+import CardField from "@/components/custom-ui/CardField";
 import InputField from "@/components/custom-ui/InputField";
 import { TableField } from "@/components/custom-ui/TableField";
-import { Card } from "@/components/ui/card";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import React, { useState } from "react";
+import { BsFillPeopleFill } from "react-icons/bs";
 
 const Attendance = () => {
   const [activePage, setActivePage] = useState<string>("Permissions");
@@ -18,8 +19,7 @@ const Attendance = () => {
   return (
     <ProtectedRoute>
       <div className="flex flex-col gap-8">
-        {/* Header */}
-        <div>
+         <div>
           <p className="font-bold text-2xl">
             {new Date(selectedDate.year, selectedDate.month).toLocaleString("en-US", {
               month: "long",
@@ -29,6 +29,12 @@ const Attendance = () => {
           <p className="text-ring text-sm">
             Please fill out each <span className="font-bold">member's permission</span>
           </p>
+        </div>
+        
+        <div className="grid grid-cols-5">
+          <CardField title="Total Report" icon={<BsFillPeopleFill size={22}/> } noGap>
+            <p className="text-[#00D0FF] font-bold text-3xl">257</p>
+          </CardField>
         </div>
 
         {/* Filter & Search */}

@@ -34,3 +34,8 @@ export async function getTodayLeaveRequests() {
     throw error;
   }
 }
+
+export async function getAttendanceSummary() {
+  const { data } = await axiosClient.get("/attendance/summary");
+  return data.data;
+}
