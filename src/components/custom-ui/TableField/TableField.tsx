@@ -112,7 +112,6 @@ const TableField = ({
       month={month}
       year={year}
       headersConfig={headersConfig}
-      data={data}
       checkedState={checkedState}
       onToggle={handleToggleCheckbox}
     />

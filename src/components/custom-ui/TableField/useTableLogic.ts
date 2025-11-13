@@ -24,7 +24,6 @@ export const useTableLogic = (
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
   const [researchData, setResearchData] = useState<any[]>([]);
 
-  // === GET Research ===
   useEffect(() => {
     const fetchResearch = async () => {
       try {
@@ -37,7 +36,6 @@ export const useTableLogic = (
     fetchResearch();
   }, []);
 
-  // === GET Operational ===
   useEffect(() => {
     const fetchOperational = async () => {
       if (activePage !== "Tematik") return;
@@ -63,7 +61,6 @@ export const useTableLogic = (
     fetchOperational();
   }, [activePage]);
 
-  // === Toggle Checkbox ===
   const handleToggleCheckbox = async (
     page: string,
     rowIndex: number,
@@ -103,13 +100,10 @@ export const useTableLogic = (
     }
   };
 
-  // === Halaman aktif ===
-  // === Halaman aktif ===
 useEffect(() => {
   const norm = (activePage ?? "").trim().toLowerCase();
   const currentPath = typeof window !== "undefined" ? window.location.pathname.toLowerCase() : "";
 
-  // 🧩 Peta relasi sub-halaman → kategori utamanya
   const categoryMap: Record<string, string> = {
     report: "report",
 
@@ -145,11 +139,11 @@ useEffect(() => {
   setIsScoring(category === "scoring");
   setIsOrganization(category === "organization");
   if (category === "organization" && activePage.toLowerCase() === "organization") {
-    onPageChange("Attendance"); // otomatis buka tab Attendance
+    onPageChange("Attendance"); 
   }
 
   if (category === "attendance" && activePage.toLowerCase() === "attendance") {
-    onPageChange("Permissions"); // otomatis buka tab Permissions
+    onPageChange("Permissions"); 
   }
 }, [activePage]);
 
