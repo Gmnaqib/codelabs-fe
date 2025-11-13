@@ -62,7 +62,7 @@ export const useTableLogic = (
 
         setCheckedState(checked);
         setRecordIds(ids);
-        setResearchData(users); // tampilkan user untuk tematik
+        setResearchData(users); 
         console.log("✅ Fetch tematik success. Total users:", users.length);
       } catch (e) {
         console.error("❌ Error fetching Tematik data:", e);

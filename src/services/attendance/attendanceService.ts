@@ -5,7 +5,22 @@ export const getAttendance = async (year: number, month: number) => {
   return res.data.data;
 };
 
-export const getUsers = async () => {
-  const res = await axiosClient.get("/users");
-  return res.data.data;
-};
+export async function getAllLeaveRequests() {
+  try {
+    const { data } = await axiosClient.get("/attendance/leave-requests/");
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching all leave requests:", error);
+    throw error;
+  }
+}
+
+export async function getTodayLeaveRequests() {
+  try {
+    const { data } = await axiosClient.get("/attendance/leave-requests/today");
+    return data.data; 
+  } catch (error) {
+    console.error("Error fetching leave requests:", error);
+    throw error;
+  }
+}
