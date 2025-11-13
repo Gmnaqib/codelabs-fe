@@ -15,9 +15,11 @@ const CardField = (props: CardFieldProps) => {
       <Card className={`flex-1 ${noGap ? "gap-0" : "gap-6"}`}>
         <CardHeader>
           <CardTitle className='flex text-lg gap-3 items-center'>
-            <div className="bg-[rgb(0,208,255,0.1)] text-[#00D0FF] rounded-full p-1">
+           {icon && (
+             <div className="bg-[rgb(0,208,255,0.1)] text-[#00D0FF] rounded-full p-1">
               {icon}
             </div>
+           )}
             <div className={`${noGap? "text-sm text-ring" : ""}`}>
               {title}
             </div>

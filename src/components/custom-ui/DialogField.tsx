@@ -27,7 +27,7 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
     onSubmit,
     onCancel,
     onTriggerClick,
-    noPadding = false, // ✅ default false
+    noPadding = false, 
   } = props;
 
   const [internalOpen, setInternalOpen] = useState(false);

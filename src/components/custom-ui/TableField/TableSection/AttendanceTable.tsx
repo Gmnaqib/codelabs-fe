@@ -45,6 +45,7 @@ function getReviewerByDate(dateString?: string | Date): string {
 }
 
 function getStatusColor(status: string): string {
+  if (!status) return "bg-gray-100 text-gray-700";
   switch (status.toUpperCase()) {
     case "APPROVED":
       return "bg-green-100 text-green-700";
