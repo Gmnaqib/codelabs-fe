@@ -6,6 +6,7 @@ import {
   createOperationalRecord,
   deleteOperationalRecord,
 } from "@/services/operational/operationalService";
+import { getAllResearchRecords } from "@/services/research/researchService";
 import { getAllUsers } from "@/services/users/userService";
 
 export const useTableLogic = (
@@ -22,20 +23,33 @@ export const useTableLogic = (
 
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
-  const [operationalData, setOperationalData] = useState<any[]>([]); // gabungan user + record
+  const [researchData, setResearchData] = useState<any[]>([]);
 
-  // === 🔹 Fetch Data untuk Tematik ===
+  // === 🔹 FETCH RESEARCH DATA (selalu dijalankan sekali) ===
+  useEffect(() => {
+    const fetchResearch = async () => {
+      try {
+        const res = await getAllResearchRecords();
+        // cek apakah hasil punya field data
+        const result = Array.isArray(res) ? res : res.data ?? [];
+        setResearchData(result);
+        console.log("✅ Fetch research success:", result.length, "records");
+      } catch (e) {
+        console.error("❌ Gagal ambil data research:", e);
+      }
+    };
+    fetchResearch();
+  }, []);
+
+  // === 🔹 FETCH OPERATIONAL (Tematik) ===
   useEffect(() => {
     const fetchOperational = async () => {
-      if (activePage !== "Tematik") return;
+      if (activePage.toLowerCase() !== "tematik") return;
 
       try {
-        // ambil semua user
         const users = await getAllUsers();
-        // ambil semua record tematik
         const records = await getOperationalRecords("thematic");
 
-        // buat peta record berdasarkan userId + tanggal
         const checked: Record<string, boolean> = {};
         const ids: Record<string, string> = {};
 
@@ -48,9 +62,7 @@ export const useTableLogic = (
 
         setCheckedState(checked);
         setRecordIds(ids);
-
-        // simpan user sebagai data utama tabel
-        setOperationalData(users);
+        setResearchData(users); // tampilkan user untuk tematik
         console.log("✅ Fetch tematik success. Total users:", users.length);
       } catch (e) {
         console.error("❌ Error fetching Tematik data:", e);
@@ -60,19 +72,18 @@ export const useTableLogic = (
     fetchOperational();
   }, [activePage]);
 
-  // === 🔹 Toggle Checkbox ===
+  // === 🔹 HANDLE CHECKBOX TOGGLE (Tematik) ===
   const handleToggleCheckbox = async (
     page: string,
     rowIndex: number,
     day: string | number
   ) => {
-    const user = operationalData[rowIndex];
+    const user = researchData[rowIndex];
     if (!user) return console.warn("User tidak ditemukan untuk index:", rowIndex);
 
     const key = `${page}-${user._id}-${day}`;
     const current = checkedState[key] ?? false;
-    const updated = { ...checkedState, [key]: !current };
-    setCheckedState(updated);
+    setCheckedState((prev) => ({ ...prev, [key]: !current }));
 
     if (page === "Tematik") {
       const targetDate = new Date(year, month - 1, Number(day));
@@ -104,7 +115,7 @@ export const useTableLogic = (
     }
   };
 
-  // === 🔹 Klasifikasi Halaman ===
+  // === 🔹 KLASIFIKASI HALAMAN ===
   useEffect(() => {
     const norm = (activePage ?? "").trim().toLowerCase();
     const path =
@@ -160,7 +171,7 @@ export const useTableLogic = (
     isOrganization,
     checkedState,
     recordIds,
-    researchData: operationalData, // kirim gabungan user ke TableField
+    researchData,
     handleToggleCheckbox,
   };
 };
