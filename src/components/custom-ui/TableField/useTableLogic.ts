@@ -6,7 +6,7 @@ import {
   createOperationalRecord,
   deleteOperationalRecord,
 } from "@/services/operational/operationalService";
-import { getAllResearchRecords } from "@/services/research/researchService";
+import { getAllUsers } from "@/services/users/userService";
 
 export const useTableLogic = (
   activePage: string,
@@ -22,31 +22,25 @@ export const useTableLogic = (
 
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
-  const [researchData, setResearchData] = useState<any[]>([]);
+  const [operationalData, setOperationalData] = useState<any[]>([]); // gabungan user + record
 
-  useEffect(() => {
-    const fetchResearch = async () => {
-      try {
-        const res = await getAllResearchRecords();
-        setResearchData(res);
-      } catch (e) {
-        console.error("❌ Gagal ambil data research:", e);
-      }
-    };
-    fetchResearch();
-  }, []);
-
+  // === 🔹 Fetch Data untuk Tematik ===
   useEffect(() => {
     const fetchOperational = async () => {
       if (activePage !== "Tematik") return;
+
       try {
-        const allRecords = await getOperationalRecords("thematic");
+        // ambil semua user
+        const users = await getAllUsers();
+        // ambil semua record tematik
+        const records = await getOperationalRecords("thematic");
+
+        // buat peta record berdasarkan userId + tanggal
         const checked: Record<string, boolean> = {};
         const ids: Record<string, string> = {};
 
-        allRecords.forEach((r: any) => {
-          const d = new Date(r.date);
-          const day = d.getDate();
+        records.forEach((r: any) => {
+          const day = new Date(r.date).getDate();
           const key = `Tematik-${r.userId}-${day}`;
           checked[key] = true;
           ids[key] = r._id;
@@ -54,23 +48,31 @@ export const useTableLogic = (
 
         setCheckedState(checked);
         setRecordIds(ids);
+
+        // simpan user sebagai data utama tabel
+        setOperationalData(users);
+        console.log("✅ Fetch tematik success. Total users:", users.length);
       } catch (e) {
-        console.error("❌ Error fetching operational records:", e);
+        console.error("❌ Error fetching Tematik data:", e);
       }
     };
+
     fetchOperational();
   }, [activePage]);
 
+  // === 🔹 Toggle Checkbox ===
   const handleToggleCheckbox = async (
     page: string,
     rowIndex: number,
     day: string | number
   ) => {
-    const user = data[rowIndex];
+    const user = operationalData[rowIndex];
+    if (!user) return console.warn("User tidak ditemukan untuk index:", rowIndex);
+
     const key = `${page}-${user._id}-${day}`;
     const current = checkedState[key] ?? false;
-
-    setCheckedState((p) => ({ ...p, [key]: !current }));
+    const updated = { ...checkedState, [key]: !current };
+    setCheckedState(updated);
 
     if (page === "Tematik") {
       const targetDate = new Date(year, month - 1, Number(day));
@@ -78,8 +80,9 @@ export const useTableLogic = (
 
       if (!current) {
         try {
-          const res = await createOperationalRecord(user._id!, "thematic", isoDate);
-          setRecordIds((p) => ({ ...p, [key]: res.data._id }));
+          const res = await createOperationalRecord(user._id, "thematic", isoDate);
+          setRecordIds((prev) => ({ ...prev, [key]: res.data._id }));
+          console.log("✅ Record created for", user.name, "on", isoDate);
         } catch (e) {
           console.error("❌ Error membuat record thematic:", e);
         }
@@ -88,11 +91,12 @@ export const useTableLogic = (
         if (!id) return console.error("Record ID tidak ditemukan:", key);
         try {
           await deleteOperationalRecord(id);
-          setRecordIds((p) => {
-            const newMap = { ...p };
-            delete newMap[key];
-            return newMap;
+          setRecordIds((prev) => {
+            const copy = { ...prev };
+            delete copy[key];
+            return copy;
           });
+          console.log("🗑️ Record deleted:", id);
         } catch (e) {
           console.error("❌ Gagal menghapus record:", e);
         }
@@ -100,53 +104,54 @@ export const useTableLogic = (
     }
   };
 
-useEffect(() => {
-  const norm = (activePage ?? "").trim().toLowerCase();
-  const currentPath = typeof window !== "undefined" ? window.location.pathname.toLowerCase() : "";
+  // === 🔹 Klasifikasi Halaman ===
+  useEffect(() => {
+    const norm = (activePage ?? "").trim().toLowerCase();
+    const path =
+      typeof window !== "undefined" ? window.location.pathname.toLowerCase() : "";
 
-  const categoryMap: Record<string, string> = {
-    report: "report",
+    const map: Record<string, string> = {
+      report: "report",
+      attendance: "organization",
+      researchpoints: "organization",
+      organization: "organization",
+      permissions: "attendance",
+      totalattendance: "attendance",
+      scoring: "scoring",
+      research: "scoring",
+      competition: "scoring",
+      operational: "scoring",
+      branding: "scoring",
+      absensi: "operasional",
+      tematik: "operasional",
+      piket: "operasional",
+    };
 
-    attendance: "organization",
-    researchpoints: "organization",
+    const category =
+      map[norm] ||
+      (path.includes("/report")
+        ? "report"
+        : path.includes("/attendance")
+        ? "attendance"
+        : path.includes("/scoring")
+        ? "scoring"
+        : path.includes("/organization")
+        ? "organization"
+        : "operasional");
 
-    organization: "organization",
+    setIsReport(category === "report");
+    setIsAttendance(category === "attendance");
+    setIsScoring(category === "scoring");
+    setIsOrganization(category === "organization");
 
-    permissions: "attendance",
-    totalattendance: "attendance",
+    if (category === "organization" && activePage.toLowerCase() === "organization") {
+      onPageChange("Attendance");
+    }
 
-    scoring: "scoring",
-    research: "scoring",
-    competition: "scoring",
-    operational: "scoring",
-    branding: "scoring",
-
-    absensi: "operasional",
-    tematik: "operasional",
-    piket: "operasional",
-  };
-
-  const category =
-    categoryMap[norm] ||
-    (currentPath.includes("/report") ? "report" :
-    currentPath.includes("/attendance") ? "attendance" :
-    currentPath.includes("/scoring") ? "scoring" :
-    currentPath.includes("/organization") ? "organization" :
-    "operasional");
-
-  setIsReport(category === "report");
-  setIsAttendance(category === "attendance");
-  setIsScoring(category === "scoring");
-  setIsOrganization(category === "organization");
-  if (category === "organization" && activePage.toLowerCase() === "organization") {
-    onPageChange("Attendance"); 
-  }
-
-  if (category === "attendance" && activePage.toLowerCase() === "attendance") {
-    onPageChange("Permissions"); 
-  }
-}, [activePage]);
-
+    if (category === "attendance" && activePage.toLowerCase() === "attendance") {
+      onPageChange("Permissions");
+    }
+  }, [activePage]);
 
   return {
     isReport,
@@ -155,7 +160,7 @@ useEffect(() => {
     isOrganization,
     checkedState,
     recordIds,
-    researchData,
+    researchData: operationalData, // kirim gabungan user ke TableField
     handleToggleCheckbox,
   };
 };
