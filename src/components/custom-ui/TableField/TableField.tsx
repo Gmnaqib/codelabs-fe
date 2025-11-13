@@ -20,6 +20,7 @@ interface Props {
   filterWeek?: string;
   filterProgress?: string;
   searchQuery?: string;
+  search?: string;
 }
 
 const TableField = ({
@@ -80,6 +81,7 @@ const TableField = ({
         onPageChange={onPageChange}
         showMenu={showMenu}
         data={data}
+        searchQuery={searchQuery} 
       />
     );
 

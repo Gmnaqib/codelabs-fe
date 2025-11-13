@@ -12,11 +12,25 @@ import {
 } from "@/components/ui/table";
 import { Menubar } from "@/components/custom-ui/MenuBar";
 import { attendance } from "../headerConfig";
-import { getAllLeaveRequests, getTodayLeaveRequests } from "@/services/attendance/attendanceService";
+import {
+  getAllLeaveRequests,
+  getTodayLeaveRequests,
+} from "@/services/attendance/attendanceService";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import DialogField from "../../DialogField";
 
-// Fungsi reviewer berdasarkan hari
-function getReviewerByDay(): string {
-  const day = new Date().getDay(); // 0 = Minggu, 1 = Senin, ...
+function getReviewerByDate(dateString?: string | Date): string {
+  if (!dateString) return "-";
+  const d = new Date(dateString);
+  const day = d.getDay(); // 0 = Minggu, 1 = Senin, ...
   const reviewers: Record<number, string> = {
     1: "Favian",
     2: "Rava",
@@ -31,7 +45,7 @@ function getReviewerByDay(): string {
 // Fungsi warna status
 function getStatusColor(status: string): string {
   switch (status.toUpperCase()) {
-    case "ACCEPTED":
+    case "APPROVED":
       return "bg-green-100 text-green-700";
     case "PENDING":
       return "bg-yellow-100 text-yellow-700";
@@ -46,12 +60,20 @@ interface AttendanceTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
+  month?: number;
+  year?: number;
+  search?: string;
+  searchQuery?: string;
+  data?: any[]; 
 }
 
 const AttendanceTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  month,
+  year,
+  searchQuery = "",
 }: AttendanceTableProps) => {
   const attendanceHeaders = attendance[activePage] ?? [];
   const [todayData, setTodayData] = useState<any[]>([]);
@@ -59,52 +81,85 @@ const AttendanceTable = ({
   const [loading, setLoading] = useState(true);
   const [showToday, setShowToday] = useState(true);
 
-  // Fetch data from APIs
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Fetch data dari API
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
+        const targetYear = year || new Date().getFullYear();
+        const targetMonth = month || new Date().getMonth() + 1;
+
         const [today, all] = await Promise.all([
           getTodayLeaveRequests(),
-          getAllLeaveRequests(),
+          getAllLeaveRequests(targetYear, targetMonth), 
         ]);
+
         setTodayData(today);
         setAllData(all);
       } catch (err) {
-        console.error("Error fetching attendance data:", err);
+        console.error("❌ Error fetching attendance data:", err);
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
-  }, []);
 
-  const renderPermissionRow = (item: any, index: number) => (
-    <TableRow key={index}>
-      <TableCell className="text-center">{item.userName}</TableCell>
-      <TableCell className="text-center capitalize">{item.type}</TableCell>
-      <TableCell className="text-center">
-        {new Date(item.startDate).toLocaleDateString("id-ID")}
-      </TableCell>
-      <TableCell className="text-center">{getReviewerByDay()}</TableCell>
-      <TableCell className="text-center">
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-            item.approvalStatus
-          )}`}
-        >
-          {item.approvalStatus}
-        </span>
-      </TableCell>
-      <TableCell className="text-center">
-        <button className="text-primary underline text-sm">Detail</button>
-      </TableCell>
-    </TableRow>
+    fetchData();
+  }, [month, year]);
+
+  // Filter nama (case-insensitive)
+  const filteredData = allData.filter((item) =>
+    item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Render tiap baris tabel
+  const renderPermissionRow = (item: any, index: number) => (
+  <TableRow key={index}>
+    <TableCell className="text-center text-base">
+      {item.userName?.split(" ")[0] ?? "-"}
+    </TableCell>
+    <TableCell className="text-center uppercase text-base">{item.type}</TableCell>
+    <TableCell className="text-center text-base">
+      {new Date(item.startDate).toLocaleDateString("en-US", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })}
+    </TableCell>
+    <TableCell className="text-center text-base">{getReviewerByDate(item.startDate)}</TableCell>
+    <TableCell className="text-center">
+      <span
+        className={`px-7 py-1 rounded-full text-base uppercase ${getStatusColor(
+          item.approvalStatus
+        )}`}
+      >
+        {item.approvalStatus}
+      </span>
+    </TableCell>
+    <TableCell className="text-center">
+       <DialogField name="Review" title="Reason" variant="outline" noPadding >
+          <p>
+            asd
+          </p>
+       </DialogField>
+    </TableCell>
+  </TableRow>
+);
+
+
   if (loading) {
-    return (
-      <Card className="p-6 text-center text-gray-500">Loading data...</Card>
-    );
+    return <Card className="p-6 text-center text-gray-500">Loading data...</Card>;
   }
 
   return (
@@ -125,7 +180,7 @@ const AttendanceTable = ({
           onClick={() => setShowToday(!showToday)}
           className="text-primary font-bold text-sm cursor-pointer select-none"
         >
-          {showToday ? "Hide" : "Show All"}
+          {showToday ? "Hide" : "Show Today"}
         </p>
       </div>
 
@@ -180,8 +235,8 @@ const AttendanceTable = ({
 
             <TableBody>
               {activePage === "Permissions" ? (
-                allData.length > 0 ? (
-                  allData.map(renderPermissionRow)
+                paginatedData.length > 0 ? (
+                  paginatedData.map(renderPermissionRow)
                 ) : (
                   <TableRow>
                     <TableCell
@@ -196,6 +251,39 @@ const AttendanceTable = ({
             </TableBody>
           </Table>
         </div>
+
+        {/* PAGINATION */}
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              />
+            </PaginationItem>
+
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href="#"
+                  isActive={i + 1 === currentPage}
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {totalPages > 3 && <PaginationEllipsis />}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </Card>
     </div>
   );

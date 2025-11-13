@@ -12,7 +12,11 @@ import {
 import { DialogFieldProps } from "@/types/DialogFieldProps";
 import { Button } from "../ui/button";
 
-const DialogField = (props: DialogFieldProps) => {
+interface ExtendedDialogFieldProps extends DialogFieldProps {
+  noPadding?: boolean; // ✅ tambahan props baru
+}
+
+const DialogField = (props: ExtendedDialogFieldProps) => {
   const {
     name,
     title,
@@ -23,6 +27,7 @@ const DialogField = (props: DialogFieldProps) => {
     onSubmit,
     onCancel,
     onTriggerClick,
+    noPadding = false, // ✅ default false
   } = props;
 
   const [internalOpen, setInternalOpen] = useState(false);
@@ -47,6 +52,7 @@ const DialogField = (props: DialogFieldProps) => {
         <Button
           variant={variant}
           onClick={onTriggerClick}
+          className={noPadding ? "py-0" : ""} // ✅ otomatis pakai py-0 kalau noPadding=true
         >
           {name}
         </Button>
@@ -68,9 +74,7 @@ const DialogField = (props: DialogFieldProps) => {
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-           {onSubmit && ( 
-              <Button onClick={onSubmit}>Submit</Button>
-            )}
+            {onSubmit && <Button onClick={onSubmit}>Submit</Button>}
           </div>
         </DialogContent>
       </DialogPortal>

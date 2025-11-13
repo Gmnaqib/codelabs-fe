@@ -149,6 +149,7 @@ const ReportTable = ({
                       name="Edit"
                       title="Edit Plan"
                       variant="outline"
+                      noPadding 
                       open={openEditId === item._id}
                       onOpenChange={(isOpen) => setOpenEditId(isOpen ? item._id : null)}
                       onTriggerClick={() => handleOpenEdit(item._id)}
@@ -203,6 +204,7 @@ const ReportTable = ({
                       name="Detail"
                       title="Detail Plan"
                       variant="outline"
+                      noPadding 
                       open={openDetailId === item._id}
                       onOpenChange={(isOpen) =>
                         setOpenDetailId(isOpen ? item._id : null)
