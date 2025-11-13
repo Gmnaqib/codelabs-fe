@@ -21,19 +21,20 @@ export const useTableLogic = (
   const [isScoring, setIsScoring] = useState(false);
   const [isOrganization, setIsOrganization] = useState(false);
 
+  // ✅ Tambahan untuk Assessments
+  const [isAssessments, setIsAssessments] = useState(false);
+
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
   const [researchData, setResearchData] = useState<any[]>([]);
 
-  // === 🔹 FETCH RESEARCH DATA (selalu dijalankan sekali) ===
+  // === 🔹 FETCH RESEARCH DATA ===
   useEffect(() => {
     const fetchResearch = async () => {
       try {
         const res = await getAllResearchRecords();
-        // cek apakah hasil punya field data
         const result = Array.isArray(res) ? res : res.data ?? [];
         setResearchData(result);
-        console.log("✅ Fetch research success:", result.length, "records");
       } catch (e) {
         console.error("❌ Gagal ambil data research:", e);
       }
@@ -62,8 +63,7 @@ export const useTableLogic = (
 
         setCheckedState(checked);
         setRecordIds(ids);
-        setResearchData(users); 
-        console.log("✅ Fetch tematik success. Total users:", users.length);
+        setResearchData(users);
       } catch (e) {
         console.error("❌ Error fetching Tematik data:", e);
       }
@@ -72,14 +72,14 @@ export const useTableLogic = (
     fetchOperational();
   }, [activePage]);
 
-  // === 🔹 HANDLE CHECKBOX TOGGLE (Tematik) ===
+  // === 🔹 HANDLE CHECKBOX TOGGLE ===
   const handleToggleCheckbox = async (
     page: string,
     rowIndex: number,
     day: string | number
   ) => {
     const user = researchData[rowIndex];
-    if (!user) return console.warn("User tidak ditemukan untuk index:", rowIndex);
+    if (!user) return;
 
     const key = `${page}-${user._id}-${day}`;
     const current = checkedState[key] ?? false;
@@ -91,15 +91,19 @@ export const useTableLogic = (
 
       if (!current) {
         try {
-          const res = await createOperationalRecord(user._id, "thematic", isoDate);
+          const res = await createOperationalRecord(
+            user._id,
+            "thematic",
+            isoDate
+          );
           setRecordIds((prev) => ({ ...prev, [key]: res.data._id }));
-          console.log("✅ Record created for", user.name, "on", isoDate);
         } catch (e) {
           console.error("❌ Error membuat record thematic:", e);
         }
       } else {
         const id = recordIds[key];
-        if (!id) return console.error("Record ID tidak ditemukan:", key);
+        if (!id) return;
+
         try {
           await deleteOperationalRecord(id);
           setRecordIds((prev) => {
@@ -107,7 +111,6 @@ export const useTableLogic = (
             delete copy[key];
             return copy;
           });
-          console.log("🗑️ Record deleted:", id);
         } catch (e) {
           console.error("❌ Gagal menghapus record:", e);
         }
@@ -119,7 +122,9 @@ export const useTableLogic = (
   useEffect(() => {
     const norm = (activePage ?? "").trim().toLowerCase();
     const path =
-      typeof window !== "undefined" ? window.location.pathname.toLowerCase() : "";
+      typeof window !== "undefined"
+        ? window.location.pathname.toLowerCase()
+        : "";
 
     const map: Record<string, string> = {
       report: "report",
@@ -136,11 +141,16 @@ export const useTableLogic = (
       absensi: "operasional",
       tematik: "operasional",
       piket: "operasional",
+
+      // ✅ Tambah mapping assessment
+      assessments: "assessments",
     };
 
     const category =
       map[norm] ||
-      (path.includes("/report")
+      (path.includes("/assessments")
+        ? "assessments"
+        : path.includes("/report")
         ? "report"
         : path.includes("/attendance")
         ? "attendance"
@@ -155,11 +165,14 @@ export const useTableLogic = (
     setIsScoring(category === "scoring");
     setIsOrganization(category === "organization");
 
-    if (category === "organization" && activePage.toLowerCase() === "organization") {
+    // ✅ Set juga untuk assessments
+    setIsAssessments(category === "assessments");
+
+    if (category === "organization" && norm === "organization") {
       onPageChange("Attendance");
     }
 
-    if (category === "attendance" && activePage.toLowerCase() === "attendance") {
+    if (category === "attendance" && norm === "attendance") {
       onPageChange("Permissions");
     }
   }, [activePage]);
@@ -169,6 +182,10 @@ export const useTableLogic = (
     isAttendance,
     isScoring,
     isOrganization,
+
+    // ✅ Return assessments flag
+    isAssessments,
+
     checkedState,
     recordIds,
     researchData,

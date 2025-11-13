@@ -1,13 +1,22 @@
 "use client";
 
 import React from "react";
-import { operasional, report, attendance, scoring, organization } from "./headerConfig";
+import {
+  operasional,
+  report,
+  attendance,
+  scoring,
+  organization,
+  assessments,
+} from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
+
 import ReportTable from "./TableSection/ReportTable";
 import AttendanceTable from "./TableSection/AttendanceTable";
 import ScoringTable from "./TableSection/ScoringTable";
 import OperationalTable from "./TableSection/OperationalTable";
 import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
+import AssessmentsTable from "./TableSection/AssessmentsTable"; // ⬅️ pastikan sudah dibuat
 
 interface Props {
   activePage: string;
@@ -40,11 +49,13 @@ const TableField = ({
     isAttendance,
     isScoring,
     isOrganization,
+    isAssessments,
     checkedState,
     researchData,
     handleToggleCheckbox,
   } = useTableLogic(activePage, month, year, data, onPageChange);
 
+  // Tentukan header tabel
   let headersConfig: Record<string, string[]> =
     isReport
       ? report
@@ -54,15 +65,21 @@ const TableField = ({
       ? scoring
       : isOrganization
       ? organization
+      : isAssessments
+      ? assessments
       : customHeaderConfig ?? operasional;
 
+  // Filter data (khusus report)
   const filteredData = researchData.filter((item: any) => {
     const matchWeek = filterWeek === "All" || `Week ${item.week}` === filterWeek;
     const matchProgress =
       filterProgress === "All" ||
       item.progress.toLowerCase() === filterProgress.toLowerCase();
+
     return matchWeek && matchProgress;
   });
+
+  // == RENDER ==
 
   if (isReport)
     return (
@@ -80,8 +97,7 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        data={data}
-        searchQuery={searchQuery} 
+        searchQuery={searchQuery}
       />
     );
 
@@ -98,6 +114,16 @@ const TableField = ({
   if (isOrganization)
     return (
       <OrganizationSummaryTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={showMenu}
+        data={data}
+      />
+    );
+
+  if (isAssessments)
+    return (
+      <AssessmentsTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
