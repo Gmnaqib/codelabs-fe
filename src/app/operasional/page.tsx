@@ -9,22 +9,27 @@ import { CalendarMonthYearPicker } from "@/components/custom-ui/CalendarMonthYea
 
 const Operasional = () => {
   const [activePage, setActivePage] = useState("Absensi");
-
-  // ⏰ State untuk menyimpan bulan dan tahun terpilih
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState({
     year: new Date().getFullYear(),
-    month: new Date().getMonth(), // 0-based (0 = Jan)
+    month: new Date().getMonth(), // 0-indexed
   });
 
   return (
     <ProtectedRoute>
       <div>
         <Card>
-          <div className="flex gap-7">
-            <InputField type="string" placeholder="Search by NIM or Name" />
+          {/* 🔍 Filter Section */}
+          <div className="flex gap-7 px-5 py-4 items-center">
+            <InputField
+              type="text"
+              placeholder="Search by NIM or Name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+
             <CalendarMonthYearPicker
               onChange={(val) => {
-                console.log("📅 Selected:", val);
                 setSelectedDate(val);
               }}
               defaultYear={selectedDate.year}
@@ -32,13 +37,14 @@ const Operasional = () => {
             />
           </div>
 
-          <div className="mt-4 px-5">
+          {/* 📊 Table Section */}
+          <div className="px-5">
             <TableField
               activePage={activePage}
               onPageChange={setActivePage}
-              // ⏩ kirim ke TableField
-              month={selectedDate.month + 1} // ubah ke 1-based untuk backend
+              month={selectedDate.month + 1}
               year={selectedDate.year}
+              searchQuery={searchQuery}
             />
           </div>
         </Card>

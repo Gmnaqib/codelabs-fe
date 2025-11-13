@@ -23,6 +23,7 @@ interface OperationalTableProps {
   headersConfig: Record<string, string[]>;
   checkedState: Record<string, boolean>;
   onToggle: (page: string, rowIndex: number, day: string | number) => void;
+  searchQuery?: string;
 }
 
 const OperationalTable = ({
@@ -34,21 +35,20 @@ const OperationalTable = ({
   headersConfig,
   checkedState,
   onToggle,
+  searchQuery = "",
 }: OperationalTableProps) => {
   const [users, setUsers] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 🔹 Fetch users dan attendance
- // ...
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
         const [userRes, attendanceRes] = await Promise.all([
           getAllUsers(),
-          getAttendance(year, month), // ✅ pakai props
+          getAttendance(year, month),
         ]);
 
         const userAttendanceMap = attendanceRes.reduce(
@@ -75,8 +75,15 @@ const OperationalTable = ({
     };
 
     fetchData();
-  }, [year, month]); // 🔁 refetch setiap kali bulan/tahun berubah
+  }, [year, month]);
 
+  // 🔍 Filter data berdasarkan pencarian
+  const query = searchQuery.trim().toLowerCase();
+  const filteredUsers = users.filter((user) =>
+    (user.name?.toLowerCase() || "").includes(query) ||
+    (user.nim?.toString() || "").includes(query)
+  );
+  const displayUsers = query ? filteredUsers : users;
 
   const headers = headersConfig[activePage] || [];
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -93,9 +100,7 @@ const OperationalTable = ({
 
   if (loading) {
     return (
-      <div className="text-center py-10 text-gray-500">
-        Loading data...
-      </div>
+      <div className="text-center py-10 text-gray-500">Loading data...</div>
     );
   }
 
@@ -122,13 +127,19 @@ const OperationalTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((row, i) => (
+              {displayUsers.map((row, i) => (
                 <TableRow key={i} className="h-[48px]">
                   {headers.map((header, j) => {
                     const key = headerKeyMap[header] || header.toLowerCase();
                     let value = row[key] ?? "-";
 
-                    // Ambil hanya nama depan
+                    // 🧠 Jika value object, ubah ke string agar tidak error
+                    if (typeof value === "object" && value !== null) {
+                      value = Array.isArray(value)
+                        ? value.join(", ")
+                        : value.name || value.title || JSON.stringify(value);
+                    }
+
                     if (header === "Nama" && typeof value === "string") {
                       value = value.split(" ")[0];
                     }
@@ -147,17 +158,23 @@ const OperationalTable = ({
             <TableHeader>
               <TableRow>
                 {daysArray.map((day, i) => (
-                  <TableHead key={i} className="text-center w-[115px] min-w-[115px]">
+                  <TableHead
+                    key={i}
+                    className="text-center w-[115px] min-w-[115px]"
+                  >
                     {day}
                   </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((row, i) => (
+              {displayUsers.map((row, i) => (
                 <TableRow key={i} className="h-[48px]">
                   {daysArray.map((day, j) => (
-                    <TableCell key={j} className="text-center w-[115px] min-w-[115px]">
+                    <TableCell
+                      key={j}
+                      className="text-center w-[115px] min-w-[115px]"
+                    >
                       {renderCellContent(
                         activePage,
                         day,
@@ -183,12 +200,15 @@ const OperationalTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user, i) => {
+              {displayUsers.map((user, i) => {
                 const totalPresent =
-                  user.records?.filter((r: any) => r.status === "present").length ?? 0;
+                  user.records?.filter((r: any) => r.status === "present")
+                    .length ?? 0;
                 return (
                   <TableRow key={i} className="h-[48px]">
-                    <TableCell className="text-center">{totalPresent}</TableCell>
+                    <TableCell className="text-center">
+                      {totalPresent}
+                    </TableCell>
                   </TableRow>
                 );
               })}

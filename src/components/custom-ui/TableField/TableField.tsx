@@ -19,6 +19,7 @@ interface Props {
   showMenu?: boolean;
   filterWeek?: string;
   filterProgress?: string;
+  searchQuery?: string;
 }
 
 const TableField = ({
@@ -31,6 +32,7 @@ const TableField = ({
   showMenu = true,
   filterWeek = "All",
   filterProgress = "All",
+  searchQuery = "",
 }: Props) => {
   const {
     isReport,
@@ -54,13 +56,10 @@ const TableField = ({
       : customHeaderConfig ?? operasional;
 
   const filteredData = researchData.filter((item: any) => {
-    const matchWeek =
-      filterWeek === "All" || `Week ${item.week}` === filterWeek;
-
+    const matchWeek = filterWeek === "All" || `Week ${item.week}` === filterWeek;
     const matchProgress =
       filterProgress === "All" ||
       item.progress.toLowerCase() === filterProgress.toLowerCase();
-
     return matchWeek && matchProgress;
   });
 
@@ -114,6 +113,7 @@ const TableField = ({
       headersConfig={headersConfig}
       checkedState={checkedState}
       onToggle={handleToggleCheckbox}
+      searchQuery={searchQuery}
     />
   );
 };
