@@ -40,12 +40,15 @@ const OperationalTable = ({
   const [loading, setLoading] = useState(true);
 
   // 🔹 Fetch users dan attendance
+ // ...
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
+
         const [userRes, attendanceRes] = await Promise.all([
           getAllUsers(),
-          getAttendance(2025, 10), 
+          getAttendance(year, month), // ✅ pakai props
         ]);
 
         const userAttendanceMap = attendanceRes.reduce(
@@ -70,8 +73,10 @@ const OperationalTable = ({
         setLoading(false);
       }
     };
+
     fetchData();
-  }, []);
+  }, [year, month]); // 🔁 refetch setiap kali bulan/tahun berubah
+
 
   const headers = headersConfig[activePage] || [];
   const daysInMonth = new Date(year, month, 0).getDate();
