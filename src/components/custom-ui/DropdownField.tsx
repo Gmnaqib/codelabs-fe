@@ -16,6 +16,7 @@ interface DropdownFieldProps {
   title?: string;
   value?: string;
   onChange?: (value: string) => void;
+  onSelect?: (val: string) => void;
 }
 
 export function DropdownField({

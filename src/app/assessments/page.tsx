@@ -10,7 +10,7 @@ import { BsFillPeopleFill } from 'react-icons/bs'
 const Assessments = () => {
   return (
     <ProtectedRoute>
-        <div className="">
+        <div className="flex flex-col gap-10">
             <div className="flex justify-between items-center">
                 <InputField
                 type="string"
@@ -41,9 +41,7 @@ const Assessments = () => {
                     <p className="font-bold text-3xl">21</p>
                 </CardField>
             </div>
-        </div>
-
-        <TableField
+             <TableField
             activePage="assessments"
             onPageChange={() => {}}
             showMenu={false}
@@ -52,6 +50,7 @@ const Assessments = () => {
                 { rank: 2, name: "tes", monthly: "60", status: "Standard", detail: "Average performance" },
             ]}
         />
+        </div>
     </ProtectedRoute>
   )
 }

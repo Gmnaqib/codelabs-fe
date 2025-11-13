@@ -25,6 +25,6 @@ export const organization: Record<string, string[]> = {
   ResearchPoints: ["No", "Name", "Unfinished", "Finished", "Approved", "Total", "Points"],
 };
 
-export const assessments: Record<string, string[]> = {
-  assessments: ["Rank", "Name", "Monthly", "Status", "Action"],
+export const members: Record<string, string[]> = {
+  members: ["NIM", "Name", "Email", "Sub Riset", "Role", "Status"],
 };

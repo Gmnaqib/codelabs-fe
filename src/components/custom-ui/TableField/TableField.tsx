@@ -7,7 +7,7 @@ import {
   attendance,
   scoring,
   organization,
-  assessments,
+  members,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -17,6 +17,7 @@ import ScoringTable from "./TableSection/ScoringTable";
 import OperationalTable from "./TableSection/OperationalTable";
 import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 import AssessmentsTable from "./TableSection/AssessmentsTable"; // ⬅️ pastikan sudah dibuat
+import MembersTable from "./TableSection/MembersTable";
 
 interface Props {
   activePage: string;
@@ -50,6 +51,7 @@ const TableField = ({
     isScoring,
     isOrganization,
     isAssessments,
+    isMembers,
     checkedState,
     researchData,
     handleToggleCheckbox,
@@ -66,7 +68,7 @@ const TableField = ({
       : isOrganization
       ? organization
       : isAssessments
-      ? assessments
+      ? members
       : customHeaderConfig ?? operasional;
 
   // Filter data (khusus report)
@@ -124,6 +126,16 @@ const TableField = ({
   if (isAssessments)
     return (
       <AssessmentsTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={showMenu}
+        data={data}
+      />
+    );
+
+  if (isMembers)
+    return (
+      <MembersTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}

@@ -20,6 +20,7 @@ export const useTableLogic = (
   const [isAttendance, setIsAttendance] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
   const [isOrganization, setIsOrganization] = useState(false);
+  const [isMembers, setIsMembers] = useState(false);
 
   // ✅ Tambahan untuk Assessments
   const [isAssessments, setIsAssessments] = useState(false);
@@ -141,9 +142,8 @@ export const useTableLogic = (
       absensi: "operasional",
       tematik: "operasional",
       piket: "operasional",
-
-      // ✅ Tambah mapping assessment
       assessments: "assessments",
+      members: "members",
     };
 
     const category =
@@ -164,9 +164,8 @@ export const useTableLogic = (
     setIsAttendance(category === "attendance");
     setIsScoring(category === "scoring");
     setIsOrganization(category === "organization");
-
-    // ✅ Set juga untuk assessments
     setIsAssessments(category === "assessments");
+    setIsMembers(category === "members");
 
     if (category === "organization" && norm === "organization") {
       onPageChange("Attendance");
@@ -182,10 +181,8 @@ export const useTableLogic = (
     isAttendance,
     isScoring,
     isOrganization,
-
-    // ✅ Return assessments flag
+    isMembers,
     isAssessments,
-
     checkedState,
     recordIds,
     researchData,

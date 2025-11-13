@@ -13,7 +13,7 @@ import { DialogFieldProps } from "@/types/DialogFieldProps";
 import { Button } from "../ui/button";
 
 interface ExtendedDialogFieldProps extends DialogFieldProps {
-  noPadding?: boolean; // ✅ tambahan props baru
+  noPadding?: boolean; 
 }
 
 const DialogField = (props: ExtendedDialogFieldProps) => {
@@ -52,7 +52,7 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
         <Button
           variant={variant}
           onClick={onTriggerClick}
-          className={noPadding ? "py-0" : ""} // ✅ otomatis pakai py-0 kalau noPadding=true
+          className={noPadding ? "py-0" : ""} // ✅
         >
           {name}
         </Button>

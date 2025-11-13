@@ -5,3 +5,7 @@ export async function getAllUsers() {
     return data.data
 }
 
+export const createUser = async (payload: any) => {
+  const res = await axiosClient.post("/auth/register", payload);
+  return res.data;
+};
