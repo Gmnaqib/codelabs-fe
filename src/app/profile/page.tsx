@@ -48,13 +48,12 @@ const Profile = () => {
           <Image
             src="/icon/profile.png"
             alt="profile"
-            width={150}
-            height={150}
+            width={130}
+            height={130}
             className="rounded-full"
           />
-          <p>{user?.name}</p>
-          <p className="capitalize">{user?.role}</p>
-          {/* <p>{user?.email}</p> */}
+          <p className="text-sm mt-2">{user?.name}</p>
+          <p className="capitalize font-bold text-2xl">{user?.role}</p>
         </div>
 
         <p className="font-bold text-xl">Update Password</p>

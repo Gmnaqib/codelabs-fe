@@ -36,7 +36,6 @@ const Operasional = () => {
               defaultMonth={selectedDate.month}
             />
           </div>
-
           {/* 📊 Table Section */}
           <div className="px-5">
             <TableField

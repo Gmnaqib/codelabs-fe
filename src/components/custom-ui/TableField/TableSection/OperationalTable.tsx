@@ -13,6 +13,9 @@ import { Menubar } from "../../MenuBar";
 import { renderCellContent } from "../renderCellContent";
 import { getAllUsers } from "@/services/users/userService";
 import { getAttendance } from "@/services/attendance/attendanceService";
+import { FaInfo } from "react-icons/fa6";
+import { IoIosInformationCircle } from "react-icons/io";
+import { CheckCircle2, Clock, FileMinus, MinusCircle, Thermometer } from "lucide-react";
 
 interface OperationalTableProps {
   activePage: string;
@@ -107,13 +110,48 @@ const OperationalTable = ({
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {/* 🔹 Menubar */}
-      {showMenu && (
-        <Menubar
-          menus={Object.keys(headersConfig)}
-          activeMenu={activePage}
-          onChange={onPageChange}
-        />
-      )}
+      <div className="flex justify-between">
+        {showMenu && (
+          <Menubar
+            menus={Object.keys(headersConfig)}
+            activeMenu={activePage}
+            onChange={onPageChange}
+          />
+        )}
+
+      {activePage === "Absensi" && (
+        <div className="flex items-center gap-6 bg-gray-50 px-4 py-2 rounded-lg border w-fit ml-auto">
+        <div className="flex items-center gap-2">
+            <CheckCircle2 size={18} className="text-green-500" />
+            <span className="text-sm text-gray-600">Hadir</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Clock size={18} className="text-yellow-500"/>
+            <span className="text-sm text-gray-600">Tidak Check Out</span>
+          </div>  
+
+          <div className="flex items-center gap-2">
+            <Thermometer size={18} className="text-red-500" />
+            <span className="text-sm text-gray-600">Sakit</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <FileMinus size={18} className="text-blue-500" />
+            <span className="text-sm text-gray-600">Izin</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <MinusCircle size={18} className="text-gray-400" />
+            <span className="text-sm text-gray-600">Tidak Hadir</span>
+          </div>              
+      </div>
+      )
+
+      }
+
+
+      </div>
 
       <div className="flex">
         {/* 🔹 Kolom kiri (NIM, Nama) */}
