@@ -21,7 +21,7 @@ const ScoringTable = ({
   const scoringHeaders = scoring[activePage] ?? [];
 
   return (
-    <div className="w-full rounded-lg overflow-hidden">
+    <div className="w-full rounded-lg overflow-hidden px-5">
       {showMenu && (
         <Menubar menus={Object.keys(scoring)} activeMenu={activePage} onChange={onPageChange} />
       )}

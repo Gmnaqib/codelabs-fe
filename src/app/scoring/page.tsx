@@ -17,7 +17,7 @@ const KPIScoring = () => {
       <div className=''>
       <p className='text-muted-foreground mb-5'><span className='font-bold'>• 25%</span> of points from Attendance, <span className="font-bold">25%</span> of points from Branding, <span className="font-bold">25%</span> of points from Research, <span className="font-bold">5%</span> of points from Competition.</p>
       <Card>
-        <div className="flex justify-between">
+        <div className="flex justify-between px-5">
             <div className="flex items-center gap-3">
                 <div className='bg-[rgb(0,208,255,0.1)] text-[#00D0FF] rounded-full p-2'>
                     <FaTasks size={20} />
@@ -39,7 +39,7 @@ const KPIScoring = () => {
                 </div>
             </div>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between px-5">
           <FilterMonth />
           <div className="">
             <DialogField name="Add New Plan" title="Add New Plan" >
@@ -57,13 +57,11 @@ const KPIScoring = () => {
             </DialogField>
           </div>
         </div>
-        <div className="px-5">
           <TableField 
             activePage={activePage}
             onPageChange={setActivePage}
             showMenu={true} 
           />
-        </div>
       </Card>
     </div>
     </ProtectedRoute>

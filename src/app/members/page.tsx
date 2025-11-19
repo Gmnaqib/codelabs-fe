@@ -204,7 +204,7 @@ const Members = () => {
               onChange={(e) => updateForm("years", e.target.value)}
             />
 
-            <DropdownField
+            {/* <DropdownField
               title={form.role || "Select Role"}
               menu={[
                 "Lecturer",
@@ -221,7 +221,7 @@ const Members = () => {
               ]}
               label="Role"
               onSelect={(val) => updateForm("role", val)}
-            />
+            /> */}
           </DialogField>
         </div>
 
