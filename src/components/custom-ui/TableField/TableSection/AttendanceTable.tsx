@@ -118,6 +118,10 @@ const AttendanceTable = ({
     fetchData();
   }, [month, year, activePage]);
 
+  const filteredTodayData = todayData.filter((item) =>
+    item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const filteredData = allData.filter((item) =>
     item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -296,18 +300,15 @@ const handleReview = async (status: string) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {todayData.length > 0 ? (
-                      todayData.map(renderPermissionRow)
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={attendanceHeaders.length}
-                          className="text-center py-5"
-                        >
-                          Tidak ada data hari ini
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    {filteredTodayData.length > 0 ? (
+                        filteredTodayData.map(renderPermissionRow)
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={attendanceHeaders.length} className="text-center py-5">
+                            Tidak ada data hari ini
+                          </TableCell>
+                        </TableRow>
+                      )}
                   </TableBody>
                 </Table>
               </div>
