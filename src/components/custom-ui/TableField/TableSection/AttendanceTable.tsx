@@ -32,7 +32,7 @@ import DialogField from "../../DialogField";
 import { DropdownField } from "../../DropdownField";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
-import { getAllUsers } from "@/services/users/userService";
+import { getAllUsers, updateUser } from "@/services/users/userService";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -146,6 +146,20 @@ setTodayData([]);
       setLoading(false);
     }
   };
+
+  const handleChangeDevice = async (id: string, value: string) => {
+  const payload = {
+    change_device_id: value,
+  };
+
+  try {
+    await updateUser(id, payload);
+    console.log("Update success", payload);
+    
+  } catch (error) {
+    console.error("Failed to update user device permission:", error);
+  }
+};
 
   useEffect(() => {
     fetchData();
@@ -290,7 +304,11 @@ setTodayData([]);
       <TableCell className="text-center">{item.counts?.late ?? 0}</TableCell>
       <TableCell className="text-center">{item.counts?.absent ?? 0}</TableCell>
       <TableCell className="text-center">
-        <DropdownField title={item.changeDevice} menu={["Disable", "Ennable"]} />
+        <DropdownField
+          title={item.changeDevice}
+          menu={["true", "false"]}
+          onChange={(value) => handleChangeDevice(item.userId, value)}
+        />
       </TableCell>
       <TableCell className="text-center">
         <DialogField name="Detail" title="Attendance Detail" variant="outline" noPadding>
