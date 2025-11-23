@@ -8,11 +8,20 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
+
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
-const DoughnutChart = () => {
+type Props = {
+  filled: number; // uniqueResearchUsers
+  total: number;  // totalUsers
+};
+
+const DoughnutChart = ({ filled, total }: Props) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+
+  const percentage = total > 0 ? Math.round((filled / total) * 100) : 0;
+  const notFilled = total - filled;
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -22,60 +31,59 @@ const DoughnutChart = () => {
     }
 
     chartInstance.current = new Chart(chartRef.current, {
-    type: "doughnut",
-    data: {
+      type: "doughnut",
+      data: {
         labels: ["Logbook filled", "Not filled"],
         datasets: [
-        {
+          {
             label: "Progress",
-            data: [97, 3],
+            data: [filled, notFilled],
             borderWidth: 3,
             backgroundColor: [
-            "rgba(75, 192, 192, 0.6)",
-            "rgba(255, 159, 64, 0.6)",
-            ],
-        },
+              "rgba(11, 156, 49, 0.8)",  
+              "rgba(255, 0, 0, 0.8)",  
+            ]
+          },
         ],
-    },
-    options: {
+      },
+
+      options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: "60%", 
-        radius: "70%",  
+        cutout: "60%",
+        radius: "70%",
         plugins: {
-        legend: {
+          legend: {
             position: "top",
+          },
         },
+      },
+
+      plugins: [
+        {
+          id: "centerText",
+          afterDraw(chart) {
+            const { ctx } = chart;
+            const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+            const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+
+            ctx.save();
+            ctx.font = "bold 28px sans-serif";
+            ctx.fillStyle = "#333";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(`${percentage}%`, centerX, centerY);
+            ctx.restore();
+          },
         },
-    },
-
-    plugins: [
-    {
-        id: "centerText",
-        afterDraw(chart) {
-        const { ctx } = chart;
-        const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-        const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-
-        ctx.save();
-        ctx.font = "bold 28px sans-serif"; 
-        ctx.fillStyle = "#333";          
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("97%", centerX, centerY);
-        ctx.restore();
-        },
-    },
-    ],
-
+      ],
     });
-
-  }, []);
+  }, [filled, total]);
 
   return (
-        <div className="border-2">
-            <canvas ref={chartRef} />
-        </div>
+    <div className="h-64 flex">
+      <canvas ref={chartRef} />
+    </div>
   );
 };
 
