@@ -8,6 +8,7 @@ import {
   scoring,
   organization,
   members,
+  ristek,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -18,6 +19,8 @@ import OperationalTable from "./TableSection/OperationalTable";
 import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 import AssessmentsTable from "./TableSection/AssessmentsTable"; // ⬅️ pastikan sudah dibuat
 import MembersTable from "./TableSection/MembersTable";
+import ReportRistek from "./TableSection/RistekTable";
+import RistekTable from "./TableSection/RistekTable";
 
 interface Props {
   activePage: string;
@@ -52,6 +55,7 @@ const TableField = ({
     isOrganization,
     isAssessments,
     isMembers,
+    isRistek,
     checkedState,
     researchData,
     handleToggleCheckbox,
@@ -68,6 +72,8 @@ const TableField = ({
       : isOrganization
       ? organization
       : isAssessments
+      ? ristek
+      : isRistek
       ? members
       : customHeaderConfig ?? operasional;
 
@@ -151,6 +157,16 @@ const TableField = ({
         onPageChange={onPageChange}
         showMenu={showMenu}
         data={data}
+      />
+    );
+
+  if (isRistek)
+    return (
+      <RistekTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={showMenu}
+        researchData={filteredData}
       />
     );
 

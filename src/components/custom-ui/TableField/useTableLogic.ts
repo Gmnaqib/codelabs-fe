@@ -21,6 +21,7 @@ export const useTableLogic = (
   const [isScoring, setIsScoring] = useState(false);
   const [isOrganization, setIsOrganization] = useState(false);
   const [isMembers, setIsMembers] = useState(false);
+  const [isRistek, setIsRistek] = useState(false);
 
   // ✅ Tambahan untuk Assessments
   const [isAssessments, setIsAssessments] = useState(false);
@@ -158,6 +159,8 @@ export const useTableLogic = (
         ? "scoring"
         : path.includes("/organization")
         ? "organization"
+        : path.includes("/ristek")
+        ? "ristek"
         : "operasional");
 
     setIsReport(category === "report");
@@ -166,6 +169,7 @@ export const useTableLogic = (
     setIsOrganization(category === "organization");
     setIsAssessments(category === "assessments");
     setIsMembers(category === "members");
+    setIsRistek(category === "ristek");
 
     if (category === "organization" && norm === "organization") {
       onPageChange("Attendance");
@@ -182,6 +186,7 @@ export const useTableLogic = (
     isScoring,
     isOrganization,
     isMembers,
+    isRistek,
     isAssessments,
     checkedState,
     recordIds,

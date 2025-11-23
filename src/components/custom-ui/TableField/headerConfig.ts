@@ -28,3 +28,15 @@ export const organization: Record<string, string[]> = {
 export const members: Record<string, string[]> = {
   members: ["NIM", "Name", "Email", "Sub Riset", "Role", "Status"],
 };
+
+export const competition: Record<string, string[]> = {
+  members: ["Name", "Label", "Action"],
+};
+
+export const branding: Record<string, string[]> = {
+  members: ["Name", "Label", "Content Type", "Action"],
+};
+
+export const ristek: Record<string, string[]> = {
+  members: ["Name", "Label", "Action"],
+};

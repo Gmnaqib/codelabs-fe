@@ -41,6 +41,21 @@ export const menuItems = [
     route: "/members",
   },
   {
+    title: "Resarch & Tech",
+    icon: IoIosPeople,
+    route: "/ristek",
+  },
+  {
+    title: "Competition",
+    icon: IoIosPeople,
+    route: "/competition",
+  },
+  {
+    title: "Branding",
+    icon: IoIosPeople,
+    route: "/branding",
+  },
+  {
     title: "Log Out",
     icon: HiOutlineLogout,
     route: "/logout",
