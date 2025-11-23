@@ -169,7 +169,6 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        researchData={filteredData}
       />
     );
 
@@ -179,7 +178,6 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        researchData={filteredData}
       />
     );
 
@@ -189,7 +187,6 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        researchData={filteredData}
       />
     );
 

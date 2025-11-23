@@ -13,8 +13,6 @@ import { Menubar } from "../../MenuBar";
 import { renderCellContent } from "../renderCellContent";
 import { getAllUsers } from "@/services/users/userService";
 import { getAttendance } from "@/services/attendance/attendanceService";
-import { FaInfo } from "react-icons/fa6";
-import { IoIosInformationCircle } from "react-icons/io";
 import { CheckCircle2, Clock, FileMinus, MinusCircle, Thermometer } from "lucide-react";
 
 interface OperationalTableProps {

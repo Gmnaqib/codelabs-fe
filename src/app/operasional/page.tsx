@@ -19,7 +19,6 @@ const Operasional = () => {
     <ProtectedRoute>
       <div>
         <Card>
-          {/* 🔍 Filter Section */}
           <div className="flex gap-7 px-5 py-4 items-center">
             <InputField
               type="text"
