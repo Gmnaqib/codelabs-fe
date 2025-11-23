@@ -122,6 +122,7 @@ const merged = users.map((u: any) => {
     // jika ingin tetap menyertakan properti summary (mis. counts)
     userId: u._id,
     userName: u.name || "-",
+    changeDevice: u.change_device_id ? "True" : "False",
     userDetail: u,
     counts: s?.counts ?? {
       present: 0,
@@ -289,7 +290,7 @@ setTodayData([]);
       <TableCell className="text-center">{item.counts?.late ?? 0}</TableCell>
       <TableCell className="text-center">{item.counts?.absent ?? 0}</TableCell>
       <TableCell className="text-center">
-        <DropdownField title="Disable" menu={["Disable", "Ennable"]} />
+        <DropdownField title={item.changeDevice} menu={["Disable", "Ennable"]} />
       </TableCell>
       <TableCell className="text-center">
         <DialogField name="Detail" title="Attendance Detail" variant="outline" noPadding>
