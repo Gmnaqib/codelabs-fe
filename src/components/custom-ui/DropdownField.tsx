@@ -15,6 +15,7 @@ interface DropdownFieldProps {
   menu?: string[];
   title?: string;
   value?: string;
+  disabled?: boolean;
   onChange?: (value: string) => void;
   onSelect?: (val: string) => void;
 }
@@ -24,7 +25,9 @@ export function DropdownField({
   menu = [],
   label,
   onChange,
+  onSelect,
   value,
+  disabled 
 }: DropdownFieldProps) {
   const [selected, setSelected] = React.useState(value || title);
 
@@ -35,6 +38,7 @@ export function DropdownField({
   const handleSelect = (item: string) => {
     setSelected(item);
     onChange?.(item);
+    onSelect?.(item); 
   };
 
   return (
@@ -46,6 +50,7 @@ export function DropdownField({
             type="button"
             variant="outline"
             className="flex items-center justify-between text-base font-light"
+            disabled={disabled}
           >
             {selected || title}
             <IoIosArrowDown className="ml-2 text-ring" />

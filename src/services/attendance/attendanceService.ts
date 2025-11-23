@@ -17,7 +17,6 @@ export async function getAllLeaveRequests(year: number, month: number) {
   return filtered;
 }
 
-
 export async function getTodayLeaveRequests() {
   try {
     const { data } = await axiosClient.get("/attendance/leave-requests/today");
@@ -31,4 +30,26 @@ export async function getTodayLeaveRequests() {
 export async function getAttendanceSummary() {
   const { data } = await axiosClient.get("/attendance/summary");
   return data.data;
+}
+
+export async function getLeaveRequestById(id: string) {
+  try {
+    const { data } = await axiosClient.get(`/attendance/leave-requests/${id}`);
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching leave request by id:", error);
+    throw error;
+  }
+}
+
+export async function reviewLeaveRequest(id: string, status: string) {
+  try {
+    const res = await axiosClient.patch(`/attendance/leave-requests/review/${id}`, {
+      approvalStatus: status,
+    });
+  }catch (error) {
+    console.error("Error fetching leave request by id:", error);
+    throw error;
+  }
+    
 }
