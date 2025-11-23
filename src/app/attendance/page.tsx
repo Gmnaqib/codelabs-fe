@@ -23,7 +23,10 @@ const Attendance = () => {
     const fetchSummary = async () => {
       try {
         setLoading(true);
-        const res = await getAttendanceSummary();
+        const res = await getAttendanceSummary(
+          selectedDate.year,
+          selectedDate.month + 1 
+        );
         setSummary(res);
       } catch (err) {
         console.error("❌ Error fetching attendance summary:", err);
@@ -31,8 +34,10 @@ const Attendance = () => {
         setLoading(false);
       }
     };
+
     fetchSummary();
-  }, []);
+  }, [selectedDate]);
+
 
   const totalPresent =
     summary?.reduce((acc: number, u: any) => acc + (u.counts?.present ?? 0), 0) ?? 0;
