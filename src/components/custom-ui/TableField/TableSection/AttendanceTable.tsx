@@ -116,6 +116,7 @@ const AttendanceTable = ({
 
   useEffect(() => {
     fetchData();
+    setCurrentPage(1); // reset halaman setiap ganti menu / bulan / tahun
   }, [month, year, activePage]);
 
   const filteredTodayData = todayData.filter((item) =>
@@ -126,8 +127,13 @@ const AttendanceTable = ({
     item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
+  // Data paginasi general (untuk semua page)
+  const dataToPaginate =
+    activePage === "Permissions" ? filteredData : filteredData;
+
+  const totalPages = Math.ceil(dataToPaginate.length / itemsPerPage);
+
+  const paginatedData = dataToPaginate.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -138,26 +144,25 @@ const AttendanceTable = ({
     setSelectedLeave(detail);
   }
 
-const handleReview = async (status: string) => {
-  if (!selectedLeave?._id) {
-    alert("No selected leave to review.");
-    return;
-  }
+  const handleReview = async (status: string) => {
+    if (!selectedLeave?._id) {
+      alert("No selected leave to review.");
+      return;
+    }
 
-  try {
-    const payloadStatus = status.toLowerCase();
-    await reviewLeaveRequest(selectedLeave._id, payloadStatus);
-    toast.success("Update Data berhasis!");
-    setSelectedLeave((prev: any) =>
-      prev ? { ...prev, approvalStatus: payloadStatus } : prev
-    );
+    try {
+      const payloadStatus = status.toLowerCase();
+      await reviewLeaveRequest(selectedLeave._id, payloadStatus);
+      toast.success("Update Data berhasis!");
+      setSelectedLeave((prev: any) =>
+        prev ? { ...prev, approvalStatus: payloadStatus } : prev
+      );
 
-    await fetchData();
-  } catch (err) {
-    showErrorToast("Gagal memperbarui data.", { duration: 5000 });
-  }
-};
-
+      await fetchData();
+    } catch (err) {
+      showErrorToast("Gagal memperbarui data.", { duration: 5000 });
+    }
+  };
 
   const renderPermissionRow = (item: any, index: number) => (
     <TableRow key={index}>
@@ -197,7 +202,7 @@ const handleReview = async (status: string) => {
             <p>Loading ...</p>
           ) : (
             <div className="flex flex-col gap-7">
-              <div className="">
+              <div>
                 <p className="font-semibold">Name</p>
                 <p>{selectedLeave.userName}</p>
               </div>
@@ -224,7 +229,7 @@ const handleReview = async (status: string) => {
                   <p className="font-semibold">Permission</p>
                   <DropdownField
                     key={selectedLeave._id}
-                    title={(selectedLeave.approvalStatus)} // optional tampilkan capitalized
+                    title={selectedLeave.approvalStatus}
                     menu={["Approved", "Rejected"]}
                     disabled={selectedLeave.approvalStatus?.toLowerCase() !== "pending"}
                     onSelect={(value) => handleReview(value)}
@@ -276,6 +281,7 @@ const handleReview = async (status: string) => {
         />
       )}
 
+      {/* Today Section (khusus Permissions) */}
       {activePage === "Permissions" && (
         <>
           <div className="flex items-center w-full px-5 gap-2 bg-white pt-5">
@@ -301,14 +307,14 @@ const handleReview = async (status: string) => {
                   </TableHeader>
                   <TableBody>
                     {filteredTodayData.length > 0 ? (
-                        filteredTodayData.map(renderPermissionRow)
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={attendanceHeaders.length} className="text-center py-5">
-                            Tidak ada data hari ini
-                          </TableCell>
-                        </TableRow>
-                      )}
+                      filteredTodayData.map(renderPermissionRow)
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={attendanceHeaders.length} className="text-center py-5">
+                          Tidak ada data hari ini
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -317,12 +323,7 @@ const handleReview = async (status: string) => {
         </>
       )}
 
-      <div className="flex items-center w-full px-5 gap-3 bg-white pt-5">
-        <p className="font-bold text-xl">
-          {activePage === "Permissions" ? "All Report" : "Total Attendance Summary"}
-        </p>
-      </div>
-
+      {/* Main Table (Pagination untuk semua halaman) */}
       <Card>
         <div className="px-5">
           <Table className="w-full">
@@ -335,36 +336,25 @@ const handleReview = async (status: string) => {
             </TableHeader>
 
             <TableBody>
-              {activePage === "Permissions"
-                ? paginatedData.length > 0
-                  ? paginatedData.map(renderPermissionRow)
-                  : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={attendanceHeaders.length}
-                        className="text-center py-5"
-                      >
-                        Tidak ada data laporan
-                      </TableCell>
-                    </TableRow>
-                  )
-                : allData.length > 0
-                  ? allData.map(renderSummaryRow)
-                  : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={attendanceHeaders.length}
-                        className="text-center py-5"
-                      >
-                        Tidak ada data kehadiran
-                      </TableCell>
-                    </TableRow>
-                  )}
+              {paginatedData.length > 0 ? (
+                paginatedData.map((item, index) =>
+                  activePage === "Permissions"
+                    ? renderPermissionRow(item, index)
+                    : renderSummaryRow(item, index)
+                )
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={attendanceHeaders.length} className="text-center py-5">
+                    Tidak ada data
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
 
-        {activePage === "Permissions" && (
+        {/* Pagination muncul untuk semua halaman */}
+        {totalPages > 1 && (
           <Pagination className="mt-4">
             <PaginationContent>
               <PaginationItem>
@@ -373,6 +363,7 @@ const handleReview = async (status: string) => {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 />
               </PaginationItem>
+
               {[...Array(totalPages)].map((_, i) => (
                 <PaginationItem key={i}>
                   <PaginationLink
@@ -384,7 +375,9 @@ const handleReview = async (status: string) => {
                   </PaginationLink>
                 </PaginationItem>
               ))}
-              {totalPages > 3 && <PaginationEllipsis />}
+
+              {totalPages > 5 && <PaginationEllipsis />}
+
               <PaginationItem>
                 <PaginationNext
                   href="#"
