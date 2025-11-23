@@ -73,13 +73,21 @@ const TableField = ({
 
   // Filter data (khusus report)
   const filteredData = researchData.filter((item: any) => {
-    const matchWeek = filterWeek === "All" || `Week ${item.week}` === filterWeek;
+    const date = new Date(item.createdAt);
+
+    const matchMonth = date.getMonth() + 1 === month;
+    const matchYear = date.getFullYear() === year;
+
+    const matchWeek =
+      filterWeek === "All" || `Week ${item.week}` === filterWeek;
+
     const matchProgress =
       filterProgress === "All" ||
       item.progress.toLowerCase() === filterProgress.toLowerCase();
 
-    return matchWeek && matchProgress;
+    return matchMonth && matchYear && matchWeek && matchProgress;
   });
+
 
   // == RENDER ==
 

@@ -11,20 +11,22 @@ import { createResearchRecord } from "@/services/research/researchService";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
+import { CalendarMonthYearPicker } from "@/components/custom-ui/CalendarMonthYearPicker";
 
 const WeeklyReport = () => {
   const [activePage, setActivePage] = useState<string>("");
-
   const [title, setTitle] = useState("");
   const [week, setWeek] = useState("");
   const [progress, setProgress] = useState("");
   const [link, setLink] = useState("");
   const [challenge, setChallenge] = useState("");
-
   const [filterWeek, setFilterWeek] = useState("All");
   const [filterProgress, setFilterProgress] = useState("All");
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()+ 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  const now = new Date();
 
   const handleSubmit = async () => {
     if (!title || !week || !progress) {
@@ -72,7 +74,12 @@ const WeeklyReport = () => {
     <ProtectedRoute>
       <div className="flex w-full justify-between mb-10">
         <div className="flex gap-7">
-          <FilterMonth />
+          <CalendarMonthYearPicker 
+            onChange={({ month, year }) => {
+              setSelectedMonth(month + 1); 
+              setSelectedYear(year);
+            }}
+          />
 
           <DropdownField
             key="week-filter"
@@ -150,6 +157,8 @@ const WeeklyReport = () => {
             showMenu={false}
             filterWeek={filterWeek}
             filterProgress={filterProgress}
+            month={selectedMonth}
+            year={selectedYear}
           />
         </div>
       </Card>
