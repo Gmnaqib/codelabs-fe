@@ -15,8 +15,8 @@ const Dashboard = () => {
   
   return (
     <ProtectedRoute>
-      <div className="flex gap-5 bg-secondary">
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-3 mr-72">
+      <div className="flex bg-secondary">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-3 mr-[263px]">
             <AttendanceCard />
             <MonthlyProgressCard />
             <CashBillsCard />
@@ -30,7 +30,7 @@ const Dashboard = () => {
             <ResearchPercentage/>
             <OrganizationSummary className="col-span-3 h-full"/>
         </div>
-        <div className="flex flex-col gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
+        <div className="flex flex-col w-[275px] gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
           <p className='font-semibold '>Schedule</p>
           <Calendar
           mode="single"

@@ -65,7 +65,7 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
       >
         <MdArrowBackIos
           size={20}
-          className={`transition-transform duration-300 ${isActive ? "rotate-180" : ""}`}
+          className={`transition-transform duration-300 ${isActive ? "" : "rotate-180"}`}
         />
       </Button>
     </div>

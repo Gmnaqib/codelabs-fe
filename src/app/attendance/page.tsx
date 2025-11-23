@@ -19,7 +19,6 @@ const Attendance = () => {
   const [summary, setSummary] = useState<any>(null); // ✅ state untuk summary
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch attendance summary saat mount
   useEffect(() => {
     const fetchSummary = async () => {
       try {
@@ -35,7 +34,6 @@ const Attendance = () => {
     fetchSummary();
   }, []);
 
-  // ✅ Hitung total agregat (kalau summary berbentuk array)
   const totalPresent =
     summary?.reduce((acc: number, u: any) => acc + (u.counts?.present ?? 0), 0) ?? 0;
   const totalPermit =
