@@ -27,8 +27,9 @@ export async function getTodayLeaveRequests() {
   }
 }
 
-export async function getAttendanceSummary() {
-  const { data } = await axiosClient.get("/attendance/summary");
+export async function getAttendanceSummary(year?: number, month?: number) {
+  const query = year && month ? `?year=${year}&month=${month}` : "";
+  const { data } = await axiosClient.get(`/attendance/summary${query}`);
   return data.data;
 }
 

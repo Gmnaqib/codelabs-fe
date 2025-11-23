@@ -32,6 +32,7 @@ import DialogField from "../../DialogField";
 import { DropdownField } from "../../DropdownField";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
+import { getAllUsers } from "@/services/users/userService";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -103,10 +104,41 @@ const AttendanceTable = ({
         setTodayData(today);
         setAllData(all);
       } else if (activePage === "TotalAttendance") {
-        const summary = await getAttendanceSummary();
-        setAllData(summary);
-        setTodayData([]);
+ const [summary, users] = await Promise.all([
+  getAttendanceSummary(year, month),
+  getAllUsers(),
+]);
+
+// buat lookup cepat dari summary berdasarkan userId
+const summaryByUserId: Record<string, any> = {};
+summary.forEach((s: any) => {
+  summaryByUserId[s.userId] = s;
+});
+
+// map melalui users agar semua user muncul
+const merged = users.map((u: any) => {
+  const s = summaryByUserId[u._id];
+  return {
+    // jika ingin tetap menyertakan properti summary (mis. counts)
+    userId: u._id,
+    userName: u.name || "-",
+    userDetail: u,
+    counts: s?.counts ?? {
+      present: 0,
+      leave: 0,
+      sick: 0,
+      late: 0,
+      absent: 0,
+    },
+    // sertakan field summary lain bila ada (mis. s._id, s.totalDays)
+    ...(s ? { _summaryId: s._id, ...s } : {}),
+  };
+});
+
+setAllData(merged);
+setTodayData([]);
       }
+
     } catch (err) {
       console.error("❌ Error fetching attendance data:", err);
     } finally {
