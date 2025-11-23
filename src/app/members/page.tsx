@@ -43,12 +43,13 @@ const Members = () => {
       const data = await getAllUsers();
 
       const mapped: UserType[] = data.map((u: any) => ({
+        _id: u._id,
         nim: u.nim,
         name: u.name,
         email: u.email,
         role: u.role ? u.role : "Other",
         status: u.status || "Unknown",
-        subriset: ["ui/ux", "mobile", "iot", "web", "game", "data"].includes(
+        subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(
           u.research?.toLowerCase()
         )
           ? u.research

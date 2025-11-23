@@ -13,7 +13,7 @@ import {
 
 import { DropdownField } from "@/components/custom-ui/DropdownField";
 import { members } from "@/components/custom-ui/TableField/headerConfig";
-import DialogField from "@/components/custom-ui/DialogField";
+import { updateUser } from "@/services/users/userService";
 
 interface Props {
   activePage: string;
@@ -30,6 +30,18 @@ const MembersTable = ({
 }: Props) => {
   const headers = members[activePage] || [];
 
+  const handleUpdate = async (id: string, key: string, value: string) => {
+    try {
+      const payload: any = {};
+      payload[key] = value.toLowerCase(); 
+
+      await updateUser(id, payload);
+      console.log(`✔ Berhasil update ${key}:`, value);
+    } catch (err) {
+      console.error(`❌ Gagal update ${key}:`, err);
+    }
+  };
+
   return (
     <div className="w-full">
       <Card className="w-full rounded-lg shadow-sm">
@@ -44,68 +56,74 @@ const MembersTable = ({
             </TableHeader>
 
             <TableBody>
-              {data.length > 0 ? (
-                data.map((item: any, i) => (
+                {data.length > 0 ? (
+                data.map((item: any, i) => {
+                  console.log("DEBUG USER:", item); // 🔥 TARUH DI SINI
+                  return (
                   <TableRow key={i}>
-
-                    {/* NIM */}
-                    <TableCell className="w-[120px] whitespace-normal break-words">
+                    <TableCell className="w-[120px] break-words">
                       {item.nim}
                     </TableCell>
 
-                    {/* Name */}
-                    <TableCell className="w-[180px] whitespace-normal break-words">
+                    <TableCell className="w-[180px] break-words">
                       {item.name}
                     </TableCell>
 
-                    {/* Email */}
                     <TableCell className="w-[260px] whitespace-normal break-words">
                       {item.email}
                     </TableCell>
 
-                    {/* SUB RISET */}
-                    <TableCell className="w-[150px]">
-                        <DropdownField
-                            title={item.subriset || "Other"}
-                            menu={["UI/UX", "Mobile", "IOT", "Web", "Game", "Data", "Other"]}
-                        />
-                    </TableCell>
-
-                    {/* ROLE */}
-                    <TableCell className="w-[200px]">
-                        <DropdownField
-                        title={
-                            item.role && item.role.length > 15
-                            ? item.role.slice(0, 12) + "..."
-                            : item.role || "User"
-                        }
-                        menu={[
-                            "Lecturer",
-                            "Admin",
-                            "User",
-                            "Minister of Operational",
-                            "Minister of Research",
-                            "Minister of Research and Operational",
-                            "Minister of and Branding",
-                            "Minister of Competition",
-                            "Minister of Branding",
-                            "President",
-                            "Vice President",
-                            "Other",
-                        ]}
-                        />
-                    </TableCell>
-
-                    {/* STATUS */}
+                    {/* RESEARCH DROPDOWN */}
                     <TableCell className="w-[150px]">
                       <DropdownField
-                        title={item.status || "Active"}
-                        menu={["Active", "Inactive", "Graduated"]}
+                        title={item.subriset}
+                        menu={["Website", "Mobile", "Game", "UI/UX", "Data", "Other"]}
+                        onSelect={(val: string) =>
+                          handleUpdate(item._id, "research", val)
+                        }
                       />
                     </TableCell>
 
+                    {/* ROLE DROPDOWN */}
+                    <TableCell className="w-[200px]">
+                      <DropdownField
+                        title={
+                            item.role && item.role.length > 15
+                            ? item.role.slice(0, 14) + "..."
+                            : item.role
+                        }
+                        menu={[
+                          "Admin",
+                          "Lecturer",
+                          "President",
+                          "Vice President",
+                          "Minister of Research",
+                          "Minister of Competition",
+                          "Minister of Branding",
+                          "Minister of Operation",
+                          "Minister of Research and Operation",
+                          "Minister of Research and Competition",
+                          "User",
+                        ]}
+                        onSelect={(val: string) =>
+                          handleUpdate(item._id, "role", val)
+                        }
+                      />
+                    </TableCell>
+
+                    {/* STATUS DROPDOWN */}
+                    <TableCell className="w-[150px]">
+                      <DropdownField
+                        title={item.status || "Active"}
+                        menu={["Active", "Inactive"]}
+                        onSelect={(val: string) =>
+                          handleUpdate(item._id, "status", val)
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
-                ))
+                );
+                })
               ) : (
                 <TableRow>
                   <TableCell
