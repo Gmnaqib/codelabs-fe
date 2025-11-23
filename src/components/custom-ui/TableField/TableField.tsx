@@ -20,8 +20,8 @@ import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 import AssessmentsTable from "./TableSection/AssessmentsTable"; // ⬅️ pastikan sudah dibuat
 import MembersTable from "./TableSection/MembersTable";
 import RistekTable from "./TableSection/RistekTable";
-import Competiton from "@/app/competition/page";
 import CompetitionTable from "./TableSection/CompetitionTable";
+import BrandingTable from "./TableSection/BrandingTable";
 
 interface Props {
   activePage: string;
@@ -58,6 +58,7 @@ const TableField = ({
     isMembers,
     isRistek,
     isCompetition,
+    isBranding,
     checkedState,
     researchData,
     handleToggleCheckbox,
@@ -175,6 +176,16 @@ const TableField = ({
   if (isCompetition)
     return (
       <CompetitionTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={showMenu}
+        researchData={filteredData}
+      />
+    );
+
+  if (isBranding)
+    return (
+      <BrandingTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
