@@ -6,7 +6,7 @@ import {
   createOperationalRecord,
   deleteOperationalRecord,
 } from "@/services/operational/operationalService";
-import { getAllResearchRecords } from "@/services/research/researchService";
+import { getMeResearchRecords } from "@/services/research/researchService";
 import { getAllUsers } from "@/services/users/userService";
 
 export const useTableLogic = (
@@ -33,7 +33,7 @@ export const useTableLogic = (
   useEffect(() => {
     const fetchResearch = async () => {
       try {
-        const res = await getAllResearchRecords();
+        const res = await getMeResearchRecords();
         const result = Array.isArray(res) ? res : res.data ?? [];
         setResearchData(result);
       } catch (e) {

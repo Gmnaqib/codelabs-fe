@@ -1,7 +1,7 @@
 import { axiosClient } from "@/lib/axiosClient";
 
-export const getAllResearchRecords = async () => {
-  const res = await axiosClient.get("/research/my");
+export const getMeResearchRecords = async () => {
+  const res = await axiosClient.get("/research/me");
   return res.data.data;
 };
 
