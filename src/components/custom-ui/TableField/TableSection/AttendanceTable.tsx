@@ -252,9 +252,9 @@ const AttendanceTable = ({
     <TableRow key={index}>
       <TableCell className="text-center text-base">{item.userName}</TableCell>
       <TableCell className="text-center">{item.counts?.present ?? 0}</TableCell>
-      <TableCell className="text-center">{item.counts?.late ?? 0}</TableCell>
-      <TableCell className="text-center">{item.counts?.sick ?? 0}</TableCell>
       <TableCell className="text-center">{item.counts?.leave ?? 0}</TableCell>
+      <TableCell className="text-center">{item.counts?.sick ?? 0}</TableCell>
+      <TableCell className="text-center">{item.counts?.late ?? 0}</TableCell>
       <TableCell className="text-center">{item.counts?.absent ?? 0}</TableCell>
       <TableCell className="text-center">
         <DropdownField title="Disable" menu={["Disable", "Ennable"]} />
