@@ -21,6 +21,6 @@ export const getResearchById = async (id: string) => {
 };
 
 export async function updateResearchRecord(id: string, payload: any) {
-  const { data } = await axiosClient.patch(`/research/${id}`, payload)
+  const { data } = await axiosClient.patch(`/research/me/${id}`, payload)
   return data
 }
