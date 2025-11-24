@@ -172,29 +172,41 @@ const BrandingTable = ({
                       title="Detail Branding"
                       onTriggerClick={() => handleOpenDialog(item._id)}
                     >
-                      <div>
-                        <p className="font-semibold">Title</p>
-                        <p>{item.name}</p>
+                      <div className="flex flex-col gap-4">
+                        <div className="">
+                          <p className="font-semibold">Title</p>
+                          <p>{item.name}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Level Type</p>
-                        <p>{item.level}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Level Type</p>
+                          <p>{item.level}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Research Category</p>
-                        <p>{item.research}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Research Category</p>
+                          <p>{item.research}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Content Link</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Content Link</p>
                         <p>{item.link}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Description</p>
-                        <p>{item.description}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Description</p>
+                          <p>{item.description}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Change Label</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Change Label</p>
                         <div className="mt-4">
                           <DropdownField
                             title={item.status}
                             menu={["Approved", "Rejected"]}
                             onSelect={(value) => handleReview(value)}
                           />
+                          </div>
                         </div>
                       </div>
                     </DialogField>

@@ -9,10 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Menubar } from "../../MenuBar";
 import { competition } from "../headerConfig";
 import DialogField from "../../DialogField";
 import { Card } from "@/components/ui/card";
+
 import {
   Pagination,
   PaginationContent,
@@ -22,14 +24,16 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-import { getAllCompetition } from "@/services/competition/competitionService";
 
-interface CompetitionTableProps {
-  activePage: string;
-  onPageChange: (menu: string) => void;
-  showMenu?: boolean;
-}
+import {
+  getAllCompetition,
+  getCompetitionById,
+  updateCompetitionStatus,
+} from "@/services/competition/competitionService";
 
+import { DropdownField } from "../../DropdownField";
+
+// ================== STATUS COLOR ===================
 const getStatusClass = (status: string) => {
   switch (status?.toUpperCase()) {
     case "APPROVED":
@@ -42,14 +46,35 @@ const getStatusClass = (status: string) => {
       return "bg-gray-100 text-gray-700";
   }
 };
+// ====================================================
+
+interface Competition {
+  _id: string;
+  name: string;
+  title: string;
+  type: string;
+  status: string;
+  link: string;
+  description: string;
+}
+
+interface CompetitionTableProps {
+  activePage: string;
+  onPageChange: (menu: string) => void;
+  showMenu?: boolean;
+}
 
 const CompetitionTable = ({
   activePage,
   onPageChange,
   showMenu = true,
 }: CompetitionTableProps) => {
-  const [competitionData, setCompetitionData] = useState<any[]>([]);
+  const [competitionData, setCompetitionData] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // ===================== FIX: selectedId Menyimpan OBJECT ====================
+  const [selectedId, setSelectedId] = useState<Competition | null>(null);
+  // ===========================================================================
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,28 +83,52 @@ const CompetitionTable = ({
   const competitionKey = Object.keys(competition)[0];
   const competitionHeaders = competition[competitionKey] ?? [];
 
-  // Fetch data
-  useEffect(() => {
-    const fetchCompetition = async () => {
-      try {
-        const data = await getAllCompetition();
-        setCompetitionData(data);
-      } catch (err) {
-        console.error("Error fetching competition:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // =================== FETCH DATA ===================
+  const fetchCompetition = async () => {
+    try {
+      const data = await getAllCompetition();
+      setCompetitionData(data);
+    } catch (err) {
+      console.error("Error fetching competition:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCompetition();
   }, []);
+  // ====================================================
 
-  // Pagination slice
   const totalPages = Math.ceil(competitionData.length / itemsPerPage);
   const paginatedData = competitionData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // =============== OPEN DIALOG & GET DETAIL ===============
+  async function handleOpenDialog(id: string) {
+    const detail = await getCompetitionById(id);
+    setSelectedId(detail);
+  }
+  // ========================================================
+
+  // ================== UPDATE STATUS ========================
+  async function handleReview(newStatus: string) {
+    if (!selectedId?._id) {
+      console.error("ID tidak ditemukan. selectedId:", selectedId);
+      return;
+    }
+
+    try {
+      await updateCompetitionStatus(selectedId._id, newStatus);
+      await fetchCompetition(); // refresh table
+      console.log("Updated:", newStatus);
+    } catch (err) {
+      console.error("Gagal update status:", err);
+    }
+  }
+  // ========================================================
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
@@ -104,20 +153,22 @@ const CompetitionTable = ({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={competitionHeaders.length} className="text-center py-6">
+                <TableCell
+                  colSpan={competitionHeaders.length}
+                  className="text-center py-6"
+                >
                   Loading...
                 </TableCell>
               </TableRow>
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item, i) => (
                 <TableRow key={i}>
-                  
                   {/* name */}
                   <TableCell className="text-center">
                     {item.name ?? "-"}
                   </TableCell>
 
-                  {/* status with color */}
+                  {/* status */}
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(
@@ -128,16 +179,48 @@ const CompetitionTable = ({
                     </span>
                   </TableCell>
 
-                  {/* detail */}
+                  {/* Detail Dialog */}
                   <TableCell className="text-center">
-                    <DialogField name="Review" title="Detail Lomba">
-                      <p><strong>Name:</strong> {item.name}</p>
-                      <p><strong>Description:</strong> {item.description}</p>
-                      <p><strong>Type:</strong> {item.type}</p>
-                      <p><strong>Link:</strong> {item.link}</p>
+                    <DialogField
+                      name="Review"
+                      title="Detail Competition"
+                      onTriggerClick={() => handleOpenDialog(item._id)}
+                    >
+                      <div className="flex flex-col gap-4">
+                        <div className="">
+                          <p className="font-semibold mt-2">Title</p>
+                          <p>{item.name}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Competition Type</p>
+                          <p>{item.type}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Competition Link</p>
+                          <p>{item.link}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Description</p>
+                          <p>{item.description}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Change Label</p>
+                          <div className="mt-4">
+                            <DropdownField
+                              title={item.status}
+                              menu={["Approved", "Rejected"]}
+                              onSelect={(value) => handleReview(value)}
+                            />
+                          </div>
+                        </div>
+                        
+                      </div>
                     </DialogField>
                   </TableCell>
-
                 </TableRow>
               ))
             ) : (
@@ -157,7 +240,6 @@ const CompetitionTable = ({
         {totalPages > 1 && (
           <Pagination className="mt-4">
             <PaginationContent>
-
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
@@ -187,7 +269,6 @@ const CompetitionTable = ({
                   }
                 />
               </PaginationItem>
-
             </PaginationContent>
           </Pagination>
         )}
