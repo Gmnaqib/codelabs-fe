@@ -34,7 +34,7 @@ export const competition: Record<string, string[]> = {
 };
 
 export const branding: Record<string, string[]> = {
-  members: ["Name", "Label", "Content Type", "Action"],
+  members: ["Name", "Label", "Action"],
 };
 
 export const ristek: Record<string, string[]> = {

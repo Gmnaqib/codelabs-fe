@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,27 +9,114 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Menubar } from "../../MenuBar";
 import { branding } from "../headerConfig";
 import DialogField from "../../DialogField";
-import { Pagination } from "@/components/ui/pagination";
 import { Card } from "@/components/ui/card";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+import {
+  getAllBranding,
+  getBrandingById,
+  updateBrandingStatus,
+} from "@/services/branding/brandingService";
+
+import { DropdownField } from "../../DropdownField";
+
+const getStatusClass = (status: string) => {
+  switch (status?.toUpperCase()) {
+    case "APPROVED":
+      return "bg-green-100 text-green-700";
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-700";
+    case "REJECTED":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+interface Branding {
+  _id: string;
+  name: string;
+  status: string;
+  level: string;
+  research: string;
+  link: string;
+  description: string;
+}
 
 interface BrandingTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
-  researchData?: Record<string, any>[];
 }
 
 const BrandingTable = ({
   activePage,
   onPageChange,
   showMenu = true,
-  researchData = [],
 }: BrandingTableProps) => {
+  const [brandingData, setBrandingData] = useState<Branding[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedId, setSelectedId] = useState<Branding | null>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const brandingKey = Object.keys(branding)[0];
   const brandingHeaders = branding[brandingKey] ?? [];
+
+  const fetchBranding = async () => {
+    try {
+      const data = await getAllBranding();
+      setBrandingData(data);
+    } catch (err) {
+      console.error("Error fetching branding:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranding();
+  }, []);
+
+  const totalPages = Math.ceil(brandingData.length / itemsPerPage);
+  const paginatedData = brandingData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  async function handleOpenDialog(id: string) {
+    const detail = await getBrandingById(id);
+    setSelectedId(detail); // detail adalah OBJECT -> sudah benar
+  }
+  async function handleReview(newStatus: string) {
+    if (!selectedId?._id) {
+      console.error("ID tidak ditemukan. selectedId:", selectedId);
+      return;
+    }
+
+    try {
+      await updateBrandingStatus(selectedId._id, newStatus);
+      await fetchBranding(); // refresh
+      console.log("Status updated to:", newStatus);
+    } catch (err) {
+      console.error("Gagal update status:", err);
+    }
+  }
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
@@ -43,42 +130,124 @@ const BrandingTable = ({
 
       <Card>
         <Table className="w-full table-fixed">
-            <TableHeader>
+          <TableHeader>
             <TableRow>
-                {brandingHeaders.map((header, i) => (
+              {brandingHeaders.map((header, i) => (
                 <TableHead key={i}>{header}</TableHead>
-                ))}
+              ))}
             </TableRow>
-            </TableHeader>
+          </TableHeader>
 
-            <TableBody>
-            {researchData.length > 0 ? (
-                researchData.map((item, i) => (
-                <TableRow key={i}>
-                    <TableCell className="text-center">hal11o123</TableCell>
-                    <TableCell className="text-center">halo2</TableCell>
-                    <TableCell className="text-center">
-                        <DialogField
-                        name="Review"
-                        title="Detail Plan"
-                        >
-                            <p>sad</p>
-                        </DialogField>
-                    </TableCell>
-                </TableRow>
-                ))
-            ) : (
-                <TableRow>
+          <TableBody>
+            {loading ? (
+              <TableRow>
                 <TableCell
-                    colSpan={brandingHeaders.length}
-                    className="text-center py-6"
+                  colSpan={brandingHeaders.length}
+                  className="text-center py-6"
                 >
-                    Tidak ada data research
+                  Loading...
                 </TableCell>
+              </TableRow>
+            ) : paginatedData.length > 0 ? (
+              paginatedData.map((item, i) => (
+                <TableRow key={i}>
+                  {/* name */}
+                  <TableCell className="text-center">{item.name}</TableCell>
+
+                  {/* status */}
+                  <TableCell className="text-center">
+                    <span
+                      className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(
+                        item.status
+                      )}`}
+                    >
+                      {item.status}
+                    </span>
+                  </TableCell>
+
+                  {/* DETAIL DIALOG */}
+                  <TableCell className="text-center">
+                    <DialogField
+                      name="Review"
+                      title="Detail Branding"
+                      onTriggerClick={() => handleOpenDialog(item._id)}
+                    >
+                      <div>
+                        <p className="font-semibold">Title</p>
+                        <p>{item.name}</p>
+
+                        <p className="font-semibold mt-2">Level Type</p>
+                        <p>{item.level}</p>
+
+                        <p className="font-semibold mt-2">Research Category</p>
+                        <p>{item.research}</p>
+
+                        <p className="font-semibold mt-2">Content Link</p>
+                        <p>{item.link}</p>
+
+                        <p className="font-semibold mt-2">Description</p>
+                        <p>{item.description}</p>
+
+                        <p className="font-semibold mt-2">Change Label</p>
+                        <div className="mt-4">
+                          <DropdownField
+                            title={item.status}
+                            menu={["Approved", "Rejected"]}
+                            onSelect={(value) => handleReview(value)}
+                          />
+                        </div>
+                      </div>
+                    </DialogField>
+                  </TableCell>
                 </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={brandingHeaders.length}
+                  className="text-center py-6"
+                >
+                  Tidak ada data branding
+                </TableCell>
+              </TableRow>
             )}
-            </TableBody>
+          </TableBody>
         </Table>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination className="mt-4 mb-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                />
+              </PaginationItem>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    href="#"
+                    isActive={i + 1 === currentPage}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </Card>
     </div>
   );
