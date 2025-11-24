@@ -13,7 +13,10 @@ import { Menubar } from "../../MenuBar";
 import { ristek } from "../headerConfig";
 import DialogField from "../../DialogField";
 import { Card } from "@/components/ui/card";
-import { getAllResearchRecords } from "@/services/research/researchService";
+import {
+  getAllResearchRecords,
+  updateResearchStatus,
+} from "@/services/research/researchService";
 
 import {
   Pagination,
@@ -25,7 +28,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { DropdownField } from "../../DropdownField";
-import { updateResearchRecord } from "@/services/research/researchService";
 
 interface RistekTableProps {
   activePage: string;
@@ -51,7 +53,6 @@ const RistekTable = ({
   onPageChange,
   showMenu = true,
 }: RistekTableProps) => {
-
   const [researchData, setResearchData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +62,7 @@ const RistekTable = ({
   const ristekKey = Object.keys(ristek)[0];
   const ristekHeaders = ristek[ristekKey] ?? [];
 
-  // 🔵 FETCH DATA
+  // ----- FETCH DATA -----
   const fetchResearchData = async () => {
     try {
       const data = await getAllResearchRecords();
@@ -77,13 +78,11 @@ const RistekTable = ({
     fetchResearchData();
   }, []);
 
-  // 🔵 HANDLE UPDATE STATUS
+  // ----- UPDATE STATUS (SIMPLE & CLEAN) -----
   const handleReview = async (id: string, value: string) => {
     try {
-      await updateResearchRecord(id, { status: value.toLowerCase() });
-
-      // refresh list
-      fetchResearchData();
+      await updateResearchStatus(id, value);
+      fetchResearchData(); // refresh
     } catch (err) {
       console.error("Gagal update research:", err);
     }
@@ -119,14 +118,16 @@ const RistekTable = ({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={ristekHeaders.length} className="text-center py-6">
+                <TableCell
+                  colSpan={ristekHeaders.length}
+                  className="text-center py-6"
+                >
                   Loading...
                 </TableCell>
               </TableRow>
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item, i) => (
                 <TableRow key={i}>
-                  
                   {/* NAME */}
                   <TableCell className="text-center">
                     {item?.userId?.name ?? "-"}
@@ -168,18 +169,22 @@ const RistekTable = ({
                           <DropdownField
                             title={item.status}
                             menu={["Approved", "Rejected"]}
-                            onSelect={(value) => handleReview(item._id, value)}
+                            onSelect={(value) =>
+                              handleReview(item._id, value)
+                            }
                           />
                         </div>
                       </div>
                     </DialogField>
                   </TableCell>
-
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={ristekHeaders.length} className="text-center py-6">
+                <TableCell
+                  colSpan={ristekHeaders.length}
+                  className="text-center py-6"
+                >
                   Tidak ada data research
                 </TableCell>
               </TableRow>
@@ -191,7 +196,6 @@ const RistekTable = ({
         {totalPages > 1 && (
           <Pagination className="mt-4">
             <PaginationContent>
-
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
@@ -216,10 +220,11 @@ const RistekTable = ({
               <PaginationItem>
                 <PaginationNext
                   href="#"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                 />
               </PaginationItem>
-
             </PaginationContent>
           </Pagination>
         )}

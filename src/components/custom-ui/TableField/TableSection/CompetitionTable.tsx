@@ -33,7 +33,6 @@ import {
 
 import { DropdownField } from "../../DropdownField";
 
-// ================== STATUS COLOR ===================
 const getStatusClass = (status: string) => {
   switch (status?.toUpperCase()) {
     case "APPROVED":
@@ -46,7 +45,6 @@ const getStatusClass = (status: string) => {
       return "bg-gray-100 text-gray-700";
   }
 };
-// ====================================================
 
 interface Competition {
   _id: string;
@@ -72,9 +70,7 @@ const CompetitionTable = ({
   const [competitionData, setCompetitionData] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ===================== FIX: selectedId Menyimpan OBJECT ====================
   const [selectedId, setSelectedId] = useState<Competition | null>(null);
-  // ===========================================================================
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,7 +79,6 @@ const CompetitionTable = ({
   const competitionKey = Object.keys(competition)[0];
   const competitionHeaders = competition[competitionKey] ?? [];
 
-  // =================== FETCH DATA ===================
   const fetchCompetition = async () => {
     try {
       const data = await getAllCompetition();
@@ -98,7 +93,6 @@ const CompetitionTable = ({
   useEffect(() => {
     fetchCompetition();
   }, []);
-  // ====================================================
 
   const totalPages = Math.ceil(competitionData.length / itemsPerPage);
   const paginatedData = competitionData.slice(
@@ -106,14 +100,10 @@ const CompetitionTable = ({
     currentPage * itemsPerPage
   );
 
-  // =============== OPEN DIALOG & GET DETAIL ===============
   async function handleOpenDialog(id: string) {
     const detail = await getCompetitionById(id);
     setSelectedId(detail);
   }
-  // ========================================================
-
-  // ================== UPDATE STATUS ========================
   async function handleReview(newStatus: string) {
     if (!selectedId?._id) {
       console.error("ID tidak ditemukan. selectedId:", selectedId);
@@ -128,7 +118,6 @@ const CompetitionTable = ({
       console.error("Gagal update status:", err);
     }
   }
-  // ========================================================
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
