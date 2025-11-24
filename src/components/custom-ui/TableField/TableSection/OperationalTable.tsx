@@ -189,14 +189,18 @@ const OperationalTable = ({
         </div>
 
         {/* 🔹 Kolom tengah (Tanggal) */}
-        <div className="overflow-x-auto max-w-[960px]">
+        <div className={ activePage === "Piket" ? "overflow-x-auto flex-1" : "overflow-x-auto max-w-[900px]"}>
           <Table>
             <TableHeader>
               <TableRow>
                 {daysArray.map((day, i) => (
                   <TableHead
                     key={i}
-                    className="text-center w-[115px] min-w-[115px]"
+                    className={
+                      activePage === "Piket"
+                        ? "text-center"
+                        : "text-center w-[115px] min-w-[115px]"
+                    }
                   >
                     {day}
                   </TableHead>
