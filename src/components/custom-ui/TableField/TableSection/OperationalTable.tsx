@@ -91,8 +91,8 @@ const OperationalTable = ({
   const isPiket = activePage === "Piket";
 
   const daysArray = isPiket
-    ? Array.from({ length: 5 }, (_, i) => `Week ${i + 1}`)
-    : Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  ? [1, 2, 3, 4, 5] 
+  : Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const headerKeyMap: Record<string, string> = {
     NIM: "nim",
@@ -213,7 +213,7 @@ const OperationalTable = ({
                     >
                       {renderCellContent(
                         activePage,
-                        day,
+                        isPiket ? day : day,
                         i,
                         users,
                         checkedState,

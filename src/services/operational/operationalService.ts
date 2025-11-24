@@ -14,11 +14,22 @@ export const createOperationalRecord = async (userId: string, type: string, date
   }
 };
 
-export const getOperationalRecords = async (type?: string, userId?: string) => {
+export const getOperationalRecords = async (
+  type?: string,
+  userId?: string,
+  year?: number,
+  month?: number
+) => {
   try {
     const params: Record<string, string> = {};
+
     if (type) params.type = type;
     if (userId) params.userId = userId;
+
+    if (year && month) {
+      const mm = month.toString().padStart(2, "0");
+      params.date = `${year}-${mm}`;
+    }
 
     const res = await axiosClient.get("/operational-records", { params });
     return res.data?.data || [];
