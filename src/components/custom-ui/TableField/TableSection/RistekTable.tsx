@@ -24,6 +24,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { DropdownField } from "../../DropdownField";
+import { updateResearchRecord } from "@/services/research/researchService";
 
 interface RistekTableProps {
   activePage: string;
@@ -53,31 +55,42 @@ const RistekTable = ({
   const [researchData, setResearchData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // bisa diubah
+  const itemsPerPage = 10;
 
   const ristekKey = Object.keys(ristek)[0];
   const ristekHeaders = ristek[ristekKey] ?? [];
 
-  useEffect(() => {
-    const fetchResearchData = async () => {
-      try {
-        const data = await getAllResearchRecords();
-        setResearchData(data);
-      } catch (err) {
-        console.error("Error fetching research:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 🔵 FETCH DATA
+  const fetchResearchData = async () => {
+    try {
+      const data = await getAllResearchRecords();
+      setResearchData(data);
+    } catch (err) {
+      console.error("Error fetching research:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchResearchData();
   }, []);
 
-  // HITUNG PAGINATION
-  const totalPages = Math.ceil(researchData.length / itemsPerPage);
+  // 🔵 HANDLE UPDATE STATUS
+  const handleReview = async (id: string, value: string) => {
+    try {
+      await updateResearchRecord(id, { status: value.toLowerCase() });
 
+      // refresh list
+      fetchResearchData();
+    } catch (err) {
+      console.error("Gagal update research:", err);
+    }
+  };
+
+  // PAGINATION
+  const totalPages = Math.ceil(researchData.length / itemsPerPage);
   const paginatedData = researchData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -113,12 +126,13 @@ const RistekTable = ({
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item, i) => (
                 <TableRow key={i}>
-                  {/* 1. userId.name */}
+                  
+                  {/* NAME */}
                   <TableCell className="text-center">
                     {item?.userId?.name ?? "-"}
                   </TableCell>
 
-                  {/* 2. status */}
+                  {/* STATUS */}
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(
@@ -129,22 +143,43 @@ const RistekTable = ({
                     </span>
                   </TableCell>
 
-                  {/* 3. Dialog */}
+                  {/* DETAIL */}
                   <TableCell className="text-center">
                     <DialogField name="Review" title="Detail Plan">
-                      <p><strong>Title:</strong> {item.title}</p>
-                      <p><strong>Category:</strong> {item.category}</p>
-                      <p><strong>Type:</strong> {item.research_type}</p>
+                      <div className="flex flex-col gap-3">
+                        <p className="font-semibold mt-2">Title</p>
+                        <p>{item.title}</p>
+
+                        <p className="font-semibold mt-2">Week</p>
+                        <p>{item.week}</p>
+
+                        <p className="font-semibold mt-2">Progress</p>
+                        <p>{item.progress}</p>
+
+                        <p className="font-semibold mt-2">Output Link</p>
+                        <p>{item.link}</p>
+
+                        <p className="font-semibold mt-2">Problem</p>
+                        <p>{item.challenge}</p>
+
+                        {/* DROPDOWN */}
+                        <p className="font-semibold mt-4">Change Label</p>
+                        <div className="mt-2">
+                          <DropdownField
+                            title={item.status}
+                            menu={["Approved", "Rejected"]}
+                            onSelect={(value) => handleReview(item._id, value)}
+                          />
+                        </div>
+                      </div>
                     </DialogField>
                   </TableCell>
+
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={ristekHeaders.length}
-                  className="text-center py-6"
-                >
+                <TableCell colSpan={ristekHeaders.length} className="text-center py-6">
                   Tidak ada data research
                 </TableCell>
               </TableRow>
@@ -157,7 +192,6 @@ const RistekTable = ({
           <Pagination className="mt-4">
             <PaginationContent>
 
-              {/* Prev */}
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
@@ -165,7 +199,6 @@ const RistekTable = ({
                 />
               </PaginationItem>
 
-              {/* Page number */}
               {[...Array(totalPages)].map((_, i) => (
                 <PaginationItem key={i}>
                   <PaginationLink
@@ -178,10 +211,8 @@ const RistekTable = ({
                 </PaginationItem>
               ))}
 
-              {/* Ellipsis */}
               {totalPages > 5 && <PaginationEllipsis />}
 
-              {/* Next */}
               <PaginationItem>
                 <PaginationNext
                   href="#"
