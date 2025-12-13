@@ -39,22 +39,24 @@ const LineChart = () => {
               label: "Research Points",
               data: [10, 30, 45, 60, 80, 75, 20, 35, 64, 77, 90, 79],
               borderWidth: 2,
-              borderColor: "rgb(75, 192, 192)",
+              borderColor: "#00D0FF",
+              backgroundColor: "#00D0FF",
               tension: 0.3,
             },
             {
               label: "Attendance Points",
               data: [5, 15, 40, 32, 60, 65, 50, 45, 50, 70, 66, 85],
               borderWidth: 2,
-              borderColor: "rgb(255, 99, 132)",
+              borderColor: "#24BB8B",
+              backgroundColor: "#24BB8B",
               tension: 0.3,
             },
           ],
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false, // ✅ biar ngikut height container
-          resizeDelay: 0,             // ✅ penting biar tidak nge-freeze ukuran
+          maintainAspectRatio: false, 
+          resizeDelay: 0,             
         },
       });
     }

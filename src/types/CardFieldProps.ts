@@ -1,8 +1,9 @@
-import { ReactElement, ReactNode } from "react";
+import { ReactElement, ReactNode, SVGProps } from "react";
 
 export interface CardFieldProps {
   title: string,
   children: ReactNode,
-  icon?: ReactElement,
+  icon?: ReactElement<SVGProps<SVGSVGElement>>,
   noGap?: boolean,
+  filterYear?: boolean,
 }

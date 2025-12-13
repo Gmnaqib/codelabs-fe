@@ -1,14 +1,14 @@
 import CardField from '@/components/custom-ui/CardField'
 import LineChart from '@/components/custom-ui/LineChart'
+import { ChartPieIcon } from '@heroicons/react/24/solid'
 import React from 'react'
-import { IoStatsChart } from 'react-icons/io5'
 
 const OrganizationStatistics = ({ className }: { className?: string }) => {
   return (
     <div className={`${className}`}>
-        <CardField title='Organization Statistics' icon={<IoStatsChart size={22} />}>
-            <LineChart />
-    </CardField>
+        <CardField title='Organization Statistic' icon={<ChartPieIcon />} filterYear>
+          <LineChart />
+        </CardField>
     </div>
   )
 }

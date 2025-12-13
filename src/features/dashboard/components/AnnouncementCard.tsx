@@ -1,24 +1,19 @@
 import CardField from '@/components/custom-ui/CardField'
-import DialogField from '@/components/custom-ui/DialogField'
+import { MegaphoneIcon } from '@heroicons/react/24/solid'
 import React from 'react'
-import { IoIosWarning } from 'react-icons/io'
 
 const AnnouncementCard = () => {
   return (
-    <CardField title="Announcement" icon={<IoIosWarning size={22} />}>
+    <CardField title="Announcement" icon={<MegaphoneIcon />}>
           <div className="flex flex-col gap-4">
-            <div className="">
-              <p className='font-semibold text-sm'>08 April 2025</p>
-              <p className='font-normal text-sm'>After you successfully check in & check out, You can check your total attendance in KPI Scoring and Tab Operational.</p>
+            <div className="flex flex-col text-center gap-2">
+              <p className='font-normal text-base'>Competition</p>
+              <p className='font-normal text-muted text-sm'>A new competition is now available! Check out the details and make sure you don’t miss the chance to participate.</p>
             </div>
-            <div className="">
-              <p className='font-semibold text-sm'>08 April 2025</p>
-              <p className='font-normal text-sm'>You can CheckIn & CheckOut When<br />Wifi : Codelabs <br />Location : UNIKOM Codelabs <br />CheckIn : 06.00 - 10.00 AM <br />CheckOut : 05.00 - 11.59 PM</p>
+            <div className="flex flex-col text-center gap-2">
+              <p className='font-normal text-base'>Operational</p>
+              <p className='font-normal text-muted text-sm'>Everything is running normally. No updates for now.</p>
             </div>
-            <DialogField name='Read More' title='Announcement'>
-              This action cannot be undone. This will permanently delete your account
-              and remove your data from our servers.
-            </DialogField>
           </div>
         </CardField>
   )

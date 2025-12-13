@@ -1,5 +1,6 @@
 import CardField from '@/components/custom-ui/CardField'
 import { getMeResearchRecords } from '@/services/research/researchService';
+import { ClockIcon } from '@heroicons/react/24/solid';
 import React, { useEffect, useState } from 'react'
 import { IoIosWarning } from 'react-icons/io'
 
@@ -24,19 +25,19 @@ const InProgressCard = () => {
   },[])
 
   return (
-    <CardField title="In Progress" icon={<IoIosWarning size={22} />}>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-2 text-center">
-              <p className='text-base'>Total Tasks</p>
-              <p className='font-bold text-3xl'>{total}</p>
+    <CardField title="In Progress" icon={<ClockIcon />}>
+          <div className="flex flex-col gap-9">
+            <div className="flex flex-col gap-2 items-center">
+              <p className='text-sm'>Total Task</p>
+              <p className='text-sm text-muted bg-surface w-fit py-1 px-6 rounded-sm'>{total}</p>
             </div>
-            <div className="flex flex-col gap-2 text-center">
-              <p className='text-base'>Active Tasks</p>
-              <p className='font-bold text-3xl'>{active}</p>
+            <div className="flex flex-col gap-2 items-center">
+              <p className='text-sm'>Active Task</p>
+              <p className='text-sm text-muted bg-surface w-fit py-1 px-6 rounded-sm'>{active}</p>
             </div>
-            <div className="flex flex-col gap-2 text-center">
-              <p className='text-base'>Completed Tasks</p>
-              <p className='font-bold text-3xl text-[#27DBA2]'>{completed}</p>
+            <div className="flex flex-col gap-2 items-center">
+              <p className='text-sm'>Completed Task</p>
+              <p className='text-sm text-success bg-surface w-fit py-1 px-6 rounded-sm'>{completed}</p>
             </div>
           </div>
         </CardField>

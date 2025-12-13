@@ -109,17 +109,14 @@ const AttendanceTable = ({
   getAllUsers(),
 ]);
 
-// buat lookup cepat dari summary berdasarkan userId
 const summaryByUserId: Record<string, any> = {};
 summary.forEach((s: any) => {
   summaryByUserId[s.userId] = s;
 });
 
-// map melalui users agar semua user muncul
 const merged = users.map((u: any) => {
   const s = summaryByUserId[u._id];
   return {
-    // jika ingin tetap menyertakan properti summary (mis. counts)
     userId: u._id,
     userName: u.name || "-",
     changeDevice: u.change_device_id ? "True" : "False",
@@ -131,7 +128,6 @@ const merged = users.map((u: any) => {
       late: 0,
       absent: 0,
     },
-    // sertakan field summary lain bila ada (mis. s._id, s.totalDays)
     ...(s ? { _summaryId: s._id, ...s } : {}),
   };
 });
@@ -303,6 +299,7 @@ setTodayData([]);
       <TableCell className="text-center">{item.counts?.sick ?? 0}</TableCell>
       <TableCell className="text-center">{item.counts?.late ?? 0}</TableCell>
       <TableCell className="text-center">{item.counts?.absent ?? 0}</TableCell>
+      <TableCell className="text-center">1</TableCell>
       <TableCell className="text-center">
         <DropdownField
           title={item.changeDevice}

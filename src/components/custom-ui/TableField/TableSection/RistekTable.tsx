@@ -78,17 +78,15 @@ const RistekTable = ({
     fetchResearchData();
   }, []);
 
-  // ----- UPDATE STATUS (SIMPLE & CLEAN) -----
   const handleReview = async (id: string, value: string) => {
     try {
       await updateResearchStatus(id, value);
-      fetchResearchData(); // refresh
+      fetchResearchData();
     } catch (err) {
       console.error("Gagal update research:", err);
     }
   };
 
-  // PAGINATION
   const totalPages = Math.ceil(researchData.length / itemsPerPage);
   const paginatedData = researchData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -96,7 +94,7 @@ const RistekTable = ({
   );
 
   return (
-    <div className="w-full rounded-lg overflow-hidden">
+    <div className="flex flex-col w-full rounded-lg overflow-hidden">
       {showMenu && (
         <Menubar
           menus={Object.keys(ristek)}

@@ -10,7 +10,7 @@ export const report: Record<string, string[]> = {
 
 export const attendance: Record<string, string[]> = {
   Permissions: ["Nama", "Status", "Date", "Reviewed", "Permission", "Detail"],
-  TotalAttendance: ["Nama", "Present", "Permit", "Sick", "Late Arrivals", "No Report", "Permisson", "Action"]
+  TotalAttendance: ["Nama", "Present", "Permit", "Sick", "Late Arrivals", "No Report", "SP", "Permisson", "Action"]
 }
 
 export const scoring: Record<string, string[]> = {
@@ -30,13 +30,13 @@ export const members: Record<string, string[]> = {
 };
 
 export const competition: Record<string, string[]> = {
-  members: ["Name", "Label", "Action"],
+  competition: ["Name", "Label", "Action"],
 };
 
 export const branding: Record<string, string[]> = {
-  members: ["Name", "Label", "Action"],
+  branding: ["Name", "Label", "Action"],
 };
 
 export const ristek: Record<string, string[]> = {
-  members: ["Name", "Label", "Action"],
+  ristek: ["Name", "Label", "Action"],
 };

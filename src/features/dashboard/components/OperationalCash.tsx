@@ -1,18 +1,15 @@
 "use client"
 import CardField from '@/components/custom-ui/CardField'
-import { Button } from '@/components/ui/button'
+import { BanknotesIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import React from 'react'
-import { IoIosWarning } from 'react-icons/io'
 
 const OperationalCash = () => {
   return (
-    <CardField title="Total Operational Cash" icon={<IoIosWarning size={22} />}>
-      <div className="flex w-full flex-col gap-5">
-            <div className="flex gap-4">
-                <p className='font-semibold text-2xl'>Rp 15.000.000</p>
-            </div>
-            <Button className='w-fit px-4 py-0 text-base'>See More</Button>
+    <CardField title="Total Operational Cash" icon={<BanknotesIcon />}>
+      <div className="flex w-full flex-col gap-8">
+            <p className='font-semibold text-2xl text-center'>Rp 15.000.000</p>
+            <Link href="#" className='text-primary text-base text-center'>See More</Link>
           </div>
     </CardField>
   )

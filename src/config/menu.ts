@@ -1,5 +1,5 @@
 import { MdDashboard } from "react-icons/md";
-import { FaListCheck, FaFingerprint } from "react-icons/fa6";
+import { FaListCheck, FaFingerprint, FaCamera, FaTrophy, FaRobot, FaBook } from "react-icons/fa6";
 import { HiOutlineLogout } from "react-icons/hi";
 import { RiFileChartFill } from "react-icons/ri";
 import { IoIosPeople } from "react-icons/io";
@@ -32,7 +32,7 @@ export const menuItems = [
   },
   {
     title: "Assessments",
-    icon: FaFingerprint,
+    icon: FaBook,
     route: "/assessments",
   },
   {
@@ -42,17 +42,17 @@ export const menuItems = [
   },
   {
     title: "Resarch & Tech",
-    icon: IoIosPeople,
+    icon: FaRobot,
     route: "/ristek",
   },
   {
     title: "Competition",
-    icon: IoIosPeople,
+    icon: FaTrophy,
     route: "/competition",
   },
   {
     title: "Branding",
-    icon: IoIosPeople,
+    icon: FaCamera,
     route: "/branding",
   },
   {

@@ -23,12 +23,12 @@ const Dashboard = () => {
             <AnnouncementCard />
             <PicketCard />
             <InProgressCard /> 
-            <TotalMembers/>
+            {/* <TotalMembers/>
             <AverageMonthly/>
             <OperationalCash/>
             <OrganizationStatistics className="col-span-2 h-full"/>
             <ResearchPercentage/>
-            <OrganizationSummary className="col-span-3 h-full"/>
+            <OrganizationSummary className="col-span-3 h-full"/> */}
         </div>
         <div className="flex flex-col w-[275px] gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
           <p className='font-semibold '>Schedule</p>

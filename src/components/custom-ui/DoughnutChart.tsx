@@ -40,8 +40,8 @@ const DoughnutChart = ({ filled, total }: Props) => {
             data: [filled, notFilled],
             borderWidth: 3,
             backgroundColor: [
-              "rgba(11, 156, 49, 0.8)",  
-              "rgba(255, 0, 0, 0.8)",  
+              "#24BB8B",  
+              "#FF6A88",  
             ]
           },
         ],
@@ -81,7 +81,7 @@ const DoughnutChart = ({ filled, total }: Props) => {
   }, [filled, total]);
 
   return (
-    <div className="h-64 flex">
+    <div className="h-56 flex">
       <canvas ref={chartRef} />
     </div>
   );

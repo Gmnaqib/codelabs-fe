@@ -1,10 +1,9 @@
 "use client"
 import CardField from '@/components/custom-ui/CardField'
-import { Button } from '@/components/ui/button'
 import { getAllUsers } from '@/services/users/userService'
+import { IdentificationIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { IoIosWarning } from 'react-icons/io'
 
 const TotalMembers = () => {
   const [totalUsers, setTotalUsers] = useState<number | null>(null)
@@ -24,11 +23,11 @@ const TotalMembers = () => {
 
 
   return (
-    <CardField title="Total Members" icon={<IoIosWarning size={22} />}>
-      <div className="flex w-full flex-col gap-5">
-            <p className='font-bold text-2xl'>{totalUsers !== null ? `${totalUsers} Peoples` : "Loading..."}</p>
-            <Button className='w-fit px-4 py-0 text-base'>See More</Button>
-          </div>
+    <CardField title="Total Member" icon={<IdentificationIcon />}>
+      <div className="flex w-full flex-col items-center gap-8">
+        <p className='font-medium text-2xl'>{totalUsers !== null ? `${totalUsers} Member` : "Loading..."}</p>
+        <Link href="/members" className='text-primary text-base'>See More</Link>
+      </div>
     </CardField>
   )
 }

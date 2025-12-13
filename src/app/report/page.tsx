@@ -14,7 +14,7 @@ import { showErrorToast } from "@/lib/toastHelper";
 import { CalendarMonthYearPicker } from "@/components/custom-ui/CalendarMonthYearPicker";
 
 const WeeklyReport = () => {
-  const [activePage, setActivePage] = useState<string>("");
+  const [activePage, setActivePage] = useState<string>("report");
   const [title, setTitle] = useState("");
   const [week, setWeek] = useState("");
   const [progress, setProgress] = useState("");

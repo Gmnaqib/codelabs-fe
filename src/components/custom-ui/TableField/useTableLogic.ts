@@ -9,7 +9,6 @@ import {
 import { getMeResearchRecords } from "@/services/research/researchService";
 import { getAllUsers } from "@/services/users/userService";
 
-// Mapping Week → Date (KHUSUS PIKET)
 const WEEK_TO_DATE: Record<number, number> = {
   1: 1,
   2: 8,
@@ -18,11 +17,10 @@ const WEEK_TO_DATE: Record<number, number> = {
   5: 29,
 };
 
-// Helper: tanggal berdasarkan halaman
 const getDateNumber = (page: string, day: number) => {
   return page.toLowerCase() === "piket"
-    ? WEEK_TO_DATE[day] // pakai mapping
-    : day;              // tematik → normal
+    ? WEEK_TO_DATE[day]
+    : day;       
 };
 
 export const useTableLogic = (
@@ -174,19 +172,71 @@ export const useTableLogic = (
   };
 
   // ===== KATEGORI DETECTION =====
-  useEffect(() => {
-    const norm = activePage.toLowerCase();
+   useEffect(() => {
+    const norm = (activePage ?? "").trim().toLowerCase();
+    const path =
+      typeof window !== "undefined"
+        ? window.location.pathname.toLowerCase()
+        : "";
 
-    setIsReport(norm === "report");
-    setIsAttendance(norm === "attendance");
-    setIsScoring(norm === "scoring");
-    setIsOrganization(norm === "organization");
-    setIsAssessments(norm === "assessments");
-    setIsMembers(norm === "members");
-    setIsRistek(norm === "ristek");
-    setIsCompetition(norm === "competition");
-    setIsBranding(norm === "branding");
+    const map: Record<string, string> = {
+      report: "report",
+      attendance: "organization",
+      researchpoints: "organization",
+      organization: "organization",
+      permissions: "attendance",
+      totalattendance: "attendance",
+      scoring: "scoring",
+      research: "scoring",
+      competition: "scoring",
+      operational: "scoring",
+      branding: "scoring",
+      absensi: "operasional",
+      tematik: "operasional",
+      piket: "operasional",
+      assessments: "assessments",
+      members: "members",
+      ristek: "ristek",
+    };
+
+    const category =
+      map[norm] ||
+      (path.includes("/assessments")
+        ? "assessments"
+        : path.includes("/report")
+        ? "report"
+        : path.includes("/attendance")
+        ? "attendance"
+        : path.includes("/scoring")
+        ? "scoring"
+        : path.includes("/organization")
+        ? "organization"
+        : path.includes("/ristek")
+        ? "ristek"
+        : path.includes("/competition")
+        ? "competition"
+        : path.includes("/branding")
+        ? "branding"
+        : "operasional");
+    setIsReport(category === "report");
+    setIsAttendance(category === "attendance");
+    setIsScoring(category === "scoring");
+    setIsOrganization(category === "organization");
+    setIsAssessments(category === "assessments");
+    setIsMembers(category === "members");
+    setIsRistek(category === "ristek");
+    setIsCompetition(category === "competition");
+    setIsBranding(category === "branding");
+
+    if (category === "organization" && norm === "organization") {
+      onPageChange("Attendance");
+    }
+
+    if (category === "attendance" && norm === "attendance") {
+      onPageChange("Permissions");
+    }
   }, [activePage]);
+  
 
   return {
     isReport,

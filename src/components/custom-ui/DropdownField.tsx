@@ -18,6 +18,7 @@ interface DropdownFieldProps {
   disabled?: boolean;
   onChange?: (value: string) => void;
   onSelect?: (val: string) => void;
+  blue?: boolean,
 }
 
 export function DropdownField({
@@ -27,7 +28,8 @@ export function DropdownField({
   onChange,
   onSelect,
   value,
-  disabled 
+  disabled,
+  blue = false,
 }: DropdownFieldProps) {
   const [selected, setSelected] = React.useState(value || title);
 
@@ -49,11 +51,15 @@ export function DropdownField({
           <Button
             type="button"
             variant="outline"
-            className="flex items-center justify-between text-base font-light"
+            className={`flex items-center justify-between text-base font-light bg-transparent py-0
+              ${blue ? "border-primary text-primary" : "border-white text-white"}
+            `}
             disabled={disabled}
           >
             {selected || title}
-            <IoIosArrowDown className="ml-2 text-ring" />
+            <IoIosArrowDown
+              className={blue ? "text-primary" : "text-white"}
+            />
           </Button>
         </DropdownMenuTrigger>
 

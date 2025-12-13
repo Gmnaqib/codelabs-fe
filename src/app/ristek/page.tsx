@@ -6,7 +6,7 @@ import { TableField } from '@/components/custom-ui/TableField'
 import React, { useState } from 'react'
 
 const Ristek = () => {
-  const [activePage, setActivePage] = useState<string>("");
+  const [activePage, setActivePage] = useState<string>("ristek");
   return (
     <div>
       <div className="flex justify-between">

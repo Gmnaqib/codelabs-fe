@@ -42,14 +42,14 @@ const Assessments = () => {
                 </CardField>
             </div>
              <TableField
-            activePage="assessments"
-            onPageChange={() => {}}
-            showMenu={false}
-            data={[
-                { rank: 1, name: "Ramdani", monthly: "82", status: "Good", detail: "Great performance" },
-                { rank: 2, name: "tes", monthly: "60", status: "Standard", detail: "Average performance" },
-            ]}
-        />
+                activePage="assessments"
+                onPageChange={() => {}}
+                showMenu={false}
+                data={[
+                    { rank: 1, name: "Ramdani", monthly: "82", status: "Good", detail: "Great performance" },
+                    { rank: 2, name: "tes", monthly: "60", status: "Standard", detail: "Average performance" },
+                ]}
+            />
         </div>
     </ProtectedRoute>
   )
