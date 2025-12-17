@@ -1,8 +1,7 @@
-"use client"
+import React from 'react'
+import Link from 'next/link'
 import CardField from '@/components/custom-ui/CardField'
 import { ArrowTrendingUpIcon } from '@heroicons/react/24/solid'
-import Link from 'next/link'
-import React from 'react'
 
 const AverageMonthly = () => {
   return (

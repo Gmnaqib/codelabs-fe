@@ -2,96 +2,56 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import CardField from "@/components/custom-ui/CardField";
-import {
-  getPicketRecords,
-  getPicketSchedules,
-  postPicketRecord,
-  deletePicketRecord,
-} from "@/services/schedule/scheduleService";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
+import { getPicketSchedules } from "@/services/schedule/scheduleService";
 import { Label } from "@/components/ui/label";
-
-interface PicketPerson {
-  name: string;
-  userId: string;
-}
-
-interface CheckedRecord {
-  userId: string;
-  recordId: string;
-}
-
-const getTodayKey = () => {
-  return ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()];
-};
-
-const getWeekNumber = (date: Date) => {
-  const firstDay = new Date(date.getFullYear(), 0, 1);
-  const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
-  return Math.ceil((days + firstDay.getDay() + 1) / 7);
-};
+import { PicketPerson } from "@/types/PicketPersonProps";
+import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
 
 const PicketCard = () => {
   const [picketData, setPicketData] = useState<PicketPerson[]>([]);
-  const [checkedRecords, setCheckedRecords] = useState<CheckedRecord[]>([]);
+
+  const getTodayKey = () => {
+    return ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()];
+  };
+
+  const getWeekNumber = (date: Date) => {
+    const firstDay = new Date(date.getFullYear(), 0, 1);
+    const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
+    return Math.ceil((days + firstDay.getDay() + 1) / 7);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getPicketSchedules();
-        const today = getTodayKey();
-
-        const schedule = res?.data?.[0]?.days?.[today] ?? [];
-        const names: PicketPerson[] = schedule.map((s: any) => ({
-          name: s.userName,
-          userId: s.userId,
-        }));
-
-        const week = getWeekNumber(new Date());
-        const validNames = names.filter((n) => n.name !== "-");
-
-        const rotated = validNames
-          .slice(week % validNames.length)
-          .concat(validNames.slice(0, week % validNames.length));
-
-        setPicketData(
-          names.map((s) => (s.name === "-" ? { name: "-", userId: "-" } : rotated.shift()!))
-        );
-
-        const rec = await getPicketRecords();
-        setCheckedRecords(rec.map((r: any) => ({ userId: r.userId, recordId: r._id })));
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleCheckboxChange = async (userId: string) => {
-    const existing = checkedRecords.find((rec) => rec.userId === userId);
-
+  const fetchData = async () => {
     try {
-      if (existing) {
-        await deletePicketRecord(existing.recordId);
-        setCheckedRecords((prev) => prev.filter((rec) => rec.userId !== userId));
-        toast.success("Picket checklist removed!");
-      } else {
-        const res = await postPicketRecord({
-          userId,
-          type: "picket",
-          date: new Date().toISOString(),
-        });
+      const res = await getPicketSchedules();
+      const today = getTodayKey();
 
-        setCheckedRecords((prev) => [...prev, { userId, recordId: res.data._id }]);
-        toast.success("Picket marked as completed!");
-      }
-    } catch {
-      toast.error("Failed! Please try again.");
+      const schedule = res?.data?.[0]?.days?.[today] ?? [];
+      const names: PicketPerson[] = schedule.map((s: any) => ({
+        name: s.userName,
+        userId: s.userId,
+      }));
+
+      const week = getWeekNumber(new Date());
+      const validNames = names.filter((n) => n.name !== "-");
+
+      const rotated = validNames
+        .slice(week % validNames.length)
+        .concat(validNames.slice(0, week % validNames.length));
+
+      setPicketData(
+        names.map((s) =>
+          s.name === "-" ? { name: "-", userId: "-" } : rotated.shift()!
+        )
+      );
+    } catch (err) {
+      console.error(err);
     }
   };
+
+  fetchData();
+}, []);
+
 
   const groups = [
     { title: "Vacuum Cleaner", data: picketData.slice(0, 3) },
@@ -99,7 +59,7 @@ const PicketCard = () => {
   ];
 
   return (
-    <CardField title="Picket Schedule Today" icon={<ClipboardDocumentCheckIcon />}>
+    <CardField title="Picket Schedule Today" icon={<ClipboardDocumentCheckIcon />} bg>
       <div className="flex flex-col gap-5">
         {groups.map((group, groupIndex) => (
           <div key={groupIndex}>

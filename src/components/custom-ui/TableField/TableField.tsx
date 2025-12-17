@@ -22,20 +22,7 @@ import MembersTable from "./TableSection/MembersTable";
 import RistekTable from "./TableSection/RistekTable";
 import CompetitionTable from "./TableSection/CompetitionTable";
 import BrandingTable from "./TableSection/BrandingTable";
-
-interface Props {
-  activePage: string;
-  onPageChange: (menu: string) => void;
-  month?: number;
-  year?: number;
-  data?: any[];
-  customHeaderConfig?: Record<string, string[]>;
-  showMenu?: boolean;
-  filterWeek?: string;
-  filterProgress?: string;
-  searchQuery?: string;
-  search?: string;
-}
+import { TabelFieldProps } from "@/types/TableFieldProps";
 
 const TableField = ({
   activePage,
@@ -48,7 +35,7 @@ const TableField = ({
   filterWeek = "All",
   filterProgress = "All",
   searchQuery = "",
-}: Props) => {
+}: TabelFieldProps) => {
   const {
     isReport,
     isAttendance,
@@ -81,16 +68,10 @@ const TableField = ({
 
   const filteredData = researchData.filter((item: any) => {
     const date = new Date(item.createdAt);
-
     const matchMonth = date.getMonth() + 1 === month;
     const matchYear = date.getFullYear() === year;
-
-    const matchWeek =
-      filterWeek === "All" || `Week ${item.week}` === filterWeek;
-
-    const matchProgress =
-      filterProgress === "All" ||
-      item.progress.toLowerCase() === filterProgress.toLowerCase();
+    const matchWeek = filterWeek === "All" || `Week ${item.week}` === filterWeek;
+    const matchProgress = filterProgress === "All" || item.progress.toLowerCase() === filterProgress.toLowerCase();
 
     return matchMonth && matchYear && matchWeek && matchProgress;
   });
@@ -116,7 +97,6 @@ const TableField = ({
       year={year}      
     />
   );
-
 
   if (isScoring)
     return (

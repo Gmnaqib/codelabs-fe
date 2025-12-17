@@ -1,8 +1,7 @@
+import React, { useEffect, useState } from 'react'
 import CardField from '@/components/custom-ui/CardField'
 import { getMeResearchRecords } from '@/services/research/researchService';
 import { ClockIcon } from '@heroicons/react/24/solid';
-import React, { useEffect, useState } from 'react'
-import { IoIosWarning } from 'react-icons/io'
 
 const InProgressCard = () => {
   const [total, setTotal] = useState(0);
@@ -25,7 +24,7 @@ const InProgressCard = () => {
   },[])
 
   return (
-    <CardField title="In Progress" icon={<ClockIcon />}>
+    <CardField title="In Progress" icon={<ClockIcon />} bg>
           <div className="flex flex-col gap-9">
             <div className="flex flex-col gap-2 items-center">
               <p className='text-sm'>Total Task</p>

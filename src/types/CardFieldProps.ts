@@ -6,4 +6,5 @@ export interface CardFieldProps {
   icon?: ReactElement<SVGProps<SVGSVGElement>>,
   noGap?: boolean,
   filterYear?: boolean,
+  bg?: boolean,
 }

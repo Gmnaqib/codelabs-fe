@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -14,18 +13,7 @@ import { renderCellContent } from "../renderCellContent";
 import { getAllUsers } from "@/services/users/userService";
 import { getAttendance } from "@/services/attendance/attendanceService";
 import { CheckCircle2, Clock, FileMinus, MinusCircle, Thermometer } from "lucide-react";
-
-interface OperationalTableProps {
-  activePage: string;
-  onPageChange: (menu: string) => void;
-  showMenu?: boolean;
-  month: number;
-  year: number;
-  headersConfig: Record<string, string[]>;
-  checkedState: Record<string, boolean>;
-  onToggle: (page: string, rowIndex: number, day: string | number) => void;
-  searchQuery?: string;
-}
+import { OperationalTableProps } from "@/types/OperationalTableProps";
 
 const OperationalTable = ({
   activePage,
@@ -42,7 +30,6 @@ const OperationalTable = ({
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Fetch users dan attendance
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -117,42 +104,37 @@ const OperationalTable = ({
           />
         )}
 
-      {activePage === "Absensi" && (
-        <div className="flex items-center gap-6 bg-gray-50 px-4 py-2 rounded-lg border w-fit ml-auto">
-        <div className="flex items-center gap-2">
-            <CheckCircle2 size={18} className="text-green-500" />
-            <span className="text-sm text-gray-600">Hadir</span>
-          </div>
-
+        {activePage === "Absensi" && (
+          <div className="flex items-center gap-6 bg-gray-50 px-4 py-2 rounded-lg border w-fit ml-auto">
           <div className="flex items-center gap-2">
-            <Clock size={18} className="text-yellow-500"/>
-            <span className="text-sm text-gray-600">Tidak Check Out</span>
-          </div>  
+              <CheckCircle2 size={18} className="text-green-500" />
+              <span className="text-sm text-gray-600">Hadir</span>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <Thermometer size={18} className="text-red-500" />
-            <span className="text-sm text-gray-600">Sakit</span>
-          </div>
+            <div className="flex items-center gap-2">
+              <Clock size={18} className="text-yellow-500"/>
+              <span className="text-sm text-gray-600">Tidak Check Out</span>
+            </div>  
 
-          <div className="flex items-center gap-2">
-            <FileMinus size={18} className="text-blue-500" />
-            <span className="text-sm text-gray-600">Izin</span>
-          </div>
+            <div className="flex items-center gap-2">
+              <Thermometer size={18} className="text-red-500" />
+              <span className="text-sm text-gray-600">Sakit</span>
+            </div>
 
-          <div className="flex items-center gap-2">
-            <MinusCircle size={18} className="text-gray-400" />
-            <span className="text-sm text-gray-600">Tidak Hadir</span>
-          </div>              
-      </div>
-      )
+            <div className="flex items-center gap-2">
+              <FileMinus size={18} className="text-blue-500" />
+              <span className="text-sm text-gray-600">Izin</span>
+            </div>
 
-      }
-
-
+            <div className="flex items-center gap-2">
+              <MinusCircle size={18} className="text-gray-400" />
+              <span className="text-sm text-gray-600">Tidak Hadir</span>
+            </div>              
+        </div>
+        )}
       </div>
 
       <div className="flex">
-        {/* 🔹 Kolom kiri (NIM, Nama) */}
         <div className="flex-none">
           <Table>
             <TableHeader>
@@ -169,7 +151,6 @@ const OperationalTable = ({
                     const key = headerKeyMap[header] || header.toLowerCase();
                     let value = row[key] ?? "-";
 
-                    // 🧠 Jika value object, ubah ke string agar tidak error
                     if (typeof value === "object" && value !== null) {
                       value = Array.isArray(value)
                         ? value.join(", ")
@@ -188,7 +169,6 @@ const OperationalTable = ({
           </Table>
         </div>
 
-        {/* 🔹 Kolom tengah (Tanggal) */}
         <div className={ activePage === "Piket" ? "overflow-x-auto flex-1" : "overflow-x-auto max-w-[900px]"}>
           <Table>
             <TableHeader>
@@ -231,7 +211,6 @@ const OperationalTable = ({
           </Table>
         </div>
 
-        {/* 🔹 Kolom kanan (Total) */}
         <div className="flex-none">
           <Table>
             <TableHeader>

@@ -1,12 +1,11 @@
-"use client"
+import React from 'react'
+import Link from 'next/link'
 import CardField from '@/components/custom-ui/CardField'
 import { BanknotesIcon } from '@heroicons/react/24/solid'
-import Link from 'next/link'
-import React from 'react'
 
 const CashBillsCard = () => {
   return (
-    <CardField title="Cash Bills Progress" icon={<BanknotesIcon />}>
+    <CardField title="Cash Bills Progress" icon={<BanknotesIcon />} bg>
           <div className="flex flex-col gap-9">
             <div className="flex flex-col text-center">
               <p className='text-sm text-muted'>Cash Bills</p>

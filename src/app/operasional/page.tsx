@@ -1,5 +1,4 @@
 "use client";
-
 import { Card } from "@/components/ui/card";
 import React, { useState } from "react";
 import TableField from "@/components/custom-ui/TableField/TableField";
@@ -12,7 +11,7 @@ const Operasional = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState({
     year: new Date().getFullYear(),
-    month: new Date().getMonth(), // 0-indexed
+    month: new Date().getMonth(), 
   });
 
   return (
@@ -26,7 +25,6 @@ const Operasional = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-
             <CalendarMonthYearPicker
               onChange={(val) => {
                 setSelectedDate(val);
@@ -35,7 +33,6 @@ const Operasional = () => {
               defaultMonth={selectedDate.month}
             />
           </div>
-          {/* 📊 Table Section */}
           <div className="px-5">
             <TableField
               activePage={activePage}

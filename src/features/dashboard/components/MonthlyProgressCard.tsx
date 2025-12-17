@@ -1,11 +1,11 @@
+import React from 'react'
 import CardField from '@/components/custom-ui/CardField'
 import { Progress } from '@/components/ui/progress'
 import { ChartBarSquareIcon } from '@heroicons/react/24/solid'
-import React from 'react'
 
 const MonthlyProgressCard = () => {
   return (
-    <CardField title="Monthly Progress" icon={<ChartBarSquareIcon />}>
+    <CardField title="Monthly Progress" icon={<ChartBarSquareIcon />} bg>
           <div className="flex flex-col gap-8">
             <div className="flex flex-col text-center">
               <p className='text-sm text-muted'>Curent Rank</p>

@@ -1,10 +1,10 @@
+import React from 'react'
 import CardField from '@/components/custom-ui/CardField'
 import { MegaphoneIcon } from '@heroicons/react/24/solid'
-import React from 'react'
 
 const AnnouncementCard = () => {
   return (
-    <CardField title="Announcement" icon={<MegaphoneIcon />}>
+    <CardField title="Announcement" icon={<MegaphoneIcon />} bg>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col text-center gap-2">
               <p className='font-normal text-base'>Competition</p>
