@@ -40,6 +40,7 @@ const OrganizationSummaryTable = ({
           menus={Object.keys(organization)}
           activeMenu={activePage}
           onChange={onPageChange}
+          sort
         />
       )}
 

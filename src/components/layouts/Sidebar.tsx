@@ -3,9 +3,9 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { MdArrowBackIos } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { menuItems } from "@/config/menu";
+import { ChevronRightIcon } from "@heroicons/react/24/solid";
 
 interface SidebarProps {
   isActive: boolean;
@@ -33,17 +33,19 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
         </div>
 
         <div className="flex flex-col gap-2 items-center h-full overflow-y-auto scrollbar-none">
-          {menuItems.map(({ title, icon: Icon, route }, index) => {
+          {menuItems.map(({ title,  iconSolid: IconSolid, iconOutline: IconOutline, route }, index) => {
             const isMenuActive = pathname === route;
+            const Icon = isMenuActive ? IconSolid : IconOutline;
+
             return (
               <Link href={route} key={index}>
                 <div
                   className={`flex text-white items-center gap-2 transition-opacity duration-300 
                     ${isActive ? "w-56 px-2.5 py-3" : "w-fit p-2"} 
-                    ${isMenuActive ? "opacity-100 bg-[#559DE1] rounded-md" : "opacity-50"}`}
+                    ${isMenuActive ? "opacity-100 bg-[#559DE1] rounded-sm" : "opacity-50"}`}
                 >
-                  <Icon size={isActive ? 23 : 20} />
-                  {isActive && <p className="font-semibold text-lg">{title}</p>}
+                  <Icon className={isActive ? 'size-6' : 'size-5'} />
+                  {isActive && <p className="font-normal text-lg">{title}</p>}
                 </div>
               </Link>
             );
@@ -63,9 +65,8 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
         className="absolute bottom-5 -right-5"
         onClick={() => setIsActive(!isActive)}
       >
-        <MdArrowBackIos
-          size={20}
-          className={`transition-transform duration-300 ${isActive ? "" : "rotate-180"}`}
+        <ChevronRightIcon
+          className={`transition-transform duration-300 size-5 ${isActive ? "" : "rotate-180"}`}
         />
       </Button>
     </div>

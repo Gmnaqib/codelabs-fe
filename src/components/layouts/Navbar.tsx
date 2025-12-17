@@ -17,24 +17,24 @@ const Navbar = ({ isActive }: NavbarProps) => {
   const current = menuNavbar.find(item => item.path === pathname)
   let title = current?.title || ''
   if (pathname === "/") {
-  title = "Home"
+  title = "Dashboard"
 }
 
   return (
-    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0'>
+    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-40'>
       <div className="flex w-full justify-between items-center">
         <div>
-          <p className='font-bold text-lg ml-[275px]'>{title}</p>
+          <p className={`font-normal text-xl transition-all ${isActive? "ml-[270px]" : "ml-[60px]" }`}>{title}</p>
         </div>
         <Link href="/profile">
           <div className="flex items-center gap-3">
             <div>
-              <Image src="/icon/profile.png" alt="profile" width={25} height={0} className='rounded-full' />
+              <Image src="/icon/profile.png" alt="profile" width={35} height={0} className='rounded-full' />
             </div>
             <div>
               <p className='text-sm'>{user ? user.name : "Loading..."}</p>
-              <p className='text-xs'>
-               as a <span className='font-bold'>{user? user?.role : "Loading..."}</span>
+              <p className='text-xs text-[#5C5C5C]'>
+                as a <span className='font-medium'>{user? user?.role : "Loading..."}</span>
               </p>
             </div>
           </div>

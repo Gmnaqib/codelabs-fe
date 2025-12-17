@@ -46,7 +46,7 @@ const KPIRangkings = () => {
   return (
     <>
       <div className="flex justify-between items-center">
-        <p className="font-semibold">KPI Rangkings</p>
+        <p className="font-medium">KPI Rangkings</p>
         <SelectField
           options={DataSelectRangkingsKPI}
           value={filter}
@@ -56,7 +56,7 @@ const KPIRangkings = () => {
 
       <div className="max-h-64 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
         {sortedUsers.map((user, index) => (
-          <div key={user._id} className="flex gap-3 items-center">
+          <div key={user._id} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative">
               <Image
                 src="/icon/profile.png"
@@ -72,9 +72,9 @@ const KPIRangkings = () => {
               </div>
             </div>
 
-            <div className="flex flex-col justify-center">
-              <p className="text-sm">{user.name}</p>
-              <p className="font-semibold text-[#2080D9] text-sm">0%</p>
+            <div className="flex justify-between items-center w-full">
+              <p className="text-base">{user.name}</p>
+              <p className="font-normal text-primary text-base">0%</p>
             </div>
           </div>
         ))}

@@ -1,63 +1,96 @@
-import { MdDashboard } from "react-icons/md";
-import { FaListCheck, FaFingerprint, FaCamera, FaTrophy, FaRobot, FaBook } from "react-icons/fa6";
-import { HiOutlineLogout } from "react-icons/hi";
-import { RiFileChartFill } from "react-icons/ri";
-import { IoIosPeople } from "react-icons/io";
+import {
+  ArrowLeftStartOnRectangleIcon as ArrowLeftSolid,
+  BuildingOfficeIcon as BuildingSolid,
+  ChartBarIcon as ChartSolid,
+  CheckCircleIcon as CheckSolid,
+  ClipboardDocumentCheckIcon as ClipboardCheckSolid,
+  ClipboardDocumentListIcon as ClipboardListSolid,
+  ComputerDesktopIcon as ComputerSolid,
+  IdentificationIcon as IdentificationSolid,
+  PaintBrushIcon as PaintSolid,
+  Squares2X2Icon as SquaresSolid,
+  TrophyIcon as TrophySolid,
+} from "@heroicons/react/24/solid";
+
+import {
+  ArrowLeftStartOnRectangleIcon as ArrowLeftOutline,
+  BuildingOfficeIcon as BuildingOutline,
+  ChartBarIcon as ChartOutline,
+  CheckCircleIcon as CheckOutline,
+  ClipboardDocumentCheckIcon as ClipboardCheckOutline,
+  ClipboardDocumentListIcon as ClipboardListOutline,
+  ComputerDesktopIcon as ComputerOutline,
+  IdentificationIcon as IdentificationOutline,
+  PaintBrushIcon as PaintOutline,
+  Squares2X2Icon as SquaresOutline,
+  TrophyIcon as TrophyOutline,
+} from "@heroicons/react/24/outline";
 
 export const menuItems = [
   {
     title: "Dashboard",
-    icon: MdDashboard,
+    iconSolid: SquaresSolid,
+    iconOutline: SquaresOutline,
     route: "/",
   },
   {
     title: "Weekly Report",
-    icon: RiFileChartFill,
+    iconSolid: ClipboardListSolid,
+    iconOutline: ClipboardListOutline,
     route: "/report",
   },
   {
     title: "KPI Scoring",
-    icon: FaListCheck,
+    iconSolid: ChartSolid,
+    iconOutline: ChartOutline,
     route: "/scoring",
   },
   {
     title: "Operasional",
-    icon: MdDashboard,
+    iconSolid: BuildingSolid,
+    iconOutline: BuildingOutline,
     route: "/operasional",
   },
   {
     title: "Attendance",
-    icon: FaFingerprint,
+    iconSolid: ClipboardCheckSolid,
+    iconOutline: ClipboardCheckOutline,
     route: "/attendance",
   },
   {
     title: "Assessments",
-    icon: FaBook,
+    iconSolid: CheckSolid,
+    iconOutline: CheckOutline,
     route: "/assessments",
   },
   {
     title: "Members",
-    icon: IoIosPeople,
+    iconSolid: IdentificationSolid,
+    iconOutline: IdentificationOutline,
     route: "/members",
   },
   {
     title: "Resarch & Tech",
-    icon: FaRobot,
+    iconSolid: ComputerSolid,
+    iconOutline: ComputerOutline,
     route: "/ristek",
   },
   {
     title: "Competition",
-    icon: FaTrophy,
+    iconSolid: TrophySolid,
+    iconOutline: TrophyOutline,
     route: "/competition",
   },
   {
     title: "Branding",
-    icon: FaCamera,
+    iconSolid: PaintSolid,
+    iconOutline: PaintOutline,
     route: "/branding",
   },
   {
     title: "Log Out",
-    icon: HiOutlineLogout,
+    iconSolid: ArrowLeftSolid,
+    iconOutline: ArrowLeftOutline,
     route: "/logout",
   },
 ];

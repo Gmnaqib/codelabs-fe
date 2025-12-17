@@ -1,18 +1,21 @@
 "use client";
-
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
   const noLayoutPages = ["/login"];
   const isNoLayout = noLayoutPages.includes(pathname);
-
   const [isActive, setIsActive] = useState(true);
+  const isXl = useMediaQuery("(min-width: 1280px)");
 
+  useEffect(() => {
+    setIsActive(isXl);
+  }, [isXl]);
+  
   if (isNoLayout) {
     return <>{children}</>; 
   }

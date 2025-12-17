@@ -107,21 +107,14 @@ const PicketCard = () => {
             <div className="flex flex-col gap-1">
               {group.data.map((person, index) => (
                 <div key={index}  className="w-full flex justify-center">
-                  <div className="flex items-center justify-between w-36">
-                    <Label htmlFor={`${groupIndex}-${index}`} className="font-base text-sm text-muted text-center">{`${index + 1}. ${person.name.split(" ")[0]}`}</Label>
-                    <Checkbox
-                      id={`${groupIndex}-${index}`}
-                      checked={checkedRecords.some((rec) => rec.userId === person.userId)}
-                      onCheckedChange={() => handleCheckboxChange(person.userId)}
-                    />
-                  </div>
+                  <Label htmlFor={`${groupIndex}-${index}`} className="font-base text-sm text-muted text-center">{`${index + 1}. ${person.name.split(" ")[0]}`}</Label>
                 </div>
               ))}
             </div>
           </div>
         ))}
 
-        <Link href="/operasional" className="flex text-primary text-base justify-center items-center gap-2">See All Member <ArrowUpRightIcon className="size-4" /></Link>
+        <Link href="/operasional" className="flex text-primary text-base justify-center items-center gap-2">See Map <ArrowUpRightIcon className="size-4" /></Link>
       </div>
     </CardField>
   );

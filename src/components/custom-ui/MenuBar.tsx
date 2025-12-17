@@ -6,11 +6,9 @@ import {
 } from "@/components/ui/menubar"
 import { cn } from "@/lib/utils"
 import { MenuBarProps } from "@/types/MenubarProps"
-import { useState } from "react"
 import { DropdownField } from "./DropdownField"
 
-export function Menubar({ menus, onChange, activeMenu }: MenuBarProps) {
-  const [filter, setFilter] = useState("highest")
+export function Menubar({ menus, onChange, activeMenu, sort = false }: MenuBarProps) {
   return (
     <div className="flex justify-between">
       <MenubarRoot className="gap-0">
@@ -33,14 +31,16 @@ export function Menubar({ menus, onChange, activeMenu }: MenuBarProps) {
           )
         })}
       </MenubarRoot>
-      <div className="flex items-center gap-3">
-        <p>Sort By:</p>
-        <DropdownField
-          title="Highest"
-          menu={["Highest", "Lowest", ""]}
-          blue
-        />
-      </div>
+      {sort && (
+        <div className="flex items-center gap-3 mb-5">
+          <p>Sort By:</p>
+          <DropdownField
+            title="Highest"
+            menu={["Highest", "Lowest", ""]}
+            blue
+          />
+        </div>
+      )}
     </div>
   )
 }

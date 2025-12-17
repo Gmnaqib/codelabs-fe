@@ -1,44 +1,76 @@
 "use client"
+import React, { useEffect, useState } from 'react'
 import { Calendar } from "@/components/ui/calendar"
-import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard, PicketCard, InProgressCard, TotalMembers } from "@/features/dashboard/components"
-import AverageMonthly from "@/features/dashboard/components/AverageMonthly"
-import KPIRangkings from "@/features/dashboard/components/KPIRangkings"
-import OperationalCash from "@/features/dashboard/components/OperationalCash"
-import OrganizationStatistics from "@/features/dashboard/components/OrganizationStatistics"
-import OrganizationSummary from "@/features/dashboard/components/OrganizationSummary"
-import ResearchPercentage from "@/features/dashboard/components/ResearchPercentage"
+import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard, PicketCard, InProgressCard, TotalMembers, AverageMonthly, OperationalCash, OrganizationStatistic, OrganizationSummary, KPIRangkings, ResearchPercentage } from "@/features/dashboard/components"
 import ProtectedRoute from "@/features/login/components/ProtectedRoute"
-import React, { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { ChevronRightIcon } from '@heroicons/react/24/solid'
+import { useClock } from '@/hooks/useClock'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const { formattedTime, formattedDate } = useClock();
+  const [isRightOpen, setIsRightOpen] = useState(true);
+  const isXl = useMediaQuery("(min-width: 1280px)");
+
+  useEffect(() => {
+  if (isXl) {
+    setIsRightOpen(true);
+  }
+}, [isXl]);
   
   return (
     <ProtectedRoute>
       <div className="flex bg-secondary">
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-3 mr-[263px]">
+        <div className="gap-5 grid grid-cols-1 xl:grid-cols-3 xl:mr-[263px]">
             <AttendanceCard />
             <MonthlyProgressCard />
             <CashBillsCard />
             <AnnouncementCard />
             <PicketCard />
             <InProgressCard /> 
-            {/* <TotalMembers/>
+            <TotalMembers/>
             <AverageMonthly/>
             <OperationalCash/>
-            <OrganizationStatistics className="col-span-2 h-full"/>
+            <OrganizationStatistic className="h-full xl:col-span-2"/>
             <ResearchPercentage/>
-            <OrganizationSummary className="col-span-3 h-full"/> */}
+            <OrganizationSummary className="h-full xl:col-span-3"/>
         </div>
-        <div className="flex flex-col w-[275px] gap-5 p-4 border-l-2 fixed right-0 top-0 mt-20">
-          <p className='font-semibold '>Schedule</p>
-          <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-        />
-        <KPIRangkings />
-        </div>
+        <Button
+          variant="default"
+          className={`absolute top-24 bg-background text-primary rounded-sm p-0 xl:hidden ${isRightOpen? "right-68" : "right-0" }`}
+          onClick={() => setIsRightOpen(!isRightOpen)}
+        >
+          <ChevronRightIcon
+            className={`transition-transform duration-300 size-5 ${isRightOpen ? "" : "rotate-180"}`}
+          />
+        </Button>
+        {isRightOpen && (
+          <div className={`
+            fixed right-0 top-0 mt-[75px]
+            w-[275px]
+            flex flex-col gap-4 p-4 border-l-2 bg-background
+            transition-transform duration-300 ease-in-out
+            xl:translate-x-0 xl:opacity-100
+            ${
+              isRightOpen
+                ? "translate-x-0 opacity-100"
+                : "translate-x-full opacity-0"
+            }
+          `}>
+            <div className="">
+              <p className='text-xl'>{formattedTime} WIB</p>
+              <p className='text-sm text-neutral'>{formattedDate}</p>
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+              />
+            </div>
+            <KPIRangkings />
+          </div>
+        )}
     </div>
     </ProtectedRoute>
   )
