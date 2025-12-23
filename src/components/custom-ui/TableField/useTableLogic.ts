@@ -18,7 +18,7 @@ const WEEK_TO_DATE: Record<number, number> = {
 };
 
 const getDateNumber = (page: string, day: number) => {
-  return page.toLowerCase() === "piket"
+  return page.toLowerCase() === "picket"
     ? WEEK_TO_DATE[day]
     : day;       
 };
@@ -30,7 +30,6 @@ export const useTableLogic = (
   data: any[],
   onPageChange: (page: string) => void
 ) => {
-  // ===== STATE KATEGORI =====
   const [isReport, setIsReport] = useState(false);
   const [isAttendance, setIsAttendance] = useState(false);
   const [isScoring, setIsScoring] = useState(false);
@@ -41,12 +40,10 @@ export const useTableLogic = (
   const [isBranding, setIsBranding] = useState(false);
   const [isAssessments, setIsAssessments] = useState(false);
 
-  // ===== STATE DATA =====
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
   const [researchData, setResearchData] = useState<any[]>([]);
 
-  // ===== GET DATA RESEARCH =====
   useEffect(() => {
     const fetchResearch = async () => {
       try {
@@ -61,15 +58,14 @@ export const useTableLogic = (
     fetchResearch();
   }, []);
 
-  // ===== GET DATA TEMATIK & PIKET =====
   useEffect(() => {
     const fetchOperational = async () => {
       const page = activePage.toLowerCase();
-      if (page !== "tematik" && page !== "piket") return;
+      if (page !== "thematic" && page !== "picket") return;
 
       try {
         const users = await getAllUsers();
-        const type = page === "tematik" ? "thematic" : "picket";
+        const type = page === "thematic" ? "thematic" : "picket";
 
         const records = await getOperationalRecords(type);
 
@@ -85,8 +81,7 @@ export const useTableLogic = (
           const date = new Date(r.date).getDate();
           let key = "";
 
-          // PIKET menggunakan mapping week → date
-          if (page === "piket") {
+          if (page === "picket") {
             const week = Object.entries(WEEK_TO_DATE).find(
               ([, d]) => d === date
             )?.[0];
@@ -95,8 +90,7 @@ export const useTableLogic = (
             key = `${activePage}-${r.userId}-${week}`;
           }
 
-          // TEMATIK menggunakan tanggal normal (1–31)
-          else if (page === "tematik") {
+          else if (page === "thematic") {
             key = `${activePage}-${r.userId}-${date}`;
           }
 
@@ -115,7 +109,6 @@ export const useTableLogic = (
     fetchOperational();
   }, [activePage, month, year]);
 
-  // ===== TOGGLE CHECKBOX =====
   const handleToggleCheckbox = async (
     page: string,
     rowIndex: number,
@@ -127,25 +120,22 @@ export const useTableLogic = (
     const key = `${page}-${user._id}-${day}`;
     const current = checkedState[key] ?? false;
 
-    // Update UI state
     setCheckedState(prev => ({ ...prev, [key]: !current }));
 
     const type =
-      page.toLowerCase() === "tematik"
+      page.toLowerCase() === "thematic"
         ? "thematic"
-        : page.toLowerCase() === "piket"
+        : page.toLowerCase() === "picket"
         ? "picket"
         : null;
 
     if (!type) return;
 
-    // HASH: dapatkan tanggal sesuai page
     const dateNumber = getDateNumber(page, Number(day));
 
     const targetDate = new Date(year, month - 1, dateNumber);
     targetDate.setHours(0, 0, 0, 0);
 
-    // CREATE RECORD
     if (!current) {
       const res = await createOperationalRecord(
         user._id,
@@ -156,7 +146,6 @@ export const useTableLogic = (
       setRecordIds(prev => ({ ...prev, [key]: res.data._id }));
     }
 
-    // DELETE RECORD
     else {
       const id = recordIds[key];
       if (!id) return;
@@ -171,7 +160,6 @@ export const useTableLogic = (
     }
   };
 
-  // ===== KATEGORI DETECTION =====
    useEffect(() => {
     const norm = (activePage ?? "").trim().toLowerCase();
     const path =
@@ -192,8 +180,8 @@ export const useTableLogic = (
       operational: "scoring",
       branding: "scoring",
       absensi: "operasional",
-      tematik: "operasional",
-      piket: "operasional",
+      thematic: "operasional",
+      picket: "operasional",
       assessments: "assessments",
       members: "members",
       ristek: "ristek",

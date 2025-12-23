@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@radix-ui/react-popover"
 import { FaRegCalendar } from "react-icons/fa6"
+import { CalendarDaysIcon } from "@heroicons/react/24/solid"
 
 interface CalendarMonthYearPickerProps {
   className?: string
@@ -35,23 +36,21 @@ export function CalendarMonthYearPicker({
   )
   const [open, setOpen] = React.useState(false)
 
-  // Nama singkat untuk tampilan pilihan bulan
   const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-  // Nama lengkap untuk label tampilan utama
   const monthsFull = [
-    "Januari",
-    "Februari",
-    "Maret",
+    "January",
+    "February",
+    "March",
     "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
+    "May",
+    "June",
+    "July",
+    "August",
     "September",
-    "Oktober",
+    "October",
     "November",
-    "Desember",
+    "December",
   ]
 
   const years = Array.from({ length: 12 }, (_, i) => yearRangeStart + i)
@@ -64,13 +63,12 @@ export function CalendarMonthYearPicker({
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex)
     onChange?.({ year: selectedYear, month: monthIndex })
-    setOpen(false) // auto close setelah pilih bulan
+    setOpen(false) 
   }
 
   const prevRange = () => setYearRangeStart(yearRangeStart - 12)
   const nextRange = () => setYearRangeStart(yearRangeStart + 12)
 
-  // Label tampilan utama
   const displayLabel =
     selectedMonth !== null
       ? `${monthsFull[selectedMonth]} ${selectedYear}`
@@ -78,9 +76,9 @@ export function CalendarMonthYearPicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="flex items-center gap-5 justify-between border border-muted-foreground rounded-full px-6 py-3 bg-white">
+      <PopoverTrigger className="flex h-fit items-center gap-14 justify-between border border-muted-foreground rounded-full px-6 py-2 bg-white">
         <span>{displayLabel}</span>
-        <FaRegCalendar size={20} />
+        <CalendarDaysIcon className="size-5" />
       </PopoverTrigger>
 
       <PopoverContent>
@@ -90,7 +88,6 @@ export function CalendarMonthYearPicker({
             className
           )}
         >
-          {/* Header */}
           <div className="flex items-center justify-between mb-2">
             <Button
               variant="ghost"
@@ -122,7 +119,6 @@ export function CalendarMonthYearPicker({
             </Button>
           </div>
 
-          {/* Grid */}
           {view === "year" ? (
             <div className="grid grid-cols-3 gap-2 mt-2">
               {years.map((year) => (

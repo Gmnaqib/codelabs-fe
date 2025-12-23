@@ -1,21 +1,39 @@
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
+  size?: "sm" | "md"
+}
+
+function Input({
+  className,
+  type,
+  size = "md",
+  ...props
+}: InputProps) {
   return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "file:text-foreground bg-white text-black placeholder:text-muted-foreground px-1 placeholder:text-base selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-muted-foreground flex h-9 w-full min-w-0 rounded-full border pl-6 py-6 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-        "focus-visible:border-none focus-visible:ring-primary/50 focus-visible:ring-[2px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        "[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0",
-        className
+    <div className="relative w-full">
+      <input
+        type={type}
+        data-slot="input"
+        className={cn(
+          "bg-white text-black placeholder:text-neutral w-full min-w-0 rounded-full border border-muted-foreground outline-none transition",
+
+          // SIZE SYSTEM
+          size === "sm" && "h-10 pl-5",
+          size === "md" && "h-12 px-6",
+
+          "focus-visible:ring-2 focus-visible:ring-primary/50",
+          className
+        )}
+        {...props}
+      />
+
+      {size === "sm" && (
+        <MagnifyingGlassIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none"/>
       )}
-      {...props}
-    />
+    </div>
   )
 }
 

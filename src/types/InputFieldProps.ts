@@ -3,5 +3,6 @@ export interface InputFieldProps {
     type: string
     placeholder: string
     value?: string
+    size?: "sm" | "md"
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }

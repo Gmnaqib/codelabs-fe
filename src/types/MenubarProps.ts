@@ -3,4 +3,5 @@ export interface MenuBarProps {
     onChange?: (menu: string) => void
     activeMenu?: string
     sort?: boolean
+    filter?: boolean
 }

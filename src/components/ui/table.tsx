@@ -1,18 +1,14 @@
 "use client"
 
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div
-      data-slot="table-container"
-      className=""
-    >
+    <div data-slot="table-container" className="relative">
       <table
         data-slot="table"
-        className={cn("text-base", className)}
+        className={cn("w-full border-collapse text-base", className)}
         {...props}
       />
     </div>
@@ -43,10 +39,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
     <tfoot
       data-slot="table-footer"
-      className={cn(
-        "bg-muted/50  font-medium [&>tr]:last:-0",
-        className
-      )}
+      className={cn("bg-muted/50 font-medium [&>tr]:last:-0", className)}
       {...props}
     />
   )
@@ -57,7 +50,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "data-[state=selected]:bg-muted  transition-colors even:bg-secondary odd:bg-white",
+        "data-[state=selected]:bg-muted transition-colors even:bg-surface odd:bg-white",
         className
       )}
       {...props}
@@ -70,7 +63,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "text-foreground w-40 text-center bg-secondary font-bold h-10 px-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "sticky top-0 z-20 bg-secondary text-foreground font-bold h-10 px-2 text-center align-middle whitespace-nowrap",
         className
       )}
       {...props}

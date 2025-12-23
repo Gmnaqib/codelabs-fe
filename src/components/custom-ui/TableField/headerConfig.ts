@@ -1,7 +1,7 @@
 export const operasional: Record<string, string[]> = {
-  Absensi: ["NIM", "Nama"],
-  Tematik: ["NIM", "Nama"],
-  Piket: ["NIM", "Nama"],
+  Absensce: ["NIM", "Nama"],
+  Thematic: ["NIM", "Nama"],
+  Picket: ["NIM", "Nama"],
 }
 
 export const report: Record<string, string[]> = {
