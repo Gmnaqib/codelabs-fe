@@ -40,11 +40,17 @@ const OperationalTable = ({
       try {
         setLoading(true);
 
+        const type =
+          activePage === "Thematic"
+            ? "thematic"
+            : activePage === "Picket"
+            ? "picket"
+            : undefined;
+
         const [userRes, attendanceRes, operationalRes] = await Promise.all([
           getAllUsers(),
           getAttendance(year, month),
-          // getOperationalRecords("thematic", undefined, year, month),
-          getOperationalRecords("thematic", undefined, 2025, 11),
+          type ? getOperationalRecords(type, undefined, 2025, 11) : Promise.resolve([]),
         ]);
 
         const attendanceMap = attendanceRes.reduce(
@@ -80,7 +86,7 @@ const OperationalTable = ({
     };
 
     fetchData();
-  }, [year, month]);
+  }, [year, month, activePage]);
 
   const query = searchQuery.trim().toLowerCase();
   const displayUsers = query
@@ -95,15 +101,47 @@ const OperationalTable = ({
   const daysInMonth = new Date(year, month, 0).getDate();
   const isPiket = activePage === "Picket";
 
+  const getWorkingWeeks = (year: number, month: number) => {
+  const weeks: number[][] = [];
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  let currentWeek: number[] = [];
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month - 1, day);
+    const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
+
+    // skip weekend
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+    currentWeek.push(day);
+
+    // Jumat (5) → tutup minggu
+    if (dayOfWeek === 5) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+
+  // sisa hari (kalau bulan habis tapi belum Jumat)
+  if (currentWeek.length) {
+    weeks.push(currentWeek);
+  }
+
+  return weeks;
+};
+const workingWeeks = getWorkingWeeks(year, month);
+const activeWeekIndex = 0;
+
   const daysArray = isPiket
-    ? [1, 2, 3, 4, 5]
+    ? workingWeeks[activeWeekIndex] || []
     : Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const isThematic = activePage === "Thematic";
 
     const renderCell = (day: string | number, rowIndex: number, data: any[], context?: any) => {
     const ctx = { ...(context || {}), month, year, daysInMonth };
-    if (isPiket) return renderPicketCell(day, rowIndex, data, ctx);
+    if (isPiket) return renderPicketCell(day, rowIndex, data);
     if (isThematic) return renderThematicCell(day, rowIndex, data);
     return renderAbsenceCell(day, rowIndex, data, ctx);
   };
