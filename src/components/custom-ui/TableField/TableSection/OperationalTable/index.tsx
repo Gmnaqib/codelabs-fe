@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Menubar } from "@/components/custom-ui/MenuBar";
 import { getAllUsers } from "@/services/users/userService";
 import { getAttendance } from "@/services/attendance/attendanceService";
+import { getOperationalRecords } from "@/services/operational/operationalService";
 import { OperationalTableProps } from "@/types/OperationalTableProps";
 import Image from "next/image";
 import {
@@ -39,9 +40,11 @@ const OperationalTable = ({
       try {
         setLoading(true);
 
-        const [userRes, attendanceRes] = await Promise.all([
+        const [userRes, attendanceRes, operationalRes] = await Promise.all([
           getAllUsers(),
           getAttendance(year, month),
+          // getOperationalRecords("thematic", undefined, year, month),
+          getOperationalRecords("thematic", undefined, 2025, 11),
         ]);
 
         const attendanceMap = attendanceRes.reduce(
@@ -53,9 +56,19 @@ const OperationalTable = ({
           {}
         );
 
+        const operationalMap = (operationalRes || []).reduce(
+          (acc: Record<string, any[]>, op: any) => {
+            if (!acc[op.userId]) acc[op.userId] = [];
+            acc[op.userId].push(op);
+            return acc;
+          },
+          {}
+        );
+
         const combined = userRes.map((user: any) => ({
           ...user,
           records: attendanceMap[user._id] || [],
+          operationalRecords: operationalMap[user._id] || [],
         }));
 
         setUsers(combined);
@@ -88,10 +101,10 @@ const OperationalTable = ({
 
   const isThematic = activePage === "Thematic";
 
-  const renderCell = (day: string | number, rowIndex: number, data: any[], context?: any) => {
+    const renderCell = (day: string | number, rowIndex: number, data: any[], context?: any) => {
     const ctx = { ...(context || {}), month, year, daysInMonth };
     if (isPiket) return renderPicketCell(day, rowIndex, data, ctx);
-    if (isThematic) return renderThematicCell();
+    if (isThematic) return renderThematicCell(day, rowIndex, data);
     return renderAbsenceCell(day, rowIndex, data, ctx);
   };
 
@@ -114,45 +127,49 @@ const OperationalTable = ({
         />
       )}
 
-      <div className="flex flex-col gap-1 mb-4 p-3 relative rounded-xl overflow-hidden">
-        <Image src="/icon/bg-absensi-top.png" alt="outline-top" width={800} height={800} className="absolute left-0 top-0 rounded-l-xl"/>
-        <Image src="/icon/bg-absensi-bottom.png" alt="outline-bottom" width={700} height={700} className="absolute right-0 top-0 rounded-l-xl"/>
+      {
+        activePage !== "Picket" && activePage !== "Thematic" && (
+          <div className="flex flex-col gap-1 mb-4 p-3 relative rounded-xl overflow-hidden">
+            <Image src="/icon/bg-absensi-top.png" alt="outline-top" width={800} height={800} className="absolute left-0 top-0 rounded-l-xl"/>
+            <Image src="/icon/bg-absensi-bottom.png" alt="outline-bottom" width={700} height={700} className="absolute right-0 top-0 rounded-l-xl"/>
 
-        <div className="flex justify-between mb-1 z-10">
-          <p className="font-medium">Attendance Status Indicators :</p>
-          <p className="text-primary cursor-pointer" onClick={() => setShowInfo((prev) => !prev)} >{showInfo ? "Hide" : "Show Information"}</p>
-        </div>
+            <div className="flex justify-between mb-1 z-10">
+              <p className="font-medium">Attendance Status Indicators :</p>
+              <p className="text-primary cursor-pointer" onClick={() => setShowInfo((prev) => !prev)} >{showInfo ? "Hide" : "Show Information"}</p>
+            </div>
 
-        {showInfo && (
-          <>
-          <Image src="/icon/vector-1.png" alt="vector-1" width={200} height={200} className="absolute right-0 bottom-0 rounded-r-xl"/>
+            {showInfo && (
+              <>
+              <Image src="/icon/vector-1.png" alt="vector-1" width={200} height={200} className="absolute right-0 bottom-0 rounded-r-xl"/>
 
-          <div className="flex gap-2 items-center">
-            <CheckCircleIcon className="size-6 text-primary"/>
-            <p className="text-muted">:</p>
-            <p className="text-muted">The member checked in and checked out on this day.</p>
+              <div className="flex gap-2 items-center">
+                <CheckCircleIcon className="size-6 text-primary"/>
+                <p className="text-muted">:</p>
+                <p className="text-muted">The member checked in and checked out on this day.</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <MinusCircleIcon className="size-6 text-neutral"/>
+                <p className="text-muted">:</p>
+                <p className="text-muted">Absent without any explanation.</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <PlusCircleIcon className="size-6 text-success"/>
+                <p className="text-muted">:</p>
+                <p className="text-muted">Absent due to illness.</p>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <ExclamationCircleIcon className="size-6 text-warning"/>
+                <p className="text-muted">:</p>
+                <p className="text-muted">Absent with permission.</p>
+              </div>
+              </>
+            )}
           </div>
-
-          <div className="flex gap-2 items-center">
-            <MinusCircleIcon className="size-6 text-neutral"/>
-            <p className="text-muted">:</p>
-            <p className="text-muted">Absent without any explanation.</p>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <PlusCircleIcon className="size-6 text-success"/>
-            <p className="text-muted">:</p>
-            <p className="text-muted">Absent due to illness.</p>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <ExclamationCircleIcon className="size-6 text-warning"/>
-            <p className="text-muted">:</p>
-            <p className="text-muted">Absent with permission.</p>
-          </div>
-          </>
-        )}
-      </div>
+        )
+      }
         
         <BaseScheduleTable
           leftHeaders={headers}
