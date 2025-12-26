@@ -44,7 +44,7 @@ const CardField = (props: CardFieldProps) => {
                   </div>
                 )}
 
-                <div className={`${noGap ? "text-sm text-ring" : "text-white text-base"}`}>
+                <div className={`${noGap ? "text-sm text-white" : "text-white text-base"}`}>
                   {title}
                 </div>
               </div>

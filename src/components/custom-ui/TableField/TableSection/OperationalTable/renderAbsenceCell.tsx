@@ -4,7 +4,6 @@ export const renderAbsenceCell = (
   day: string | number,
   rowIndex: number,
   data: any[],
-  context?: any
 ) => {
   const user = data[rowIndex];
   const record = user?.records?.find(

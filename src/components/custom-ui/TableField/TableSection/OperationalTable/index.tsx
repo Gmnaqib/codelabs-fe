@@ -143,7 +143,7 @@ const activeWeekIndex = 0;
     const ctx = { ...(context || {}), month, year, daysInMonth };
     if (isPiket) return renderPicketCell(day, rowIndex, data);
     if (isThematic) return renderThematicCell(day, rowIndex, data);
-    return renderAbsenceCell(day, rowIndex, data, ctx);
+    return renderAbsenceCell(day, rowIndex, data);
   };
 
   if (loading) {

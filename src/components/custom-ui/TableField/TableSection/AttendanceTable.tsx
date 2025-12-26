@@ -33,6 +33,9 @@ import { DropdownField } from "../../DropdownField";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import { getAllUsers, updateUser } from "@/services/users/userService";
+import CardField from "../../CardField";
+import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, HeartIcon } from "@heroicons/react/24/solid";
+import Image from "next/image";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -88,6 +91,30 @@ const AttendanceTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLeave, setSelectedLeave] = useState<any | null>(null);
   const itemsPerPage = 10;
+  const [summary, setSummary] = useState<any>(null); 
+    const [selectedDate, setSelectedDate] = useState({
+        year: new Date().getFullYear(),
+        month: new Date().getMonth(),
+      });
+
+      useEffect(() => {
+      const fetchSummary = async () => {
+        try {
+          setLoading(true);
+          const res = await getAttendanceSummary(
+            selectedDate.year,
+            selectedDate.month + 1 
+          );
+          setSummary(res);
+        } catch (err) {
+          console.error("❌ Error fetching attendance summary:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchSummary();
+    }, [selectedDate]);
 
   const fetchData = async () => {
     try {
@@ -159,7 +186,7 @@ setTodayData([]);
 
   useEffect(() => {
     fetchData();
-    setCurrentPage(1); // reset halaman setiap ganti menu / bulan / tahun
+    setCurrentPage(1);
   }, [month, year, activePage]);
 
   const filteredTodayData = todayData.filter((item) =>
@@ -170,7 +197,6 @@ setTodayData([]);
     item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Data paginasi general (untuk semua page)
   const dataToPaginate =
     activePage === "Permissions" ? filteredData : filteredData;
 
@@ -293,21 +319,14 @@ setTodayData([]);
 
   const renderSummaryRow = (item: any, index: number) => (
     <TableRow key={index}>
-      <TableCell className="text-center text-base">{item.userName}</TableCell>
-      <TableCell className="text-center">{item.counts?.present ?? 0}</TableCell>
-      <TableCell className="text-center">{item.counts?.leave ?? 0}</TableCell>
-      <TableCell className="text-center">{item.counts?.sick ?? 0}</TableCell>
-      <TableCell className="text-center">{item.counts?.late ?? 0}</TableCell>
-      <TableCell className="text-center">{item.counts?.absent ?? 0}</TableCell>
-      <TableCell className="text-center">1</TableCell>
-      <TableCell className="text-center">
-        <DropdownField
-          title={item.changeDevice}
-          menu={["true", "false"]}
-          onChange={(value) => handleChangeDevice(item.userId, value)}
-        />
-      </TableCell>
-      <TableCell className="text-center">
+      <TableCell className="text-center text-base w-96">{item.userName}</TableCell>
+      <TableCell className="text-center w-96">{item.counts?.present ?? 0}</TableCell>
+      <TableCell className="text-center w-96">{item.counts?.leave ?? 0}</TableCell>
+      <TableCell className="text-center w-96">{item.counts?.sick ?? 0}</TableCell>
+      <TableCell className="text-center w-96">{item.counts?.late ?? 0}</TableCell>
+      <TableCell className="text-center w-96">{item.counts?.absent ?? 0}</TableCell>
+      <TableCell className="text-center w-96">1</TableCell>
+      <TableCell className="text-center w-96">
         <DialogField name="Detail" title="Attendance Detail" variant="outline" noPadding>
           <p>Detail attendance data for {item.userName}</p>
         </DialogField>
@@ -319,32 +338,68 @@ setTodayData([]);
     return <Card className="p-6 text-center text-gray-500">Loading data...</Card>;
   }
 
+  const totalPresent =
+      summary?.reduce((acc: number, u: any) => acc + (u.counts?.present ?? 0), 0) ?? 0;
+    const totalPermit =
+      summary?.reduce((acc: number, u: any) => acc + (u.counts?.leave ?? 0), 0) ?? 0;
+    const totalSick =
+      summary?.reduce((acc: number, u: any) => acc + (u.counts?.sick ?? 0), 0) ?? 0;
+    const totalLate =
+      summary?.reduce((acc: number, u: any) => acc + (u.counts?.late ?? 0), 0) ?? 0;
+    const totalAbsent =
+      summary?.reduce((acc: number, u: any) => acc + (u.counts?.absent ?? 0), 0) ?? 0;
+    const totalOverall =
+      totalPresent + totalPermit + totalSick + totalLate + totalAbsent;
+
   return (
     <div className="w-full rounded-lg overflow-hidden">
+
       {showMenu && (
         <Menubar
           menus={Object.keys(attendance)}
           activeMenu={activePage}
           onChange={onPageChange}
+          filter
         />
       )}
 
-      {/* Today Section (khusus Permissions) */}
+      <div className="grid grid-cols-5 gap-5 mt-3">
+          <CardField title="Total Report" icon={<DocumentTextIcon />} noGap>
+            <p className="text-primary font-medium text-center text-2xl mt-4">
+              {loading ? "..." : totalOverall}
+            </p>
+          </CardField>
+          <CardField title="Permit" icon={<HandRaisedIcon />} noGap>
+            <p className="font-medium text-center text-2xl mt-4">{loading ? "..." : totalPermit}</p>
+          </CardField>
+          <CardField title="Sick" icon={<HeartIcon />} noGap>
+            <p className="font-medium text-center text-2xl mt-4">{loading ? "..." : totalSick}</p>
+          </CardField>
+          <CardField title="Late Arrivals" icon={<ClockIcon />} noGap>
+            <p className="font-medium text-center text-2xl mt-4">{loading ? "..." : totalLate}</p>
+          </CardField>
+          <CardField title="No Report" icon={<ExclamationTriangleIcon />} noGap>
+            <p className="font-medium text-center text-2xl mt-4">{loading ? "..." : totalAbsent}</p>
+          </CardField>
+      </div>
+
+      <div className="w-full h-0.5 bg-bg-neutral mt-8 mb-5"></div>
+
       {activePage === "Permissions" && (
         <>
-          <div className="flex items-center w-full px-5 gap-2 bg-white pt-5">
-            <p className="font-bold text-xl">Today</p>
+          <div className="flex justify-between items-center w-full px-5 bg-white">
+            <p className="font-medium text-xl">Today</p>
             <p
               onClick={() => setShowToday(!showToday)}
-              className="text-primary font-bold text-sm cursor-pointer select-none"
+              className="text-primary font-normal text-sm cursor-pointer select-none"
             >
               {showToday ? "Hide" : "Show Today"}
             </p>
           </div>
 
           {showToday && (
-            <Card>
-              <div className="px-5">
+            filteredTodayData.length > 0 ? (
+              <Card>
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow>
@@ -353,27 +408,37 @@ setTodayData([]);
                       ))}
                     </TableRow>
                   </TableHeader>
+
                   <TableBody>
-                    {filteredTodayData.length > 0 ? (
-                      filteredTodayData.map(renderPermissionRow)
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={attendanceHeaders.length} className="text-center py-5">
-                          Tidak ada data hari ini
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    {filteredTodayData.map(renderPermissionRow)}
                   </TableBody>
                 </Table>
-              </div>
-            </Card>
+              </Card>
+            ) : (
+              <Card className="py-12">
+                <div className="text-center">
+                  <Image
+                    src="/icon/no-data.png"
+                    alt="No Data"
+                    width={200}
+                    height={200}
+                    className="mx-auto mb-4"
+                  />
+                  <p className="font-medium text-lg">All Clear</p>
+                  <p className="text-base text-neutral">
+                    No one submitted sick leave, permission, or absence today.
+                  </p>
+                </div>
+              </Card>
+            )
           )}
         </>
       )}
 
-      {/* Main Table (Pagination untuk semua halaman) */}
       <Card>
-        <div className="px-5">
+          {activePage === "Permissions" && (
+            <p className="font-medium text-xl px-5">All Report</p>
+          )}
           <Table className="w-full">
             <TableHeader>
               <TableRow>
@@ -399,9 +464,7 @@ setTodayData([]);
               )}
             </TableBody>
           </Table>
-        </div>
 
-        {/* Pagination muncul untuk semua halaman */}
         {totalPages > 1 && (
           <Pagination className="mt-4">
             <PaginationContent>

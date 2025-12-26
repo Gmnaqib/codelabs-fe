@@ -13,7 +13,6 @@ import {
 import { useTableLogic } from "./useTableLogic";
 
 import ReportTable from "./TableSection/ReportTable";
-import AttendanceTable from "./TableSection/AttendanceTable";
 import ScoringTable from "./TableSection/ScoringTable";
 import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 import AssessmentsTable from "./TableSection/AssessmentsTable"; 
@@ -23,6 +22,7 @@ import CompetitionTable from "./TableSection/CompetitionTable";
 import BrandingTable from "./TableSection/BrandingTable";
 import { TabelFieldProps } from "@/types/TableFieldProps";
 import OperationalTable from "./TableSection/OperationalTable";
+import AttendanceTable from "./TableSection/AttendanceTable";
 
 
 const TableField = ({

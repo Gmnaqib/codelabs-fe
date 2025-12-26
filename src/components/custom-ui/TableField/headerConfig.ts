@@ -9,8 +9,8 @@ export const report: Record<string, string[]> = {
 }
 
 export const attendance: Record<string, string[]> = {
-  Permissions: ["Nama", "Status", "Date", "Reviewed", "Permission", "Detail"],
-  TotalAttendance: ["Nama", "Present", "Permit", "Sick", "Late Arrivals", "No Report", "SP", "Permisson", "Action"]
+  Permissions: ["Name", "Status", "Date", "Reviewed", "Permission", "Detail"],
+  TotalAttendance: ["Name", "Present", "Permit", "Sick", "Late Arrivals", "No Report", "SP", "Action"]
 }
 
 export const scoring: Record<string, string[]> = {
