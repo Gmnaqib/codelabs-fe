@@ -40,3 +40,7 @@ export const branding: Record<string, string[]> = {
 export const ristek: Record<string, string[]> = {
   ristek: ["Name", "Label", "Action"],
 };
+
+export const picketschedule: Record<string, string[]> = {
+  picketschedule: ["Name", "Action", "Swap"],
+};

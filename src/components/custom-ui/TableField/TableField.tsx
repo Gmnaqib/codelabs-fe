@@ -9,6 +9,7 @@ import {
   organization,
   members,
   ristek,
+  picketschedule,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -23,7 +24,7 @@ import BrandingTable from "./TableSection/BrandingTable";
 import { TabelFieldProps } from "@/types/TableFieldProps";
 import OperationalTable from "./TableSection/OperationalTable";
 import AttendanceTable from "./TableSection/AttendanceTable";
-
+import PicketScheduleTable from "./TableSection/PicketScheduleTable/page";
 
 const TableField = ({
   activePage,
@@ -47,13 +48,14 @@ const TableField = ({
     isRistek,
     isCompetition,
     isBranding,
+    isPicketSchedule,
     checkedState,
     researchData,
     handleToggleCheckbox,
   } = useTableLogic(activePage, month, year, data, onPageChange);
 
   let headersConfig: Record<string, string[]> =
-    isReport
+      isReport
       ? report
       : isAttendance
       ? attendance
@@ -163,6 +165,15 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
+      />
+    );
+
+  if (isPicketSchedule)
+    return (
+      <PicketScheduleTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={false}
       />
     );
 

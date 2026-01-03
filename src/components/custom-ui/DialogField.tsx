@@ -52,7 +52,8 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
         <Button
           variant={variant}
           onClick={onTriggerClick}
-          className={noPadding ? "py-0" : ""} // ✅
+          className={noPadding ? "py-0" : ""} 
+          size="sm"
         >
           {name}
         </Button>

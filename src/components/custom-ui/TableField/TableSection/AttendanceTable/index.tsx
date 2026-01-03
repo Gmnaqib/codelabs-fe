@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Menubar } from "@/components/custom-ui/MenuBar";
-import { attendance } from "../headerConfig";
+import { attendance } from "../../headerConfig";
 import {
   getAllLeaveRequests,
   getTodayLeaveRequests,
@@ -28,12 +28,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import DialogField from "../../DialogField";
-import { DropdownField } from "../../DropdownField";
+import DialogField from "../../../DialogField";
+import { DropdownField } from "../../../DropdownField";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import { getAllUsers, updateUser } from "@/services/users/userService";
-import CardField from "../../CardField";
+import CardField from "../../../CardField";
 import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, HeartIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 

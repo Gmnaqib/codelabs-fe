@@ -1,4 +1,3 @@
-// src/config/dashboard.ts
 export const DataSelect = [
   { value: "highest", title: "Highest" },
   { value: "lowest", title: "Lowest" }

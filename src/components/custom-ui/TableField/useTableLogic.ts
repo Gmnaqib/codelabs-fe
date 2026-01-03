@@ -39,6 +39,7 @@ export const useTableLogic = (
   const [isCompetition, setIsCompetition] = useState(false);
   const [isBranding, setIsBranding] = useState(false);
   const [isAssessments, setIsAssessments] = useState(false);
+  const [isPicketSchedule, setIsPicketSchedule] = useState(false);
 
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
@@ -184,6 +185,7 @@ export const useTableLogic = (
       picket: "operasional",
       assessments: "assessments",
       members: "members",
+      picketschedule: "picketSchedule",
       ristek: "ristek",
     };
 
@@ -215,6 +217,7 @@ export const useTableLogic = (
     setIsRistek(category === "ristek");
     setIsCompetition(category === "competition");
     setIsBranding(category === "branding");
+    setIsPicketSchedule(category === "picketSchedule");
 
     if (category === "organization" && norm === "organization") {
       onPageChange("Attendance");
@@ -236,6 +239,7 @@ export const useTableLogic = (
     isCompetition,
     isBranding,
     isAssessments,
+    isPicketSchedule,
     checkedState,
     recordIds,
     researchData,

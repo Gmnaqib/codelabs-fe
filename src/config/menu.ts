@@ -10,6 +10,7 @@ import {
   PaintBrushIcon as PaintSolid,
   Squares2X2Icon as SquaresSolid,
   TrophyIcon as TrophySolid,
+  UserGroupIcon as UserGroupSolid,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -24,6 +25,7 @@ import {
   PaintBrushIcon as PaintOutline,
   Squares2X2Icon as SquaresOutline,
   TrophyIcon as TrophyOutline,
+  UserGroupIcon as UserGroupOutline,
 } from "@heroicons/react/24/outline";
 
 export const menuItems = [
@@ -56,6 +58,12 @@ export const menuItems = [
     iconSolid: ClipboardCheckSolid,
     iconOutline: ClipboardCheckOutline,
     route: "/attendance",
+  },
+  {
+    title: "Picket Schedule",
+    iconSolid: UserGroupSolid,
+    iconOutline: UserGroupOutline,
+    route: "/picket-schedule",
   },
   {
     title: "Assessments",

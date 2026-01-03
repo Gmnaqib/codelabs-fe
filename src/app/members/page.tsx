@@ -128,14 +128,12 @@ const Members = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* ROLE FILTER */}
             <DropdownField
               title={filterRole}
               menu={["All Role", "User", "Minister", "Admin", "President"]}
               onSelect={(v) => setFilterRole(v)}
             />
 
-            {/* SUBRISET FILTER */}
             <DropdownField
               title={filterSubriset}
               menu={[
@@ -151,7 +149,6 @@ const Members = () => {
               onSelect={(v) => setFilterSubriset(v)}
             />
 
-            {/* STATUS FILTER */}
             <DropdownField
               title={filterStatus}
               menu={["All Status", "Active", "Inactive", "Graduated"]}
@@ -159,7 +156,6 @@ const Members = () => {
             />
           </div>
 
-          {/* CREATE NEW MEMBER */}
           <DialogField
             name="Create New Member"
             title="Create New Member"
