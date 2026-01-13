@@ -21,7 +21,7 @@ const Navbar = ({ isActive }: NavbarProps) => {
 }
 
   return (
-    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-40'>
+    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-20'>
       <div className="flex w-full justify-between items-center">
         <div>
           <p className={`font-normal text-xl transition-all ${isActive? "ml-[270px]" : "ml-[60px]" }`}>{title}</p>

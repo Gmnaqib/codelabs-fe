@@ -23,9 +23,6 @@ const CardField = (props: CardFieldProps) => {
       })
     : null
     
-    console.log("bg:", bg, typeof bg);
-
-  
   return (
     <div className='flex flex-col h-full relative'>
       <Card className={`flex-1 ${noGap ? "gap-0" : "gap-6"}`}>
@@ -59,7 +56,7 @@ const CardField = (props: CardFieldProps) => {
             </CardTitle>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className='z-10'>
             {children}
           </CardContent>
       </Card>
