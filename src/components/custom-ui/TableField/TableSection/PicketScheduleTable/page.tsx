@@ -41,7 +41,8 @@ import { ReportTableProps } from '@/types/ReportTableProps';
                       <DialogField
                       variant='outline'
                       name="Swapping"
-                      title="Swapping">
+                      title="Swapping"
+                      size="sm">
                         <p>das</p>
                     </DialogField>
                     </div>
@@ -55,7 +56,8 @@ import { ReportTableProps } from '@/types/ReportTableProps';
                       <DialogField
                       variant='outline'
                       name="Swapping"
-                      title="Swapping">
+                      title="Swapping"
+                      size="sm">
                         <p>das</p>
                     </DialogField>
                     </div>
@@ -69,7 +71,8 @@ import { ReportTableProps } from '@/types/ReportTableProps';
                       <DialogField
                       variant='outline'
                       name="Swapping"
-                      title="Swapping">
+                      title="Swapping"
+                      size="sm">
                         <p>das</p>
                     </DialogField>
                     </div>
@@ -83,7 +86,8 @@ import { ReportTableProps } from '@/types/ReportTableProps';
                       <DialogField
                       variant='outline'
                       name="Swapping"
-                      title="Swapping">
+                      title="Swapping"
+                      size="sm">
                         <p>das</p>
                     </DialogField>
                     </div>
@@ -97,7 +101,8 @@ import { ReportTableProps } from '@/types/ReportTableProps';
                       <DialogField
                       variant='outline'
                       name="Swapping"
-                      title="Swapping">
+                      title="Swapping"
+                      size="sm">
                         <p>das</p>
                     </DialogField>
                     </div>
@@ -111,7 +116,8 @@ import { ReportTableProps } from '@/types/ReportTableProps';
                       <DialogField
                       variant='outline'
                       name="Swapping"
-                      title="Swapping">
+                      title="Swapping"
+                      size="sm">
                         <p>das</p>
                     </DialogField>
                     </div>

@@ -4,4 +4,5 @@ export interface MenuBarProps {
     activeMenu?: string
     sort?: boolean
     filter?: boolean
+    search?: boolean
 }

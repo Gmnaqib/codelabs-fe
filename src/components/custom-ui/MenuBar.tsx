@@ -11,14 +11,14 @@ import InputField from "./InputField"
 import { CalendarMonthYearPicker } from "./CalendarMonthYearPicker"
 import { useState } from "react"
 
-export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false }: MenuBarProps) {
+export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false, search = true }: MenuBarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth(), 
   });
   return (
-    <div className="flex justify-between mt-1">
+    <div className="flex justify-between mt-1 w-full">
       <MenubarRoot className="gap-0">
         {menus.map((menu, index, arr) => {
           const isActive = activeMenu === menu
@@ -42,20 +42,22 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
 
       {filter && (
         <div className="flex gap-5">
-          <InputField
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            size="sm"
-          />
-          <CalendarMonthYearPicker
-            onChange={(val) => {
-              setSelectedDate(val);
-            }}
-            defaultYear={selectedDate.year}
-            defaultMonth={selectedDate.month}
-          />
+          {search && (
+            <InputField
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              size="sm"
+            />
+          )}
+            <CalendarMonthYearPicker
+              onChange={(val) => {
+                setSelectedDate(val);
+              }}
+              defaultYear={selectedDate.year}
+              defaultMonth={selectedDate.month}
+            />
         </div>
       )}
 

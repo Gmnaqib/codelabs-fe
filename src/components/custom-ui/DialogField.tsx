@@ -12,16 +12,13 @@ import {
 import { DialogFieldProps } from "@/types/DialogFieldProps";
 import { Button } from "../ui/button";
 
-interface ExtendedDialogFieldProps extends DialogFieldProps {
-  noPadding?: boolean; 
-}
-
-const DialogField = (props: ExtendedDialogFieldProps) => {
+const DialogField = (props: DialogFieldProps) => {
   const {
     name,
     title,
     children,
     variant = "default",
+    size = "default",
     open: controlledOpen,
     onOpenChange,
     onSubmit,
@@ -53,7 +50,7 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
           variant={variant}
           onClick={onTriggerClick}
           className={noPadding ? "py-0" : ""} 
-          size="sm"
+          size={size}
         >
           {name}
         </Button>
