@@ -1,6 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRef } from "react";
+import { Canvas, useLoader } from '@react-three/fiber';
+import { OrbitControls, Stage } from '@react-three/drei';
+import { GLTFLoader } from 'three-stdlib';
 import CardField from "@/components/custom-ui/CardField";
 import { getPicketSchedules } from "@/services/schedule/scheduleService";
 import { Label } from "@/components/ui/label";
@@ -58,6 +62,14 @@ const PicketCard = () => {
     { title: "Table & Research Tool Cleaner", data: picketData.slice(3, 6) },
   ];
 
+  const [showMap, setShowMap] = useState(false);
+
+  // Komponen loader GLB
+  function Model() {
+    const gltf = useLoader(GLTFLoader, "/3d/denahcodelabs.glb");
+    return <primitive object={gltf.scene} scale={1.5} />;
+  }
+
   return (
     <CardField title="Picket Schedule Today" icon={<ClipboardDocumentCheckIcon />} bg>
       <div className="flex flex-col gap-5">
@@ -74,7 +86,35 @@ const PicketCard = () => {
           </div>
         ))}
 
-        <Link href="/operasional" className="flex text-primary text-base justify-center items-center gap-2">See Map <ArrowUpRightIcon className="size-4" /></Link>
+        <button
+          type="button"
+          onClick={() => setShowMap(true)}
+          className="flex text-primary text-base justify-center items-center gap-2 border-none bg-transparent cursor-pointer"
+        >
+          See Map <ArrowUpRightIcon className="size-4" />
+        </button>
+
+        {showMap && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+            <button
+              onClick={() => setShowMap(false)}
+              className="absolute top-4 right-4 bg-white rounded-lg px-2 py-1 text-gray-500 hover:text-red-500 text-xl font-bold z-50"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="w-screen h-screen flex flex-col">
+              <div className="flex-1">
+                <Canvas camera={{ position: [-30, 20, 0], fov: 50 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
+                  <ambientLight intensity={0.7} />
+                  <directionalLight position={[10, 10, 5]} intensity={1} />
+                  <Model />
+                  <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+                </Canvas>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </CardField>
   );

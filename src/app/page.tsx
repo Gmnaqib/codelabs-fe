@@ -28,14 +28,16 @@ const Dashboard = () => {
             <MonthlyProgressCard />
             <CashBillsCard />
             <AnnouncementCard />
-            <PicketCard />
+            <div className="z-50">
+              <PicketCard />
+            </div>
             <InProgressCard /> 
-            <TotalMembers/>
+            {/* <TotalMembers/>
             <AverageMonthly/>
             <OperationalCash/>
             <OrganizationStatistic className="h-full xl:col-span-2"/>
             <ResearchPercentage/>
-            <OrganizationSummary className="h-full xl:col-span-3"/>
+            <OrganizationSummary className="h-full xl:col-span-3"/> */}
         </div>
         <Button
           variant="default"
