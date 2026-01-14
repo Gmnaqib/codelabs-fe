@@ -28,7 +28,7 @@ const Dashboard = () => {
             <MonthlyProgressCard />
             <CashBillsCard />
             <AnnouncementCard />
-            <div className="z-50">
+            <div className="lg:z-50">
               <PicketCard />
             </div>
             <InProgressCard /> 
@@ -41,7 +41,7 @@ const Dashboard = () => {
         </div>
         <Button
           variant="default"
-          className={`absolute top-24 bg-background text-primary rounded-sm p-0 xl:hidden ${isRightOpen? "right-68" : "right-0" }`}
+          className={`absolute top-24 bg-background text-primary rounded-sm p-0 z-50 xl:hidden ${isRightOpen? "right-68" : "right-0" }`}
           onClick={() => setIsRightOpen(!isRightOpen)}
         >
           <ChevronRightIcon
@@ -53,7 +53,7 @@ const Dashboard = () => {
             fixed right-0 top-0 mt-[75px]
             w-[275px]
             flex flex-col gap-4 p-4 border-l-2 bg-background
-            transition-transform duration-300 ease-in-out
+            transition-transform duration-300 ease-in-out z-10 lg:z-10
             xl:translate-x-0 xl:opacity-100
             ${
               isRightOpen
