@@ -12,6 +12,7 @@ import InputField from '@/components/custom-ui/InputField';
 const AttendanceCard = () => {
   const { user } = useAuth();
   const [isCheckedIn, setIsCheckedIn] = useState<boolean | null>(null);
+  const [isCheckedOut, setIsCheckedOut] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -39,6 +40,7 @@ const AttendanceCard = () => {
           return checkInLocal === todayLocal;
         });
         setIsCheckedIn(!!found);
+        setIsCheckedOut(found && found.checkOut ? true : false);
       } catch (e) {
         setIsCheckedIn(false);
       }
@@ -90,20 +92,52 @@ const AttendanceCard = () => {
         {loading ? (
           <p className="text-center text-sm mt-5">Loading...</p>
         ) : isCheckedIn ? (
-          <>
-            <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
-            <p className="text-center text-sm mt-5">
-              Welcome to Codelabs! You are successfully check in today. Dont forget to check out at 5 PM.
-            </p>
-          </>
+          (() => {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            if (isCheckedOut) {
+              return (
+                <>
+                  <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
+                  <p className="text-center text-sm mt-5">
+                    You are successfully check out today. See you tomorrow!
+                  </p>
+                </>
+              );
+            } else if (hour < 17) {
+              return (
+                <>
+                  <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
+                  <p className="text-center text-sm mt-5">
+                    Welcome to Codelabs! You are successfully check in today. Dont forget to check out at 5 PM.
+                  </p>
+                </>
+              );
+            } else if (hour >= 17 && hour < 24) {
+              const isLate = hour >= 18;
+              return (
+                <>
+                  <Button onClick={handleCheckin} disabled={checkinLoading || isLate}>
+                    {checkinLoading ? 'Checking out...' : 'Checkin-out'}
+                  </Button>
+                  <p className="text-center text-sm mt-5">
+                    checkout
+                  </p>
+                </>
+              );
+            }
+            return null;
+          })()
         ) : (
           (() => {
             const now = new Date();
             const hour = now.getHours();
-            if (hour > 6 && hour < 9) {
+            if (hour >= 0 && hour < 9) {
+              const canCheckIn = hour > 6 && hour < 9;
               return (
                 <>
-                  <Button onClick={handleCheckin} disabled={checkinLoading}>
+                  <Button onClick={handleCheckin} disabled={checkinLoading || !canCheckIn}>
                     {checkinLoading ? 'Checking in...' : 'Checkin-in'}
                   </Button>
                   <p className="text-center text-sm mt-5">
@@ -111,7 +145,7 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour >= 9 && hour < 10) {
+            } else if (hour >= 9 && hour <= 10) {
               return (
                 <>
                   <DialogField
