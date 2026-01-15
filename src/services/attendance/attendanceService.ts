@@ -20,7 +20,7 @@ export async function getAllLeaveRequests(year: number, month: number) {
   const list = data.data;
 
   const filtered = list.filter((item: any) => {
-    const d = new Date(item.startDate);
+    const d = new Date(item.start_date || item.startDate);
     return d.getFullYear() === year && d.getMonth() + 1 === month;
   });
 
