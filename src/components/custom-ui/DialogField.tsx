@@ -70,9 +70,20 @@ const DialogField = (props: DialogFieldProps) => {
 
           <div className="flex justify-center gap-4 mt-5">
             <Button variant="outline" onClick={handleCancel}>
-              Cancel
+              Batal
             </Button>
-            {onSubmit && <Button onClick={onSubmit}>Submit</Button>}
+            {onSubmit && (
+              <Button
+                onClick={onSubmit}
+                disabled={
+                  React.isValidElement(children) &&
+                  typeof (children as ReactElement<any>).props.value === 'string' &&
+                  !(children as ReactElement<any>).props.value
+                }
+              >
+                Submit
+              </Button>
+            )}
           </div>
         </DialogContent>
       </DialogPortal>

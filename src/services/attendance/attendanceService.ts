@@ -1,4 +1,14 @@
+// Fungsi untuk melakukan check-in
+
 import { axiosClient } from "@/lib/axiosClient";
+
+export const postCheckIn = async (device_id: string, reason: string = '') => {
+  const res = await axiosClient.post('/attendance/checkin', {
+    reason,
+    device_id,
+  });
+  return res.data;
+};
 
 export const getAttendance = async (year: number, month: number) => {
   const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}`);
