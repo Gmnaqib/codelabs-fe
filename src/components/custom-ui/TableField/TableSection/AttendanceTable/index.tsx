@@ -36,6 +36,7 @@ import { getAllUsers, updateUser } from "@/services/users/userService";
 import CardField from "../../../CardField";
 import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, HeartIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
+import { AttendanceTableProps } from "@/types/AttendanceTableProps";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -66,15 +67,6 @@ function getStatusColor(status: string): string {
   }
 }
 
-interface AttendanceTableProps {
-  activePage: string;
-  onPageChange: (menu: string) => void;
-  showMenu?: boolean;
-  month?: number;
-  year?: number;
-  searchQuery?: string;
-}
-
 const AttendanceTable = ({
   activePage,
   onPageChange,
@@ -98,71 +90,86 @@ const AttendanceTable = ({
       });
 
       useEffect(() => {
-      const fetchSummary = async () => {
-        try {
-          setLoading(true);
-          const res = await getAttendanceSummary(
-            selectedDate.year,
-            selectedDate.month + 1 
-          );
-          setSummary(res);
-        } catch (err) {
-          console.error("❌ Error fetching attendance summary:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchSummary();
-    }, [selectedDate]);
+        const fetchSummary = async () => {
+          try {
+            setLoading(true);
+            const res = await getAttendanceSummary(
+              selectedDate.year,
+              selectedDate.month + 1
+            );
+            setSummary(res);
+          } catch (err) {
+            console.error("❌ Error fetching attendance summary:", err);
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchSummary();
+      }, [selectedDate]);
+
 
   const fetchData = async () => {
     try {
       setLoading(true);
 
       if (activePage === "Permissions") {
-        const targetYear = year || new Date().getFullYear();
-        const targetMonth = month || new Date().getMonth() + 1;
+        const targetYear = selectedDate.year;
+        const targetMonth = selectedDate.month + 1;
 
-        const [today, all] = await Promise.all([
+        const [today, allRaw, users] = await Promise.all([
           getTodayLeaveRequests(),
           getAllLeaveRequests(targetYear, targetMonth),
+          getAllUsers(),
         ]);
-        setTodayData(today);
+
+        const userMap = Object.fromEntries(users.map((u: any) => [u._id, u.name]));
+
+        // Map API fields to expected frontend fields and inject userName
+        const mapLeave = (item: any) => ({
+          ...item,
+          startDate: item.start_date || item.startDate,
+          endDate: item.end_date || item.endDate,
+          approvalStatus: item.approval_status || item.approvalStatus,
+          type: item.status || item.type,
+          userName: userMap[item.userId] || '-',
+        });
+
+        const all = allRaw.map(mapLeave);
+        const todayMapped = today.map(mapLeave);
+        setTodayData(todayMapped);
         setAllData(all);
       } else if (activePage === "TotalAttendance") {
- const [summary, users] = await Promise.all([
-  getAttendanceSummary(year, month),
-  getAllUsers(),
-]);
+        const [summary, users] = await Promise.all([
+          getAttendanceSummary(selectedDate.year, selectedDate.month + 1),
+          getAllUsers(),
+        ]);
 
-const summaryByUserId: Record<string, any> = {};
-summary.forEach((s: any) => {
-  summaryByUserId[s.userId] = s;
-});
+        const summaryByUserId: Record<string, any> = {};
+        summary.forEach((s: any) => {
+          summaryByUserId[s.userId] = s;
+        });
 
-const merged = users.map((u: any) => {
-  const s = summaryByUserId[u._id];
-  return {
-    userId: u._id,
-    userName: u.name || "-",
-    changeDevice: u.change_device_id ? "True" : "False",
-    userDetail: u,
-    counts: s?.counts ?? {
-      present: 0,
-      leave: 0,
-      sick: 0,
-      late: 0,
-      absent: 0,
-    },
-    ...(s ? { _summaryId: s._id, ...s } : {}),
-  };
-});
+        const merged = users.map((u: any) => {
+          const s = summaryByUserId[u._id];
+          return {
+            userId: u._id,
+            userName: u.name || "-",
+            changeDevice: u.change_device_id ? "True" : "False",
+            userDetail: u,
+            counts: s?.counts ?? {
+              present: 0,
+              leave: 0,
+              sick: 0,
+              late: 0,
+              absent: 0,
+            },
+            ...(s ? { _summaryId: s._id, ...s } : {}),
+          };
+        });
 
-setAllData(merged);
-setTodayData([]);
+        setAllData(merged);
+        setTodayData([]);
       }
-
     } catch (err) {
       console.error("❌ Error fetching attendance data:", err);
     } finally {
@@ -170,24 +177,10 @@ setTodayData([]);
     }
   };
 
-  const handleChangeDevice = async (id: string, value: string) => {
-  const payload = {
-    change_device_id: value,
-  };
-
-  try {
-    await updateUser(id, payload);
-    console.log("Update success", payload);
-    
-  } catch (error) {
-    console.error("Failed to update user device permission:", error);
-  }
-};
-
   useEffect(() => {
     fetchData();
     setCurrentPage(1);
-  }, [month, year, activePage]);
+  }, [selectedDate, activePage]);
 
   const filteredTodayData = todayData.filter((item) =>
     item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -360,6 +353,12 @@ setTodayData([]);
           activeMenu={activePage}
           onChange={onPageChange}
           filter
+          search={false}
+          filterProps={{
+            onChange: (val: { year: number; month: number }) => setSelectedDate(val),
+            defaultYear: selectedDate.year,
+            defaultMonth: selectedDate.month,
+          }}
         />
       )}
 
@@ -399,7 +398,7 @@ setTodayData([]);
 
           {showToday && (
             filteredTodayData.length > 0 ? (
-              <Card>
+              <Card className="mt-4">
                 <Table className="w-full">
                   <TableHeader>
                     <TableRow>

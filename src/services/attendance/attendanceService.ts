@@ -29,8 +29,19 @@ export async function getAllLeaveRequests(year: number, month: number) {
 
 export async function getTodayLeaveRequests() {
   try {
-    const { data } = await axiosClient.get("/attendance/leave-requests/today");
-    return data.data; 
+    const { data } = await axiosClient.get("/attendance/leave-requests");
+    const list = data.data;
+    const today = new Date();
+    // Only match year, month, date
+    const filtered = list.filter((item: any) => {
+      const d = new Date(item.start_date || item.startDate);
+      return (
+        d.getFullYear() === today.getFullYear() &&
+        d.getMonth() === today.getMonth() &&
+        d.getDate() === today.getDate()
+      );
+    });
+    return filtered;
   } catch (error) {
     console.error("Error fetching leave requests:", error);
     throw error;

@@ -84,7 +84,7 @@ export function CalendarMonthYearPicker({
       <PopoverContent>
         <div
           className={cn(
-            "w-[260px] rounded-lg border bg-popover p-3 shadow-sm",
+            "w-[260px] rounded-lg border bg-popover p-3 shadow-sm mt-2",
             className
           )}
         >
