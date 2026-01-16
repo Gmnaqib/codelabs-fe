@@ -1,8 +1,12 @@
 import { axiosClient } from "@/lib/axiosClient";
 
-export async function getAttendanceSummaryByUserId(userId: string) {
+export async function getAttendanceSummaryByUserId(userId: string, year?: number, month?: number) {
   try {
-    const { data } = await axiosClient.get(`/attendance/summary/${userId}`);
+    let query = "";
+    if (year && month) {
+      query = `?year=${year}&month=${month}`;
+    }
+    const { data } = await axiosClient.get(`/attendance/summary/${userId}${query}`);
     return data.data;
   } catch (error) {
     console.error("Error fetching attendance summary by userId:", error);
