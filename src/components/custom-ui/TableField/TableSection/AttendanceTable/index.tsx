@@ -203,7 +203,23 @@ const AttendanceTable = ({
   async function handleOpenDialog(id: string) {
     setSelectedLeave(null);
     const detail = await getLeaveRequestById(id);
-    setSelectedLeave(detail);
+    // Ambil userName dari userId
+    let userName = "-";
+    try {
+      const users = await getAllUsers();
+      const userMap = Object.fromEntries(users.map((u: any) => [u._id, u.name]));
+      userName = userMap[detail.userId] || "-";
+    } catch {
+      userName = "-";
+    }
+    setSelectedLeave({
+      ...detail,
+      startDate: detail.start_date || detail.startDate,
+      endDate: detail.end_date || detail.endDate,
+      approvalStatus: detail.approval_status || detail.approvalStatus,
+      type: detail.status || detail.type,
+      userName,
+    });
   }
 
   const handleReview = async (status: string) => {
@@ -272,7 +288,7 @@ const AttendanceTable = ({
               <div className="flex gap-12 items-center">
                 <div>
                   <p className="font-semibold">Status</p>
-                  <p>{selectedLeave.type.toUpperCase()}</p>
+                  <p>{selectedLeave?.type?.toUpperCase() || '-'}</p>
                 </div>
 
                 <div>
@@ -293,7 +309,7 @@ const AttendanceTable = ({
                     key={selectedLeave._id}
                     title={selectedLeave.approvalStatus}
                     menu={["Approved", "Rejected"]}
-                    disabled={selectedLeave.approvalStatus?.toLowerCase() !== "pending"}
+                    // disabled={selectedLeave.approvalStatus?.toLowerCase() !== "pending"}
                     onSelect={(value) => handleReview(value)}
                   />
                 </div>
