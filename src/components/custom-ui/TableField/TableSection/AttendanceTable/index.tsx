@@ -83,11 +83,17 @@ const AttendanceTable = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLeave, setSelectedLeave] = useState<any | null>(null);
   const itemsPerPage = 10;
-  const [summary, setSummary] = useState<any>(null); 
-    const [selectedDate, setSelectedDate] = useState({
-        year: new Date().getFullYear(),
-        month: new Date().getMonth(),
-      });
+
+  const [summary, setSummary] = useState<any>(null);
+  const [selectedDate, setSelectedDate] = useState({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+  });
+
+  // State for detail dialog (for summary row)
+  const [detailDialogUserId, setDetailDialogUserId] = useState<string | null>(null);
+  const [detailData, setDetailData] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
       useEffect(() => {
         const fetchSummary = async () => {
@@ -158,7 +164,7 @@ const AttendanceTable = ({
             userDetail: u,
             counts: s?.counts ?? {
               present: 0,
-              leave: 0,
+              permit: 0,
               sick: 0,
               late: 0,
               absent: 0,
@@ -326,22 +332,117 @@ const AttendanceTable = ({
     </TableRow>
   );
 
-  const renderSummaryRow = (item: any, index: number) => (
-    <TableRow key={index}>
-      <TableCell className="text-center text-base w-96">{item.userName}</TableCell>
-      <TableCell className="text-center w-96">{item.counts?.present ?? 0}</TableCell>
-      <TableCell className="text-center w-96">{item.counts?.leave ?? 0}</TableCell>
-      <TableCell className="text-center w-96">{item.counts?.sick ?? 0}</TableCell>
-      <TableCell className="text-center w-96">{item.counts?.late ?? 0}</TableCell>
-      <TableCell className="text-center w-96">{item.counts?.absent ?? 0}</TableCell>
-      <TableCell className="text-center w-96">1</TableCell>
-      <TableCell className="text-center w-96">
-        <DialogField name="Detail" title="Attendance Detail" variant="outline" noPadding>
-          <p>Detail attendance data for {item.userName}</p>
-        </DialogField>
-      </TableCell>
-    </TableRow>
-  );
+  const renderSummaryRow = (item: any, index: number) => {
+    const handleOpenDetail = async () => {
+      setDetailDialogUserId(item.userId);
+      setDetailLoading(true);
+      try {
+        const { getAttendanceSummaryByUserId } = await import("@/services/attendance/attendanceService");
+        const res = await getAttendanceSummaryByUserId(item.userId);
+        setDetailData(res);
+      } catch (e) {
+        setDetailData(null);
+      } finally {
+        setDetailLoading(false);
+      }
+    };
+
+    return (
+      <TableRow key={index}>
+        <TableCell className="text-center text-base w-96">{item.userName}</TableCell>
+        <TableCell className="text-center w-96">{item.counts?.present ?? 0}</TableCell>
+        <TableCell className="text-center w-96">{item.counts?.permit ?? 0}</TableCell>
+        <TableCell className="text-center w-96">{item.counts?.sick ?? 0}</TableCell>
+        <TableCell className="text-center w-96">{item.counts?.late ?? 0}</TableCell>
+        <TableCell className="text-center w-96">{item.counts?.absent ?? 0}</TableCell>
+        <TableCell className="text-center w-96">1</TableCell>
+        <TableCell className="text-center w-96">
+          <DialogField
+            name="Detail"
+            title="Attendance Detail"
+            variant="outline"
+            noPadding
+            onTriggerClick={handleOpenDetail}
+          >
+            {detailDialogUserId === item.userId && detailLoading ? (
+              <p>Loading...</p>
+            ) : detailDialogUserId === item.userId && detailData && detailData.statusSummary ? (
+              <div className="flex gap-5">
+                <div className="w-1/2">
+                  <p className="font-semibold text-primary mb-2">Permit</p>
+                  {detailData.statusSummary
+                    .filter((s: any) => s.status === "permit")
+                    .flatMap((s: any) => s.records)
+                    .map((rec: any, idx: number) => (
+                      <React.Fragment key={idx}>
+                        <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+                        <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
+                        <p className="text-sm font-extralight mb-1">{rec.reason}</p>
+                        <p
+                          className={
+                            rec.approvalStatus?.toUpperCase() === "REJECTED"
+                              ? "text-sm text-destructive"
+                              : rec.approvalStatus?.toUpperCase() === "APPROVED"
+                              ? "text-sm text-success"
+                              : rec.approvalStatus?.toUpperCase() === "PENDING"
+                              ? "text-sm text-warning"
+                              : "text-sm"
+                          }
+                        >
+                          {rec.approvalStatus?.toUpperCase()}
+                        </p>
+                        <hr className="my-2" />
+                      </React.Fragment>
+                    ))}
+                </div>
+
+                <div className="w-1/2">
+                  <div className="flex flex-col gap-4">
+                    <div className="">
+                      <p className="font-semibold text-warning mb-2">Sick</p>
+                      {detailData.statusSummary
+                        .filter((s: any) => s.status === "sick")
+                        .flatMap((s: any) => s.records)
+                        .map((rec: any, idx: number) => (
+                          <React.Fragment key={idx}>
+                            <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+                            <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
+                            <p className="text-sm font-extralight mb-1">{rec.reason}</p>
+                            <p
+                              className={
+                                rec.approvalStatus?.toUpperCase() === "REJECTED"
+                                  ? "text-sm text-destructive"
+                                  : rec.approvalStatus?.toUpperCase() === "APPROVED"
+                                  ? "text-sm text-success"
+                                  : rec.approvalStatus?.toUpperCase() === "PENDING"
+                                  ? "text-sm text-warning"
+                                  : "text-sm"
+                              }
+                            >
+                              {rec.approvalStatus?.toUpperCase()}
+                            </p>
+                            <hr className="my-2" />
+                          </React.Fragment>
+                        ))}
+                    </div>
+                    <div className="">
+                      <p className="font-semibold text-destructive mb-2">No Report</p>
+                      <p className="font-light text-sm">Sunday, 04 Jan 2026</p>
+                      <hr className="my-2" />
+                      <p className="font-light text-sm">Sunday, 04 Jan 2026</p>
+                      <hr className="my-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p>No detail data available.</p>
+            )}
+          </DialogField>
+        </TableCell>
+      </TableRow>
+    );
+  };
 
   if (loading) {
     return <Card className="p-6 text-center text-gray-500">Loading data...</Card>;
@@ -350,7 +451,7 @@ const AttendanceTable = ({
   const totalPresent =
       summary?.reduce((acc: number, u: any) => acc + (u.counts?.present ?? 0), 0) ?? 0;
     const totalPermit =
-      summary?.reduce((acc: number, u: any) => acc + (u.counts?.leave ?? 0), 0) ?? 0;
+      summary?.reduce((acc: number, u: any) => acc + (u.counts?.permit ?? 0), 0) ?? 0;
     const totalSick =
       summary?.reduce((acc: number, u: any) => acc + (u.counts?.sick ?? 0), 0) ?? 0;
     const totalLate =

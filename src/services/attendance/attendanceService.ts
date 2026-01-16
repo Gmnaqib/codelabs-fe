@@ -1,6 +1,14 @@
-// Fungsi untuk melakukan check-in
-
 import { axiosClient } from "@/lib/axiosClient";
+
+export async function getAttendanceSummaryByUserId(userId: string) {
+  try {
+    const { data } = await axiosClient.get(`/attendance/summary/${userId}`);
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching attendance summary by userId:", error);
+    throw error;
+  }
+}
 
 export const postCheckIn = async (device_id: string, reason: string = '') => {
   const res = await axiosClient.post('/attendance/checkin', {
