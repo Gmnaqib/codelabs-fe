@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { isIndonesianHoliday } from "@/utils/indonesianHolidays";
 import {
   Table,
   TableBody,
@@ -66,23 +67,59 @@ const BaseScheduleTable = ({
           <Table>
             <TableHeader>
               <TableRow>
-                {daysArray.map((day) => (
-                  <TableHead key={day} className="text-center w-[115px] min-w-[115px]">
-                    {day}
-                  </TableHead>
-                ))}
+                {daysArray.map((day) => {
+                  let month = undefined;
+                  let year = undefined;
+                  if (data && data.length > 0 && data[0].records && data[0].records.length > 0) {
+                    const d = data[0].records[0].start_date ? new Date(data[0].records[0].start_date) : (data[0].records[0].checkIn ? new Date(data[0].records[0].checkIn) : (data[0].records[0].createdAt ? new Date(data[0].records[0].createdAt) : new Date()));
+                    month = d.getMonth();
+                    year = d.getFullYear();
+                  } else {
+                    const now = new Date();
+                    month = now.getMonth();
+                    year = now.getFullYear();
+                  }
+                  const currentDate = new Date(year, month, Number(day));
+                  const isSunday = currentDate.getDay() === 0;
+                  const isHoliday = isIndonesianHoliday(currentDate);
+                  const isRed = isSunday || isHoliday;
+                  return (
+                    <TableHead
+                      key={day}
+                      className={`text-center w-[115px] min-w-[115px]${isRed ? ' bg-red-500 text-white' : ''}`}
+                    >
+                      {day}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((_, i) => (
                 <TableRow key={i} className="h-[48px]">
-                  {daysArray.map((day) => (
-                    <TableCell key={String(day)} className="text-center w-[115px] min-w-[115px]">
-                      <div className="flex items-center justify-center h-full">
-                        {renderCell(day, i, data, { daysArray })}
-                      </div>
-                    </TableCell>
-                  ))}
+                  {daysArray.map((day) => {
+                    let month = undefined;
+                    let year = undefined;
+                    if (data && data.length > 0 && data[0].records && data[0].records.length > 0) {
+                      const d = data[0].records[0].start_date ? new Date(data[0].records[0].start_date) : (data[0].records[0].checkIn ? new Date(data[0].records[0].checkIn) : (data[0].records[0].createdAt ? new Date(data[0].records[0].createdAt) : new Date()));
+                      month = d.getMonth();
+                      year = d.getFullYear();
+                    } else {
+                      const now = new Date();
+                      month = now.getMonth();
+                      year = now.getFullYear();
+                    }
+                    const currentDate = new Date(year, month, Number(day));
+                    const isSunday = currentDate.getDay() === 0;
+                    const isHoliday = isIndonesianHoliday(currentDate);
+                    return (
+                      <TableCell key={String(day)} className="text-center w-[115px] min-w-[115px]">
+                        <div className="flex items-center justify-center h-full">
+                          {(isSunday || isHoliday) ? null : renderCell(day, i, data, { daysArray })}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>

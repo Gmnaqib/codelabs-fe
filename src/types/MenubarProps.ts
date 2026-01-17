@@ -6,4 +6,6 @@ export interface MenuBarProps {
     filter?: boolean;
     search?: boolean;
     filterProps?: any;
+        searchQuery?: string;
+        onSearch?: (query: string) => void;
 }

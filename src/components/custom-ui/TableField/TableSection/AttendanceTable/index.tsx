@@ -338,7 +338,6 @@ const AttendanceTable = ({
       setDetailLoading(true);
       try {
         const { getAttendanceSummaryByUserId } = await import("@/services/attendance/attendanceService");
-        // Gunakan filter bulan dan tahun yang sedang dipilih
         const res = await getAttendanceSummaryByUserId(
           item.userId,
           selectedDate.year,

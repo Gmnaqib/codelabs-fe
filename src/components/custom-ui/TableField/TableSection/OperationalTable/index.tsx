@@ -34,6 +34,10 @@ const OperationalTable = ({
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
+  // State untuk filter bulan/tahun dan search
+  // Pastikan default bulan/tahun dari props
+  const [selectedDate, setSelectedDate] = useState({ year, month });
+  const [search, setSearch] = useState(searchQuery ?? "");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,8 +53,8 @@ const OperationalTable = ({
 
         const [userRes, attendanceRes, operationalRes] = await Promise.all([
           getAllUsers(),
-          getAttendance(year, month),
-          type ? getOperationalRecords(type, undefined, 2025, 11) : Promise.resolve([]),
+          getAttendance(selectedDate.year, selectedDate.month),
+          type ? getOperationalRecords(type, undefined, selectedDate.year, selectedDate.month) : Promise.resolve([]),
         ]);
 
         const attendanceMap = attendanceRes.reduce(
@@ -86,9 +90,9 @@ const OperationalTable = ({
     };
 
     fetchData();
-  }, [year, month, activePage]);
+  }, [selectedDate, activePage]);
 
-  const query = searchQuery.trim().toLowerCase();
+  const query = search.trim().toLowerCase();
   const displayUsers = query
     ? users.filter(
         (u) =>
@@ -140,11 +144,11 @@ const activeWeekIndex = 0;
   const isThematic = activePage === "Thematic";
 
     const renderCell = (day: string | number, rowIndex: number, data: any[], context?: any) => {
-    const ctx = { ...(context || {}), month, year, daysInMonth };
-    if (isPiket) return renderPicketCell(day, rowIndex, data);
-    if (isThematic) return renderThematicCell(day, rowIndex, data);
-    return renderAbsenceCell(day, rowIndex, data);
-  };
+      const user = data[rowIndex];
+      if (isPiket) return renderPicketCell(day, rowIndex, data);
+      if (isThematic) return renderThematicCell(day, rowIndex, data);
+      return renderAbsenceCell(Number(day), user._id, user.records);
+    };
 
   if (loading) {
     return (
@@ -160,8 +164,16 @@ const activeWeekIndex = 0;
         <Menubar
           menus={Object.keys(headersConfig)}
           activeMenu={activePage}
-          onChange={onPageChange}
+          onChange={onChange => onPageChange(onChange)}
           filter
+          search={true}
+          filterProps={{
+            onChange: (val: { year: number; month: number }) => setSelectedDate(val),
+            defaultYear: year,
+            defaultMonth: month,
+          }}
+          searchQuery={search}
+          onSearch={setSearch}
         />
       )}
 
