@@ -1,4 +1,13 @@
 /**
+ * Delete operational record by id
+ * @param {string} id
+ * @returns {Promise<any>}
+ */
+export const deleteOperationalRecord = async (id: string) => {
+	const res = await axiosClient.delete(`/operational-records/${id}`);
+	return res.data;
+};
+/**
  * Post operational record for picket
  * @param {Object} payload
  * @param {string} payload.scheduleId
@@ -18,7 +27,6 @@ export const postOperationalRecord = async (payload: {
 };
 import { axiosClient } from "@/lib/axiosClient";
 /**
- * Get operational records for picket
  * @returns {Promise<any[]>}
  */
 export const getOperationalRecords = async () => {

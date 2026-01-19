@@ -4,7 +4,7 @@
   import { Checkbox } from '@/components/ui/checkbox';
   import DialogField from '@/components/custom-ui/DialogField';
   import { picketschedule } from '../../headerConfig';
-  import { getAllSchedules, getOperationalRecords, postOperationalRecord } from '@/services/picket/picketService';
+  import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord } from '@/services/picket/picketService';
 
 const PicketScheduleTable = ({
   activePage,
@@ -15,6 +15,7 @@ const PicketScheduleTable = ({
   const [picketData, setPicketData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedUsers, setCheckedUsers] = useState<{ [key: string]: boolean }>({});
+  const [recordIds, setRecordIds] = useState<{ [key: string]: string }>({});
   const [scheduleId, setScheduleId] = useState<string>('');
 
   useEffect(() => {
@@ -43,12 +44,15 @@ const PicketScheduleTable = ({
         setPicketData(rotated);
         // Buat map userId yang sudah piket pada scheduleId ini
         const checked: { [key: string]: boolean } = {};
+        const ids: { [key: string]: string } = {};
         operationalRecords.forEach((rec: any) => {
           if (rec.scheduleId === scheduleIdValue) {
             checked[rec.userId] = true;
+            ids[rec.userId] = rec._id;
           }
         });
         setCheckedUsers(checked);
+        setRecordIds(ids);
       } catch (e) {
         setPicketData([]);
         setCheckedUsers({});
@@ -105,7 +109,34 @@ const PicketScheduleTable = ({
                           type: 'picket',
                           date: dateStr,
                         });
-                        setCheckedUsers((prev) => ({ ...prev, [user._id]: true }));
+                        // Fetch ulang operationalRecords agar id terbaru
+                        const operationalRecords = await getOperationalRecords();
+                        const checked: { [key: string]: boolean } = {};
+                        const ids: { [key: string]: string } = {};
+                        operationalRecords.forEach((rec: any) => {
+                          if (rec.scheduleId === scheduleId) {
+                            checked[rec.userId] = true;
+                            ids[rec.userId] = rec._id;
+                          }
+                        });
+                        setCheckedUsers(checked);
+                        setRecordIds(ids);
+                      } else if (!checked && checkedUsers[user._id]) {
+                        // Delete data dari API
+                        const recordId = recordIds[user._id];
+                        if (recordId) {
+                          await deleteOperationalRecord(recordId);
+                          setCheckedUsers((prev) => {
+                            const copy = { ...prev };
+                            delete copy[user._id];
+                            return copy;
+                          });
+                          setRecordIds((prev) => {
+                            const copy = { ...prev };
+                            delete copy[user._id];
+                            return copy;
+                          });
+                        }
                       }
                     }}
                   />
