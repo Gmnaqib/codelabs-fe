@@ -80,9 +80,12 @@ const BaseScheduleTable = ({
                     year = now.getFullYear();
                   }
                   const currentDate = new Date(year, month, Number(day));
-                  const isSunday = currentDate.getDay() === 0;
-                  const isHoliday = isIndonesianHoliday(currentDate);
-                  const isRed = isSunday || isHoliday;
+                  let isRed = false;
+                  if (!isPiket) {
+                    const isSunday = currentDate.getDay() === 0;
+                    const isHoliday = isIndonesianHoliday(currentDate);
+                    isRed = isSunday || isHoliday;
+                  }
                   return (
                     <TableHead
                       key={day}
@@ -110,12 +113,16 @@ const BaseScheduleTable = ({
                       year = now.getFullYear();
                     }
                     const currentDate = new Date(year, month, Number(day));
-                    const isSunday = currentDate.getDay() === 0;
-                    const isHoliday = isIndonesianHoliday(currentDate);
+                    let skipCell = false;
+                    if (!isPiket) {
+                      const isSunday = currentDate.getDay() === 0;
+                      const isHoliday = isIndonesianHoliday(currentDate);
+                      skipCell = isSunday || isHoliday;
+                    }
                     return (
                       <TableCell key={String(day)} className="text-center w-[115px] min-w-[115px]">
                         <div className="flex items-center justify-center h-full">
-                          {(isSunday || isHoliday) ? null : renderCell(day, i, data, { daysArray })}
+                          {skipCell ? null : renderCell(day, i, data, { daysArray })}
                         </div>
                       </TableCell>
                     );

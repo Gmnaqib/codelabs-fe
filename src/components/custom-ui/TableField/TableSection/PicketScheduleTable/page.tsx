@@ -42,7 +42,6 @@ const PicketScheduleTable = ({
         const limitedUsers = users.slice(0, maxPicket);
         const rotated = limitedUsers.slice(week % limitedUsers.length).concat(limitedUsers.slice(0, week % limitedUsers.length));
         setPicketData(rotated);
-        // Buat map userId yang sudah piket pada scheduleId ini
         const checked: { [key: string]: boolean } = {};
         const ids: { [key: string]: string } = {};
         operationalRecords.forEach((rec: any) => {
@@ -109,7 +108,6 @@ const PicketScheduleTable = ({
                           type: 'picket',
                           date: dateStr,
                         });
-                        // Fetch ulang operationalRecords agar id terbaru
                         const operationalRecords = await getOperationalRecords();
                         const checked: { [key: string]: boolean } = {};
                         const ids: { [key: string]: string } = {};
@@ -122,7 +120,6 @@ const PicketScheduleTable = ({
                         setCheckedUsers(checked);
                         setRecordIds(ids);
                       } else if (!checked && checkedUsers[user._id]) {
-                        // Delete data dari API
                         const recordId = recordIds[user._id];
                         if (recordId) {
                           await deleteOperationalRecord(recordId);

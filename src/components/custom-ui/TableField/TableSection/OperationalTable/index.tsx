@@ -34,8 +34,6 @@ const OperationalTable = ({
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
-  // State untuk filter bulan/tahun dan search
-  // Pastikan default bulan/tahun dari props
   const [selectedDate, setSelectedDate] = useState({ year, month });
   const [search, setSearch] = useState(searchQuery ?? "");
 
@@ -115,19 +113,16 @@ const OperationalTable = ({
     const date = new Date(year, month - 1, day);
     const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
 
-    // skip weekend
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
     currentWeek.push(day);
 
-    // Jumat (5) → tutup minggu
     if (dayOfWeek === 5) {
       weeks.push(currentWeek);
       currentWeek = [];
     }
   }
 
-  // sisa hari (kalau bulan habis tapi belum Jumat)
   if (currentWeek.length) {
     weeks.push(currentWeek);
   }
@@ -138,7 +133,7 @@ const workingWeeks = getWorkingWeeks(year, month);
 const activeWeekIndex = 0;
 
   const daysArray = isPiket
-    ? workingWeeks[activeWeekIndex] || []
+    ? [1, 2, 3, 4, 5]
     : Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const isThematic = activePage === "Thematic";
