@@ -5,12 +5,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Menubar } from "../../MenuBar";
 import { scoring } from "../headerConfig";
 import { ScoringTableProps } from "@/types/ScoringTableProps";
-import { getMeCompetition, getCompetitionById, updateCompetition } from "@/services/competition/competitionService";
-import { getMyBranding, getBrandingById, updateBranding } from "@/services/branding/brandingService";
+import { getMeCompetition, getCompetitionById, updateCompetition, addCompetition } from "@/services/competition/competitionService";
+import { getMyBranding, getBrandingById, updateBranding, addBranding } from "@/services/branding/brandingService";
 import DialogField from "../../DialogField";
 import InputField from "../../InputField";
 import { DropdownField } from "../../DropdownField";
 import { Textarea } from "@/components/ui/textarea";
+import { getStatusColor } from "@/utils/statusColor";
 
 
 const ScoringTable = ({
@@ -19,6 +20,73 @@ const ScoringTable = ({
   showMenu = true,
   data = [],
 }: ScoringTableProps) => {
+  const [addCompetitionName, setAddCompetitionName] = useState("");
+  const [addCompetitionDescription, setAddCompetitionDescription] = useState("");
+  const [addCompetitionDeadline, setAddCompetitionDeadline] = useState("");
+  const [addCompetitionLink, setAddCompetitionLink] = useState("");
+  const [addCompetitionType, setAddCompetitionType] = useState("");
+  const [addBrandingName, setAddBrandingName] = useState("");
+  const [addBrandingDescription, setAddBrandingDescription] = useState("");
+  const [addBrandingLink, setAddBrandingLink] = useState("");
+  const [addBrandingResearch, setAddBrandingResearch] = useState("");
+  const [addBrandingLevel, setAddBrandingLevel] = useState("");
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [loadingAdd, setLoadingAdd] = useState(false);
+
+  const resetAddCompetition = () => {
+    setAddCompetitionName("");
+    setAddCompetitionDescription("");
+    setAddCompetitionDeadline("");
+    setAddCompetitionLink("");
+    setAddCompetitionType("");
+  };
+  const resetAddBranding = () => {
+    setAddBrandingName("");
+    setAddBrandingDescription("");
+    setAddBrandingLink("");
+    setAddBrandingResearch("");
+    setAddBrandingLevel("");
+  };
+
+  const handleAddCompetition = async () => {
+    setLoadingAdd(true);
+    try {
+      const payload = {
+        name: addCompetitionName,
+        description: addCompetitionDescription,
+        deadline: addCompetitionDeadline,
+        link: addCompetitionLink,
+        type: addCompetitionType,
+      };
+      await addCompetition(payload);
+      setOpenAddDialog(false);
+      resetAddCompetition();
+      getMeCompetition().then((res) => setCompetitionData(res || []));
+    } catch (e) {
+    } finally {
+      setLoadingAdd(false);
+    }
+  };
+  const handleAddBranding = async () => {
+    setLoadingAdd(true);
+    try {
+      const payload = {
+        name: addBrandingName,
+        description: addBrandingDescription,
+        link: addBrandingLink,
+        research: addBrandingResearch,
+        level: addBrandingLevel,
+      };
+      await addBranding(payload);
+      setOpenAddDialog(false);
+      resetAddBranding();
+      getMyBranding().then((res) => setBrandingData(res || []));
+    } catch (e) {
+      // handle error
+    } finally {
+      setLoadingAdd(false);
+    }
+  };
   const scoringHeaders = scoring[activePage] ?? [];
 
   const [competitionData, setCompetitionData] = useState<any[]>([]);
@@ -32,9 +100,7 @@ const ScoringTable = ({
   const [loadingBrandingEdit, setLoadingBrandingEdit] = useState(false);
   const [editBrandingName, setEditBrandingName] = useState("");
   const [editBrandingDescription, setEditBrandingDescription] = useState("");
-  const [editBrandingDeadline, setEditBrandingDeadline] = useState("");
   const [editBrandingLink, setEditBrandingLink] = useState("");
-  const [editBrandingType, setEditBrandingType] = useState("");
   const [editBrandingStatus, setEditBrandingStatus] = useState("");
   const [editBrandingLevel, setEditBrandingLevel] = useState("");
   const [editBrandingResearch, setEditBrandingResearch] = useState("");
@@ -47,9 +113,7 @@ const ScoringTable = ({
         setSelectedBranding(detail);
         setEditBrandingName(detail.name || "");
         setEditBrandingDescription(detail.description || "");
-        setEditBrandingDeadline(detail.deadline ? detail.deadline.slice(0, 16) : "");
         setEditBrandingLink(detail.link || "");
-        setEditBrandingType(detail.type || "");
         setEditBrandingStatus(detail.status || "");
         setEditBrandingLevel(detail.level || "");
         setEditBrandingResearch(detail.research || "");
@@ -140,7 +204,7 @@ const ScoringTable = ({
         setOpenEditId(null);
         getMeCompetition().then((res) => setCompetitionData(res || []));
       } catch (error) {
-        // handle error, optionally show toast
+
       } finally {
         setLoadingEdit(false);
       }
@@ -179,21 +243,104 @@ const ScoringTable = ({
           <div className=" w-full flex">
             <Menubar menus={Object.keys(scoring)} activeMenu={activePage} onChange={onPageChange} filter search={false} />
           </div>
-          <div className="mt-1">
-            <DialogField name="Add Information" title="Add Competition Information" size="lg">
-              <div className="flex flex-col gap-5">
-                <InputField type="string" placeholder="Ex: Learn how to make responsive web" label='Title' />
-                <div className="flex gap-5">
-                  <DropdownField key="week" title="Week" menu={["Week 1", "Week 2", "Week 3", "Week4"]} label='Week'/>
-                  <DropdownField key="progress" title="Progress" menu={["Finished", "Unfinished"]} label='Progress'/>
+          {(activePage === "competition" || activePage === "branding") && (
+            <div className="mt-1">
+            <DialogField
+              name="Add Information"
+              title={activePage === "competition" ? "Add Competition Information" : "Add Branding Information"}
+              size="lg"
+              open={openAddDialog}
+              onOpenChange={setOpenAddDialog}
+              onSubmit={activePage === "competition" ? handleAddCompetition : handleAddBranding}
+              submitDisabled={loadingAdd || (activePage === "competition"
+                ? !addCompetitionName || !addCompetitionDescription || !addCompetitionDeadline || !addCompetitionLink || !addCompetitionType
+                : !addBrandingName || !addBrandingDescription || !addBrandingLink || !addBrandingResearch || !addBrandingLevel)}
+            >
+              {loadingAdd ? (
+                <p className="text-center text-sm text-gray-500">Loading...</p>
+              ) : activePage === "competition" ? (
+                <div className="flex flex-col gap-5">
+                  <InputField
+                    type="string"
+                    placeholder="Ex: Competition Name"
+                    label="Title"
+                    value={addCompetitionName}
+                    onChange={(e: any) => setAddCompetitionName(e.target.value)}
+                  />
+                  <InputField
+                    type="string"
+                    placeholder="Ex: Competition Description"
+                    label="Description"
+                    value={addCompetitionDescription}
+                    onChange={(e: any) => setAddCompetitionDescription(e.target.value)}
+                  />
+                  <InputField
+                    placeholder="Ex: Competition Deadline"
+                    type="datetime-local"
+                    label="Deadline"
+                    value={addCompetitionDeadline}
+                    onChange={(e: any) => setAddCompetitionDeadline(e.target.value)}
+                  />
+                  <InputField
+                    type="string"
+                    placeholder="Ex: https://competition.com"
+                    label="Link"
+                    value={addCompetitionLink}
+                    onChange={(e: any) => setAddCompetitionLink(e.target.value)}
+                  />
+                  <DropdownField
+                    key="type-input"
+                    title="Type"
+                    menu={["international", "national"]}
+                    label="Type"
+                    value={addCompetitionType}
+                    onChange={(value) => setAddCompetitionType(value)}
+                  />
                 </div>
-                <div className="">
-                  <InputField type="string" placeholder="Ex: https://github.com/unikom-codelabs/" label='Problem' />
+              ) : (
+                <div className="flex flex-col gap-5">
+                  <InputField
+                    type="string"
+                    placeholder="Ex: Branding Name"
+                    label="Title"
+                    value={addBrandingName}
+                    onChange={(e: any) => setAddBrandingName(e.target.value)}
+                  />
+                  <InputField
+                    type="string"
+                    placeholder="Ex: Branding Description"
+                    label="Description"
+                    value={addBrandingDescription}
+                    onChange={(e: any) => setAddBrandingDescription(e.target.value)}
+                  />
+                  <InputField
+                    type="string"
+                    placeholder="Ex: https://branding.com"
+                    label="Link"
+                    value={addBrandingLink}
+                    onChange={(e: any) => setAddBrandingLink(e.target.value)}
+                  />
+                  <DropdownField
+                    key="research-branding-input"
+                    title="research"
+                    menu={["website", "mobile", "game", "ui/ux", "data", "other"]}
+                    label="research"
+                    value={addBrandingResearch}
+                    onChange={(value) => setAddBrandingResearch(value)}
+                  />
+                  <DropdownField
+                    key="level-branding-input"
+                    title="Level"
+                    menu={["beginner", "intermediate", "advanced"]}
+                    label="Level"
+                    value={addBrandingLevel}
+                    onChange={(value) => setAddBrandingLevel(value)}
+                  />
                 </div>
-                <Textarea label="Deskripsi Masalah" placeholder="Ex: Ada kendala pada fitur upload gambar..." />
-              </div>
+              )}
             </DialogField>
           </div>
+          )}
         </div>
       )}
 
@@ -246,7 +393,11 @@ const ScoringTable = ({
               competitionData.map((item: any, idx: number) => (
                 <TableRow key={item._id || idx}>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell className="text-center">{item.status}</TableCell>
+                  <TableCell className="text-center">
+                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status)}`}>
+                      {item.status?.toUpperCase()}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-center">0</TableCell>
                   <TableCell className="text-center gap-2 flex justify-center">
                     <DialogField
@@ -373,7 +524,11 @@ const ScoringTable = ({
                 <TableRow key={item._id || idx}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell className="text-center">{item.research}</TableCell>
-                  <TableCell className="text-center">{item.status}</TableCell>
+                  <TableCell className="text-center">
+                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status)}`}>
+                      {item.status?.toUpperCase()}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-center">0</TableCell>
                   <TableCell className="text-center gap-2 flex justify-center">
                     <DialogField

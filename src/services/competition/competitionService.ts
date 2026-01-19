@@ -1,3 +1,7 @@
+export const addCompetition = async (payload: any) => {
+  const { data } = await axiosClient.post("/competition", payload);
+  return data;
+};
 export const updateCompetition = async (id: string, payload: any) => {
   const res = await axiosClient.patch(`/competition/${id}`, payload);
   return res.data.data;

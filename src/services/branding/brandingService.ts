@@ -1,4 +1,7 @@
-// Update all branding fields
+export const addBranding = async (payload: any) => {
+  const { data } = await axiosClient.post("/branding", payload);
+  return data;
+};
 export const updateBranding = async (id: string, payload: any) => {
   const res = await axiosClient.patch(`/branding/${id}`, payload);
   return res.data.data;
