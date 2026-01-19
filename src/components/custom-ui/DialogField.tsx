@@ -12,7 +12,11 @@ import {
 import { DialogFieldProps } from "@/types/DialogFieldProps";
 import { Button } from "../ui/button";
 
-const DialogField = (props: DialogFieldProps) => {
+interface ExtendedDialogFieldProps extends DialogFieldProps {
+  submitDisabled?: boolean;
+}
+
+const DialogField = (props: ExtendedDialogFieldProps) => {
   const {
     name,
     title,
@@ -25,6 +29,7 @@ const DialogField = (props: DialogFieldProps) => {
     onCancel,
     onTriggerClick,
     noPadding = false, 
+    submitDisabled = false,
   } = props;
 
   const [internalOpen, setInternalOpen] = useState(false);
@@ -75,11 +80,7 @@ const DialogField = (props: DialogFieldProps) => {
             {onSubmit && (
               <Button
                 onClick={onSubmit}
-                disabled={
-                  React.isValidElement(children) &&
-                  typeof (children as ReactElement<any>).props.value === 'string' &&
-                  !(children as ReactElement<any>).props.value
-                }
+                disabled={submitDisabled}
               >
                 Submit
               </Button>

@@ -43,6 +43,7 @@ const KPIRangkings = () => {
           options={DataSelectRangkingsKPI}
           value={filter}
           onChange={(value) => setFilter(value)}
+          
         />
       </div>
 

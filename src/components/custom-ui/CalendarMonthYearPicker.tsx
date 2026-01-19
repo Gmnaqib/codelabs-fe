@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover"
-import { FaRegCalendar } from "react-icons/fa6"
 import { CalendarDaysIcon } from "@heroicons/react/24/solid"
 
 interface CalendarMonthYearPickerProps {

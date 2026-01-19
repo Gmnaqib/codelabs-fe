@@ -5,7 +5,7 @@ export const operasional: Record<string, string[]> = {
 }
 
 export const report: Record<string, string[]> = {
-  report: ["Research Plan", "Week", "Progress", "Action"]
+  report: ["Research Plan", "Week", "Progress", "Status", "Action"]
 }
 
 export const attendance: Record<string, string[]> = {

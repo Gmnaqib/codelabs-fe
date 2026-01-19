@@ -50,6 +50,7 @@ const CardField = (props: CardFieldProps) => {
                 <DropdownField
                   title="2025"
                   menu={years}
+                  white={true}
                 />
               )}
 

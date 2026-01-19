@@ -19,6 +19,7 @@ import {
   getLeaveRequestById,
   reviewLeaveRequest,
 } from "@/services/attendance/attendanceService";
+import { getStatusColor } from "@/utils/statusColor";
 import {
   Pagination,
   PaginationContent,
@@ -53,19 +54,6 @@ function getReviewerByDate(dateString?: string | Date): string {
   return reviewers[day] ?? "-";
 }
 
-function getStatusColor(status: string): string {
-  if (!status) return "bg-gray-100 text-gray-700";
-  switch (status.toUpperCase()) {
-    case "APPROVED":
-      return "bg-green-100 text-green-700";
-    case "PENDING":
-      return "bg-yellow-100 text-yellow-700";
-    case "REJECTED":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
-}
 
 const AttendanceTable = ({
   activePage,
@@ -315,7 +303,6 @@ const AttendanceTable = ({
                     key={selectedLeave._id}
                     title={selectedLeave.approvalStatus}
                     menu={["Approved", "Rejected"]}
-                    // disabled={selectedLeave.approvalStatus?.toLowerCase() !== "pending"}
                     onSelect={(value) => handleReview(value)}
                   />
                 </div>
@@ -382,17 +369,7 @@ const AttendanceTable = ({
                         <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
                         <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
                         <p className="text-sm font-extralight mb-1">{rec.reason}</p>
-                        <p
-                          className={
-                            rec.approvalStatus?.toUpperCase() === "REJECTED"
-                              ? "text-sm text-destructive"
-                              : rec.approvalStatus?.toUpperCase() === "APPROVED"
-                              ? "text-sm text-success"
-                              : rec.approvalStatus?.toUpperCase() === "PENDING"
-                              ? "text-sm text-warning"
-                              : "text-sm"
-                          }
-                        >
+                        <p className={`text-sm ${getStatusColor(rec.approvalStatus)}`}>
                           {rec.approvalStatus?.toUpperCase()}
                         </p>
                         <hr className="my-2" />
@@ -412,17 +389,7 @@ const AttendanceTable = ({
                             <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
                             <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
                             <p className="text-sm font-extralight mb-1">{rec.reason}</p>
-                            <p
-                              className={
-                                rec.approvalStatus?.toUpperCase() === "REJECTED"
-                                  ? "text-sm text-destructive"
-                                  : rec.approvalStatus?.toUpperCase() === "APPROVED"
-                                  ? "text-sm text-success"
-                                  : rec.approvalStatus?.toUpperCase() === "PENDING"
-                                  ? "text-sm text-warning"
-                                  : "text-sm"
-                              }
-                            >
+                            <p className={`text-sm ${getStatusColor(rec.approvalStatus)}`}>
                               {rec.approvalStatus?.toUpperCase()}
                             </p>
                             <hr className="my-2" />

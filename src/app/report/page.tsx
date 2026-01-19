@@ -73,7 +73,7 @@ const WeeklyReport = () => {
   return (
     <ProtectedRoute>
       <div className="flex w-full justify-between mb-10">
-        <div className="flex gap-7">
+        <div className="flex gap-5">
           <CalendarMonthYearPicker 
             onChange={({ month, year }) => {
               setSelectedMonth(month + 1); 
@@ -97,60 +97,73 @@ const WeeklyReport = () => {
         </div>
 
         <div>
-          <DialogField
-            name="Add New Plan"
-            title="Add New Plan"
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onSubmit={handleSubmit}
-          >
-            <div className="flex flex-col gap-5">
-              <InputField
-                type="string"
-                placeholder="Ex: Learn how to make responsive web"
-                label="Title"
-                value={title}
-                onChange={(e: any) => setTitle(e.target.value)}
-              />
+          {/** Tombol submit akan disabled jika ada field yang kosong */}
+          {(() => {
+            const isLinkValid = link.startsWith("https://");
+            const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;
+            return (
+              <DialogField
+                name="Add New Plan"
+                title="Add New Plan"
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                onSubmit={handleSubmit}
+                submitDisabled={isFormIncomplete}
+              >
+                <div className="flex flex-col gap-5">
+                  <InputField
+                    type="string"
+                    placeholder="Ex: Learn how to make responsive web"
+                    label="Title"
+                    value={title}
+                    onChange={(e: any) => setTitle(e.target.value)}
+                  />
 
-              <div className="flex gap-5">
-                <DropdownField
-                  key="week-input"
-                  title="Choose Week"
-                  menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
-                  label="Week"
-                  onChange={(value) => setWeek(value)}
-                />
-                <DropdownField
-                  key="progress-input"
-                  title="Your Progress"
-                  menu={["Finished", "Unfinished"]}
-                  label="Progress"
-                  onChange={(value) => setProgress(value)}
-                />
-              </div>
+                  <div className="flex gap-5">
+                    <DropdownField
+                      key="week-input"
+                      title="Choose Week"
+                      menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
+                      label="Week"
+                      onChange={(value) => setWeek(value)}
+                    />
+                    <DropdownField
+                      key="progress-input"
+                      title="Your Progress"
+                      menu={["Finished", "Unfinished"]}
+                      label="Progress"
+                      onChange={(value) => setProgress(value)}
+                    />
+                  </div>
 
-              <InputField
-                type="string"
-                placeholder="Ex: https://github.com/unikom-codelabs/"
-                label="Link"
-                value={link}
-                onChange={(e: any) => setLink(e.target.value)}
-              />
+                  <div className="flex flex-col gap-1">
+                    <InputField
+                      type="string"
+                      placeholder="Ex: https://github.com/unikom-codelabs/"
+                      label="Link"
+                      value={link}
+                      onChange={(e: any) => setLink(e.target.value)}
+                    />
+                    {link && !isLinkValid && (
+                      <span className="text-sm text-red-500">Link harus diawali dengan 'https://'</span>
+                    )}
+                  </div>
 
-              <Textarea
-                label="Challenge"
-                placeholder="Ex: Ada kendala pada fitur upload gambar..."
-                value={challenge}
-                onChange={(e: any) => setChallenge(e.target.value)}
-              />
-            </div>
-          </DialogField>
+                  <Textarea
+                    label="Challenge"
+                    placeholder="Ex: Ada kendala pada fitur upload gambar..."
+                    value={challenge}
+                    onChange={(e: any) => setChallenge(e.target.value)}
+                  />
+                </div>
+              </DialogField>
+            );
+          })()}
         </div>
       </div>
 
       <Card>
-        <div className="px-5">
+        <div className="p-5">
           <TableField
             activePage={activePage}
             onPageChange={setActivePage}

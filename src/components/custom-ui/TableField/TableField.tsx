@@ -13,7 +13,6 @@ import {
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
-import ReportTable from "./TableSection/ReportTable";
 import ScoringTable from "./TableSection/ScoringTable";
 import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 import AssessmentsTable from "./TableSection/AssessmentsTable"; 
@@ -25,6 +24,7 @@ import { TabelFieldProps } from "@/types/TableFieldProps";
 import OperationalTable from "./TableSection/OperationalTable";
 import AttendanceTable from "./TableSection/AttendanceTable";
 import PicketScheduleTable from "./TableSection/PicketScheduleTable/page";
+import ReportTable from "./TableSection/ReportTable/page";
 
 const TableField = ({
   activePage,

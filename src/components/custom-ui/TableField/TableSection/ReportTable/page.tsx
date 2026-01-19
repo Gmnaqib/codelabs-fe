@@ -9,18 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Menubar } from "../../MenuBar";
-import { report } from "../headerConfig";
-import DialogField from "../../DialogField";
+import { Menubar } from "../../../MenuBar";
+import { report } from "../../headerConfig";
+import DialogField from "../../../DialogField";
 import {
   getResearchById,
   updateResearchRecord,
 } from "@/services/research/researchService";
-import { DropdownField } from "../../DropdownField";
-import InputField from "../../InputField";
+import { DropdownField } from "../../../DropdownField";
+import InputField from "../../../InputField";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
+import { getStatusColor } from "@/utils/statusColor";
 
 interface ReportTableProps {
   activePage: string;
@@ -143,61 +144,78 @@ const ReportTable = ({
                 <TableCell className="text-center">{`Week ${item.week}`}</TableCell>
                 <TableCell className="text-center">{item.progress}</TableCell>
                 <TableCell className="text-center">
+                  <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status)}`}>
+                    {item.status?.toUpperCase()}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">
                   <div className="flex gap-3 justify-center">
-                    <DialogField
-                      name="Edit"
-                      title="Edit Plan"
-                      variant="outline"
-                      noPadding 
-                      open={openEditId === item._id}
-                      onOpenChange={(isOpen) => setOpenEditId(isOpen ? item._id : null)}
-                      onTriggerClick={() => handleOpenEdit(item._id)}
-                      onSubmit={handleEditSubmit}
-                    >
-                      <div className="flex flex-col gap-5">
-                        <InputField
-                          type="string"
-                          placeholder="Ex: Learn how to make responsive web"
-                          label="Title"
-                          value={title}
-                          onChange={(e: any) => setTitle(e.target.value)}
-                        />
+                    {(() => {
+                      const isEditLinkValid = link.startsWith("https://");
+                      const isEditFormIncomplete = !title || !week || !progress || !link || !challenge || !isEditLinkValid;
+                      return (
+                        <DialogField
+                          name="Edit"
+                          title="Edit Plan"
+                          variant="outline"
+                          noPadding
+                          open={openEditId === item._id}
+                          onOpenChange={(isOpen) => setOpenEditId(isOpen ? item._id : null)}
+                          onTriggerClick={() => handleOpenEdit(item._id)}
+                          onSubmit={handleEditSubmit}
+                          submitDisabled={isEditFormIncomplete}
+                        >
+                          <div className="flex flex-col gap-5">
+                            <InputField
+                              type="string"
+                              placeholder="Ex: Learn how to make responsive web"
+                              label="Title"
+                              value={title}
+                              onChange={(e: any) => setTitle(e.target.value)}
+                            />
 
-                        <div className="flex gap-5">
-                          <DropdownField
-                            key="week-input"
-                            title="Choose Week"
-                            menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
-                            label="Week"
-                            value={week}
-                            onChange={(value) => setWeek(value)}
-                          />
-                          <DropdownField
-                            key="progress-input"
-                            title="Your Progress"
-                            menu={["Finished", "Unfinished"]}
-                            label="Progress"
-                            value={progress}
-                            onChange={(value) => setProgress(value)}
-                          />
-                        </div>
+                            <div className="flex gap-5">
+                              <DropdownField
+                                key="week-input"
+                                title="Choose Week"
+                                menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
+                                label="Week"
+                                value={week}
+                                onChange={(value) => setWeek(value)}
+                              />
+                              <DropdownField
+                                key="progress-input"
+                                title="Your Progress"
+                                menu={["Finished", "Unfinished"]}
+                                label="Progress"
+                                value={progress}
+                                onChange={(value) => setProgress(value)}
+                              />
+                            </div>
 
-                        <InputField
-                          type="string"
-                          placeholder="Ex: https://github.com/unikom-codelabs/"
-                          label="Link"
-                          value={link}
-                          onChange={(e: any) => setLink(e.target.value)}
-                        />
+                            <div className="flex flex-col gap-1">
+                              <InputField
+                                type="string"
+                                placeholder="Ex: https://github.com/unikom-codelabs/"
+                                label="Link"
+                                value={link}
+                                onChange={(e: any) => setLink(e.target.value)}
+                              />
+                              {link && !isEditLinkValid && (
+                                <span className="text-xs text-red-500">Link harus diawali dengan 'https://'</span>
+                              )}
+                            </div>
 
-                        <Textarea
-                          label="Challenge"
-                          placeholder="Ex: Ada kendala pada fitur upload gambar..."
-                          value={challenge}
-                          onChange={(e: any) => setChallenge(e.target.value)}
-                        />
-                      </div>
-                    </DialogField>
+                            <Textarea
+                              label="Challenge"
+                              placeholder="Ex: Ada kendala pada fitur upload gambar..."
+                              value={challenge}
+                              onChange={(e: any) => setChallenge(e.target.value)}
+                            />
+                          </div>
+                        </DialogField>
+                      );
+                    })()}
 
                     <DialogField
                       name="Detail"
