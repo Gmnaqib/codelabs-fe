@@ -1,17 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { useRef } from "react";
 import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, Stage } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three-stdlib';
 import CardField from "@/components/custom-ui/CardField";
 import { getPicketSchedules } from "@/services/schedule/scheduleService";
 import { Label } from "@/components/ui/label";
 import { PicketPerson } from "@/types/PicketPersonProps";
 import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
+import { PicketCardProps } from "@/types/PicketCardProps";
 
-const PicketCard = () => {
+const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
   const [picketData, setPicketData] = useState<PicketPerson[]>([]);
 
   const getTodayKey = () => {
@@ -62,7 +61,6 @@ const PicketCard = () => {
     { title: "Table & Research Tool Cleaner", data: picketData.slice(3, 6) },
   ];
 
-  const [showMap, setShowMap] = useState(false);
 
   // Komponen loader GLB
   function Model() {

@@ -12,13 +12,14 @@ const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const { formattedTime, formattedDate } = useClock();
   const [isRightOpen, setIsRightOpen] = useState(true);
+  const [showMap, setShowMap] = useState(false);
   const isXl = useMediaQuery("(min-width: 1280px)");
 
   useEffect(() => {
-  if (isXl) {
-    setIsRightOpen(true);
-  }
-}, [isXl]);
+    if (isXl) {
+      setIsRightOpen(true);
+    }
+  }, [isXl]);
   
   return (
     <ProtectedRoute>
@@ -28,16 +29,16 @@ const Dashboard = () => {
             <MonthlyProgressCard />
             <CashBillsCard />
             <AnnouncementCard />
-            <div className="lg:z-50">
-              <PicketCard />
+            <div className={showMap ? "lg:z-50" : "lg:z-10"}>
+              <PicketCard showMap={showMap} setShowMap={setShowMap} />
             </div>
             <InProgressCard /> 
-            {/* <TotalMembers/>
+            <TotalMembers/>
             <AverageMonthly/>
             <OperationalCash/>
             <OrganizationStatistic className="h-full xl:col-span-2"/>
             <ResearchPercentage/>
-            <OrganizationSummary className="h-full xl:col-span-3"/> */}
+            <OrganizationSummary className="h-full xl:col-span-3"/>
         </div>
         <Button
           variant="default"

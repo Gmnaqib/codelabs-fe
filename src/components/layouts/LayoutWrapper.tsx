@@ -21,7 +21,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="flex h-screen overflow-y-scroll scrollbar-hide overscroll-none">
+    <div className="flex h-screen overflow-y-scroll scrollbar-hide overscroll-none z-50">
       <Sidebar isActive={isActive} setIsActive={setIsActive} />
       <div className="flex-1">
         <Navbar isActive={isActive} setIsActive={setIsActive} />

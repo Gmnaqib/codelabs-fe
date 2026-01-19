@@ -3,13 +3,7 @@ import Image from "next/image"
 import SelectField from "@/components/custom-ui/SelectField"
 import { DataSelectRangkingsKPI } from "@/config/dashboard"
 import { getAllUsers } from "@/services/users/userService"
-
-interface User {
-  _id: string
-  name: string
-  role: string
-  majors: string
-}
+import { User } from "@/types/KPIRangkinsProps"
 
 const KPIRangkings = () => {
   const [filter, setFilter] = useState("highest")
@@ -71,7 +65,7 @@ const KPIRangkings = () => {
             </div>
 
             <div className="flex justify-between items-center w-full">
-              <p className="text-base">{user.name}</p>
+              <p className="text-base">{user.name.split(" ")[0]}</p>
               <p className="font-normal text-primary text-base">0%</p>
             </div>
           </div>
