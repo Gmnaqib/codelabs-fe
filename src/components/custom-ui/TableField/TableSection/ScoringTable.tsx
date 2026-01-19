@@ -6,6 +6,7 @@ import { Menubar } from "../../MenuBar";
 import { scoring } from "../headerConfig";
 import { ScoringTableProps } from "@/types/ScoringTableProps";
 import { getMeCompetition, getCompetitionById, updateCompetition } from "@/services/competition/competitionService";
+import { getMyBranding, getBrandingById, updateBranding } from "@/services/branding/brandingService";
 import DialogField from "../../DialogField";
 import InputField from "../../InputField";
 import { DropdownField } from "../../DropdownField";
@@ -22,6 +23,77 @@ const ScoringTable = ({
 
   const [competitionData, setCompetitionData] = useState<any[]>([]);
   const [loadingCompetition, setLoadingCompetition] = useState(false);
+  const [brandingData, setBrandingData] = useState<any[]>([]);
+  const [loadingBranding, setLoadingBranding] = useState(false);
+  const [openBrandingDetailId, setOpenBrandingDetailId] = useState<string | null>(null);
+  const [loadingBrandingDetail, setLoadingBrandingDetail] = useState(false);
+  const [selectedBranding, setSelectedBranding] = useState<any>(null);
+  const [openBrandingEditId, setOpenBrandingEditId] = useState<string | null>(null);
+  const [loadingBrandingEdit, setLoadingBrandingEdit] = useState(false);
+  const [editBrandingName, setEditBrandingName] = useState("");
+  const [editBrandingDescription, setEditBrandingDescription] = useState("");
+  const [editBrandingDeadline, setEditBrandingDeadline] = useState("");
+  const [editBrandingLink, setEditBrandingLink] = useState("");
+  const [editBrandingType, setEditBrandingType] = useState("");
+  const [editBrandingStatus, setEditBrandingStatus] = useState("");
+  const [editBrandingLevel, setEditBrandingLevel] = useState("");
+  const [editBrandingResearch, setEditBrandingResearch] = useState("");
+    // Branding handlers
+    const handleOpenBrandingEdit = async (id: string) => {
+      setLoadingBrandingEdit(true);
+      setOpenBrandingEditId(id);
+      try {
+        const detail = await getBrandingById(id);
+        setSelectedBranding(detail);
+        setEditBrandingName(detail.name || "");
+        setEditBrandingDescription(detail.description || "");
+        setEditBrandingDeadline(detail.deadline ? detail.deadline.slice(0, 16) : "");
+        setEditBrandingLink(detail.link || "");
+        setEditBrandingType(detail.type || "");
+        setEditBrandingStatus(detail.status || "");
+        setEditBrandingLevel(detail.level || "");
+        setEditBrandingResearch(detail.research || "");
+      } catch (error) {
+        setSelectedBranding(null);
+      } finally {
+        setLoadingBrandingEdit(false);
+      }
+    };
+
+    const handleBrandingEditSubmit = async () => {
+      if (!selectedBranding?._id) return;
+      try {
+        setLoadingBrandingEdit(true);
+        const payload = {
+          name: editBrandingName,
+          description: editBrandingDescription,
+          link: editBrandingLink,
+          research: editBrandingResearch,
+          level: editBrandingLevel,
+          status: editBrandingStatus,
+        };
+        await updateBranding(selectedBranding._id, payload);
+        setOpenBrandingEditId(null);
+        getMyBranding().then((res) => setBrandingData(res || []));
+      } catch (error) {
+        // handle error
+      } finally {
+        setLoadingBrandingEdit(false);
+      }
+    };
+
+    const handleOpenBrandingDetail = async (id: string) => {
+      setLoadingBrandingDetail(true);
+      setOpenBrandingDetailId(id);
+      try {
+        const detail = await getBrandingById(id);
+        setSelectedBranding(detail);
+      } catch (error) {
+        setSelectedBranding(null);
+      } finally {
+        setLoadingBrandingDetail(false);
+      }
+    };
   const [openDetailId, setOpenDetailId] = useState<string | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedCompetition, setSelectedCompetition] = useState<any>(null);
@@ -92,6 +164,11 @@ const ScoringTable = ({
       getMeCompetition()
         .then((res) => setCompetitionData(res || []))
         .finally(() => setLoadingCompetition(false));
+    } else if (activePage === "branding") {
+      setLoadingBranding(true);
+      getMyBranding()
+        .then((res) => setBrandingData(res || []))
+        .finally(() => setLoadingBranding(false));
     }
   }, [activePage]);
 
@@ -287,13 +364,132 @@ const ScoringTable = ({
               </TableRow>
             )
           ) : activePage === "branding" ? (
-            <TableRow>
-              <TableCell>branding</TableCell>
-              <TableCell className="text-center">oke</TableCell>
-              <TableCell className="text-center">oke</TableCell>
-              <TableCell className="text-center">0</TableCell>
-              <TableCell className="text-center">oke</TableCell>
-            </TableRow>
+            loadingBranding ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-gray-400">Loading...</TableCell>
+              </TableRow>
+            ) : Array.isArray(brandingData) && brandingData.length > 0 ? (
+              brandingData.map((item: any, idx: number) => (
+                <TableRow key={item._id || idx}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell className="text-center">{item.research}</TableCell>
+                  <TableCell className="text-center">{item.status}</TableCell>
+                  <TableCell className="text-center">0</TableCell>
+                  <TableCell className="text-center gap-2 flex justify-center">
+                    <DialogField
+                      name="Edit"
+                      title="Edit Branding"
+                      variant="outline"
+                      noPadding
+                      open={openBrandingEditId === item._id}
+                      onOpenChange={(isOpen) => setOpenBrandingEditId(isOpen ? item._id : null)}
+                      onTriggerClick={() => handleOpenBrandingEdit(item._id)}
+                      onSubmit={handleBrandingEditSubmit}
+                      submitDisabled={loadingBrandingEdit || !editBrandingName || !editBrandingDescription || !editBrandingLink }
+                    >
+                      {loadingBrandingEdit ? (
+                        <p className="text-center text-sm text-gray-500">Loading...</p>
+                      ) : (
+                        <div className="flex flex-col gap-5">
+                          <InputField
+                            type="string"
+                            placeholder="Ex: Branding Name"
+                            label="Title"
+                            value={editBrandingName}
+                            onChange={(e: any) => setEditBrandingName(e.target.value)}
+                          />
+                          <InputField
+                            type="string"
+                            placeholder="Ex: Branding Description"
+                            label="Description"
+                            value={editBrandingDescription}
+                            onChange={(e: any) => setEditBrandingDescription(e.target.value)}
+                          />
+                          <InputField
+                            type="string"
+                            placeholder="Ex: https://branding.com"
+                            label="Link"
+                            value={editBrandingLink}
+                            onChange={(e: any) => setEditBrandingLink(e.target.value)}
+                          />
+                          <DropdownField
+                            key="research-branding-input"
+                            title="research"
+                            menu={["website", "mobile", "game", "ui/ux", "data", "other"]}
+                            label="research"
+                            value={editBrandingResearch}
+                            onChange={(value) => setEditBrandingResearch(value)}
+                          />
+                          <DropdownField
+                            key="level-branding-input"
+                            title="Level"
+                            menu={["beginner", "intermediate", "advanced"]}
+                            label="Level"
+                            value={editBrandingLevel}
+                            onChange={(value) => setEditBrandingLevel(value)}
+                          />
+                        </div>
+                      )}
+                    </DialogField>
+                    <DialogField
+                      name="Detail"
+                      title="Detail Branding"
+                      variant="outline"
+                      noPadding
+                      open={openBrandingDetailId === item._id}
+                      onOpenChange={(isOpen) => setOpenBrandingDetailId(isOpen ? item._id : null)}
+                      onTriggerClick={() => handleOpenBrandingDetail(item._id)}
+                    >
+                      {loadingBrandingDetail ? (
+                        <p className="text-center text-sm text-gray-500">Loading...</p>
+                      ) : selectedBranding ? (
+                        <div className="flex flex-col gap-5 text-lg">
+                          <div>
+                            <p className="font-semibold">Title</p>
+                            <p>{selectedBranding.name }</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Description</p>
+                            <p>{selectedBranding.description}</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Type</p>
+                            <p>{selectedBranding.research}</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Link</p>
+                            <a
+                              href={selectedBranding.link?.startsWith('http') ? selectedBranding.link : `https://${selectedBranding.link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              {selectedBranding.link}
+                            </a>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Status</p>
+                            <p>{selectedBranding.status}</p>
+                          </div>
+                          <div>
+                            <p className="font-semibold">Level</p>
+                            <p>{selectedBranding.level}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 text-center">No data found</p>
+                      )}
+                    </DialogField>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={scoringHeaders.length} className="text-center py-8 text-gray-400">
+                Tidak ada data untuk halaman ini.
+              </TableCell>
+              </TableRow>
+            )
           ) : data && data.length > 0 ? (
             data.map((row, i) => (
               <TableRow key={i}>
