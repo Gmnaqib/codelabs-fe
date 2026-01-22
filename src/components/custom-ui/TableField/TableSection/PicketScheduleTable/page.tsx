@@ -4,7 +4,7 @@
   import { Checkbox } from '@/components/ui/checkbox';
   import DialogField from '@/components/custom-ui/DialogField';
   import { picketschedule } from '../../headerConfig';
-  import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord, getRangeSchedules } from '@/services/picket/picketService';
+  import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord, getRangeSchedules, swapPicketUsers } from '@/services/picket/picketService';
 import { Button } from '@/components/ui/button';
 
 const PicketScheduleTable = ({
@@ -153,15 +153,95 @@ const PicketScheduleTable = ({
                       size="sm"
                     >
                       <div className='flex flex-col gap-2 max-h-72  overflow-y-auto'>
-                        {rangeSchedules.map((schedule: any) => (
-                          schedule.assignedUsers && schedule.assignedUsers.map((assigned: any) => (
-                            <div key={schedule._id + '-' + assigned._id} className="grid grid-cols-3 border-b pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
-                              <p>{assigned.name.split(' ')[0]}</p>
-                              <p>{schedule.date ? new Date(schedule.date).toISOString().slice(0, 10) : ''}</p>
-                              <Button className='text-sm px-0 py-1'>Swapping</Button>
-                            </div>
-                          ))
-                        ))}
+                        {rangeSchedules
+                          .filter((schedule: any) => {
+                            const today = new Date();
+                            const scheduleDate = new Date(schedule.date);
+                            const todayStr = today.toISOString().slice(0, 10);
+                            const scheduleStr = scheduleDate.toISOString().slice(0, 10);
+                            return scheduleStr > todayStr;
+                          })
+                          .map((schedule: any, sIdx: number) => (
+                            schedule.assignedUsers && schedule.assignedUsers.map((assigned: any, aIdx: number) => (
+                              <div key={schedule._id + '-' + assigned._id + '-' + sIdx + '-' + aIdx} className="grid grid-cols-3 border-b pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
+                                <p>{assigned.name.split(' ')[0]}</p>
+                                <p>{schedule.date ? new Date(schedule.date).toISOString().slice(0, 10) : ''}</p>
+                                <Button
+                                  className='text-sm px-0 py-1'
+                                  onClick={async () => {
+                                    try {
+                                      await swapPicketUsers({
+                                        schedule1Id: scheduleId,
+                                        schedule1UserId: user._id,
+                                        schedule2Id: schedule._id,
+                                        schedule2UserId: assigned._id,
+                                      });
+
+                                      // After swap, uncheck (delete record) for both target user and current user
+                                      const operationalRecords = await getOperationalRecords();
+                                      // Uncheck target user (schedule2)
+                                      const targetRecord = operationalRecords.find((rec: any) => rec.scheduleId === schedule._id && rec.userId === assigned._id);
+                                      if (targetRecord) {
+                                        await deleteOperationalRecord(targetRecord._id);
+                                        setCheckedUsers((prev) => {
+                                          const copy = { ...prev };
+                                          delete copy[assigned._id];
+                                          return copy;
+                                        });
+                                        setRecordIds((prev) => {
+                                          const copy = { ...prev };
+                                          delete copy[assigned._id];
+                                          return copy;
+                                        });
+                                      }
+                                      // Uncheck current user (schedule1)
+                                      const userRecord = operationalRecords.find((rec: any) => rec.scheduleId === scheduleId && rec.userId === user._id);
+                                      if (userRecord) {
+                                        await deleteOperationalRecord(userRecord._id);
+                                        setCheckedUsers((prev) => {
+                                          const copy = { ...prev };
+                                          delete copy[user._id];
+                                          return copy;
+                                        });
+                                        setRecordIds((prev) => {
+                                          const copy = { ...prev };
+                                          delete copy[user._id];
+                                          return copy;
+                                        });
+                                      }
+
+                                      // Refresh both rangeSchedules and picketData after swap
+                                      const range = await getRangeSchedules({});
+                                      setRangeSchedules(range);
+
+                                      // Refresh picketData (table hari ini)
+                                      const today = new Date();
+                                      const year = today.getFullYear();
+                                      const month = String(today.getMonth() + 1).padStart(2, '0');
+                                      const day = String(today.getDate()).padStart(2, '0');
+                                      const data = await getAllSchedules({ year, month, day });
+                                      const withUsers = data.filter((d: any) => d.assignedUsers && d.assignedUsers.length > 0);
+                                      const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
+                                      const getWeekNumber = (date: Date) => {
+                                        const firstDay = new Date(date.getFullYear(), 0, 1);
+                                        const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
+                                        return Math.ceil((days + firstDay.getDay() + 1) / 7);
+                                      };
+                                      const week = getWeekNumber(today);
+                                      const maxPicket = 6;
+                                      const limitedUsers = users.slice(0, maxPicket);
+                                      const rotated = limitedUsers.slice(week % limitedUsers.length).concat(limitedUsers.slice(0, week % limitedUsers.length));
+                                      setPicketData(rotated);
+                                    } catch (err) {
+                                      console.error('Swap failed', err);
+                                    }
+                                  }}
+                                >
+                                  Swapping
+                                </Button>
+                              </div>
+                            ))
+                          ))}
                       </div>
                     </DialogField>
                   </div>

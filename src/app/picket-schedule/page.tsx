@@ -11,7 +11,14 @@ const Picket = () => {
       <Card className='p-5'>
         <div>
           <p className='font-medium text-secondary-foreground text-lg'>Picket Schedule Today</p>
-          <p className='font-medium text-primary text-lg'>Friday, December 19, 2025</p>
+          <p className='font-medium text-primary text-lg'>
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
         </div>
         <div>
           <TableField

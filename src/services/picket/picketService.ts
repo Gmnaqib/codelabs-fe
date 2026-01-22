@@ -1,3 +1,22 @@
+export const swapPicketUsers = async ({
+	schedule1Id,
+	schedule1UserId,
+	schedule2Id,
+	schedule2UserId,
+}: {
+	schedule1Id: string;
+	schedule1UserId: string;
+	schedule2Id: string;
+	schedule2UserId: string;
+}) => {
+	const res = await axiosClient.post('/schedules/swap-users', {
+		schedule1Id,
+		schedule1UserId,
+		schedule2Id,
+		schedule2UserId,
+	});
+	return res.data;
+};
 import { axiosClient } from "@/lib/axiosClient";
 
 export const deleteOperationalRecord = async (id: string) => {
