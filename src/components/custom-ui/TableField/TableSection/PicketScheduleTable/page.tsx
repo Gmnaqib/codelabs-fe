@@ -4,7 +4,8 @@
   import { Checkbox } from '@/components/ui/checkbox';
   import DialogField from '@/components/custom-ui/DialogField';
   import { picketschedule } from '../../headerConfig';
-  import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord } from '@/services/picket/picketService';
+  import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord, getRangeSchedules } from '@/services/picket/picketService';
+import { Button } from '@/components/ui/button';
 
 const PicketScheduleTable = ({
   activePage,
@@ -17,6 +18,7 @@ const PicketScheduleTable = ({
   const [checkedUsers, setCheckedUsers] = useState<{ [key: string]: boolean }>({});
   const [recordIds, setRecordIds] = useState<{ [key: string]: string }>({});
   const [scheduleId, setScheduleId] = useState<string>('');
+  const [rangeSchedules, setRangeSchedules] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchSchedules = async () => {
@@ -52,9 +54,14 @@ const PicketScheduleTable = ({
         });
         setCheckedUsers(checked);
         setRecordIds(ids);
+
+        // Fetch range schedules for DialogField
+        const range = await getRangeSchedules({});
+        setRangeSchedules(range);
       } catch (e) {
         setPicketData([]);
         setCheckedUsers({});
+        setRangeSchedules([]);
       } finally {
         setLoading(false);
       }
@@ -99,7 +106,6 @@ const PicketScheduleTable = ({
                     checked={!!checkedUsers[user._id]}
                     onCheckedChange={async (checked) => {
                       if (checked && !checkedUsers[user._id]) {
-                        // Post data ke API
                         const today = new Date();
                         const dateStr = today.toISOString();
                         await postOperationalRecord({
@@ -146,7 +152,17 @@ const PicketScheduleTable = ({
                       title="Swapping"
                       size="sm"
                     >
-                      <p>Swap</p>
+                      <div className='flex flex-col gap-2 max-h-72  overflow-y-auto'>
+                        {rangeSchedules.map((schedule: any) => (
+                          schedule.assignedUsers && schedule.assignedUsers.map((assigned: any) => (
+                            <div key={schedule._id + '-' + assigned._id} className="grid grid-cols-3 border-b pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
+                              <p>{assigned.name.split(' ')[0]}</p>
+                              <p>{schedule.date ? new Date(schedule.date).toISOString().slice(0, 10) : ''}</p>
+                              <Button className='text-sm px-0 py-1'>Swapping</Button>
+                            </div>
+                          ))
+                        ))}
+                      </div>
                     </DialogField>
                   </div>
                 </TableCell>
