@@ -55,7 +55,6 @@ const PicketScheduleTable = ({
         setCheckedUsers(checked);
         setRecordIds(ids);
 
-        // Fetch range schedules for DialogField
         const range = await getRangeSchedules({});
         setRangeSchedules(range);
       } catch (e) {
@@ -177,9 +176,7 @@ const PicketScheduleTable = ({
                                         schedule2UserId: assigned._id,
                                       });
 
-                                      // After swap, uncheck (delete record) for both target user and current user
                                       const operationalRecords = await getOperationalRecords();
-                                      // Uncheck target user (schedule2)
                                       const targetRecord = operationalRecords.find((rec: any) => rec.scheduleId === schedule._id && rec.userId === assigned._id);
                                       if (targetRecord) {
                                         await deleteOperationalRecord(targetRecord._id);
@@ -194,7 +191,6 @@ const PicketScheduleTable = ({
                                           return copy;
                                         });
                                       }
-                                      // Uncheck current user (schedule1)
                                       const userRecord = operationalRecords.find((rec: any) => rec.scheduleId === scheduleId && rec.userId === user._id);
                                       if (userRecord) {
                                         await deleteOperationalRecord(userRecord._id);
@@ -210,11 +206,9 @@ const PicketScheduleTable = ({
                                         });
                                       }
 
-                                      // Refresh both rangeSchedules and picketData after swap
                                       const range = await getRangeSchedules({});
                                       setRangeSchedules(range);
 
-                                      // Refresh picketData (table hari ini)
                                       const today = new Date();
                                       const year = today.getFullYear();
                                       const month = String(today.getMonth() + 1).padStart(2, '0');
