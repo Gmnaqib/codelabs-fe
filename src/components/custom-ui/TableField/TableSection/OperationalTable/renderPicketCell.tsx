@@ -8,17 +8,17 @@ const renderPicketCell = (
   const user = data[rowIndex];
   const ops = user?.operationalRecords || [];
 
-  const record = ops.find(
-    (r: any) => new Date(r.date).getDate() === Number(day)
-  );
-
   const now = new Date();
+  const cellDate = new Date(now.getFullYear(), now.getMonth(), Number(day));
 
-  const cellDate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    Number(day)
-  );
+  const record = ops.find((r: any) => {
+    const d = new Date(r.date);
+    return (
+      d.getFullYear() === cellDate.getFullYear() &&
+      d.getMonth() === cellDate.getMonth() &&
+      d.getDate() === cellDate.getDate()
+    );
+  });
 
   const picketEndTime = new Date(cellDate);
   picketEndTime.setHours(17, 30, 0, 0);

@@ -174,31 +174,35 @@ const CompetitionTable = ({
                       name="Review"
                       title="Detail Competition"
                       onTriggerClick={() => handleOpenDialog(item._id)}
+                      variant="outline"
+                      noPadding
                     >
                       <div className="flex flex-col gap-4">
-                        <div className="">
-                          <p className="font-semibold mt-2">Title</p>
-                          <p>{item.name}</p>
-                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="">
+                            <p className="font-semibold mt-2">Title</p>
+                            <p>{item.name}</p>
+                          </div>
 
-                        <div className="">
-                          <p className="font-semibold mt-2">Competition Type</p>
-                          <p>{item.type}</p>
-                        </div>
+                          <div className="">
+                            <p className="font-semibold mt-2">Competition Type</p>
+                            <p>{item.type}</p>
+                          </div>
 
-                        <div className="">
-                          <p className="font-semibold mt-2">Competition Link</p>
-                          <p>{item.link}</p>
-                        </div>
+                          <div className="">
+                            <p className="font-semibold mt-2">Description</p>
+                            <p>{item.description}</p>
+                          </div>
 
-                        <div className="">
-                          <p className="font-semibold mt-2">Description</p>
-                          <p>{item.description}</p>
-                        </div>
+                          <div className="">
+                            <p className="font-semibold mt-2">Competition Link</p>
+                            <p>{item.link}</p>
+                          </div>
 
-                        <div className="">
+                          
+                          <div className="">
                           <p className="font-semibold mt-2">Change Label</p>
-                          <div className="mt-4">
+                          <div className="mt-2 w-fit">
                             <DropdownField
                               title={item.status}
                               menu={["Approved", "Rejected"]}
@@ -206,7 +210,7 @@ const CompetitionTable = ({
                             />
                           </div>
                         </div>
-                        
+                        </div>
                       </div>
                     </DialogField>
                   </TableCell>

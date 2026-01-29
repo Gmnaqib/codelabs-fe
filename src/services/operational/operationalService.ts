@@ -26,10 +26,9 @@ export const getOperationalRecords = async (
     if (type) params.type = type;
     if (userId) params.userId = userId;
 
-    if (year && month) {
-      const mm = month.toString().padStart(2, "0");
-      params.date = `${year}-${mm}`;
-    }
+
+    if (year) params.year = year.toString();
+    if (month) params.month = month.toString().padStart(2, "0");
 
     const res = await axiosClient.get("/operational-records", { params });
     return res.data?.data || [];

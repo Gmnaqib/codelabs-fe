@@ -171,8 +171,10 @@ const BrandingTable = ({
                       name="Review"
                       title="Detail Branding"
                       onTriggerClick={() => handleOpenDialog(item._id)}
+                      variant="outline"
+                      noPadding
                     >
-                      <div className="flex flex-col gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="">
                           <p className="font-semibold">Title</p>
                           <p>{item.name}</p>
@@ -184,23 +186,23 @@ const BrandingTable = ({
                         </div>
 
                         <div className="">
-                          <p className="font-semibold mt-2">Research Category</p>
-                          <p>{item.research}</p>
-                        </div>
-
-                        <div className="">
-                          <p className="font-semibold mt-2">Content Link</p>
-                        <p>{item.link}</p>
-                        </div>
-
-                        <div className="">
                           <p className="font-semibold mt-2">Description</p>
                           <p>{item.description}</p>
                         </div>
 
                         <div className="">
-                          <p className="font-semibold mt-2">Change Label</p>
-                        <div className="mt-4">
+                          <p className="font-semibold mt-2">Content Link</p>
+                          <p>{item.link}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Research Category</p>
+                          <p>{item.research}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Status</p>
+                        <div className="mt-1">
                           <DropdownField
                             title={item.status}
                             menu={["Approved", "Rejected"]}

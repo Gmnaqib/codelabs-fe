@@ -63,7 +63,7 @@ const BaseScheduleTable = ({
           </Table>
         </div>
 
-        <div className={isPiket ? "overflow-x-auto flex-1" : "overflow-x-auto max-w-[900px]"}>
+        <div className="overflow-x-auto max-w-[900px]">
           <Table>
             <TableHeader>
               <TableRow>
@@ -81,11 +81,9 @@ const BaseScheduleTable = ({
                   }
                   const currentDate = new Date(year, month, Number(day));
                   let isRed = false;
-                  if (!isPiket) {
-                    const isSunday = currentDate.getDay() === 0;
-                    const isHoliday = isIndonesianHoliday(currentDate);
-                    isRed = isSunday || isHoliday;
-                  }
+                  const isSunday = currentDate.getDay() === 0;
+                  const isHoliday = isIndonesianHoliday(currentDate);
+                  isRed = isSunday || isHoliday;
                   return (
                     <TableHead
                       key={day}
@@ -114,11 +112,9 @@ const BaseScheduleTable = ({
                     }
                     const currentDate = new Date(year, month, Number(day));
                     let skipCell = false;
-                    if (!isPiket) {
                       const isSunday = currentDate.getDay() === 0;
                       const isHoliday = isIndonesianHoliday(currentDate);
                       skipCell = isSunday || isHoliday;
-                    }
                     return (
                       <TableCell key={String(day)} className="text-center w-[115px] min-w-[115px]">
                         <div className="flex items-center justify-center h-full">

@@ -142,35 +142,45 @@ const RistekTable = ({
                     </span>
                   </TableCell>
 
-                  {/* DETAIL */}
                   <TableCell className="text-center">
-                    <DialogField name="Review" title="Detail Plan">
-                      <div className="flex flex-col gap-3">
-                        <p className="font-semibold mt-2">Title</p>
-                        <p>{item.title}</p>
+                    <DialogField name="Review" title="Detail Plan" variant="outline" noPadding>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="">
+                          <p className="font-semibold mt-2">Title</p>
+                          <p>{item.title}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Week</p>
-                        <p>{item.week}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Week</p>
+                          <p>{item.week}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Progress</p>
-                        <p>{item.progress}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Progress</p>
+                          <p>{item.progress}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Output Link</p>
-                        <p>{item.link}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Challenge</p>
+                          <p>{item.challenge}</p>
+                        </div>
 
-                        <p className="font-semibold mt-2">Problem</p>
-                        <p>{item.challenge}</p>
+                        <div className="">
+                          <p className="font-semibold mt-2">Output Link</p>
+                          <p>{item.link}</p>
+                        </div>
 
-                        {/* DROPDOWN */}
-                        <p className="font-semibold mt-4">Change Label</p>
-                        <div className="mt-2">
-                          <DropdownField
-                            title={item.status}
-                            menu={["Approved", "Rejected"]}
-                            onSelect={(value) =>
-                              handleReview(item._id, value)
-                            }
-                          />
+                        <div className="w-fit">
+                          <p className="font-semibold mt-4">Status</p>
+                          <div className="mt-2">
+                            <DropdownField
+                              title={item.status}
+                              menu={["Approved", "Rejected"]}
+                              onSelect={(value) =>
+                                handleReview(item._id, value)
+                              }
+                            />
+                          </div>
                         </div>
                       </div>
                     </DialogField>

@@ -79,7 +79,6 @@ const AttendanceTable = ({
     month: new Date().getMonth(),
   });
 
-  // State for detail dialog (for summary row)
   const [detailDialogUserId, setDetailDialogUserId] = useState<string | null>(null);
   const [detailData, setDetailData] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -198,7 +197,6 @@ const AttendanceTable = ({
   async function handleOpenDialog(id: string) {
     setSelectedLeave(null);
     const detail = await getLeaveRequestById(id);
-    // Ambil userName dari userId
     let userName = "-";
     try {
       const users = await getAllUsers();
@@ -315,7 +313,7 @@ const AttendanceTable = ({
               </div>
               <div>
                 <p className="font-semibold">Avidance</p>
-                <Link href={selectedLeave.attachment_url} target="_blank">{selectedLeave.attachment_url}</Link>
+                <a href={selectedLeave.attachment_url} target="_blank" rel="noopener noreferrer">{selectedLeave.attachment_url}</a>
               </div>
             </div>
           )}
@@ -363,9 +361,9 @@ const AttendanceTable = ({
             {detailDialogUserId === item.userId && detailLoading ? (
               <p>Loading...</p>
             ) : detailDialogUserId === item.userId && detailData && detailData.statusSummary ? (
-              <div className="flex gap-5">
+              <div className="flex gap-5 max-h-96 overflow-y-auto">
                 <div className="w-1/2">
-                  <p className="font-semibold text-primary mb-2">Permit</p>
+                  <p className="font-semibold text-white bg-primary py-1 rounded-sm text-center mb-2">Permit</p>
                   {detailData.statusSummary
                     .filter((s: any) => s.status === "permit")
                     .flatMap((s: any) => s.records)
@@ -385,7 +383,7 @@ const AttendanceTable = ({
                 <div className="w-1/2">
                   <div className="flex flex-col gap-4">
                     <div className="">
-                      <p className="font-semibold text-warning mb-2">Sick</p>
+                      <p className="font-semibold text-center text-white bg-warning py-1 rounded-sm mb-2">Sick</p>
                       {detailData.statusSummary
                         .filter((s: any) => s.status === "sick")
                         .flatMap((s: any) => s.records)
@@ -402,11 +400,24 @@ const AttendanceTable = ({
                         ))}
                     </div>
                     <div className="">
-                      <p className="font-semibold text-destructive mb-2">No Report</p>
-                      <p className="font-light text-sm">Sunday, 04 Jan 2026</p>
-                      <hr className="my-2" />
-                      <p className="font-light text-sm">Sunday, 04 Jan 2026</p>
-                      <hr className="my-2" />
+                      <p className="font-semibold bg-destructive text-center rounded-sm py-1 text-white mb-2">Absent</p>
+                      {detailData.statusSummary
+                        .filter((s: any) => s.status === "absent")
+                        .flatMap((s: any) => s.records)
+                        .filter((rec: any) => rec.reason === "No data")
+                        .map((rec: any, idx: number) => (
+                          <React.Fragment key={idx}>
+                            <p className="text-sm font-bold">
+                              {new Date(rec.date).toLocaleDateString("en-US", {
+                                weekday: "long",
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </p>
+                            <hr className="my-2" />
+                          </React.Fragment>
+                        ))}
                     </div>
                   </div>
                 </div>

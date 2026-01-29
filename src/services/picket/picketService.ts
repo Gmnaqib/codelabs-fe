@@ -43,6 +43,12 @@ export const getAllSchedules = async ({ year, month, day, type = 'picket' }: { y
 	return res.data.data;
 };
 
+
+export const getAllSchedules2 = async () => {
+	const res = await axiosClient.get('/schedules?type=picket');
+	return res.data.data;
+};
+
 export const getRangeSchedules = async ({type = 'picket' }: { type?: string }) => {
 	const today = new Date();
 	const startDate = new Date(today);

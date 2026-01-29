@@ -222,7 +222,6 @@ const Members = () => {
           </DialogField>
         </div>
 
-        {/* TABLE */}
         <TableField
           activePage="members"
           onPageChange={() => {}}

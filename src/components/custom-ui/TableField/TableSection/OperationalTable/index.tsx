@@ -111,7 +111,7 @@ const OperationalTable = ({
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day);
-    const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
+    const dayOfWeek = date.getDay(); 
 
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
@@ -133,7 +133,7 @@ const workingWeeks = getWorkingWeeks(year, month);
 const activeWeekIndex = 0;
 
   const daysArray = isPiket
-    ? [1, 2, 3, 4, 5]
+    ? Array.from({ length: daysInMonth }, (_, i) => i + 1)
     : Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const isThematic = activePage === "Thematic";

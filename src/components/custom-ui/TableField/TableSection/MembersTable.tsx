@@ -58,7 +58,7 @@ const MembersTable = ({
             <TableBody>
                 {data.length > 0 ? (
                 data.map((item: any, i) => {
-                  console.log("DEBUG USER:", item); // 🔥 TARUH DI SINI
+                  console.log("DEBUG USER:", item); 
                   return (
                   <TableRow key={i}>
                     <TableCell className="w-[120px] break-words">
@@ -66,7 +66,7 @@ const MembersTable = ({
                     </TableCell>
 
                     <TableCell className="w-[180px] break-words">
-                      {item.name}
+                      {item.name?.split(" ")[0]}
                     </TableCell>
 
                     <TableCell className="w-[260px] whitespace-normal break-words">
@@ -84,7 +84,6 @@ const MembersTable = ({
                       />
                     </TableCell>
 
-                    {/* ROLE DROPDOWN */}
                     <TableCell className="w-[200px]">
                       <DropdownField
                         title={
@@ -114,8 +113,8 @@ const MembersTable = ({
                     {/* STATUS DROPDOWN */}
                     <TableCell className="w-[150px]">
                       <DropdownField
-                        title={item.status || "Active"}
-                        menu={["Active", "Inactive"]}
+                        title={item.status }
+                        menu={["Active", "Inactive", "Graduated"]}
                         onSelect={(val: string) =>
                           handleUpdate(item._id, "status", val)
                         }
