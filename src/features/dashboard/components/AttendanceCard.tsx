@@ -137,7 +137,7 @@ const AttendanceCard = () => {
               const canCheckIn = hour > 6 && hour < 9;
               return (
                 <>
-                  <Button onClick={handleCheckin} disabled={checkinLoading || canCheckIn}>
+                  <Button onClick={handleCheckin} disabled={checkinLoading}>
                     {checkinLoading ? 'Checking in...' : 'Checkin-in'}
                   </Button>
                   <p className="text-center text-sm mt-5">

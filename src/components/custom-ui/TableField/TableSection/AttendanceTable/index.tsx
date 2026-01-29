@@ -38,6 +38,7 @@ import CardField from "../../../CardField";
 import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, HeartIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { AttendanceTableProps } from "@/types/AttendanceTableProps";
+import Link from "next/link";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -309,8 +310,12 @@ const AttendanceTable = ({
               </div>
 
               <div>
-                <p className="font-semibold">Problem</p>
+                <p className="font-semibold">Reason</p>
                 <p>{selectedLeave.reason}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Avidance</p>
+                <Link href={selectedLeave.attachment_url} target="_blank">{selectedLeave.attachment_url}</Link>
               </div>
             </div>
           )}
