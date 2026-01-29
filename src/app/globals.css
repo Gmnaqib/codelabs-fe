@@ -25,6 +25,13 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-bg-destructive: var(--bg-destructive);
+  --color-success: var(--success);
+  --color-bg-success: var(--bg-success);
+  --color-surface: var(--surface);
+  --color-warning: var(--warning);
+  --color-neutral: var(--neutral);
+  --color-bg-neutral: var(--bg-neutral);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -51,15 +58,22 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #2080d9;
+  --primary: #2080D9;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --secondary: #F5F8FF;
+  --secondary-foreground: #5C5C5C;
+  --muted: #989898;
+  --muted-foreground: oklch(55.553% 0.00006 271.152 / 0.525);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: #CB3A31;
+  --bg-destructive: #EEB4B0;
+  --success: #43936C;
+  --bg-success: #B8DBCA;
+  --surface: #EBF1FE;
+  --warning: #E8C200;
+  --neutral: #B6B6B6;
+  --bg-neutral: #F1F1F1;
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -120,3 +134,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+

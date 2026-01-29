@@ -1,0 +1,244 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Menubar } from "../../MenuBar";
+import { ristek } from "../headerConfig";
+import DialogField from "../../DialogField";
+import { Card } from "@/components/ui/card";
+import {
+  getAllResearchRecords,
+  updateResearchStatus,
+} from "@/services/research/researchService";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { DropdownField } from "../../DropdownField";
+
+interface RistekTableProps {
+  activePage: string;
+  onPageChange: (menu: string) => void;
+  showMenu?: boolean;
+}
+
+const getStatusClass = (status: string) => {
+  switch (status?.toUpperCase()) {
+    case "APPROVED":
+      return "bg-green-100 text-green-700";
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-700";
+    case "REJECTED":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+const RistekTable = ({
+  activePage,
+  onPageChange,
+  showMenu = true,
+}: RistekTableProps) => {
+  const [researchData, setResearchData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const ristekKey = Object.keys(ristek)[0];
+  const ristekHeaders = ristek[ristekKey] ?? [];
+
+  // ----- FETCH DATA -----
+  const fetchResearchData = async () => {
+    try {
+      const data = await getAllResearchRecords();
+      setResearchData(data);
+    } catch (err) {
+      console.error("Error fetching research:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResearchData();
+  }, []);
+
+  const handleReview = async (id: string, value: string) => {
+    try {
+      await updateResearchStatus(id, value);
+      fetchResearchData();
+    } catch (err) {
+      console.error("Gagal update research:", err);
+    }
+  };
+
+  const totalPages = Math.ceil(researchData.length / itemsPerPage);
+  const paginatedData = researchData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  return (
+    <div className="flex flex-col w-full rounded-lg overflow-hidden">
+      {showMenu && (
+        <Menubar
+          menus={Object.keys(ristek)}
+          activeMenu={activePage}
+          onChange={onPageChange}
+        />
+      )}
+
+      <Card>
+        <Table className="w-full table-fixed">
+          <TableHeader>
+            <TableRow>
+              {ristekHeaders.map((header, i) => (
+                <TableHead key={i}>{header}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={ristekHeaders.length}
+                  className="text-center py-6"
+                >
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : paginatedData.length > 0 ? (
+              paginatedData.map((item, i) => (
+                <TableRow key={i}>
+                  {/* NAME */}
+                  <TableCell className="text-center">
+                    {item?.userId?.name ?? "-"}
+                  </TableCell>
+
+                  {/* STATUS */}
+                  <TableCell className="text-center">
+                    <span
+                      className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(
+                        item.status
+                      )}`}
+                    >
+                      {item.status}
+                    </span>
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <DialogField name="Review" title="Detail Plan" variant="outline" noPadding>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="">
+                          <p className="font-semibold mt-2">Title</p>
+                          <p>{item.title}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Week</p>
+                          <p>{item.week}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Progress</p>
+                          <p>{item.progress}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Challenge</p>
+                          <p>{item.challenge}</p>
+                        </div>
+
+                        <div className="">
+                          <p className="font-semibold mt-2">Output Link</p>
+                          <p>{item.link}</p>
+                        </div>
+
+                        <div className="w-fit">
+                          <p className="font-semibold mt-4">Status</p>
+                          <div className="mt-2">
+                            <DropdownField
+                              title={item.status}
+                              menu={["Approved", "Rejected"]}
+                              onSelect={(value) =>
+                                handleReview(item._id, value)
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </DialogField>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={ristekHeaders.length}
+                  className="text-center py-6"
+                >
+                  Tidak ada data research
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                />
+              </PaginationItem>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    href="#"
+                    isActive={i + 1 === currentPage}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {totalPages > 5 && <PaginationEllipsis />}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+      </Card>
+    </div>
+  );
+};
+
+export default RistekTable;
