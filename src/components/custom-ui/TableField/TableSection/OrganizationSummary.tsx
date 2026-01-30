@@ -119,18 +119,21 @@ const OrganizationSummaryTable = ({
         />
       )}
 
-      <Table className="w-full">
+      <div className="w-full overflow-x-auto max-h-[500px]">
+        <Table className="w-full">
         <TableHeader>
           <TableRow>
             {organizationHeaders.map((header: string, i: number) => (
-              <TableHead key={i} className="text-center">
+              <TableHead key={i} className="text-center sticky top-0 bg-white z-10"
+                  style={{ position: 'sticky', top: 0, background: 'white', zIndex: 10 }}
+              >
                 {header}
               </TableHead>
             ))}
           </TableRow>
         </TableHeader>
 
-        <TableBody>
+        <TableBody className="overflow-y-auto">
           {activePage === "Attendance"
             ? filteredKpiData.map((item: KPIUser, i: number) => (
                 <TableRow key={item.name + i}>
@@ -169,6 +172,7 @@ const OrganizationSummaryTable = ({
                 ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 };

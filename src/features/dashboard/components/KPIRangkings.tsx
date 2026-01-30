@@ -2,34 +2,39 @@ import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import SelectField from "@/components/custom-ui/SelectField"
 import { DataSelectRangkingsKPI } from "@/config/dashboard"
-import { getAllUsers } from "@/services/users/userService"
-import { User } from "@/types/KPIRangkinsProps"
+import { getKPIRankings } from "@/services/kpi/kpiService"
+
+interface KPIRankingUser {
+  name: string;
+  totalPoint: number;
+  year: number;
+  month: number;
+}
 
 const KPIRangkings = () => {
   const [filter, setFilter] = useState("highest")
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<KPIRankingUser[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchRankings = async () => {
       try {
-        const res = await getAllUsers()
-        setUsers(res)
+        const res = await getKPIRankings();
+        setUsers(res);
       } catch (error) {
-        console.error("Failed to fetch users:", error)
+        console.error("Failed to fetch KPI rankings:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-
-    fetchUsers()
-  }, [])
+    };
+    fetchRankings();
+  }, []);
 
   const sortedUsers = [...users].sort((a, b) => {
     return filter === "highest"
-      ? a.name.localeCompare(b.name)
-      : b.name.localeCompare(a.name)
-  })
+      ? b.totalPoint - a.totalPoint
+      : a.totalPoint - b.totalPoint
+  });
 
   if (loading) {
     return <p>Loading...</p>
@@ -49,7 +54,7 @@ const KPIRangkings = () => {
 
       <div className="max-h-64 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
         {sortedUsers.map((user, index) => (
-          <div key={user._id} className="flex w-full gap-3 items-center border-b pb-2">
+          <div key={user.name} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative">
               <Image
                 src="/icon/profile.png"
@@ -67,7 +72,7 @@ const KPIRangkings = () => {
 
             <div className="flex justify-between items-center w-full">
               <p className="text-base">{user.name.split(" ")[0]}</p>
-              <p className="font-normal text-primary text-base">0%</p>
+              <p className="font-normal text-primary text-base">{user.totalPoint}</p>
             </div>
           </div>
         ))}

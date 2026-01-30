@@ -112,8 +112,7 @@ const CompetitionTable = ({
 
     try {
       await updateCompetitionStatus(selectedId._id, newStatus);
-      await fetchCompetition(); // refresh table
-      console.log("Updated:", newStatus);
+      await fetchCompetition(); 
     } catch (err) {
       console.error("Gagal update status:", err);
     }

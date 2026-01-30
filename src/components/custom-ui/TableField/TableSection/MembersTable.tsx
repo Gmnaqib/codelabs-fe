@@ -53,7 +53,6 @@ const MembersTable = ({
       };
 
       await updateUser(id, safePayload);
-      console.log(`✔ Berhasil update ${key}:`, value);
     } catch (err) {
       console.error(`❌ Gagal update ${key}:`, err);
     }
@@ -75,7 +74,6 @@ const MembersTable = ({
             <TableBody>
                 {data.length > 0 ? (
                 data.map((item, i) => {
-                  console.log("DEBUG USER:", item); 
                   return (
                   <TableRow key={i}>
                     <TableCell className="w-[120px] break-words">

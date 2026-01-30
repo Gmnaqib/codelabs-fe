@@ -111,8 +111,7 @@ const BrandingTable = ({
 
     try {
       await updateBrandingStatus(selectedId._id, newStatus);
-      await fetchBranding(); // refresh
-      console.log("Status updated to:", newStatus);
+      await fetchBranding();
     } catch (err) {
       console.error("Gagal update status:", err);
     }
