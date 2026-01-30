@@ -21,7 +21,6 @@ import CompetitionTable from "./TableSection/CompetitionTable";
 import BrandingTable from "./TableSection/BrandingTable";
 import { TabelFieldProps, TableFieldDataItem } from "@/types/TableFieldProps";
 
-// Inline AssessmentItem type (from AssessmentsTable)
 type AssessmentItem = {
   rank?: number | string;
   name?: string;

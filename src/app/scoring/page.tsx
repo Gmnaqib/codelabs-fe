@@ -2,10 +2,46 @@
 import { TableField } from '@/components/custom-ui/TableField';
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/login/components/ProtectedRoute';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getKPIMeRankings } from '@/services/kpi/kpiService';
 
 const KPIScoring = () => {
   const [activePage, setActivePage] = useState<string>("research")
+  const [myPoint, setMyPoint] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const res = await getKPIMeRankings();
+        setMyPoint(res?.data?.totalPoint ?? 0);
+      } catch {
+        setMyPoint(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMe();
+  }, []);
+
+  let statusLabel = 'Note Safe';
+  let statusClass = 'text-warning';
+  if (!loading && myPoint !== null) {
+    if (myPoint <= 150) {
+      statusLabel = 'Danger';
+      statusClass = 'text-destructive';
+    } else if (myPoint <= 250) {
+      statusLabel = 'Warning';
+      statusClass = 'text-warning';
+    } else if (myPoint <= 400) {
+      statusLabel = 'Safe';
+      statusClass = 'text-success';
+    } else if (myPoint > 400) {
+      statusLabel = 'Excellent';
+      statusClass = 'text-primary';
+    }
+  }
+
   return (
     <ProtectedRoute>
       <Card>
@@ -21,12 +57,12 @@ const KPIScoring = () => {
             <div className="w-0.5 h-12 bg-muted opacity-20"></div>
             <div className="text-center">
               <p className='text-sm text-secondary-foreground'>Current</p>
-              <p className='font-medium text-xl'>33.92%</p>
+              <p className='font-medium text-xl'>{loading ? '-' : myPoint}</p>
             </div>
             <div className="w-0.5 h-12 bg-muted opacity-20"></div>
             <div className="text-center">
               <p className='text-sm text-secondary-foreground'>Status</p>
-              <p className='font-medium text-xl'>Not Safe</p>
+              <p className={`font-medium text-xl ${statusClass}`}>{statusLabel}</p>
             </div>
           </div>
         </div>

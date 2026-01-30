@@ -12,6 +12,7 @@ import InputField from "../../InputField";
 import { DropdownField } from "../../DropdownField";
 
 import { getStatusColor } from "@/utils/statusColor";
+import { getKPIMeResearch } from "@/services/kpi/kpiService";
 
 
 const ScoringTable = ({
@@ -120,7 +121,6 @@ const ScoringTable = ({
   const [editBrandingStatus, setEditBrandingStatus] = useState("");
   const [editBrandingLevel, setEditBrandingLevel] = useState("");
   const [editBrandingResearch, setEditBrandingResearch] = useState("");
-    // Branding handlers
     const handleOpenBrandingEdit = async (id: string) => {
       setLoadingBrandingEdit(true);
       setOpenBrandingEditId(id);
@@ -252,6 +252,19 @@ const ScoringTable = ({
     }
   }, [activePage]);
 
+    const [myResearch, setMyResearch] = useState<{ totalApproved?: number; totalPoint?: number } | null>(null);
+
+  const [myOperational, setMyOperational] = useState<{ totalAttendance?: number; totalTematik?: number; totalPicket?: number; totalPoint?: number; year?: number; month?: number } | null>(null);
+  useEffect(() => {
+    if (activePage === "research") {
+      getKPIMeResearch().then(res => setMyResearch(res || {}));
+    } else if (activePage === "operational") {
+      import("@/services/kpi/kpiService").then(({ getKPIMeOperational }) => {
+        getKPIMeOperational().then(res => setMyOperational(res || {}));
+      });
+    }
+  }, [activePage]);
+
   return (
     <div className="w-full rounded-lg overflow-hidden px-5">
       {showMenu && (
@@ -373,31 +386,31 @@ const ScoringTable = ({
             <>
               <TableRow>
                 <TableCell>Conduct research Responses</TableCell>
-                <TableCell className="text-center">0</TableCell>
-                <TableCell className="text-center font-semibold text-primary">0%</TableCell>
+                <TableCell className="text-center">{myResearch?.totalApproved ?? 0}</TableCell>
+                <TableCell className="text-center font-semibold text-primary">{myResearch?.totalPoint ?? 0}</TableCell>
               </TableRow>
-              <TableRow>
+              {/* <TableRow>
                 <TableCell>Leading the workshop</TableCell>
                 <TableCell className="text-center">0</TableCell>
                 <TableCell className="text-center font-semibold text-primary">0%</TableCell>
-              </TableRow>
+              </TableRow> */}
             </>
           ) : activePage === "operational" ? (
             <>
               <TableRow>
                 <TableCell>Daily Attendance</TableCell>
-                <TableCell className="text-center">0</TableCell>
-                <TableCell className="text-center font-semibold text-primary">0%</TableCell>
+                <TableCell className="text-center">{myOperational?.totalAttendance ?? 0}</TableCell>
+                <TableCell className="text-center font-semibold text-primary">{myOperational?.totalAttendance ?? 0}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Thematic Attendance</TableCell>
-                <TableCell className="text-center">0</TableCell>
-                <TableCell className="text-center font-semibold text-primary">0%</TableCell>
+                <TableCell className="text-center">{myOperational?.totalTematik ?? 0}</TableCell>
+                <TableCell className="text-center font-semibold text-primary">{myOperational?.totalTematik ?? 0}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Picket Attendance</TableCell>
-                <TableCell className="text-center">0</TableCell>
-                <TableCell className="text-center font-semibold text-primary">0%</TableCell>
+                <TableCell className="text-center">{myOperational?.totalPicket ?? 0}</TableCell>
+                <TableCell className="text-center font-semibold text-primary">{myOperational?.totalPicket ?? 0}</TableCell>
               </TableRow>
             </>
           ) : activePage === "competition" ? (
@@ -524,10 +537,7 @@ const ScoringTable = ({
               ))
             ) : (
               <TableRow>
-                <TableCell>competition</TableCell>
-                <TableCell className="text-center">oke</TableCell>
-                <TableCell className="text-center">0</TableCell>
-                <TableCell className="text-center">oke</TableCell>
+                <TableCell colSpan={scoringHeaders.length} className="text-sm text-gray-500 text-center">No data found</TableCell>
               </TableRow>
             )
           ) : activePage === "branding" ? (

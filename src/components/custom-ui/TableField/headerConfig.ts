@@ -44,3 +44,7 @@ export const ristek: Record<string, string[]> = {
 export const picketschedule: Record<string, string[]> = {
   picketschedule: ["Name", "Action", "Swap"],
 };
+
+export const assessments: Record<string, string[]> = {
+  assessments: ["Rank","Name", "Monthly Points", "Status", "Action"],
+};
