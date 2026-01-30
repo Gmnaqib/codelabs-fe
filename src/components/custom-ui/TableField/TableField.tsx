@@ -142,6 +142,9 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         onPageChange={onPageChange}
         showMenu={showMenu}
         data={data as OrganizationUser[]}
+        month={String(month).padStart(2, '0')}
+        year={String(year)}
+        searchQuery={searchQuery}
       />
     );
 

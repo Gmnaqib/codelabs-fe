@@ -62,7 +62,6 @@ const AttendanceTable = ({
   searchQuery = "",
 }: AttendanceTableProps) => {
   const attendanceHeaders = attendance[activePage] ?? [];
-  // --- Types ---
   interface LeaveRequest {
     _id: string;
     userId: string;

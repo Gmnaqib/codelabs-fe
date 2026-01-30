@@ -22,7 +22,7 @@ export const scoring: Record<string, string[]> = {
 
 export const organization: Record<string, string[]> = {
   Attendance: ["No", "Name", "Attendance", "Thematic", "Picket", "Points"],
-  ResearchPoints: ["No", "Name", "Unfinished", "Finished", "Approved", "Total", "Points"],
+  ResearchPoints: ["No", "Name", "Unfinished", "Finished", "Approved", "Points"],
 };
 
 export const members: Record<string, string[]> = {
