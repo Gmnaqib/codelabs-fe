@@ -12,14 +12,21 @@ import {
 } from "@/components/ui/table";
 import { Menubar } from "@/components/custom-ui/MenuBar";
 import DialogField from "../../DialogField";
-import { DropdownField } from "../../DropdownField";
 import { members } from "../headerConfig";
+
+interface AssessmentItem {
+  rank?: number | string;
+  name?: string;
+  monthly?: number | string;
+  status?: string;
+  detail?: string;
+}
 
 interface Props {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
-  data?: any[];
+  data?: AssessmentItem[];
 }
 
 const AssessmentsTable = ({
@@ -53,7 +60,7 @@ const AssessmentsTable = ({
 
             <TableBody>
               {data.length > 0 ? (
-                data.map((item: any, i: number) => (
+                data.map((item, i: number) => (
                   <TableRow key={i}>
                     <TableCell className="text-center">{item.rank ?? "-"}</TableCell>
                     <TableCell className="text-center">

@@ -31,7 +31,34 @@ const OperationalTable = ({
   headersConfig,
   searchQuery = "",
 }: OperationalTableProps) => {
-  const [users, setUsers] = useState<any[]>([]);
+  type AttendanceRecord = {
+    userId: string;
+    status: string;
+    checkIn?: string | Date;
+    checkOut?: string | Date;
+    start_date?: string | Date;
+    end_date?: string | Date;
+    createdAt?: string | Date;
+    approval_status?: string;
+  };
+
+  type OperationalRecord = {
+    userId: string;
+    date: string | Date;
+    type?: string;
+    scheduleId?: string;
+    _id?: string;
+  };
+
+  type User = {
+    _id: string;
+    name: string;
+    nim?: string | number;
+    records: AttendanceRecord[];
+    operationalRecords: OperationalRecord[];
+  };
+
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
   const [selectedDate, setSelectedDate] = useState({ year, month });
@@ -55,8 +82,9 @@ const OperationalTable = ({
           type ? getOperationalRecords(type, undefined, selectedDate.year, selectedDate.month) : Promise.resolve([]),
         ]);
 
+
         const attendanceMap = attendanceRes.reduce(
-          (acc: Record<string, any[]>, att: any) => {
+          (acc: Record<string, AttendanceRecord[]>, att: AttendanceRecord) => {
             if (!acc[att.userId]) acc[att.userId] = [];
             acc[att.userId].push(att);
             return acc;
@@ -65,7 +93,7 @@ const OperationalTable = ({
         );
 
         const operationalMap = (operationalRes || []).reduce(
-          (acc: Record<string, any[]>, op: any) => {
+          (acc: Record<string, OperationalRecord[]>, op: OperationalRecord) => {
             if (!acc[op.userId]) acc[op.userId] = [];
             acc[op.userId].push(op);
             return acc;
@@ -73,7 +101,7 @@ const OperationalTable = ({
           {}
         );
 
-        const combined = userRes.map((user: any) => ({
+        const combined = userRes.map((user: User) => ({
           ...user,
           records: attendanceMap[user._id] || [],
           operationalRecords: operationalMap[user._id] || [],
@@ -103,34 +131,6 @@ const OperationalTable = ({
   const daysInMonth = new Date(year, month, 0).getDate();
   const isPiket = activePage === "Picket";
 
-  const getWorkingWeeks = (year: number, month: number) => {
-  const weeks: number[][] = [];
-  const daysInMonth = new Date(year, month, 0).getDate();
-
-  let currentWeek: number[] = [];
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month - 1, day);
-    const dayOfWeek = date.getDay(); 
-
-    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
-
-    currentWeek.push(day);
-
-    if (dayOfWeek === 5) {
-      weeks.push(currentWeek);
-      currentWeek = [];
-    }
-  }
-
-  if (currentWeek.length) {
-    weeks.push(currentWeek);
-  }
-
-  return weeks;
-};
-const workingWeeks = getWorkingWeeks(year, month);
-const activeWeekIndex = 0;
 
   const daysArray = isPiket
     ? Array.from({ length: daysInMonth }, (_, i) => i + 1)
@@ -138,7 +138,7 @@ const activeWeekIndex = 0;
 
   const isThematic = activePage === "Thematic";
 
-    const renderCell = (day: string | number, rowIndex: number, data: any[], context?: any) => {
+    const renderCell = (day: string | number, rowIndex: number, data: User[]) => {
       const user = data[rowIndex];
       if (isPiket) return renderPicketCell(day, rowIndex, data);
       if (isThematic) return renderThematicCell(day, rowIndex, data);
@@ -223,14 +223,19 @@ const activeWeekIndex = 0;
           data={displayUsers}
           isPiket={isPiket}
           renderCell={renderCell}
-          renderLeftCell={(row, h) => {
+          renderLeftCell={(row: User, h: string) => {
             const key = headerKeyMap[h] || h.toLowerCase();
-            let value = row[key] ?? "-";
+            let value: string | number | undefined = undefined;
+            if (key === "nim") value = row.nim;
+            else if (key === "name") value = row.name;
+            else if (key === "_id") value = row._id;
+            // Add more fields as needed
+            if (value === undefined || value === null) value = "-";
             if (h === "Nama" && typeof value === "string") value = value.split(" ")[0];
             return value;
           }}
-          renderTotal={(row) => {
-            const totalPresent = row.records?.filter((r: any) => r.status === "present").length ?? 0;
+          renderTotal={(row: User) => {
+            const totalPresent = row.records?.filter((r: AttendanceRecord) => r.status === "present").length ?? 0;
             return totalPresent;
           }}
         />

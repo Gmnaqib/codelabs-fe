@@ -1,9 +1,21 @@
 import { CheckCircleIcon, ExclamationCircleIcon, MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/24/solid";
 
+
+type AbsenceRecord = {
+  userId: string;
+  start_date?: string | Date;
+  end_date?: string | Date;
+  checkIn?: string | Date;
+  checkOut?: string | Date;
+  createdAt?: string | Date;
+  status?: string;
+  approval_status?: string;
+};
+
 export const renderAbsenceCell = (
   day: number,
   userId: string,
-  data: any[],
+  data: AbsenceRecord[],
 ) => {
 
   // Cek jika hari Minggu, jangan render icon apapun
@@ -33,13 +45,6 @@ export const renderAbsenceCell = (
     const start = r.start_date ? new Date(r.start_date) : (r.checkIn ? new Date(r.checkIn) : (r.createdAt ? new Date(r.createdAt) : null));
     const end = r.end_date ? new Date(r.end_date) : start;
     if (!start || !end) return false;
-
-    const startDay = start.getDate();
-    const startMonth = start.getMonth();
-    const startYear = start.getFullYear();
-    const endDay = end.getDate();
-    const endMonth = end.getMonth();
-    const endYear = end.getFullYear();
 
     if ((r.status === "sick" || r.status === "permit") && r.start_date && r.end_date) {
       const current = new Date(start);

@@ -6,6 +6,7 @@
   import { picketschedule } from '../../headerConfig';
   import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord, getRangeSchedules, swapPicketUsers } from '@/services/picket/picketService';
 import { Button } from '@/components/ui/button';
+import { ReportTableProps } from '@/types/ReportTableProps';
 
 const PicketScheduleTable = ({
   activePage,
@@ -13,12 +14,31 @@ const PicketScheduleTable = ({
   showMenu = true,
 }: ReportTableProps) => {
   const picketHeaders = picketschedule[activePage] ?? [];
-  const [picketData, setPicketData] = useState<any[]>([]);
+  type AssignedUser = {
+    _id: string;
+    name: string;
+  };
+
+  type Schedule = {
+    _id: string;
+    date: string | Date;
+    assignedUsers: AssignedUser[];
+  };
+
+  type OperationalRecord = {
+    _id: string;
+    userId: string;
+    scheduleId: string;
+    type: string;
+    date: string | Date;
+  };
+
+  const [picketData, setPicketData] = useState<AssignedUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedUsers, setCheckedUsers] = useState<{ [key: string]: boolean }>({});
   const [recordIds, setRecordIds] = useState<{ [key: string]: string }>({});
   const [scheduleId, setScheduleId] = useState<string>('');
-  const [rangeSchedules, setRangeSchedules] = useState<any[]>([]);
+  const [rangeSchedules, setRangeSchedules] = useState<Schedule[]>([]);
 
   useEffect(() => {
     const fetchSchedules = async () => {
@@ -30,7 +50,7 @@ const PicketScheduleTable = ({
         const day = String(today.getDate()).padStart(2, '0');
         const data = await getAllSchedules({ year, month, day });
         const operationalRecords = await getOperationalRecords();
-        const withUsers = data.filter((d: any) => d.assignedUsers && d.assignedUsers.length > 0);
+        const withUsers = data.filter((d: Schedule) => d.assignedUsers && d.assignedUsers.length > 0);
         const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
         const scheduleIdValue = withUsers.length > 0 ? withUsers[0]._id : '';
         setScheduleId(scheduleIdValue);
@@ -46,7 +66,7 @@ const PicketScheduleTable = ({
         setPicketData(rotated);
         const checked: { [key: string]: boolean } = {};
         const ids: { [key: string]: string } = {};
-        operationalRecords.forEach((rec: any) => {
+        (operationalRecords as OperationalRecord[]).forEach((rec) => {
           if (rec.scheduleId === scheduleIdValue) {
             checked[rec.userId] = true;
             ids[rec.userId] = rec._id;
@@ -57,7 +77,7 @@ const PicketScheduleTable = ({
 
         const range = await getRangeSchedules({});
         setRangeSchedules(range);
-      } catch (e) {
+      } catch {
         setPicketData([]);
         setCheckedUsers({});
         setRangeSchedules([]);
@@ -97,7 +117,7 @@ const PicketScheduleTable = ({
               <TableCell colSpan={picketHeaders.length} className="text-center">Tidak ada data piket hari ini</TableCell>
             </TableRow>
           ) : (
-            picketData.map((user: any, idx: number) => (
+            picketData.map((user, idx) => (
               <TableRow key={user._id || idx}>
                 <TableCell className="text-center">{user.name.split(' ')[0]}</TableCell>
                 <TableCell className="text-center">
@@ -116,7 +136,7 @@ const PicketScheduleTable = ({
                         const operationalRecords = await getOperationalRecords();
                         const checked: { [key: string]: boolean } = {};
                         const ids: { [key: string]: string } = {};
-                        operationalRecords.forEach((rec: any) => {
+                        (operationalRecords as OperationalRecord[]).forEach((rec) => {
                           if (rec.scheduleId === scheduleId) {
                             checked[rec.userId] = true;
                             ids[rec.userId] = rec._id;
@@ -153,15 +173,15 @@ const PicketScheduleTable = ({
                     >
                       <div className='flex flex-col gap-2 max-h-72  overflow-y-auto'>
                         {rangeSchedules
-                          .filter((schedule: any) => {
+                          .filter((schedule) => {
                             const today = new Date();
                             const scheduleDate = new Date(schedule.date);
                             const todayStr = today.toISOString().slice(0, 10);
                             const scheduleStr = scheduleDate.toISOString().slice(0, 10);
                             return scheduleStr > todayStr;
                           })
-                          .map((schedule: any, sIdx: number) => (
-                            schedule.assignedUsers && schedule.assignedUsers.map((assigned: any, aIdx: number) => (
+                          .map((schedule, sIdx) => (
+                            schedule.assignedUsers && schedule.assignedUsers.map((assigned, aIdx) => (
                               <div key={schedule._id + '-' + assigned._id + '-' + sIdx + '-' + aIdx} className="grid grid-cols-3 border-b pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0">
                                 <p>{assigned.name.split(' ')[0]}</p>
                                 <p>{schedule.date ? new Date(schedule.date).toISOString().slice(0, 10) : ''}</p>
@@ -177,7 +197,7 @@ const PicketScheduleTable = ({
                                       });
 
                                       const operationalRecords = await getOperationalRecords();
-                                      const targetRecord = operationalRecords.find((rec: any) => rec.scheduleId === schedule._id && rec.userId === assigned._id);
+                                      const targetRecord = (operationalRecords as OperationalRecord[]).find((rec) => rec.scheduleId === schedule._id && rec.userId === assigned._id);
                                       if (targetRecord) {
                                         await deleteOperationalRecord(targetRecord._id);
                                         setCheckedUsers((prev) => {
@@ -191,7 +211,7 @@ const PicketScheduleTable = ({
                                           return copy;
                                         });
                                       }
-                                      const userRecord = operationalRecords.find((rec: any) => rec.scheduleId === scheduleId && rec.userId === user._id);
+                                      const userRecord = (operationalRecords as OperationalRecord[]).find((rec) => rec.scheduleId === scheduleId && rec.userId === user._id);
                                       if (userRecord) {
                                         await deleteOperationalRecord(userRecord._id);
                                         setCheckedUsers((prev) => {
@@ -214,7 +234,7 @@ const PicketScheduleTable = ({
                                       const month = String(today.getMonth() + 1).padStart(2, '0');
                                       const day = String(today.getDate()).padStart(2, '0');
                                       const data = await getAllSchedules({ year, month, day });
-                                      const withUsers = data.filter((d: any) => d.assignedUsers && d.assignedUsers.length > 0);
+                                      const withUsers = data.filter((d: Schedule) => d.assignedUsers && d.assignedUsers.length > 0);
                                       const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
                                       const getWeekNumber = (date: Date) => {
                                         const firstDay = new Date(date.getFullYear(), 0, 1);

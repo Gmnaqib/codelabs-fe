@@ -7,15 +7,7 @@ import InputField from "@/components/custom-ui/InputField";
 import { TableField } from "@/components/custom-ui/TableField";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { getAllUsers, createUser } from "@/services/users/userService";
-
-type UserType = {
-  nim: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  subriset: string;
-};
+import { UserApiResponse, UserType } from "@/types/user";
 
 const Members = () => {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -42,17 +34,14 @@ const Members = () => {
     try {
       const data = await getAllUsers();
 
-      const mapped: UserType[] = data.map((u: any) => ({
-        _id: u._id,
-        nim: u.nim,
-        name: u.name,
-        email: u.email,
+      const mapped: UserType[] = (data as UserApiResponse[]).map((u) => ({
+        nim: u.nim || "",
+        name: u.name || "",
+        email: u.email || "",
         role: u.role ? u.role : "Other",
         status: u.status || "Unknown",
-        subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(
-          u.research?.toLowerCase()
-        )
-          ? u.research
+        subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(u.research?.toLowerCase() || "")
+          ? u.research || "Other"
           : "Other",
       }));
 

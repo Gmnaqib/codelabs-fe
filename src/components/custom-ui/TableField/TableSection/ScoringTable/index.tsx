@@ -9,12 +9,14 @@ import DialogField from "@/components/custom-ui/DialogField";
 import InputField from "@/components/custom-ui/InputField";
 import { DropdownField } from "@/components/custom-ui/DropdownField";
 
+type ScoringRow = Record<string, string | number | undefined | null>;
+
 const ScoringTable = ({
   activePage,
   onPageChange,
   showMenu = true,
   data = [],
-}: ScoringTableProps) => {
+}: ScoringTableProps & { data?: ScoringRow[] }) => {
   const scoringHeaders = scoring[activePage] ?? [];
 
   return (
@@ -54,7 +56,13 @@ const ScoringTable = ({
           {data.map((row, i) => (
             <TableRow key={i}>
               {scoringHeaders.map((header, j) => (
-                <TableCell key={j}>{(row as any)[header] ?? "-"}</TableCell>
+                <TableCell key={j}>
+                  {row[header] === null || row[header] === undefined
+                    ? "-"
+                    : typeof row[header] === "object"
+                      ? JSON.stringify(row[header])
+                      : String(row[header])}
+                </TableCell>
               ))}
             </TableRow>
           ))}

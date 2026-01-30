@@ -69,8 +69,8 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
             </DialogTitle>
           </DialogHeader>
 
-          {isValidElement(children) && typeof (children as any).type !== "string"
-            ? React.cloneElement(children as ReactElement<any>, { closeDialog })
+          {isValidElement(children) && typeof (children.type) !== "string"
+            ? React.cloneElement(children as ReactElement<{ closeDialog?: () => void }>, { closeDialog })
             : children}
 
           <div className="flex justify-center gap-4 mt-5">

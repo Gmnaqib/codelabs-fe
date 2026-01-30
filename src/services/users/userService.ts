@@ -5,7 +5,15 @@ export async function getAllUsers() {
     return data.data
 }
 
-export const createUser = async (payload: any) => {
+
+export interface UserPayload {
+  name: string;
+  email: string;
+  password?: string;
+  [key: string]: unknown;
+}
+
+export const createUser = async (payload: UserPayload) => {
   const res = await axiosClient.post("/auth/register", payload);
   return res.data;
 };
@@ -15,7 +23,7 @@ export async function getMe() {
   return data.data;
 }
 
-export async function updateUser(id: string, payload: any) {
+export async function updateUser(id: string, payload: UserPayload) {
   const { data } = await axiosClient.patch(`/users/${id}`, payload);
   return data;
 }

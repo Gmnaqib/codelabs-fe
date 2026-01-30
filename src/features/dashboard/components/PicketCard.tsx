@@ -13,16 +13,6 @@ import { PicketCardProps } from "@/types/PicketCardProps";
 const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
   const [picketData, setPicketData] = useState<PicketPerson[]>([]);
 
-  const getTodayKey = () => {
-    return ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][new Date().getDay()];
-  };
-
-  const getWeekNumber = (date: Date) => {
-    const firstDay = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
-    return Math.ceil((days + firstDay.getDay() + 1) / 7);
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,11 +20,11 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        const data = await getAllSchedules({ year, month, day, type: 'picket' });
-        // Ambil assignedUsers dari data schedules yang memiliki assignedUsers
-        const withUsers = data.filter((d: any) => d.assignedUsers && d.assignedUsers.length > 0);
-        const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
-        // Rotasi urutan user agar bergantian setiap minggu
+        type AssignedUser = { _id: string; name: string };
+        type Schedule = { assignedUsers?: AssignedUser[] };
+        const data: Schedule[] = await getAllSchedules({ year, month, day, type: 'picket' });
+        const withUsers = data.filter((d) => d.assignedUsers && d.assignedUsers.length > 0);
+        const users: AssignedUser[] = withUsers.length > 0 ? withUsers[0].assignedUsers! : [];
         const getWeekNumber = (date: Date) => {
           const firstDay = new Date(date.getFullYear(), 0, 1);
           const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
@@ -44,7 +34,7 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
         const maxPicket = 6;
         const limitedUsers = users.slice(0, maxPicket);
         const rotated = limitedUsers.slice(week % limitedUsers.length).concat(limitedUsers.slice(0, week % limitedUsers.length));
-        const names: PicketPerson[] = rotated.map((u: any) => ({
+        const names: PicketPerson[] = rotated.map((u) => ({
           name: u.name,
           userId: u._id,
         }));

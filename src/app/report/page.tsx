@@ -1,7 +1,6 @@
 "use client";
 import DialogField from "@/components/custom-ui/DialogField";
 import { DropdownField } from "@/components/custom-ui/DropdownField";
-import FilterMonth from "@/components/custom-ui/FilterMonth";
 import InputField from "@/components/custom-ui/InputField";
 import { TableField } from "@/components/custom-ui/TableField";
 import { Card } from "@/components/ui/card";
@@ -25,8 +24,6 @@ const WeeklyReport = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()+ 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
-  const now = new Date();
 
   const handleSubmit = async () => {
     if (!title || !week || !progress) {
@@ -65,7 +62,7 @@ const WeeklyReport = () => {
       setLink("");
       setChallenge("");
       setIsDialogOpen(false);
-    } catch (error) {
+    } catch {
       showErrorToast("Gagal menambahkan research.", { duration: 5000 });
     }
   };
@@ -97,7 +94,6 @@ const WeeklyReport = () => {
         </div>
 
         <div>
-          {/** Tombol submit akan disabled jika ada field yang kosong */}
           {(() => {
             const isLinkValid = link.startsWith("https://");
             const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;
@@ -116,7 +112,7 @@ const WeeklyReport = () => {
                     placeholder="Ex: Learn how to make responsive web"
                     label="Title"
                     value={title}
-                    onChange={(e: any) => setTitle(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                   />
 
                   <div className="flex gap-5">
@@ -142,10 +138,10 @@ const WeeklyReport = () => {
                       placeholder="Ex: https://github.com/unikom-codelabs/"
                       label="Link"
                       value={link}
-                      onChange={(e: any) => setLink(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
                     />
                     {link && !isLinkValid && (
-                      <span className="text-sm text-red-500">Link harus diawali dengan 'https://'</span>
+                      <span className="text-sm text-red-500">Link harus diawali dengan &#39;https://&#39;</span>
                     )}
                   </div>
 
@@ -153,7 +149,7 @@ const WeeklyReport = () => {
                     label="Challenge"
                     placeholder="Ex: Ada kendala pada fitur upload gambar..."
                     value={challenge}
-                    onChange={(e: any) => setChallenge(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setChallenge(e.target.value)}
                   />
                 </div>
               </DialogField>

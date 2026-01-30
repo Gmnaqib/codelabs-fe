@@ -20,8 +20,10 @@ const ResearchPercentage = () => {
 
         setTotalUsers(users.length);
 
+        type UserIdObj = { _id: string };
+        type ResearchRecord = { userId?: UserIdObj };
         const uniqueIds = new Set(
-          research.map((r: any) => r.userId?._id)
+          (research as ResearchRecord[]).map((r) => r.userId?._id)
         );
 
         setAllResearchUsers(uniqueIds.size);

@@ -14,12 +14,25 @@ const CashBillsCard = () => {
     async function fetchData() {
       try {
         const user = await getMe();
-        const data: any[] = await fetchCashBillsData();
+        type CashBillRow = {
+          [key: string]: string | number | undefined | null;
+        };
+        const data: CashBillRow[] = await fetchCashBillsData();
         const userNim = user.nim?.toString().trim().toLowerCase();
-        const row = data.find((r: any) => r["NIM"]?.toString().trim().toLowerCase() === userNim);
-        setCash(row?.["TOTAL"] || row?.["Total KAS"] || row?.["Total"] || "Rp0");
-        setPicket(row?.["Denda Piket"] || row?.["Denda piket"] || row?.["Denda"] || "Rp0");
-      } catch (err) {
+        const row = data.find((r: CashBillRow) => r["NIM"]?.toString().trim().toLowerCase() === userNim);
+        setCash(
+          row?.["TOTAL"]?.toString() ||
+          row?.["Total KAS"]?.toString() ||
+          row?.["Total"]?.toString() ||
+          "Rp0"
+        );
+        setPicket(
+          row?.["Denda Piket"]?.toString() ||
+          row?.["Denda piket"]?.toString() ||
+          row?.["Denda"]?.toString() ||
+          "Rp0"
+        );
+      } catch {
         setCash("-");
         setPicket("-");
       } finally {

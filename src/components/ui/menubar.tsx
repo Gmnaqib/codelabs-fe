@@ -50,13 +50,8 @@ function MenubarRadioGroup({
 
 function MenubarTrigger({
   className,
-  index,
-  totalMenus,
   ...props
-}: React.ComponentProps<typeof MenubarPrimitive.Trigger> & {
-  index?: number
-  totalMenus?: number
-}) {
+}: React.ComponentProps<typeof MenubarPrimitive.Trigger>) {
   return (
     <MenubarPrimitive.Trigger
       data-slot="menubar-trigger"

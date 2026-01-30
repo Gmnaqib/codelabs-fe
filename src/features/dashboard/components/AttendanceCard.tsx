@@ -4,6 +4,12 @@ import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
 import { getAttendance, postCheckIn } from '@/services/attendance/attendanceService';
+
+type AttendanceRecord = {
+  userId: string;
+  checkIn?: string | Date;
+  checkOut?: string | Date;
+};
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import DialogField from '@/components/custom-ui/DialogField';
@@ -29,11 +35,15 @@ const AttendanceCard = () => {
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
       try {
-        const data = await getAttendance(year, month);
-        // Cari data checkin hari ini untuk user (pakai tanggal lokal, bukan UTC)
+        type AttendanceRecord = {
+          userId: string;
+          checkIn?: string | Date;
+          checkOut?: string | Date;
+        };
+        const data: AttendanceRecord[] = await getAttendance(year, month);
         const pad = (n: number) => n.toString().padStart(2, '0');
         const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-        const found = data.find((item: any) => {
+        const found = data.find((item: AttendanceRecord) => {
           if (item.userId !== user.id || !item.checkIn) return false;
           const checkInDate = new Date(item.checkIn);
           const checkInLocal = `${checkInDate.getFullYear()}-${pad(checkInDate.getMonth() + 1)}-${pad(checkInDate.getDate())}`;
@@ -41,7 +51,7 @@ const AttendanceCard = () => {
         });
         setIsCheckedIn(!!found);
         setIsCheckedOut(found && found.checkOut ? true : false);
-      } catch (e) {
+      } catch {
         setIsCheckedIn(false);
       }
       setLoading(false);
@@ -70,8 +80,8 @@ const AttendanceCard = () => {
       const month = now.getMonth() + 1;
       const pad = (n: number) => n.toString().padStart(2, '0');
       const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-      const data = await getAttendance(year, month);
-      const found = data.find((item: any) => {
+      const data: AttendanceRecord[] = await getAttendance(year, month);
+      const found = data.find((item: AttendanceRecord) => {
         if (item.userId !== user!.id || !item.checkIn) return false;
         const checkInDate = new Date(item.checkIn);
         const checkInLocal = `${checkInDate.getFullYear()}-${pad(checkInDate.getMonth() + 1)}-${pad(checkInDate.getDate())}`;
@@ -80,7 +90,7 @@ const AttendanceCard = () => {
       setIsCheckedIn(!!found);
       setDialogOpen(false);
       setReason('');
-    } catch (e) {
+    } catch {
       // Optionally show error
     }
     setCheckinLoading(false);
@@ -95,7 +105,7 @@ const AttendanceCard = () => {
           (() => {
             const now = new Date();
             const hour = now.getHours();
-            const minute = now.getMinutes();
+            // const minute = now.getMinutes();
             if (isCheckedOut) {
               return (
                 <>
@@ -134,7 +144,7 @@ const AttendanceCard = () => {
             const now = new Date();
             const hour = now.getHours();
             if (hour >= 0 && hour < 9) {
-              const canCheckIn = hour > 6 && hour < 9;
+              // const canCheckIn = hour > 6 && hour < 9;
               return (
                 <>
                   <Button onClick={handleCheckin} disabled={checkinLoading}>

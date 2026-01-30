@@ -8,6 +8,7 @@ import {
 } from "@/services/operational/operationalService";
 import { getMeResearchRecords } from "@/services/research/researchService";
 import { getAllUsers } from "@/services/users/userService";
+import { ResearchDataItem } from "@/types/ReportTableProps";
 
 const WEEK_TO_DATE: Record<number, number> = {
   1: 1,
@@ -27,7 +28,7 @@ export const useTableLogic = (
   activePage: string,
   month: number,
   year: number,
-  data: any[],
+  data: ResearchDataItem[],
   onPageChange: (page: string) => void
 ) => {
   const [isReport, setIsReport] = useState(false);
@@ -43,7 +44,14 @@ export const useTableLogic = (
 
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
-  const [researchData, setResearchData] = useState<any[]>([]);
+ 
+  const [researchData, setResearchData] = useState<ResearchDataItem[]>([]);
+
+  type RecordItem = {
+    _id: string;
+    userId: string;
+    date: string;
+  };
 
   useEffect(() => {
     const fetchResearch = async () => {
@@ -70,7 +78,8 @@ export const useTableLogic = (
 
         const records = await getOperationalRecords(type);
 
-        const filtered = records.filter((r: any) => {
+
+        const filtered = (records as RecordItem[]).filter((r) => {
           const d = new Date(r.date);
           return d.getMonth() + 1 === month && d.getFullYear() === year;
         });
@@ -78,7 +87,7 @@ export const useTableLogic = (
         const checked: Record<string, boolean> = {};
         const ids: Record<string, string> = {};
 
-        filtered.forEach((r: any) => {
+        filtered.forEach((r) => {
           const date = new Date(r.date).getDate();
           let key = "";
 
@@ -138,11 +147,11 @@ export const useTableLogic = (
     targetDate.setHours(0, 0, 0, 0);
 
     if (!current) {
-      const res = await createOperationalRecord(
-        user._id,
+      const res = await createOperationalRecord({
+        userId: user._id ?? "",
         type,
-        targetDate.toISOString()
-      );
+        date: targetDate.toISOString(),
+      });
 
       setRecordIds(prev => ({ ...prev, [key]: res.data._id }));
     }
@@ -226,7 +235,7 @@ export const useTableLogic = (
     if (category === "attendance" && norm === "attendance") {
       onPageChange("Permissions");
     }
-  }, [activePage]);
+  }, [activePage, onPageChange]);
   
 
   return {

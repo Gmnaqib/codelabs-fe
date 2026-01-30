@@ -1,8 +1,17 @@
-export const addBranding = async (payload: any) => {
+type BrandingPayload = {
+  // Define the expected fields for branding payload
+  // Example:
+  // name: string;
+  // description?: string;
+  // Add more fields as needed
+  [key: string]: unknown;
+};
+
+export const addBranding = async (payload: BrandingPayload) => {
   const { data } = await axiosClient.post("/branding", payload);
   return data;
 };
-export const updateBranding = async (id: string, payload: any) => {
+export const updateBranding = async (id: string, payload: BrandingPayload) => {
   const res = await axiosClient.patch(`/branding/${id}`, payload);
   return res.data.data;
 };

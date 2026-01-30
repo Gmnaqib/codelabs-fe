@@ -20,7 +20,6 @@ function Input({
         className={cn(
           "bg-white text-black placeholder:text-neutral w-full min-w-0 rounded-full border border-muted-foreground outline-none transition",
 
-          // SIZE SYSTEM
           size === "sm" && "h-10 pl-5",
           size === "md" && "h-12 px-6",
 

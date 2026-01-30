@@ -1,15 +1,30 @@
 import { axiosClient } from "@/lib/axiosClient";
 
-export const createOperationalRecord = async (userId: string, type: string, date: string) => {
+export interface OperationalRecordPayload {
+  userId: string;
+  type: string;
+  date: string;
+}
+
+export const createOperationalRecord = async (payload: OperationalRecordPayload) => {
   try {
-    const res = await axiosClient.post("/operational-records", {
-      userId,
-      type,
-      date,
-    });
+    const res = await axiosClient.post("/operational-records", payload);
     return res.data;
-  } catch (error: any) {
-    console.error("❌ Gagal membuat operational record:", error.response?.data || error.message);
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { data?: unknown }; message?: unknown }).response === "object"
+    ) {
+      const errObj = error as { response?: { data?: unknown }; message?: unknown };
+      console.error(
+        "❌ Gagal membuat operational record:",
+        errObj.response?.data || errObj.message
+      );
+    } else {
+      console.error("❌ Gagal membuat operational record:", error);
+    }
     throw error;
   }
 };

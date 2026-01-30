@@ -25,13 +25,13 @@ const LoginForm = () => {
 
     setLoading(true)
     try {
-      const res = await loginUser(nim, password)
+      await loginUser(nim, password)
       toast.success("Login berhasil")
       router.push("/")
-    } catch (err: any) {
-     showErrorToast("Oops! Please check again your NIM and password", {
-      duration: 5000,
-  })
+    } catch {
+      showErrorToast("Oops! Please check again your NIM and password", {
+        duration: 5000,
+      })
     } finally {
       setLoading(false)
     }

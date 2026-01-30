@@ -19,8 +19,17 @@ export function useAuth() {
     const token = getToken();
     if (token) {
       try {
-        const decoded: any = jwtDecode(token);
-        // Try to get device_id from localStorage (from API response)
+        interface JwtPayload {
+          id: string;
+          name: string;
+          role: string;
+          nim: string;
+          major: string;
+          status: string;
+          device_id?: string;
+          [key: string]: unknown;
+        }
+        const decoded = jwtDecode<JwtPayload>(token);
         let device_id = undefined;
         if (typeof window !== 'undefined') {
           const userData = localStorage.getItem('user');
@@ -40,7 +49,7 @@ export function useAuth() {
           status: decoded.status,
           device_id: device_id || decoded.device_id,
         });
-      } catch (err) {
+      } catch {
         setUser(null);
       }
     } else {

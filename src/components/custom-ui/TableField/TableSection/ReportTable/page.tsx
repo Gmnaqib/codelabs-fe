@@ -16,18 +16,21 @@ import {
   getResearchById,
   updateResearchRecord,
 } from "@/services/research/researchService";
+
 import { DropdownField } from "../../../DropdownField";
 import InputField from "../../../InputField";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import { getStatusColor } from "@/utils/statusColor";
+import { ResearchDataItem } from "@/types/ReportTableProps";
+import { ChangeEvent } from "react";
 
 interface ReportTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
-  researchData?: Record<string, any>[];
+  researchData?: ResearchDataItem[];
 }
 
 const ReportTable = ({
@@ -41,7 +44,7 @@ const ReportTable = ({
 
   const [openEditId, setOpenEditId] = useState<string | null>(null);
   const [openDetailId, setOpenDetailId] = useState<string | null>(null);
-  const [selectedResearch, setSelectedResearch] = useState<any>(null);
+  const [selectedResearch, setSelectedResearch] = useState<ResearchDataItem | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -64,7 +67,7 @@ const ReportTable = ({
     );
     setLink(research.link || "");
     setChallenge(research.challenge || "");
-  } catch (error) {
+  } catch {
     showErrorToast("Gagal memuat data untuk edit.", { duration: 5000 });
   }
 };
@@ -99,7 +102,7 @@ const ReportTable = ({
       await updateResearchRecord(selectedResearch._id, payload);
       toast.success("Data berhasil diperbarui!");
       setOpenEditId(null);
-    } catch (error) {
+    } catch {
       showErrorToast("Gagal memperbarui data.", { duration: 5000 });
     }
   };
@@ -140,12 +143,12 @@ const ReportTable = ({
           {researchData.length > 0 ? (
             researchData.map((item, i) => (
               <TableRow key={i}>
-                <TableCell className="text-center">{item.title}</TableCell>
-                <TableCell className="text-center">{`Week ${item.week}`}</TableCell>
-                <TableCell className="text-center">{item.progress}</TableCell>
+                <TableCell className="text-center">{typeof item.title === 'string' ? item.title : '-'}</TableCell>
+                <TableCell className="text-center">{`Week ${typeof item.week === 'string' || typeof item.week === 'number' ? item.week : '-'}`}</TableCell>
+                <TableCell className="text-center">{typeof item.progress === 'string' ? item.progress : '-'}</TableCell>
                 <TableCell className="text-center">
-                  <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status)}`}>
-                    {item.status?.toUpperCase()}
+                  <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(typeof item.status === 'string' ? item.status : '')}`}>
+                    {typeof item.status === 'string' ? item.status.toUpperCase() : '-'}
                   </span>
                 </TableCell>
                 <TableCell className="text-center">
@@ -160,8 +163,8 @@ const ReportTable = ({
                           variant="outline"
                           noPadding
                           open={openEditId === item._id}
-                          onOpenChange={(isOpen) => setOpenEditId(isOpen ? item._id : null)}
-                          onTriggerClick={() => handleOpenEdit(item._id)}
+                          onOpenChange={(isOpen) => setOpenEditId(isOpen ? (item._id ?? null) : null)}
+                          onTriggerClick={() => item._id && handleOpenEdit(item._id)}
                           onSubmit={handleEditSubmit}
                           submitDisabled={isEditFormIncomplete}
                         >
@@ -171,7 +174,7 @@ const ReportTable = ({
                               placeholder="Ex: Learn how to make responsive web"
                               label="Title"
                               value={title}
-                              onChange={(e: any) => setTitle(e.target.value)}
+                              onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                             />
 
                             <div className="flex gap-5">
@@ -199,10 +202,10 @@ const ReportTable = ({
                                 placeholder="Ex: https://github.com/unikom-codelabs/"
                                 label="Link"
                                 value={link}
-                                onChange={(e: any) => setLink(e.target.value)}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
                               />
                               {link && !isEditLinkValid && (
-                                <span className="text-xs text-red-500">Link harus diawali dengan 'https://'</span>
+                                <span className="text-xs text-red-500">Link harus diawali dengan &#39;https://&#39;</span>
                               )}
                             </div>
 
@@ -210,7 +213,7 @@ const ReportTable = ({
                               label="Challenge"
                               placeholder="Ex: Ada kendala pada fitur upload gambar..."
                               value={challenge}
-                              onChange={(e: any) => setChallenge(e.target.value)}
+                              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setChallenge(e.target.value)}
                             />
                           </div>
                         </DialogField>
@@ -224,9 +227,9 @@ const ReportTable = ({
                       noPadding 
                       open={openDetailId === item._id}
                       onOpenChange={(isOpen) =>
-                        setOpenDetailId(isOpen ? item._id : null)
+                        setOpenDetailId(isOpen ? (item._id ?? null) : null)
                       }
-                      onTriggerClick={() => handleOpenDetail(item._id)}
+                      onTriggerClick={() => item._id && handleOpenDetail(item._id)}
                     >
                       {loadingDetail ? (
                         <p className="text-center text-sm text-gray-500">
@@ -236,30 +239,30 @@ const ReportTable = ({
                         <div className="flex flex-col gap-5 text-lg">
                           <div>
                             <p className="font-semibold">Title</p>
-                            <p>{selectedResearch.title}</p>
+                            <p>{typeof selectedResearch.title === 'string' ? selectedResearch.title : '-'}</p>
                           </div>
                           <div>
                             <p className="font-semibold">Week</p>
-                            <p>{selectedResearch.week}</p>
+                            <p>{typeof selectedResearch.week === 'string' || typeof selectedResearch.week === 'number' ? selectedResearch.week : '-'}</p>
                           </div>
                           <div>
                             <p className="font-semibold">Progress</p>
-                            <p>{selectedResearch.progress}</p>
+                            <p>{typeof selectedResearch.progress === 'string' ? selectedResearch.progress : '-'}</p>
                           </div>
                           <div>
                             <p className="font-semibold">Output Link</p>
                             <a
-                              href={selectedResearch.link}
+                              href={typeof selectedResearch.link === 'string' ? selectedResearch.link : undefined}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline"
                             >
-                              {selectedResearch.link}
+                              {typeof selectedResearch.link === 'string' ? selectedResearch.link : '-'}
                             </a>
                           </div>
                           <div>
                             <p className="font-semibold">Problem</p>
-                            <p>{selectedResearch.challenge}</p>
+                            <p>{typeof selectedResearch.challenge === 'string' ? selectedResearch.challenge : '-'}</p>
                           </div>
                         </div>
                       ) : (

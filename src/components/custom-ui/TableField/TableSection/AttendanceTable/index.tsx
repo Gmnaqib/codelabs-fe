@@ -33,12 +33,11 @@ import DialogField from "../../../DialogField";
 import { DropdownField } from "../../../DropdownField";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
-import { getAllUsers, updateUser } from "@/services/users/userService";
+import { getAllUsers } from "@/services/users/userService";
 import CardField from "../../../CardField";
 import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, HeartIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { AttendanceTableProps } from "@/types/AttendanceTableProps";
-import Link from "next/link";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -60,28 +59,72 @@ const AttendanceTable = ({
   activePage,
   onPageChange,
   showMenu = true,
-  month,
-  year,
   searchQuery = "",
 }: AttendanceTableProps) => {
   const attendanceHeaders = attendance[activePage] ?? [];
-  const [todayData, setTodayData] = useState<any[]>([]);
-  const [allData, setAllData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showToday, setShowToday] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLeave, setSelectedLeave] = useState<any | null>(null);
+  // --- Types ---
+  interface LeaveRequest {
+    _id: string;
+    userId: string;
+    userName: string;
+    startDate: string | Date;
+    endDate: string | Date;
+    approvalStatus: string;
+    type: string;
+    reason?: string;
+    attachment_url?: string;
+  }
+
+  interface AttendanceSummaryCounts {
+    present: number;
+    permit: number;
+    sick: number;
+    late: number;
+    absent: number;
+  }
+
+  interface AttendanceSummaryItem {
+    userId: string;
+    userName: string;
+    changeDevice: string;
+    userDetail: Record<string, unknown>;
+    counts: AttendanceSummaryCounts;
+    _summaryId?: string;
+  }
+
+  interface StatusRecord {
+    date: string;
+    reason?: string;
+    approvalStatus?: string;
+  }
+
+  interface StatusSummary {
+    status: string;
+    records: StatusRecord[];
+  }
+
+  interface AttendanceDetailData {
+    statusSummary: StatusSummary[];
+  }
+
+  // --- State ---
+  const [todayData, setTodayData] = useState<LeaveRequest[]>([]);
+  const [allData, setAllData] = useState<LeaveRequest[] | AttendanceSummaryItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showToday, setShowToday] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
   const itemsPerPage = 10;
 
-  const [summary, setSummary] = useState<any>(null);
-  const [selectedDate, setSelectedDate] = useState({
+  const [summary, setSummary] = useState<AttendanceSummaryItem[] | null>(null);
+  const [selectedDate, setSelectedDate] = useState<{ year: number; month: number }>({
     year: new Date().getFullYear(),
     month: new Date().getMonth(),
   });
 
   const [detailDialogUserId, setDetailDialogUserId] = useState<string | null>(null);
-  const [detailData, setDetailData] = useState<any>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailData, setDetailData] = useState<AttendanceDetailData | null>(null);
+  const [detailLoading, setDetailLoading] = useState<boolean>(false);
 
       useEffect(() => {
         const fetchSummary = async () => {
@@ -102,7 +145,7 @@ const AttendanceTable = ({
       }, [selectedDate]);
 
 
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       setLoading(true);
 
@@ -110,26 +153,43 @@ const AttendanceTable = ({
         const targetYear = selectedDate.year;
         const targetMonth = selectedDate.month + 1;
 
-        const [today, allRaw, users] = await Promise.all([
+        const [todayRaw, allRaw, users] = await Promise.all([
           getTodayLeaveRequests(),
           getAllLeaveRequests(targetYear, targetMonth),
           getAllUsers(),
         ]);
 
-        const userMap = Object.fromEntries(users.map((u: any) => [u._id, u.name]));
+        type User = { _id: string; name: string };
+        const userMap: Record<string, string> = Object.fromEntries((users as User[]).map((u) => [u._id, u.name]));
 
-        // Map API fields to expected frontend fields and inject userName
-        const mapLeave = (item: any) => ({
-          ...item,
-          startDate: item.start_date || item.startDate,
-          endDate: item.end_date || item.endDate,
-          approvalStatus: item.approval_status || item.approvalStatus,
-          type: item.status || item.type,
+        type RawLeaveItem = {
+          _id: string;
+          userId: string;
+          start_date?: string | Date;
+          startDate?: string | Date;
+          end_date?: string | Date;
+          endDate?: string | Date;
+          approval_status?: string;
+          approvalStatus?: string;
+          status?: string;
+          type?: string;
+          reason?: string;
+          attachment_url?: string;
+        };
+        const mapLeave = (item: RawLeaveItem): LeaveRequest => ({
+          _id: item._id,
+          userId: item.userId,
           userName: userMap[item.userId] || '-',
+          startDate: item.start_date || item.startDate || '',
+          endDate: item.end_date || item.endDate || '',
+          approvalStatus: item.approval_status || item.approvalStatus || '',
+          type: item.status || item.type || '',
+          reason: item.reason,
+          attachment_url: item.attachment_url,
         });
 
-        const all = allRaw.map(mapLeave);
-        const todayMapped = today.map(mapLeave);
+        const all = (allRaw as RawLeaveItem[]).map(mapLeave);
+        const todayMapped = (todayRaw as RawLeaveItem[]).map(mapLeave);
         setTodayData(todayMapped);
         setAllData(all);
       } else if (activePage === "TotalAttendance") {
@@ -138,12 +198,13 @@ const AttendanceTable = ({
           getAllUsers(),
         ]);
 
-        const summaryByUserId: Record<string, any> = {};
-        summary.forEach((s: any) => {
+        const summaryByUserId: Record<string, AttendanceSummaryItem> = {};
+        summary.forEach((s: AttendanceSummaryItem) => {
           summaryByUserId[s.userId] = s;
         });
 
-        const merged = users.map((u: any) => {
+        type User = { _id: string; name: string; change_device_id?: string };
+        const merged = (users as User[]).map((u) => {
           const s = summaryByUserId[u._id];
           return {
             userId: u._id,
@@ -157,35 +218,35 @@ const AttendanceTable = ({
               late: 0,
               absent: 0,
             },
-            ...(s ? { _summaryId: s._id, ...s } : {}),
+            ...(s ? s : {}),
           };
         });
 
         setAllData(merged);
         setTodayData([]);
       }
-    } catch (err) {
-      console.error("❌ Error fetching attendance data:", err);
+    } catch {
+      console.error("❌ Error fetching attendance data");
     } finally {
       setLoading(false);
     }
-  };
+  }, [activePage, selectedDate]);
 
   useEffect(() => {
     fetchData();
     setCurrentPage(1);
-  }, [selectedDate, activePage]);
+  }, [selectedDate, activePage, fetchData]);
+
 
   const filteredTodayData = todayData.filter((item) =>
     item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredData = allData.filter((item) =>
-    item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
+    (item as { userName?: string }).userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const dataToPaginate =
-    activePage === "Permissions" ? filteredData : filteredData;
+  const dataToPaginate = filteredData;
 
   const totalPages = Math.ceil(dataToPaginate.length / itemsPerPage);
 
@@ -200,18 +261,21 @@ const AttendanceTable = ({
     let userName = "-";
     try {
       const users = await getAllUsers();
-      const userMap = Object.fromEntries(users.map((u: any) => [u._id, u.name]));
+      const userMap: Record<string, string> = Object.fromEntries(users.map((u: { _id: string; name: string }) => [u._id, u.name]));
       userName = userMap[detail.userId] || "-";
     } catch {
       userName = "-";
     }
     setSelectedLeave({
-      ...detail,
+      _id: detail._id,
+      userId: detail.userId,
+      userName,
       startDate: detail.start_date || detail.startDate,
       endDate: detail.end_date || detail.endDate,
       approvalStatus: detail.approval_status || detail.approvalStatus,
       type: detail.status || detail.type,
-      userName,
+      reason: detail.reason,
+      attachment_url: detail.attachment_url,
     });
   }
 
@@ -225,17 +289,17 @@ const AttendanceTable = ({
       const payloadStatus = status.toLowerCase();
       await reviewLeaveRequest(selectedLeave._id, payloadStatus);
       toast.success("Update Data berhasis!");
-      setSelectedLeave((prev: any) =>
+      setSelectedLeave((prev) =>
         prev ? { ...prev, approvalStatus: payloadStatus } : prev
       );
 
       await fetchData();
-    } catch (err) {
+    } catch {
       showErrorToast("Gagal memperbarui data.", { duration: 5000 });
     }
   };
 
-  const renderPermissionRow = (item: any, index: number) => (
+  const renderPermissionRow = (item: LeaveRequest, index: number) => (
     <TableRow key={index}>
       <TableCell className="text-center text-base">
         {item.userName?.split(" ")[0] ?? "-"}
@@ -322,7 +386,7 @@ const AttendanceTable = ({
     </TableRow>
   );
 
-  const renderSummaryRow = (item: any, index: number) => {
+  const renderSummaryRow = (item: AttendanceSummaryItem, index: number) => {
     const handleOpenDetail = async () => {
       setDetailDialogUserId(item.userId);
       setDetailLoading(true);
@@ -333,8 +397,8 @@ const AttendanceTable = ({
           selectedDate.year,
           selectedDate.month + 1
         );
-        setDetailData(res);
-      } catch (e) {
+        setDetailData(res as AttendanceDetailData);
+      } catch {
         setDetailData(null);
       } finally {
         setDetailLoading(false);
@@ -365,14 +429,14 @@ const AttendanceTable = ({
                 <div className="w-1/2">
                   <p className="font-semibold text-white bg-primary py-1 rounded-sm text-center mb-2">Permit</p>
                   {detailData.statusSummary
-                    .filter((s: any) => s.status === "permit")
-                    .flatMap((s: any) => s.records)
-                    .map((rec: any, idx: number) => (
+                    .filter((s: StatusSummary) => s.status === "permit")
+                    .flatMap((s: StatusSummary) => s.records)
+                    .map((rec: StatusRecord, idx: number) => (
                       <React.Fragment key={idx}>
                         <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
                         <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
                         <p className="text-sm font-extralight mb-1">{rec.reason}</p>
-                        <p className={`text-sm ${getStatusColor(rec.approvalStatus)}`}>
+                        <p className={`text-sm ${getStatusColor(rec.approvalStatus ?? "")}`}>
                           {rec.approvalStatus?.toUpperCase()}
                         </p>
                         <hr className="my-2" />
@@ -385,14 +449,14 @@ const AttendanceTable = ({
                     <div className="">
                       <p className="font-semibold text-center text-white bg-warning py-1 rounded-sm mb-2">Sick</p>
                       {detailData.statusSummary
-                        .filter((s: any) => s.status === "sick")
-                        .flatMap((s: any) => s.records)
-                        .map((rec: any, idx: number) => (
+                        .filter((s: StatusSummary) => s.status === "sick")
+                        .flatMap((s: StatusSummary) => s.records)
+                        .map((rec: StatusRecord, idx: number) => (
                           <React.Fragment key={idx}>
                             <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
                             <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
                             <p className="text-sm font-extralight mb-1">{rec.reason}</p>
-                            <p className={`text-sm ${getStatusColor(rec.approvalStatus)}`}>
+                            <p className={`text-sm ${getStatusColor(rec.approvalStatus ?? "")}`}>
                               {rec.approvalStatus?.toUpperCase()}
                             </p>
                             <hr className="my-2" />
@@ -402,10 +466,10 @@ const AttendanceTable = ({
                     <div className="">
                       <p className="font-semibold bg-destructive text-center rounded-sm py-1 text-white mb-2">Absent</p>
                       {detailData.statusSummary
-                        .filter((s: any) => s.status === "absent")
-                        .flatMap((s: any) => s.records)
-                        .filter((rec: any) => rec.reason === "No data")
-                        .map((rec: any, idx: number) => (
+                        .filter((s: StatusSummary) => s.status === "absent")
+                        .flatMap((s: StatusSummary) => s.records)
+                        .filter((rec: StatusRecord) => rec.reason === "No data")
+                        .map((rec: StatusRecord, idx: number) => (
                           <React.Fragment key={idx}>
                             <p className="text-sm font-bold">
                               {new Date(rec.date).toLocaleDateString("en-US", {
@@ -435,18 +499,19 @@ const AttendanceTable = ({
     return <Card className="p-6 text-center text-gray-500">Loading data...</Card>;
   }
 
+
   const totalPresent =
-      summary?.reduce((acc: number, u: any) => acc + (u.counts?.present ?? 0), 0) ?? 0;
-    const totalPermit =
-      summary?.reduce((acc: number, u: any) => acc + (u.counts?.permit ?? 0), 0) ?? 0;
-    const totalSick =
-      summary?.reduce((acc: number, u: any) => acc + (u.counts?.sick ?? 0), 0) ?? 0;
-    const totalLate =
-      summary?.reduce((acc: number, u: any) => acc + (u.counts?.late ?? 0), 0) ?? 0;
-    const totalAbsent =
-      summary?.reduce((acc: number, u: any) => acc + (u.counts?.absent ?? 0), 0) ?? 0;
-    const totalOverall =
-      totalPresent + totalPermit + totalSick + totalLate + totalAbsent;
+    summary?.reduce((acc: number, u) => acc + (u.counts?.present ?? 0), 0) ?? 0;
+  const totalPermit =
+    summary?.reduce((acc: number, u) => acc + (u.counts?.permit ?? 0), 0) ?? 0;
+  const totalSick =
+    summary?.reduce((acc: number, u) => acc + (u.counts?.sick ?? 0), 0) ?? 0;
+  const totalLate =
+    summary?.reduce((acc: number, u) => acc + (u.counts?.late ?? 0), 0) ?? 0;
+  const totalAbsent =
+    summary?.reduce((acc: number, u) => acc + (u.counts?.absent ?? 0), 0) ?? 0;
+  const totalOverall =
+    totalPresent + totalPermit + totalSick + totalLate + totalAbsent;
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
@@ -553,11 +618,9 @@ const AttendanceTable = ({
 
             <TableBody>
               {paginatedData.length > 0 ? (
-                paginatedData.map((item, index) =>
-                  activePage === "Permissions"
-                    ? renderPermissionRow(item, index)
-                    : renderSummaryRow(item, index)
-                )
+                activePage === "Permissions"
+                  ? (paginatedData as LeaveRequest[]).map((item, index) => renderPermissionRow(item, index))
+                  : (paginatedData as AttendanceSummaryItem[]).map((item, index) => renderSummaryRow(item, index))
               ) : (
                 <TableRow>
                   <TableCell colSpan={attendanceHeaders.length} className="text-center py-5">

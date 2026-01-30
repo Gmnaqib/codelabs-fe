@@ -15,27 +15,44 @@ import { DropdownField } from "@/components/custom-ui/DropdownField";
 import { members } from "@/components/custom-ui/TableField/headerConfig";
 import { updateUser } from "@/services/users/userService";
 
+interface MembersItem {
+  _id: string;
+  nim?: string;
+  name?: string;
+  email?: string;
+  subriset?: string;
+  role?: string;
+  status?: string;
+}
+
 interface Props {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
-  data?: any[];
+  data?: MembersItem[];
 }
 
 const MembersTable = ({
   activePage,
-  onPageChange,
-  showMenu = true,
   data = [],
 }: Props) => {
   const headers = members[activePage] || [];
 
   const handleUpdate = async (id: string, key: string, value: string) => {
     try {
-      const payload: any = {};
-      payload[key] = value.toLowerCase(); 
+      // Find the member item by id to get the current values
+      const member = data.find((m) => m._id === id);
+      if (!member) throw new Error("Member not found");
 
-      await updateUser(id, payload);
+      // Build a safe payload with required fields
+      const safePayload = {
+        name: member.name ?? "",
+        email: member.email ?? "",
+        ...member,
+        [key]: value.toLowerCase(),
+      };
+
+      await updateUser(id, safePayload);
       console.log(`✔ Berhasil update ${key}:`, value);
     } catch (err) {
       console.error(`❌ Gagal update ${key}:`, err);
@@ -57,7 +74,7 @@ const MembersTable = ({
 
             <TableBody>
                 {data.length > 0 ? (
-                data.map((item: any, i) => {
+                data.map((item, i) => {
                   console.log("DEBUG USER:", item); 
                   return (
                   <TableRow key={i}>
@@ -100,8 +117,6 @@ const MembersTable = ({
                           "Minister of Competition",
                           "Minister of Branding",
                           "Minister of Operation",
-                          "Minister of Research and Operation",
-                          "Minister of Research and Competition",
                           "User",
                         ]}
                         onSelect={(val: string) =>

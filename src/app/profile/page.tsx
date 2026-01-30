@@ -1,10 +1,8 @@
 "use client";
-
 import InputField from "@/components/custom-ui/InputField";
-import { getMe } from "@/services/users/userService";
 import { updateUser } from "@/services/users/userService";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
@@ -28,6 +26,7 @@ const Profile = () => {
     try {
       await updateUser(user!.id, {
         name: user!.name,
+        email: user!.email ?? "",
         password: newPassword,
       });
 

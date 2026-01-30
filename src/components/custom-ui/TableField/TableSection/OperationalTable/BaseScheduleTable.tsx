@@ -10,27 +10,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type BaseScheduleTableProps = {
+type BaseScheduleTableProps<T = Record<string, unknown>> = {
   leftHeaders: string[];
   headerKeyMap?: Record<string, string>;
   daysArray: Array<number | string>;
-  data: any[];
+  data: T[];
   isPiket?: boolean;
-  renderLeftCell?: (row: any, header: string, rowIndex: number) => React.ReactNode;
-  renderCell: (day: number | string, rowIndex: number, data: any[], context?: any) => React.ReactNode;
-  renderTotal?: (row: any, rowIndex: number) => React.ReactNode;
+  renderLeftCell?: (row: T, header: string, rowIndex: number) => React.ReactNode;
+  renderCell: (day: number | string, rowIndex: number, data: T[], context?: Record<string, unknown>) => React.ReactNode;
+  renderTotal?: (row: T, rowIndex: number) => React.ReactNode;
 };
 
-const BaseScheduleTable = ({
+type RecordItem = {
+  start_date?: string | Date;
+  checkIn?: string | Date;
+  createdAt?: string | Date;
+};
+
+function BaseScheduleTable<T = Record<string, unknown>>({
   leftHeaders,
   headerKeyMap = {},
   daysArray,
   data,
-  isPiket = false,
   renderLeftCell,
   renderCell,
   renderTotal,
-}: BaseScheduleTableProps) => {
+}: BaseScheduleTableProps<T>) {
   return (
     <div className="relative max-h-[600px] overflow-y-auto">
       <div className="flex">
@@ -51,11 +56,21 @@ const BaseScheduleTable = ({
                       <TableCell key={j}>{renderLeftCell(row, h, i)}</TableCell>
                     );
                     const key = headerKeyMap[h] || h.toLowerCase();
-                    let value = row[key] ?? "-";
+                    let value = (row as Record<string, unknown>)[key] ?? "-";
                     if (h === "Nama" && typeof value === "string") {
                       value = value.split(" ")[0];
                     }
-                    return <TableCell key={j}>{value}</TableCell>;
+                    let cellContent: React.ReactNode;
+                    if (typeof value === 'object' && value !== null) {
+                      if (Array.isArray(value)) {
+                        cellContent = JSON.stringify(value);
+                      } else {
+                        cellContent = '[Object]';
+                      }
+                    } else {
+                      cellContent = value as React.ReactNode;
+                    }
+                    return <TableCell key={j}>{cellContent}</TableCell>;
                   })}
                 </TableRow>
               ))}
@@ -70,8 +85,26 @@ const BaseScheduleTable = ({
                 {daysArray.map((day) => {
                   let month = undefined;
                   let year = undefined;
-                  if (data && data.length > 0 && data[0].records && data[0].records.length > 0) {
-                    const d = data[0].records[0].start_date ? new Date(data[0].records[0].start_date) : (data[0].records[0].checkIn ? new Date(data[0].records[0].checkIn) : (data[0].records[0].createdAt ? new Date(data[0].records[0].createdAt) : new Date()));
+                  if (
+                    data &&
+                    data.length > 0 &&
+                    (data[0] as Record<string, unknown>).records &&
+                    Array.isArray((data[0] as Record<string, unknown>).records) &&
+                    ((data[0] as Record<string, unknown>).records as RecordItem[]).length > 0
+                  ) {
+                    type RecordItem = {
+                      start_date?: string | Date;
+                      checkIn?: string | Date;
+                      createdAt?: string | Date;
+                    };
+                    const records = (data[0] as Record<string, unknown>).records as RecordItem[];
+                    const d = records[0].start_date
+                      ? new Date(records[0].start_date)
+                      : records[0].checkIn
+                      ? new Date(records[0].checkIn)
+                      : records[0].createdAt
+                      ? new Date(records[0].createdAt)
+                      : new Date();
                     month = d.getMonth();
                     year = d.getFullYear();
                   } else {
@@ -101,8 +134,21 @@ const BaseScheduleTable = ({
                   {daysArray.map((day) => {
                     let month = undefined;
                     let year = undefined;
-                    if (data && data.length > 0 && data[0].records && data[0].records.length > 0) {
-                      const d = data[0].records[0].start_date ? new Date(data[0].records[0].start_date) : (data[0].records[0].checkIn ? new Date(data[0].records[0].checkIn) : (data[0].records[0].createdAt ? new Date(data[0].records[0].createdAt) : new Date()));
+                    if (
+                      data &&
+                      data.length > 0 &&
+                      (data[0] as Record<string, unknown>).records &&
+                      Array.isArray((data[0] as Record<string, unknown>).records) &&
+                      ((data[0] as Record<string, unknown>).records as RecordItem[]).length > 0
+                    ) {
+                      const records = (data[0] as Record<string, unknown>).records as RecordItem[];
+                      const d = records[0].start_date
+                        ? new Date(records[0].start_date)
+                        : records[0].checkIn
+                        ? new Date(records[0].checkIn)
+                        : records[0].createdAt
+                        ? new Date(records[0].createdAt)
+                        : new Date();
                       month = d.getMonth();
                       year = d.getFullYear();
                     } else {

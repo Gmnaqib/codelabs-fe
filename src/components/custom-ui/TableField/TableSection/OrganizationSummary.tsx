@@ -6,11 +6,16 @@ import { Menubar } from "../../MenuBar";
 import { organization } from "../headerConfig";
 import { getAllUsers } from "@/services/users/userService";
 
+interface OrganizationUser {
+  _id: string;
+  name?: string;
+}
+
 interface OrganizationTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
-  data?: any[];
+  data?: OrganizationUser[];
 }
 
 const OrganizationSummaryTable = ({
@@ -19,7 +24,11 @@ const OrganizationSummaryTable = ({
   showMenu = true,
 }: OrganizationTableProps) => {
   const organizationHeaders = organization[activePage] ?? [];
-  const [users, setUsers] = useState<any[]>([]);
+  type OrganizationUser = {
+    _id: string;
+    name?: string;
+  };
+  const [users, setUsers] = useState<OrganizationUser[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {

@@ -1,15 +1,23 @@
 import React from "react";
 
+type ThematicRecord = {
+  date: string | Date;
+};
+
+type ThematicUser = {
+  operationalRecords?: ThematicRecord[];
+};
+
 const renderThematicCell = (
   day: string | number,
   rowIndex: number,
-  data: any[],
+  data: ThematicUser[],
 ) => {
   const user = data[rowIndex];
-  const ops = user?.operationalRecords || [];
+  const ops: ThematicRecord[] = user?.operationalRecords || [];
 
   const record = ops.find(
-    (r: any) => new Date(r.date).getDate() === Number(day)
+    (r) => new Date(r.date).getDate() === Number(day)
   );
 
   const now = new Date();

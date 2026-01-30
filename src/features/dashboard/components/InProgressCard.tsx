@@ -13,9 +13,10 @@ const InProgressCard = () => {
       try {
         const records = await getMeResearchRecords();
 
+        type ResearchRecord = { progress: string };
         setTotal(records.length);
-        setActive(records.filter((item: any) => item.progress === "unfinished").length);
-        setCompleted(records.filter((item: any) => item.progress === "finished").length);
+        setActive(records.filter((item: ResearchRecord) => item.progress === "unfinished").length);
+        setCompleted(records.filter((item: ResearchRecord) => item.progress === "finished").length);
       } catch (error) {
         console.error("Error fetching research data:", error);
       }

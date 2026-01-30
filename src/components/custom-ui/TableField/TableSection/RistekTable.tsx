@@ -53,7 +53,17 @@ const RistekTable = ({
   onPageChange,
   showMenu = true,
 }: RistekTableProps) => {
-  const [researchData, setResearchData] = useState<any[]>([]);
+  type RistekResearchItem = {
+    _id: string;
+    userId?: { name?: string };
+    status?: string;
+    title?: string;
+    week?: string | number;
+    progress?: string;
+    challenge?: string;
+    link?: string;
+  };
+  const [researchData, setResearchData] = useState<RistekResearchItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,7 +72,6 @@ const RistekTable = ({
   const ristekKey = Object.keys(ristek)[0];
   const ristekHeaders = ristek[ristekKey] ?? [];
 
-  // ----- FETCH DATA -----
   const fetchResearchData = async () => {
     try {
       const data = await getAllResearchRecords();
@@ -135,7 +144,7 @@ const RistekTable = ({
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(
-                        item.status
+                        item.status ?? ""
                       )}`}
                     >
                       {item.status}

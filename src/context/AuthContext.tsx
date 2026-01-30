@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode"
 interface User {
   id: string
   name: string
+  email?: string
   role: string
   nim: string
   major: string
@@ -28,11 +29,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  interface JwtPayload {
+    id: string;
+    name: string;
+    email?: string;
+    role: string;
+    nim: string;
+    major: string;
+    status: string;
+    [key: string]: unknown;
+  }
+
   useEffect(() => {
     const token = getToken()
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
+        const decoded = jwtDecode<JwtPayload>(token)
         setUser({
           id: decoded.id,
           name: decoded.name,
@@ -56,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const token = data?.data?.token
       if (token) {
         saveToken(token)
-        const decoded: any = jwtDecode(token)
+        const decoded = jwtDecode<JwtPayload>(token)
         setUser({
           id: decoded.id,
           name: decoded.name,

@@ -10,7 +10,7 @@ import { getMyBranding, getBrandingById, updateBranding, addBranding } from "@/s
 import DialogField from "../../DialogField";
 import InputField from "../../InputField";
 import { DropdownField } from "../../DropdownField";
-import { Textarea } from "@/components/ui/textarea";
+
 import { getStatusColor } from "@/utils/statusColor";
 
 
@@ -62,7 +62,6 @@ const ScoringTable = ({
       setOpenAddDialog(false);
       resetAddCompetition();
       getMeCompetition().then((res) => setCompetitionData(res || []));
-    } catch (e) {
     } finally {
       setLoadingAdd(false);
     }
@@ -81,21 +80,38 @@ const ScoringTable = ({
       setOpenAddDialog(false);
       resetAddBranding();
       getMyBranding().then((res) => setBrandingData(res || []));
-    } catch (e) {
-      // handle error
     } finally {
       setLoadingAdd(false);
     }
   };
   const scoringHeaders = scoring[activePage] ?? [];
 
-  const [competitionData, setCompetitionData] = useState<any[]>([]);
+  type CompetitionItem = {
+    _id: string;
+    name?: string;
+    description?: string;
+    deadline?: string;
+    link?: string;
+    type?: string;
+    status?: string;
+  };
+  type BrandingItem = {
+    _id: string;
+    name?: string;
+    description?: string;
+    link?: string;
+    research?: string;
+    level?: string;
+    status?: string;
+  };
+
+  const [competitionData, setCompetitionData] = useState<CompetitionItem[]>([]);
   const [loadingCompetition, setLoadingCompetition] = useState(false);
-  const [brandingData, setBrandingData] = useState<any[]>([]);
+  const [brandingData, setBrandingData] = useState<BrandingItem[]>([]);
   const [loadingBranding, setLoadingBranding] = useState(false);
   const [openBrandingDetailId, setOpenBrandingDetailId] = useState<string | null>(null);
   const [loadingBrandingDetail, setLoadingBrandingDetail] = useState(false);
-  const [selectedBranding, setSelectedBranding] = useState<any>(null);
+  const [selectedBranding, setSelectedBranding] = useState<BrandingItem | null>(null);
   const [openBrandingEditId, setOpenBrandingEditId] = useState<string | null>(null);
   const [loadingBrandingEdit, setLoadingBrandingEdit] = useState(false);
   const [editBrandingName, setEditBrandingName] = useState("");
@@ -117,7 +133,7 @@ const ScoringTable = ({
         setEditBrandingStatus(detail.status || "");
         setEditBrandingLevel(detail.level || "");
         setEditBrandingResearch(detail.research || "");
-      } catch (error) {
+      } catch {
         setSelectedBranding(null);
       } finally {
         setLoadingBrandingEdit(false);
@@ -139,7 +155,7 @@ const ScoringTable = ({
         await updateBranding(selectedBranding._id, payload);
         setOpenBrandingEditId(null);
         getMyBranding().then((res) => setBrandingData(res || []));
-      } catch (error) {
+      } catch {
         // handle error
       } finally {
         setLoadingBrandingEdit(false);
@@ -152,7 +168,7 @@ const ScoringTable = ({
       try {
         const detail = await getBrandingById(id);
         setSelectedBranding(detail);
-      } catch (error) {
+      } catch {
         setSelectedBranding(null);
       } finally {
         setLoadingBrandingDetail(false);
@@ -160,7 +176,7 @@ const ScoringTable = ({
     };
   const [openDetailId, setOpenDetailId] = useState<string | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const [selectedCompetition, setSelectedCompetition] = useState<any>(null);
+  const [selectedCompetition, setSelectedCompetition] = useState<CompetitionItem | null>(null);
   const [openEditId, setOpenEditId] = useState<string | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [editName, setEditName] = useState("");
@@ -181,7 +197,7 @@ const ScoringTable = ({
         setEditLink(detail.link || "");
         setEditType(detail.type || "");
         setEditStatus(detail.status || "");
-      } catch (error) {
+      } catch {
         setSelectedCompetition(null);
       } finally {
         setLoadingEdit(false);
@@ -203,7 +219,7 @@ const ScoringTable = ({
         await updateCompetition(selectedCompetition._id, payload);
         setOpenEditId(null);
         getMeCompetition().then((res) => setCompetitionData(res || []));
-      } catch (error) {
+      } catch {
 
       } finally {
         setLoadingEdit(false);
@@ -215,7 +231,7 @@ const ScoringTable = ({
     try {
       const detail = await getCompetitionById(id);
       setSelectedCompetition(detail);
-    } catch (error) {
+    } catch {
       setSelectedCompetition(null);
     } finally {
       setLoadingDetail(false);
@@ -265,28 +281,28 @@ const ScoringTable = ({
                     placeholder="Ex: Competition Name"
                     label="Title"
                     value={addCompetitionName}
-                    onChange={(e: any) => setAddCompetitionName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddCompetitionName(e.target.value)}
                   />
                   <InputField
                     type="string"
                     placeholder="Ex: Competition Description"
                     label="Description"
                     value={addCompetitionDescription}
-                    onChange={(e: any) => setAddCompetitionDescription(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddCompetitionDescription(e.target.value)}
                   />
                   <InputField
                     placeholder="Ex: Competition Deadline"
                     type="datetime-local"
                     label="Deadline"
                     value={addCompetitionDeadline}
-                    onChange={(e: any) => setAddCompetitionDeadline(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddCompetitionDeadline(e.target.value)}
                   />
                   <InputField
                     type="string"
                     placeholder="Ex: https://competition.com"
                     label="Link"
                     value={addCompetitionLink}
-                    onChange={(e: any) => setAddCompetitionLink(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddCompetitionLink(e.target.value)}
                   />
                   <DropdownField
                     key="type-input"
@@ -304,21 +320,21 @@ const ScoringTable = ({
                     placeholder="Ex: Branding Name"
                     label="Title"
                     value={addBrandingName}
-                    onChange={(e: any) => setAddBrandingName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddBrandingName(e.target.value)}
                   />
                   <InputField
                     type="string"
                     placeholder="Ex: Branding Description"
                     label="Description"
                     value={addBrandingDescription}
-                    onChange={(e: any) => setAddBrandingDescription(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddBrandingDescription(e.target.value)}
                   />
                   <InputField
                     type="string"
                     placeholder="Ex: https://branding.com"
                     label="Link"
                     value={addBrandingLink}
-                    onChange={(e: any) => setAddBrandingLink(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddBrandingLink(e.target.value)}
                   />
                   <DropdownField
                     key="research-branding-input"
@@ -390,12 +406,12 @@ const ScoringTable = ({
                 <TableCell colSpan={4} className="text-center py-8 text-gray-400">Loading...</TableCell>
               </TableRow>
             ) : Array.isArray(competitionData) && competitionData.length > 0 ? (
-              competitionData.map((item: any, idx: number) => (
+              competitionData.map((item, idx: number) => (
                 <TableRow key={item._id || idx}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell className="text-center">
-                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status)}`}>
-                      {item.status?.toUpperCase()}
+                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
+                      {(item.status ?? "").toUpperCase()}
                     </span>
                   </TableCell>
                   <TableCell className="text-center">0</TableCell>
@@ -420,28 +436,28 @@ const ScoringTable = ({
                             placeholder="Ex: Competition Name"
                             label="Title"
                             value={editName}
-                            onChange={(e: any) => setEditName(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
                           />
                           <InputField
                             type="string"
                             placeholder="Ex: Competition Description"
                             label="Description"
                             value={editDescription}
-                            onChange={(e: any) => setEditDescription(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
                           />
                           <InputField
                             placeholder="Ex: Competition Description"
                             type="datetime-local"
                             label="Deadline"
                             value={editDeadline}
-                            onChange={(e: any) => setEditDeadline(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
                           />
                           <InputField
                             type="string"
                             placeholder="Ex: https://competition.com"
                             label="Link"
                             value={editLink}
-                            onChange={(e: any) => setEditLink(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
                           />
                           <DropdownField
                             key="type-input"
@@ -520,13 +536,13 @@ const ScoringTable = ({
                 <TableCell colSpan={5} className="text-center py-8 text-gray-400">Loading...</TableCell>
               </TableRow>
             ) : Array.isArray(brandingData) && brandingData.length > 0 ? (
-              brandingData.map((item: any, idx: number) => (
+              brandingData.map((item, idx: number) => (
                 <TableRow key={item._id || idx}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell className="text-center">{item.research}</TableCell>
                   <TableCell className="text-center">
-                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status)}`}>
-                      {item.status?.toUpperCase()}
+                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
+                      {(item.status ?? "").toUpperCase()}
                     </span>
                   </TableCell>
                   <TableCell className="text-center">0</TableCell>
@@ -551,21 +567,21 @@ const ScoringTable = ({
                             placeholder="Ex: Branding Name"
                             label="Title"
                             value={editBrandingName}
-                            onChange={(e: any) => setEditBrandingName(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingName(e.target.value)}
                           />
                           <InputField
                             type="string"
                             placeholder="Ex: Branding Description"
                             label="Description"
                             value={editBrandingDescription}
-                            onChange={(e: any) => setEditBrandingDescription(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingDescription(e.target.value)}
                           />
                           <InputField
                             type="string"
                             placeholder="Ex: https://branding.com"
                             label="Link"
                             value={editBrandingLink}
-                            onChange={(e: any) => setEditBrandingLink(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingLink(e.target.value)}
                           />
                           <DropdownField
                             key="research-branding-input"
@@ -648,9 +664,18 @@ const ScoringTable = ({
           ) : data && data.length > 0 ? (
             data.map((row, i) => (
               <TableRow key={i}>
-                {scoringHeaders.map((header, j) => (
-                  <TableCell key={j}>{(row as any)[header] ?? "-"}</TableCell>
-                ))}
+                {scoringHeaders.map((header, j) => {
+                  const value = (row as Record<string, unknown>)[header];
+                  return (
+                    <TableCell key={j}>{
+                      typeof value === "string" || typeof value === "number"
+                        ? value
+                        : value !== undefined && value !== null
+                        ? String(value)
+                        : "-"
+                    }</TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (

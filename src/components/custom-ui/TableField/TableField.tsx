@@ -9,7 +9,6 @@ import {
   organization,
   members,
   ristek,
-  picketschedule,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -20,13 +19,37 @@ import MembersTable from "./TableSection/MembersTable";
 import RistekTable from "./TableSection/RistekTable";
 import CompetitionTable from "./TableSection/CompetitionTable";
 import BrandingTable from "./TableSection/BrandingTable";
-import { TabelFieldProps } from "@/types/TableFieldProps";
+import { TabelFieldProps, TableFieldDataItem } from "@/types/TableFieldProps";
+
+// Inline AssessmentItem type (from AssessmentsTable)
+type AssessmentItem = {
+  rank?: number | string;
+  name?: string;
+  monthly?: number | string;
+  status?: string;
+  detail?: string;
+};
+type MembersItem = {
+  _id: string;
+  nim?: string;
+  name?: string;
+  email?: string;
+  subriset?: string;
+  role?: string;
+  status?: string;
+};
+type OrganizationUser = {
+  _id: string;
+  [key: string]: unknown;
+};
 import OperationalTable from "./TableSection/OperationalTable";
 import AttendanceTable from "./TableSection/AttendanceTable";
 import PicketScheduleTable from "./TableSection/PicketScheduleTable/page";
 import ReportTable from "./TableSection/ReportTable/page";
+import { ResearchItem } from "@/types/ReportTableProps";
 
-const TableField = ({
+type KnownTableTypes = ResearchItem | MembersItem | OrganizationUser | AssessmentItem | TableFieldDataItem;
+const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   activePage,
   onPageChange,
   customHeaderConfig,
@@ -37,7 +60,7 @@ const TableField = ({
   filterWeek = "All",
   filterProgress = "All",
   searchQuery = "",
-}: TabelFieldProps) => {
+}: TabelFieldProps<T>) => {
   const {
     isReport,
     isAttendance,
@@ -54,7 +77,7 @@ const TableField = ({
     handleToggleCheckbox,
   } = useTableLogic(activePage, month, year, data, onPageChange);
 
-  let headersConfig: Record<string, string[]> =
+  const headersConfig: Record<string, string[]> =
       isReport
       ? report
       : isAttendance
@@ -69,7 +92,8 @@ const TableField = ({
       ? members
       : customHeaderConfig ?? operasional;
 
-  const filteredData = researchData.filter((item: any) => {
+  
+  const filteredData = (researchData as ResearchItem[]).filter((item) => {
     const date = new Date(item.createdAt);
     const matchMonth = date.getMonth() + 1 === month;
     const matchYear = date.getFullYear() === year;
@@ -117,7 +141,7 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        data={data}
+        data={data as OrganizationUser[]}
       />
     );
 
@@ -127,7 +151,7 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        data={data}
+        data={data as AssessmentItem[]}
       />
     );
 
@@ -137,7 +161,7 @@ const TableField = ({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        data={data}
+        data={data as MembersItem[]}
       />
     );
 

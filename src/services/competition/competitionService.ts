@@ -1,8 +1,17 @@
-export const addCompetition = async (payload: any) => {
+export interface CompetitionPayload {
+  name: string;
+  description?: string;
+  date?: string | Date;
+  location?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export const addCompetition = async (payload: CompetitionPayload) => {
   const { data } = await axiosClient.post("/competition", payload);
   return data;
 };
-export const updateCompetition = async (id: string, payload: any) => {
+export const updateCompetition = async (id: string, payload: CompetitionPayload) => {
   const res = await axiosClient.patch(`/competition/${id}`, payload);
   return res.data.data;
 };

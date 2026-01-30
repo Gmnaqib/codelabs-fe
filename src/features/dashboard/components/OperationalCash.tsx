@@ -14,7 +14,7 @@ const OperationalCash = () => {
         const data = await fetchCashBillsData();
         const summaryRow = data[data.length - 1];
         setTotalKas(summaryRow?.["Total KAS"] || summaryRow?.["TOTAL"] || summaryRow?.["Total"] || '-');
-      } catch (err) {
+      } catch {
         setTotalKas('-');
       } finally {
         setLoading(false);

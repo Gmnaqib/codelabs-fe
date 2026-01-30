@@ -12,8 +12,8 @@ import {
 Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
 type Props = {
-  filled: number; // uniqueResearchUsers
-  total: number;  // totalUsers
+  filled: number; 
+  total: number; 
 };
 
 const DoughnutChart = ({ filled, total }: Props) => {
@@ -78,7 +78,7 @@ const DoughnutChart = ({ filled, total }: Props) => {
         },
       ],
     });
-  }, [filled, total]);
+  }, [filled, total, notFilled, percentage]);
 
   return (
     <div className="h-56 flex">

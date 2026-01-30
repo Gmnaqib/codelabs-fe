@@ -15,12 +15,20 @@ export const getMeResearchRecords = async () => {
   return res.data.data;
 };
 
-export const createResearchRecord = async (payload: any) => {
+export interface ResearchRecordPayload {
+  title: string;
+  description?: string;
+  date?: string | Date;
+  status?: string;
+  [key: string]: unknown;
+}
+
+export const createResearchRecord = async (payload: ResearchRecordPayload) => {
   const res = await axiosClient.post("/research", payload);
   return res.data;
 };
 
-export async function updateResearchRecord(id: string, payload: any) {
+export async function updateResearchRecord(id: string, payload: ResearchRecordPayload) {
   const { data } = await axiosClient.patch(`/research/me/${id}`, payload)
   return data
 }

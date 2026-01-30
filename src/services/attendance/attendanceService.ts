@@ -28,11 +28,12 @@ export const getAttendance = async (year: number, month: number) => {
 };
 
 export async function getAllLeaveRequests(year: number, month: number) {
+  type LeaveRequest = { start_date?: string; startDate?: string };
   const { data } = await axiosClient.get(`/attendance/leave-requests`);
-  const list = data.data;
+  const list: LeaveRequest[] = data.data;
 
-  const filtered = list.filter((item: any) => {
-    const d = new Date(item.start_date || item.startDate);
+  const filtered = list.filter((item: LeaveRequest) => {
+    const d = new Date(item.start_date || item.startDate || "");
     return d.getFullYear() === year && d.getMonth() + 1 === month;
   });
 
@@ -44,9 +45,9 @@ export async function getTodayLeaveRequests() {
     const { data } = await axiosClient.get("/attendance/leave-requests");
     const list = data.data;
     const today = new Date();
-    // Only match year, month, date
-    const filtered = list.filter((item: any) => {
-      const d = new Date(item.start_date || item.startDate);
+    type LeaveRequest = { start_date?: string; startDate?: string };
+    const filtered = (list as LeaveRequest[]).filter((item) => {
+      const d = new Date(item.start_date || item.startDate || "");
       return (
         d.getFullYear() === today.getFullYear() &&
         d.getMonth() === today.getMonth() &&
@@ -78,12 +79,11 @@ export async function getLeaveRequestById(id: string) {
 
 export async function reviewLeaveRequest(id: string, status: string) {
   try {
-    const res = await axiosClient.patch(`/attendance/leave-requests/review/${id}`, {
+    await axiosClient.patch(`/attendance/leave-requests/review/${id}`, {
       approvalStatus: status,
     });
-  }catch (error) {
+  } catch (error) {
     console.error("Error fetching leave request by id:", error);
     throw error;
   }
-    
 }

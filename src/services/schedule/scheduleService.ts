@@ -1,4 +1,5 @@
 import { axiosClient } from "@/lib/axiosClient";
+import type { OperationalRecordPayload } from "@/services/operational/operationalService";
 
 export const getPicketSchedules = async () => {
   const response = await axiosClient.get("/schedules?type=picket");
@@ -10,7 +11,7 @@ export const getPicketRecords = async () => {
   return response.data.data;
 };
 
-export const postPicketRecord = async (payload: any) => {
+export const postPicketRecord = async (payload: OperationalRecordPayload) => {
   const response = await axiosClient.post("/operational-records", payload);
   return response.data;
 };

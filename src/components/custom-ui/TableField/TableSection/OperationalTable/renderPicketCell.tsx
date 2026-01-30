@@ -1,17 +1,25 @@
 import React from "react";
 
+type OperationalRecord = {
+  date: string | Date;
+};
+
+type PicketUser = {
+  operationalRecords?: OperationalRecord[];
+};
+
 const renderPicketCell = (
   day: string | number,
   rowIndex: number,
-  data: any[]
+  data: PicketUser[]
 ) => {
   const user = data[rowIndex];
-  const ops = user?.operationalRecords || [];
+  const ops: OperationalRecord[] = user?.operationalRecords || [];
 
   const now = new Date();
   const cellDate = new Date(now.getFullYear(), now.getMonth(), Number(day));
 
-  const record = ops.find((r: any) => {
+  const record = ops.find((r) => {
     const d = new Date(r.date);
     return (
       d.getFullYear() === cellDate.getFullYear() &&

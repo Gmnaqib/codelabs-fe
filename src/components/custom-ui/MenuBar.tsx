@@ -11,19 +11,17 @@ import InputField from "./InputField"
 import { CalendarMonthYearPicker } from "./CalendarMonthYearPicker"
 import { useState } from "react"
 
-export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: any, searchQuery?: string, onSearch?: (query: string) => void }) {
+export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
     <div className="flex justify-between mt-1 w-full">
       <MenubarRoot className="gap-0">
-        {menus.map((menu, index, arr) => {
+        {menus.map((menu) => {
           const isActive = activeMenu === menu;
           return (
             <MenubarMenu key={menu}>
               <MenubarTrigger
                 onClick={() => onChange?.(menu)}
-                index={index}
-                totalMenus={arr.length}
                 className={cn(
                   "py-2 px-5 font-medium text-sm mb-5",
                   isActive ? "text-primary border-b-2 border-primary" : "text-neutral hover:bg-secondary hover:text-black"
