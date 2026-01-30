@@ -7,7 +7,7 @@ const OrganizationStatistics = ({ className }: { className?: string }) => {
   return (
     <div className={`${className}`}>
         <CardField title='Organization Statistic' icon={<ChartPieIcon />} filterYear>
-          <LineChart />
+          {(year: string) => <LineChart year={year} />}
         </CardField>
     </div>
   )

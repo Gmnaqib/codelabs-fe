@@ -1,21 +1,25 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { CardFieldProps } from '@/types/CardFieldProps'
-import { DropdownField } from './DropdownField'
-import Image from 'next/image'
+
+import { useState } from 'react';
+import { DropdownField } from './DropdownField';
+import { CardFieldProps } from '@/types/CardFieldProps';
+import Image from 'next/image';
 
 const CardField = (props: CardFieldProps) => {
   const { title, children, icon, noGap = false, filterYear = false, bg = false  } = props
 
+  const currentYear = new Date().getFullYear();
   const years = Array.from(
-    { length: new Date().getFullYear() - 2022 + 1 },
-    (_, i) => String(new Date().getFullYear() - i)
-  )
+    { length: currentYear - 2022 + 1 },
+    (_, i) => String(currentYear - i)
+  );
+  const [selectedYear, setSelectedYear] = useState(String(currentYear));
 
   const sizedIcon = icon
     ? React.cloneElement(icon, {
@@ -48,9 +52,10 @@ const CardField = (props: CardFieldProps) => {
 
               {filterYear && (
                 <DropdownField
-                  title="2025"
+                  title={selectedYear}
                   menu={years}
                   white={true}
+                  onChange={setSelectedYear}
                 />
               )}
 
@@ -58,7 +63,9 @@ const CardField = (props: CardFieldProps) => {
           </CardHeader>
 
           <CardContent className='z-10'>
-            {children}
+            {typeof children === 'function'
+              ? (children as (year: string) => ReactNode)(selectedYear)
+              : children}
           </CardContent>
       </Card>
     </div>
