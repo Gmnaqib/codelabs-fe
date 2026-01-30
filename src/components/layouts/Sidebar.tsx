@@ -5,6 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { menuItems } from "@/config/menu";
+import { useEffect, useState } from "react";
+import { getMe } from "@/services/users/userService";
+import type { UserType } from "@/types/user";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 
 interface SidebarProps {
@@ -14,6 +17,23 @@ interface SidebarProps {
 
 const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
   const pathname = usePathname();
+  const [user, setUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getMe().then((res) => {
+      setUser(res);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  // While loading user, show nothing or a loader
+  if (loading) return null;
+
+  // If user not found, show nothing
+  if (!user) return null;
+
+  const filteredMenu = menuItems.filter(item => !item.roles || item.roles.includes(user.role));
 
   return (
     <div
@@ -33,7 +53,7 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
         </div>
 
         <div className="flex flex-col gap-2 items-center h-full overflow-y-auto scrollbar-none">
-          {menuItems.map(({ title,  iconSolid: IconSolid, iconOutline: IconOutline, route }, index) => {
+          {filteredMenu.map(({ title,  iconSolid: IconSolid, iconOutline: IconOutline, route }, index) => {
             const isMenuActive = pathname === route;
             const Icon = isMenuActive ? IconSolid : IconOutline;
 
@@ -58,17 +78,17 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
             <p>CodeLabs @ 2025</p>
           </div>
         )}
-      </div>
 
-      <Button
-        variant="default"
-        className="absolute bottom-5 -right-5"
-        onClick={() => setIsActive(!isActive)}
-      >
-        <ChevronRightIcon
-          className={`transition-transform duration-300 size-5 ${isActive ? "" : "rotate-180"}`}
-        />
-      </Button>
+        <Button
+          variant="default"
+          className="absolute bottom-5 -right-5"
+          onClick={() => setIsActive(!isActive)}
+        >
+          <ChevronRightIcon
+            className={`transition-transform duration-300 size-5 ${isActive ? "" : "rotate-180"}`}
+          />
+        </Button>
+      </div>
     </div>
   );
 };

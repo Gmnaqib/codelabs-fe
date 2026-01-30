@@ -34,72 +34,92 @@ export const menuItems = [
     iconSolid: SquaresSolid,
     iconOutline: SquaresOutline,
     route: "/",
+    roles: [
+      "admin", "lecturer", "minister of research", "minister of competition", "minister of branding", "minister of operation", "president", "vice president", "user"
+    ],
   },
   {
     title: "Weekly Report",
     iconSolid: ClipboardListSolid,
     iconOutline: ClipboardListOutline,
     route: "/report",
+    roles: [
+      "admin", "minister of research", "minister of competition", "minister of branding", "minister of operation", "president", "vice president", "user"
+    ], 
   },
   {
     title: "KPI Scoring",
     iconSolid: ChartSolid,
     iconOutline: ChartOutline,
     route: "/scoring",
+    roles: [
+      "admin", "minister of research", "minister of competition", "minister of branding", "minister of operation", "president", "vice president", "user"
+    ],
   },
   {
     title: "Operasional",
     iconSolid: BuildingSolid,
     iconOutline: BuildingOutline,
     route: "/operasional",
+    roles: ["admin", "minister of operation"],
   },
   {
     title: "Attendance",
     iconSolid: ClipboardCheckSolid,
     iconOutline: ClipboardCheckOutline,
     route: "/attendance",
+    roles: ["admin", "minister of operation"],
   },
   {
     title: "Picket Schedule",
     iconSolid: UserGroupSolid,
     iconOutline: UserGroupOutline,
     route: "/picket-schedule",
+    roles: ["admin", "minister of operation"],
   },
   {
     title: "Assessments",
     iconSolid: CheckSolid,
     iconOutline: CheckOutline,
     route: "/assessments",
+    roles: ["admin", "lecturer"],
   },
   {
     title: "Members",
     iconSolid: IdentificationSolid,
     iconOutline: IdentificationOutline,
     route: "/members",
+    roles: ["admin", "president", "vice president", "minister of research"],
   },
   {
     title: "Resarch & Tech",
     iconSolid: ComputerSolid,
     iconOutline: ComputerOutline,
     route: "/ristek",
+    roles: ["admin", "minister of research"],
   },
   {
     title: "Competition",
     iconSolid: TrophySolid,
     iconOutline: TrophyOutline,
     route: "/competition",
+    roles: ["admin", "minister of competition"],
   },
   {
     title: "Branding",
     iconSolid: PaintSolid,
     iconOutline: PaintOutline,
     route: "/branding",
+    roles: ["admin", "minister of branding"],
   },
   {
     title: "Log Out",
     iconSolid: ArrowLeftSolid,
     iconOutline: ArrowLeftOutline,
     route: "/logout",
+    roles: [
+      "admin", "lecturer", "minister of research", "minister of competition", "minister of branding", "minister of operation", "president", "vice president", "user"
+    ],
   },
 ];
 
