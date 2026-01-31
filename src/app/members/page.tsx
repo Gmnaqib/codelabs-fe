@@ -105,11 +105,9 @@ const Members = () => {
     <ProtectedRoute>
       <div className="w-full flex flex-col">
 
-        {/* FILTERS */}
         <div className="flex w-full justify-between mb-4">
           <div className="flex gap-4">
 
-            {/* SEARCH */}
             <InputField
               type="text"
               placeholder="Search by Name"

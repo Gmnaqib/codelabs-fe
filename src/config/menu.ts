@@ -11,6 +11,7 @@ import {
   Squares2X2Icon as SquaresSolid,
   TrophyIcon as TrophySolid,
   UserGroupIcon as UserGroupSolid,
+  CubeIcon as CubeSolid,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -26,6 +27,7 @@ import {
   Squares2X2Icon as SquaresOutline,
   TrophyIcon as TrophyOutline,
   UserGroupIcon as UserGroupOutline,
+  CubeIcon as CubeOutline,
 } from "@heroicons/react/24/outline";
 
 export const menuItems = [
@@ -90,6 +92,13 @@ export const menuItems = [
     iconOutline: IdentificationOutline,
     route: "/members",
     roles: ["admin", "president", "vice president", "minister of research"],
+  },
+  {
+    title: "Products",
+    iconSolid: CubeSolid,
+    iconOutline: CubeOutline,
+    route: "/products",
+    roles: ["admin","minister of research"]
   },
   {
     title: "Resarch & Tech",

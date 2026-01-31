@@ -9,6 +9,7 @@ import {
   organization,
   members,
   ristek,
+  products,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -20,6 +21,12 @@ import RistekTable from "./TableSection/RistekTable";
 import CompetitionTable from "./TableSection/CompetitionTable";
 import BrandingTable from "./TableSection/BrandingTable";
 import { TabelFieldProps, TableFieldDataItem } from "@/types/TableFieldProps";
+import OperationalTable from "./TableSection/OperationalTable";
+import AttendanceTable from "./TableSection/AttendanceTable";
+import PicketScheduleTable from "./TableSection/PicketScheduleTable/page";
+import ReportTable from "./TableSection/ReportTable/page";
+import { ResearchItem } from "@/types/ReportTableProps";
+import ProductsTable from "./TableSection/ProductsTable/page";
 
 type AssessmentItem = {
   rank?: number | string;
@@ -41,11 +48,7 @@ type OrganizationUser = {
   _id: string;
   [key: string]: unknown;
 };
-import OperationalTable from "./TableSection/OperationalTable";
-import AttendanceTable from "./TableSection/AttendanceTable";
-import PicketScheduleTable from "./TableSection/PicketScheduleTable/page";
-import ReportTable from "./TableSection/ReportTable/page";
-import { ResearchItem } from "@/types/ReportTableProps";
+
 
 type KnownTableTypes = ResearchItem | MembersItem | OrganizationUser | AssessmentItem | TableFieldDataItem;
 const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
@@ -71,6 +74,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
     isCompetition,
     isBranding,
     isPicketSchedule,
+    isProducts,
     checkedState,
     researchData,
     handleToggleCheckbox,
@@ -88,6 +92,8 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
       : isAssessments
       ? ristek
       : isRistek
+      ? products
+      : isProducts
       ? members
       : customHeaderConfig ?? operasional;
 
@@ -197,6 +203,15 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   if (isPicketSchedule)
     return (
       <PicketScheduleTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={false}
+      />
+    );
+
+  if (isProducts)
+    return (
+      <ProductsTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={false}

@@ -26,7 +26,7 @@ export const organization: Record<string, string[]> = {
 };
 
 export const members: Record<string, string[]> = {
-  members: ["NIM", "Name", "Email", "Sub Riset", "Role", "Status"],
+  members: ["NIM", "Name", "Email", "Sub Riset", "Product", "Role", "Status"],
 };
 
 export const competition: Record<string, string[]> = {
@@ -42,9 +42,13 @@ export const ristek: Record<string, string[]> = {
 };
 
 export const picketschedule: Record<string, string[]> = {
-  picketschedule: ["Name", "Action", "Swap"],
+  picketschedule: ["Name", "Status", "Swap"],
 };
 
 export const assessments: Record<string, string[]> = {
   assessments: ["Rank","Name", "Monthly Points", "Status", "Action"],
+};
+
+export const products: Record<string, string[]> = {
+  products: ["Product","Action"],
 };

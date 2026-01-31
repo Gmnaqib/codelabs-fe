@@ -88,7 +88,6 @@ const MembersTable = ({
                       {item.email}
                     </TableCell>
 
-                    {/* RESEARCH DROPDOWN */}
                     <TableCell className="w-[150px]">
                       <DropdownField
                         title={item.subriset}
@@ -96,6 +95,13 @@ const MembersTable = ({
                         onSelect={(val: string) =>
                           handleUpdate(item._id, "research", val)
                         }
+                      />
+                    </TableCell>
+
+                    <TableCell className="w-[150px]">
+                      <DropdownField
+                        title="Agrimate"
+                        menu={["Agrimate", "Splace Classroom", "Snaily", "Other"]}
                       />
                     </TableCell>
 

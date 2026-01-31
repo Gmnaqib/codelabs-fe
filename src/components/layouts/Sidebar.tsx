@@ -27,10 +27,8 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
     }).catch(() => setLoading(false));
   }, []);
 
-  // While loading user, show nothing or a loader
   if (loading) return null;
 
-  // If user not found, show nothing
   if (!user) return null;
 
   const filteredMenu = menuItems.filter(item => !item.roles || item.roles.includes(user.role));

@@ -9,6 +9,7 @@ import {
 import { getMeResearchRecords } from "@/services/research/researchService";
 import { getAllUsers } from "@/services/users/userService";
 import { ResearchDataItem } from "@/types/ReportTableProps";
+import { products } from "./headerConfig";
 
 const WEEK_TO_DATE: Record<number, number> = {
   1: 1,
@@ -41,6 +42,7 @@ export const useTableLogic = (
   const [isBranding, setIsBranding] = useState(false);
   const [isAssessments, setIsAssessments] = useState(false);
   const [isPicketSchedule, setIsPicketSchedule] = useState(false);
+  const [isProducts, setIsProducts] = useState(false);
 
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
@@ -195,6 +197,7 @@ export const useTableLogic = (
       assessments: "assessments",
       members: "members",
       picketschedule: "picketSchedule",
+      products: "products",
       ristek: "ristek",
     };
 
@@ -226,6 +229,7 @@ export const useTableLogic = (
     setIsRistek(category === "ristek");
     setIsCompetition(category === "competition");
     setIsBranding(category === "branding");
+    setIsProducts(category === "products");
     setIsPicketSchedule(category === "picketSchedule");
 
     if (category === "organization" && norm === "organization") {
@@ -249,6 +253,7 @@ export const useTableLogic = (
     isBranding,
     isAssessments,
     isPicketSchedule,
+    isProducts,
     checkedState,
     recordIds,
     researchData,

@@ -114,7 +114,7 @@ const PicketScheduleTable = ({
             </TableRow>
           ) : picketData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={picketHeaders.length} className="text-center">Tidak ada data piket hari ini</TableCell>
+              <TableCell colSpan={picketHeaders.length} className="text-center">There is no picket data today</TableCell>
             </TableRow>
           ) : (
             picketData.map((user, idx) => (
