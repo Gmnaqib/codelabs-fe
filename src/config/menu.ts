@@ -141,4 +141,11 @@ export const menuNavbar = [
   { path: '/attendance', title: 'Attendance' },
   { path: '/operasional/picketSchedule', title: 'Picket Schedule' },
   { path: '/profile', title: 'Profile' },
+  { path: '/picket-schedule', title: 'Picket Schedule' },
+  { path: '/assessments', title: 'Assessments' },
+  { path: '/members', title: 'Members' },
+  { path: '/products', title: 'Products' },
+  { path: '/ristek', title: 'Research & Tech' },
+  { path: '/competition', title: 'Competition' },
+  { path: '/branding', title: 'Branding' },
 ]
