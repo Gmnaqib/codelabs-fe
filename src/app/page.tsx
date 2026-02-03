@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
 import { useClock } from '@/hooks/useClock'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { getMe } from '@/services/users/userService'
 
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -14,31 +15,51 @@ const Dashboard = () => {
   const [isRightOpen, setIsRightOpen] = useState(true);
   const [showMap, setShowMap] = useState(false);
   const isXl = useMediaQuery("(min-width: 1280px)");
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (isXl) {
       setIsRightOpen(true);
     }
   }, [isXl]);
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const me = await getMe();
+        setRole(me.role);
+      } catch {
+        setRole(null);
+      }
+    };
+    fetchMe();
+  }, []);
   
   return (
     <ProtectedRoute>
       <div className="flex bg-secondary">
         <div className="gap-5 grid grid-cols-1 xl:grid-cols-3 xl:mr-[263px]">
-            <AttendanceCard />
-            <MonthlyProgressCard />
-            <CashBillsCard />
-            <AnnouncementCard />
-            <div className={showMap ? "lg:z-50" : "lg:z-10"}>
-              <PicketCard showMap={showMap} setShowMap={setShowMap} />
-            </div>
-            <InProgressCard /> 
-            <TotalMembers/>
-            <AverageMonthly/>
-            <OperationalCash/>
-            <OrganizationStatistic className="h-full xl:col-span-2"/>
-            <ResearchPercentage/>
-            <OrganizationSummary className="h-full xl:col-span-3"/>
+          {role === 'lecturer' ? (
+            <>
+              <TotalMembers/>
+              <AverageMonthly/>
+              <OperationalCash/>
+              <OrganizationStatistic className="h-full xl:col-span-2"/>
+              <ResearchPercentage/>
+              <OrganizationSummary className="h-full xl:col-span-3"/>
+            </>
+          ) : (
+            <>
+              <AttendanceCard />
+              <MonthlyProgressCard />
+              <CashBillsCard />
+              <AnnouncementCard />
+              <div className={showMap ? "lg:z-50" : "lg:z-10"}>
+                <PicketCard showMap={showMap} setShowMap={setShowMap} />
+              </div>
+              <InProgressCard />
+            </>
+          )}
         </div>
         <Button
           variant="default"
