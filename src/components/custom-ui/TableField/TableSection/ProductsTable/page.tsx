@@ -23,8 +23,6 @@ const ProductsTable = ({
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editStatus, setEditStatus] = useState('active');
-  const [loadingEdit, setLoadingEdit] = useState(false);
-  const [successEdit, setSuccessEdit] = useState(false);
 
   // Saat dialog edit dibuka, set data
   const handleOpenEdit = (product: { _id: string; name: string; description: string; status: string }) => {
@@ -37,7 +35,6 @@ const ProductsTable = ({
   // Submit edit
   const handleEditSubmit = async () => {
     if (!editId) return;
-    setLoadingEdit(true);
     try {
       await editProduct(editId, {
         productManager: editId,
@@ -45,16 +42,11 @@ const ProductsTable = ({
         description: editDescription,
         status: editStatus,
       });
-      setSuccessEdit(true);
-      // refresh data
       const data = await getProducts();
       setProductData(data);
       setEditId(null);
     } catch {
       // handle error
-    } finally {
-      setLoadingEdit(false);
-      setTimeout(() => setSuccessEdit(false), 1200);
     }
   };
 

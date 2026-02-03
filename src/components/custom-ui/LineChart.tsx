@@ -31,7 +31,12 @@ const LineChart = ({ year }: LineChartProps) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
   const [chartData, setChartData] = useState<{research: number[]; attendance: number[]}>({ research: [], attendance: [] });
-  const labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const labels = React.useMemo(
+    () => [
+      "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+    ],
+    []
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,7 +102,7 @@ const LineChart = ({ year }: LineChartProps) => {
         },
       });
     }
-  }, [chartData]);
+  }, [chartData, labels]);
 
   return (
     <div className="w-full h-full relative">

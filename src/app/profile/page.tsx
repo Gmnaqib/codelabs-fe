@@ -34,7 +34,7 @@ const Profile = () => {
       setNewPassword("");
       setConfirmPassword("");
 
-    } catch (err) {
+    } catch {
       showErrorToast("Gagal Edit Password.", { duration: 5000 });
     }
   };

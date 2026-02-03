@@ -9,7 +9,6 @@ import {
 import { getMeResearchRecords } from "@/services/research/researchService";
 import { getAllUsers } from "@/services/users/userService";
 import { ResearchDataItem } from "@/types/ReportTableProps";
-import { products } from "./headerConfig";
 
 const WEEK_TO_DATE: Record<number, number> = {
   1: 1,

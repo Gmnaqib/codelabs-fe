@@ -18,7 +18,7 @@ const AverageMonthly = () => {
         } else {
           setAverage(0);
         }
-      } catch (e) {
+      } catch {
         setAverage(0);
       } finally {
         setLoading(false);

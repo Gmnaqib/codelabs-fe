@@ -21,27 +21,29 @@ interface AssessmentItem {
   monthly?: number | string;
   status?: string;
   detail?: string;
+  totalPoint?: number;
+  year?: number;
+  month?: number;
 }
 
 interface Props {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
-  data?: AssessmentItem[];
 }
 
 const AssessmentsTable = ({
   activePage,
   onPageChange,
   showMenu = true,
-  data = [],
 }: Props) => {
   const headers = assessments[activePage];
 
-  const [rankingData, setRankingData] = useState<any[]>([]);
+  const [rankingData, setRankingData] = useState<AssessmentItem[]>([]);
   useEffect(() => {
-    getKPIRankings().then((res: any) => {
-      const sorted = Array.isArray(res) ? res.sort((a, b) => (b.totalPoint ?? 0) - (a.totalPoint ?? 0)) : [];
+    getKPIRankings().then((res: unknown) => {
+      const arr = Array.isArray(res) ? res as AssessmentItem[] : [];
+      const sorted = arr.sort((a, b) => (Number(b.monthly ?? b.totalPoint ?? 0)) - (Number(a.monthly ?? a.totalPoint ?? 0)));
       setRankingData(sorted);
     });
   }, []);

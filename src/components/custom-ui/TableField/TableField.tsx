@@ -159,7 +159,6 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        data={data as AssessmentItem[]}
       />
     );
 

@@ -21,12 +21,11 @@ const Assessments = () => {
     const [countDanger, setCountDanger] = useState(0);
 
     useEffect(() => {
-        getKPIRankings().then((res: any) => {
+        getKPIRankings().then((res: unknown) => {
             if (Array.isArray(res) && res.length > 0) {
                 const total = res.reduce((sum, item) => sum + (item.totalPoint ?? 0), 0);
                 const avg = total / res.length;
                 setAverage(avg);
-                // Status logic for average
                 let label = 'Not Safe';
                 let cls = 'text-warning';
                 if (avg !== null && avg !== undefined) {
@@ -49,7 +48,8 @@ const Assessments = () => {
 
                 // Count each status
                 let excellent = 0, safe = 0, warning = 0, danger = 0;
-                res.forEach((item: any) => {
+                interface KPIItem { totalPoint?: number }
+                (res as KPIItem[]).forEach((item) => {
                     const point = item.totalPoint ?? 0;
                     if (point > 400) {
                         excellent++;

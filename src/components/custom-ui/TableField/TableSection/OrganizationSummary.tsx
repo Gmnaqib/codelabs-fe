@@ -99,7 +99,6 @@ const OrganizationSummaryTable = ({
       fetchUsers();
     }
   }, [activePage, selectedDate]);
-  const query = search.trim().toLowerCase();
 
   return (
     <div className="w-full rounded-lg overflow-hidden">
