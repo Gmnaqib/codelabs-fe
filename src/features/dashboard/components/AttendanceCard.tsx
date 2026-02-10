@@ -73,8 +73,7 @@ const AttendanceCard = () => {
   const submitCheckin = async (reasonValue: string) => {
     setCheckinLoading(true);
     try {
-      await postCheckIn(user!.device_id! /* device_id is checked above */, reasonValue);
-      // Refresh attendance after check-in
+      await postCheckIn(user!.device_id!, reasonValue);
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
@@ -91,7 +90,6 @@ const AttendanceCard = () => {
       setDialogOpen(false);
       setReason('');
     } catch {
-      // Optionally show error
     }
     setCheckinLoading(false);
   };

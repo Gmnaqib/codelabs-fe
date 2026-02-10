@@ -26,7 +26,7 @@ export const organization: Record<string, string[]> = {
 };
 
 export const members: Record<string, string[]> = {
-  members: ["NIM", "Name", "Email", "Sub Riset", "Product", "Role", "Status"],
+  members: ["NIM", "Name", "Email", "Sub Riset", "Product", "Role", "Device Id", "Status"],
 };
 
 export const competition: Record<string, string[]> = {

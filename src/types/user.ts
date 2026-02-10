@@ -1,3 +1,4 @@
+
 export type UserType = {
   nim: string;
   name: string;
@@ -5,7 +6,9 @@ export type UserType = {
   role: string;
   status: string;
   subriset: string;
+  change_device_id?: string;
 };
+
 
 export type UserApiResponse = {
   _id?: string;
@@ -15,6 +18,7 @@ export type UserApiResponse = {
   role?: string;
   status?: string;
   research?: string;
+  change_device_id?: string;
 };
 
 export interface LoginResponse {

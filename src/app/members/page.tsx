@@ -43,6 +43,7 @@ const Members = () => {
         subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(u.research?.toLowerCase() || "")
           ? u.research || "Other"
           : "Other",
+        change_device_id: u.change_device_id,
       }));
 
       setUsers(mapped);

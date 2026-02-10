@@ -23,6 +23,7 @@ interface MembersItem {
   subriset?: string;
   role?: string;
   status?: string;
+  change_device_id?: string;
 }
 
 interface Props {
@@ -40,11 +41,9 @@ const MembersTable = ({
 
   const handleUpdate = async (id: string, key: string, value: string) => {
     try {
-      // Find the member item by id to get the current values
       const member = data.find((m) => m._id === id);
       if (!member) throw new Error("Member not found");
 
-      // Build a safe payload with required fields
       const safePayload = {
         name: member.name ?? "",
         email: member.email ?? "",
@@ -74,6 +73,7 @@ const MembersTable = ({
             <TableBody>
                 {data.length > 0 ? (
                 data.map((item, i) => {
+                  console.log(item);
                   return (
                   <TableRow key={i}>
                     <TableCell className="w-[120px] break-words">
@@ -129,7 +129,25 @@ const MembersTable = ({
                       />
                     </TableCell>
 
-                    {/* STATUS DROPDOWN */}
+                    <TableCell className="w-[150px]">
+                      <DropdownField
+                        title={
+                          String(item.change_device_id) === "true"
+                            ? "Enabled"
+                            : String(item.change_device_id) === "false"
+                            ? "Disabled"
+                            : "Not Set"
+                        }
+                        menu={["Disabled", "Enabled"]}
+                        onSelect={(val: string) =>
+                          handleUpdate(
+                            item._id,
+                            "change_device_id",
+                            val === "Enabled" ? "true" : "false"
+                          )
+                        }
+                      />
+                    </TableCell>
                     <TableCell className="w-[150px]">
                       <DropdownField
                         title={item.status }
