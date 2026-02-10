@@ -23,7 +23,23 @@ export async function getMe() {
   return data.data;
 }
 
+export async function getUserById(id: string) {
+  const { data } = await axiosClient.get(`/users/${id}`);
+  return data.data;
+}
+
 export async function updateUser(id: string, payload: UserPayload) {
   const { data } = await axiosClient.patch(`/users/${id}`, payload);
   return data;
 }
+
+
+export interface DeviceIdPayload {
+  device_id: string;
+}
+
+export async function updateDeviceId(payload: DeviceIdPayload) {
+  const { data } = await axiosClient.patch(`/users/me/update-device`, payload);
+  return data;
+}
+

@@ -13,6 +13,8 @@ interface User {
   nim: string
   major: string
   status: string
+  device_id?: string
+  
 }
 
 interface AuthContextType {
@@ -37,6 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     nim: string;
     major: string;
     status: string;
+    device_id?: string;
     [key: string]: unknown;
   }
 
@@ -52,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           nim: decoded.nim,
           major: decoded.major,
           status: decoded.status,
+          device_id: decoded.device_id,
         })
       } catch (err) {
         console.error("Invalid token:", err)
@@ -76,6 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           nim: decoded.nim,
           major: decoded.major,
           status: decoded.status,
+          device_id: decoded.device_id,
         })
       }
     } catch (err) {

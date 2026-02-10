@@ -5,4 +5,5 @@ export interface InputFieldProps {
     value?: string
     size?: "sm" | "md"
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    readOnly?: boolean
 }

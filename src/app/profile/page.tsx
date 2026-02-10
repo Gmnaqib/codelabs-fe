@@ -1,6 +1,8 @@
 "use client";
 import InputField from "@/components/custom-ui/InputField";
 import { updateUser } from "@/services/users/userService";
+import { updateDeviceId } from "@/services/users/userService";
+import { getUserById } from "@/services/users/userService";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -10,9 +12,28 @@ import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 
 const Profile = () => {
+    const handleUpdateDeviceId = async () => {
+      try {
+        await updateDeviceId({ device_id: "67hhgduisuhgfiuwuisd1" });
+        if (user?.id) {
+          const updated = await getUserById(user.id);
+          setUserDetail(updated);
+        }
+        toast.success("Device ID berhasil diupdate");
+      } catch {
+        showErrorToast("Gagal update Device ID.", { duration: 5000 });
+      }
+    };
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user } = useAuth();
+  const [userDetail, setUserDetail] = useState<any>(null);
+
+  React.useEffect(() => {
+    if (user?.id) {
+      getUserById(user.id).then(setUserDetail);
+    }
+  }, [user]);
 
   const handleUpdatePassword = async () => {
     if (!newPassword || !confirmPassword) {
@@ -76,6 +97,26 @@ const Profile = () => {
         <div className="flex w-full justify-end">
           <Button onClick={handleUpdatePassword} className="w-fit">Update</Button>
         </div>
+        <p className="font-bold text-xl">Update Device Id</p>
+        <div className="flex w-1/2 items-end gap-4">
+            <div className="w-full">
+              <InputField
+                label="Device Id"
+                type="text"
+                placeholder="XXXXXXXXXXXXXX"
+                value={userDetail?.device_id || user?.device_id || "XXXXXXXXXXXXXX"}
+                readOnly
+              />
+            </div>
+            <Button
+              className="w-fit"
+              disabled={userDetail?.change_device_id === false}
+              onClick={handleUpdateDeviceId}
+            >
+              Update
+            </Button>
+        </div>
+        <p>To change the Device ID, you can contact the <a href="https://t.me/zulfifazhar" className="text-primary font-semibold">President</a> or <a href="https://t.me/RaflyRayhansyah" className="text-primary font-semibold">Vice President</a>.</p>
       </div>
     </ProtectedRoute>
   );
