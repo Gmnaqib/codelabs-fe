@@ -1,4 +1,32 @@
+
 import { axiosClient } from "@/lib/axiosClient";
+
+export async function postLeaveRequest({ type, reason, attachment, start_date, end_date }: {
+  type: 'sick' | 'permit';
+  reason: string;
+  attachment: File | Blob;
+  start_date: string;
+  end_date: string;
+}) {
+  try {
+    const formData = new FormData();
+    formData.append('type', type);
+    formData.append('reason', reason);
+    formData.append('attachment', attachment);
+    formData.append('start_date', start_date);
+    formData.append('end_date', end_date);
+
+    const { data } = await axiosClient.post('/attendance/leave-requests', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error('Error posting leave request:', error);
+    throw error;
+  }
+}
 
 export async function getAttendanceSummaryByUserId(userId: string, year?: number, month?: number) {
   try {
@@ -87,3 +115,4 @@ export async function reviewLeaveRequest(id: string, status: string) {
     throw error;
   }
 }
+

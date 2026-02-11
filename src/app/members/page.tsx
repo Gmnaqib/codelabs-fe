@@ -35,6 +35,7 @@ const Members = () => {
       const data = await getAllUsers();
 
       const mapped: UserType[] = (data as UserApiResponse[]).map((u) => ({
+        _id: u._id || "",
         nim: u.nim || "",
         name: u.name || "",
         email: u.email || "",

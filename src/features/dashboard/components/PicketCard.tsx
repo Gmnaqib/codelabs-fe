@@ -54,7 +54,6 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
   ];
 
 
-  // Komponen loader GLB
   function Model() {
     const gltf = useLoader(GLTFLoader, "/3d/denahcodelabs.glb");
     return <primitive object={gltf.scene} scale={1.5} />;

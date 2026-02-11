@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 const Profile = () => {
     const handleUpdateDeviceId = async () => {
       try {
-        await updateDeviceId({ device_id: "67hhgduisuhgfiuwuisd1" });
+        await updateDeviceId({ device_id: "67hhgduisuhgfiuwuisd2" });
         if (user?.id) {
           const updated = await getUserById(user.id);
           setUserDetail(updated);

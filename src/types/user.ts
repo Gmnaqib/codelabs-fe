@@ -1,5 +1,6 @@
 
 export type UserType = {
+  _id: string;
   nim: string;
   name: string;
   email: string;
@@ -8,7 +9,6 @@ export type UserType = {
   subriset: string;
   change_device_id?: string;
 };
-
 
 export type UserApiResponse = {
   _id?: string;
