@@ -11,6 +11,7 @@ type AttendanceRecord = {
   checkIn?: string | Date;
   checkOut?: string | Date;
 };
+
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import DialogField from '@/components/custom-ui/DialogField';
@@ -38,6 +39,7 @@ const AttendanceCard = () => {
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reason, setReason] = useState('');
+  const [isIpAllowed, setIsIpAllowed] = useState<boolean | null>(null);
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -73,6 +75,28 @@ const AttendanceCard = () => {
     };
     fetchAttendance();
   }, [user]);
+
+  useEffect(() => {
+  const checkIp = async () => {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+
+        const userIp = data.ip;
+
+        const UNIKOM_PREFIX = "103."; 
+
+        const allowed = userIp.startsWith(UNIKOM_PREFIX);
+
+        setIsIpAllowed(allowed);
+      } catch (error) {
+        setIsIpAllowed(false);
+      }
+    };
+
+    checkIp();
+  }, []);
+
 
   const handleCheckin = async () => {
     if (!user || !user.device_id) return;
@@ -155,11 +179,25 @@ const AttendanceCard = () => {
           (() => {
             const now = new Date();
             const hour = now.getHours();
-            if (hour >= 6 && hour < 9) {
+            if (hour >= 6 && hour < 17) {
               return (
                 <>
-                  <Button onClick={handleCheckin} variant="link" className='h-28 cursor-pointer'>
-                    <Image src="/icon/checkin-button.png" alt="Icon Check-In" width={150} height={150} />
+                   <Button 
+                    onClick={handleCheckin} 
+                    variant="link" 
+                    className='h-28 cursor-pointer'
+                    disabled={
+                      checkinLoading ||
+                      isIpAllowed === false ||
+                      isIpAllowed === null
+                    }
+                  >
+                    <Image 
+                      src="/icon/checkin-button.png" 
+                      alt="Icon Check-In" 
+                      width={150} 
+                      height={150} 
+                    />
                   </Button>
                   <p className="text-center text-sm mt-5">
                     You have to be in CodeLabs to do attendance &amp; If You will check out, you need check in first, please check in tomorrow on 6 AM - 10 AM.
