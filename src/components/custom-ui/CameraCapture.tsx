@@ -17,12 +17,10 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
           facingMode: { exact: 'environment' }
         }
       };
-      // Fallback ke kamera default jika environment tidak tersedia
       let mediaStream: MediaStream;
       try {
         mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch (e) {
-        // Jika kamera belakang tidak ada, fallback ke kamera default
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
       setStream(mediaStream);
@@ -32,12 +30,10 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
     }
   };
 
-  // Set srcObject ke video saat stream berubah
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
     }
-    // Clean up: release stream jika unmount
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -69,7 +65,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   return (
     <div className="flex flex-col items-center gap-2">
       {!stream ? (
-        <button type="button" onClick={startCamera} className="px-3 py-1 bg-blue-500 text-white rounded">Buka Kamera</button>
+        <button type="button" onClick={startCamera} className="px-3 py-1 bg-blue-500 text-white rounded">Open Camera</button>
       ) : (
         <>
           <video
@@ -84,8 +80,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
           />
           <canvas ref={canvasRef} width={320} height={240} style={{ display: 'none' }} />
           <div className="flex gap-2 mt-2">
-            <button type="button" onClick={handleCapture} className="px-3 py-1 bg-green-500 text-white rounded">Ambil Foto</button>
-            <button type="button" onClick={stopCamera} className="px-3 py-1 bg-gray-400 text-white rounded">Tutup</button>
+            <button type="button" onClick={handleCapture} className="px-3 py-1 bg-green-500 text-white rounded">Take Picture</button>
+            <button type="button" onClick={stopCamera} className="px-3 py-1 bg-gray-400 text-white rounded">Close</button>
           </div>
         </>
       )}

@@ -19,12 +19,11 @@ import CameraCapture from '@/components/custom-ui/CameraCapture';
 import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { Textarea } from '@/components/ui/textarea';
+import { ArrowUpRightIcon } from 'lucide-react';
 
 const AttendanceCard = () => {
   const { user } = useAuth();
-  // State untuk form leave request (PINDAHKAN KE SINI)
-    // State untuk modal date picker
-    const [showDateModal, setShowDateModal] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');
   const [leaveStartDate, setLeaveStartDate] = useState('');
@@ -119,7 +118,6 @@ const AttendanceCard = () => {
           (() => {
             const now = new Date();
             const hour = now.getHours();
-            // const minute = now.getMinutes();
             if (isCheckedOut) {
               return (
                 <>
@@ -157,11 +155,11 @@ const AttendanceCard = () => {
           (() => {
             const now = new Date();
             const hour = now.getHours();
-            if (hour >= 0 && hour < 9) {
+            if (hour >= 6 && hour < 9) {
               return (
                 <>
-                  <Button onClick={handleCheckin} disabled={checkinLoading}>
-                    {checkinLoading ? 'Checking in...' : 'Checkin-in'}
+                  <Button onClick={handleCheckin} variant="link" className='h-28 cursor-pointer'>
+                    <Image src="/icon/checkin-button.png" alt="Icon Check-In" width={150} height={150} />
                   </Button>
                   <p className="text-center text-sm mt-5">
                     You have to be in CodeLabs to do attendance &amp; If You will check out, you need check in first, please check in tomorrow on 6 AM - 10 AM.
@@ -183,7 +181,7 @@ const AttendanceCard = () => {
                       <InputField
                         label=""
                         type="text"
-                        placeholder="Masukkan alasan..."
+                        placeholder="Reason for being late"
                         value={reason}
                         onChange={e => setReason(e.target.value)}
                       />
@@ -208,99 +206,102 @@ const AttendanceCard = () => {
             }
           })()
         )}
-        <DialogField name='Add Permission' title='Permission'
-          onSubmit={async () => {
-            if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
-              setLeaveResult('Semua field wajib diisi!');
-              return;
-            }
-            setLeaveLoading(true);
-            setLeaveResult(null);
-            try {
-              await postLeaveRequest({
-                type: leaveType,
-                reason: leaveReason,
-                attachment: leaveAttachment,
-                start_date: leaveStartDate,
-                end_date: leaveEndDate,
-              });
-              setLeaveResult('Sukses mengirim izin!');
-              setLeaveReason('');
-              setLeaveStartDate('');
-              setLeaveEndDate('');
-              setLeaveAttachment(null);
-              if (fileInputRef.current) fileInputRef.current.value = '';
-            } catch (e) {
-              setLeaveResult('Gagal mengirim izin!');
-            }
-            setLeaveLoading(false);
-          }}
-        >
-          <div>
-            <p className='mb-1'>Select Permission</p>
-            <DropdownField
-              title={leaveType === 'sick' ? 'Sick' : 'Permit'}
-              menu={["Sick", "Permit"]}
-              onSelect={v => setLeaveType(v === 'Sick' ? 'sick' : 'permit')}
-            />
-          </div>
-          <div className="flex flex-col gap-4">
-            <Textarea
-              label="Reason"
-              placeholder="Masukkan alasan..."
-              value={leaveReason}
-              onChange={e => setLeaveReason(e.target.value)}
-            />
+        <div className="flex items-center gap-2">
+          <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
+            onSubmit={async () => {
+              if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
+                setLeaveResult('Semua field wajib diisi!');
+                return;
+              }
+              setLeaveLoading(true);
+              setLeaveResult(null);
+              try {
+                await postLeaveRequest({
+                  type: leaveType,
+                  reason: leaveReason,
+                  attachment: leaveAttachment,
+                  start_date: leaveStartDate,
+                  end_date: leaveEndDate,
+                });
+                setLeaveResult('Sukses mengirim izin!');
+                setLeaveReason('');
+                setLeaveStartDate('');
+                setLeaveEndDate('');
+                setLeaveAttachment(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+              } catch (e) {
+                setLeaveResult('Gagal mengirim izin!');
+              }
+              setLeaveLoading(false);
+            }}
+          >
             <div>
-              <label className="block text-sm font-medium mb-1">Tanggal Izin</label>
-              <button
-                type="button"
-                className="border rounded px-2 py-1 w-full text-left bg-white"
-                onClick={() => setShowDateModal(true)}
-              >
-                {leaveStartDate && leaveEndDate && leaveStartDate !== leaveEndDate
-                  ? `${leaveStartDate} s/d ${leaveEndDate}`
-                  : leaveStartDate
-                  ? leaveStartDate
-                  : 'Pilih tanggal izin'}
-              </button>
-              {showDateModal && (
-                <div
-                  className="fixed inset-0 z-50 flex items-center justify-center"
-                  onClick={() => setShowDateModal(false)}
-                  style={{ background: 'transparent' }}
+              <p className='mb-1'>Select Permission</p>
+              <DropdownField
+                title={leaveType === 'sick' ? 'Sick' : 'Permit'}
+                menu={["Sick", "Permit"]}
+                onSelect={v => setLeaveType(v === 'Sick' ? 'sick' : 'permit')}
+              />
+            </div>
+            <div className="flex flex-col gap-4">
+              <Textarea
+                label="Reason"
+                placeholder="Enter reason..."
+                value={leaveReason}
+                onChange={e => setLeaveReason(e.target.value)}
+              />
+              <div>
+                <label className="block text-sm font-medium mb-1">Leave Date</label>
+                <button
+                  type="button"
+                  className="border rounded-lg px-2 py-1 w-full text-left bg-white"
+                  onClick={() => setShowDateModal(true)}
                 >
+                  {leaveStartDate && leaveEndDate && leaveStartDate !== leaveEndDate
+                    ? `${leaveStartDate} s/d ${leaveEndDate}`
+                    : leaveStartDate
+                    ? leaveStartDate
+                    : 'Select leave date'}
+                </button>
+                {showDateModal && (
                   <div
-                    className="bg-white rounded shadow-lg p-4"
-                    onClick={e => e.stopPropagation()}
+                    className="fixed inset-0 z-50 flex items-center justify-center"
+                    onClick={() => setShowDateModal(false)}
+                    style={{ background: 'transparent' }}
                   >
-                    <DateRangePicker
-                      startDate={leaveStartDate || null}
-                      endDate={leaveEndDate || null}
-                      minDate={new Date().toISOString().split('T')[0]}
-                      onChange={(start, end) => {
-                        setLeaveStartDate(start || '');
-                        setLeaveEndDate(end || '');
-                      }}
-                    />
-                    <div className="flex gap-2 mt-4 justify-end">
-                      <Button type="button" onClick={() => setShowDateModal(false)}>
-                        Pilih
-                      </Button>
+                    <div
+                      className="bg-white rounded shadow-lg p-4"
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <DateRangePicker
+                        startDate={leaveStartDate || null}
+                        endDate={leaveEndDate || null}
+                        minDate={new Date().toISOString().split('T')[0]}
+                        onChange={(start, end) => {
+                          setLeaveStartDate(start || '');
+                          setLeaveEndDate(end || '');
+                        }}
+                      />
+                      <div className="flex gap-2 mt-4 justify-end">
+                        <Button type="button" onClick={() => setShowDateModal(false)}>
+                          Pilih
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+                
+              <div>
+                <label className="block text-sm font-medium mb-1">Take Picture</label>
+                <CameraCapture onCapture={file => setLeaveAttachment(file)} />
+                {leaveAttachment && <span className="text-xs">Foto sudah diambil</span>}
+              </div>
+              {leaveResult && <p className="text-xs text-center mt-2">{leaveResult}</p>}
             </div>
-              
-            <div>
-              <label className="block text-sm font-medium mb-1">Ambil Foto (Wajib Kamera)</label>
-              <CameraCapture onCapture={file => setLeaveAttachment(file)} />
-              {leaveAttachment && <span className="text-xs">Foto sudah diambil</span>}
-            </div>
-            {leaveResult && <p className="text-xs text-center mt-2">{leaveResult}</p>}
-          </div>
-        </DialogField>
+          </DialogField>
+          <ArrowUpRightIcon className="size-5 text-primary" />
+        </div>
       </div>
     </CardField>
   );

@@ -39,27 +39,44 @@ const Dashboard = () => {
     <ProtectedRoute>
       <div className="flex bg-secondary">
         <div className="gap-5 grid grid-cols-1 xl:grid-cols-3 xl:mr-[263px]">
-          {role === 'lecturer' ? (
-            <>
-              <TotalMembers/>
-              <AverageMonthly/>
-              <OperationalCash/>
-              <OrganizationStatistic className="h-full xl:col-span-2"/>
-              <ResearchPercentage/>
-              <OrganizationSummary className="h-full xl:col-span-3"/>
-            </>
-          ) : (
-            <>
-              <AttendanceCard />
-              <MonthlyProgressCard />
-              <CashBillsCard />
-              <AnnouncementCard />
-              <div className={showMap ? "lg:z-50" : "lg:z-10"}>
-                <PicketCard showMap={showMap} setShowMap={setShowMap} />
-              </div>
-              <InProgressCard />
-            </>
-          )}
+        {role === 'admin' ? (
+          <>
+            <AttendanceCard />
+            <MonthlyProgressCard />
+            <CashBillsCard />
+            <AnnouncementCard />
+            <div className={showMap ? "lg:z-50" : "lg:z-10"}>
+              <PicketCard showMap={showMap} setShowMap={setShowMap} />
+            </div>
+            <InProgressCard />
+            <TotalMembers/>
+            <AverageMonthly/>
+            <OperationalCash/>
+            <OrganizationStatistic className="h-full xl:col-span-2"/>
+            <ResearchPercentage/>
+            <OrganizationSummary className="h-full xl:col-span-3"/>
+          </>
+        ) : role === 'lecturer' ? (
+          <>
+            <TotalMembers/>
+            <AverageMonthly/>
+            <OperationalCash/>
+            <OrganizationStatistic className="h-full xl:col-span-2"/>
+            <ResearchPercentage/>
+            <OrganizationSummary className="h-full xl:col-span-3"/>
+          </>
+        ) : (
+          <>
+            <AttendanceCard />
+            <MonthlyProgressCard />
+            <CashBillsCard />
+            <AnnouncementCard />
+            <div className={showMap ? "lg:z-50" : "lg:z-10"}>
+              <PicketCard showMap={showMap} setShowMap={setShowMap} />
+            </div>
+            <InProgressCard />
+          </>
+        )}
         </div>
         <Button
           variant="default"

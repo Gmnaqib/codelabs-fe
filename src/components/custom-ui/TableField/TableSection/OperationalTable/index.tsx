@@ -128,7 +128,7 @@ const OperationalTable = ({
     : users;
 
   const headers = headersConfig[activePage] || [];
-  const daysInMonth = new Date(year, month, 0).getDate();
+  const daysInMonth = new Date(selectedDate.year, selectedDate.month + 1, 0).getDate();
   const isPiket = activePage === "Picket";
 
 
@@ -163,9 +163,9 @@ const OperationalTable = ({
           filter
           search={true}
           filterProps={{
-            onChange: (val: { year: number; month: number }) => setSelectedDate(val),
+            onChange: (val: { year: number; month: number }) => setSelectedDate({ year: val.year, month: val.month - 1 }),
             defaultYear: year,
-            defaultMonth: month,
+            defaultMonth: month - 1,
           }}
           searchQuery={search}
           onSearch={setSearch}

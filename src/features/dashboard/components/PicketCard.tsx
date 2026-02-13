@@ -80,7 +80,7 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
           onClick={() => setShowMap(true)}
           className="flex text-primary text-base justify-center items-center gap-2 border-none bg-transparent cursor-pointer"
         >
-          See Map <ArrowUpRightIcon className="size-4" />
+          See Map <ArrowUpRightIcon className="text-primary text-base font-normal size-4" />
         </button>
 
         {showMap && (
