@@ -9,11 +9,16 @@ import InputField from '@/components/custom-ui/InputField';
 import { ChangeEvent } from 'react';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 
+interface ProductsTableProps extends ReportTableProps {
+  searchQuery?: string;
+}
+
 const ProductsTable = ({
   activePage,
   onPageChange,
   showMenu = true,
-}: ReportTableProps) => {
+  searchQuery = "",
+}: ProductsTableProps) => {
 
   const productHeaders = products[activePage] ?? [];
   const [productData, setProductData] = useState<{ _id: string; name: string; description: string; status: string  }[]>([]);
@@ -62,6 +67,13 @@ const ProductsTable = ({
     fetchProducts();
   }, []);
 
+  // Client-side search filter
+  const filteredData = searchQuery
+    ? productData.filter((product) =>
+        product.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : productData;
+
   return (
     <div>
       {showMenu && (
@@ -81,12 +93,12 @@ const ProductsTable = ({
           </TableRow>
         </TableHeader>
           <TableBody>
-            {productData.length === 0 ? (
+            {filteredData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={productHeaders.length} className="text-center">Tidak ada data produk</TableCell>
               </TableRow>
             ) : (
-              productData.map((product) => (
+              filteredData.map((product) => (
                 <TableRow key={product._id}>
                   <TableCell className='text-center'>{product.name}</TableCell>
                   <TableCell className='gap-3 flex w-full justify-center'>

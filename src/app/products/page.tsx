@@ -37,10 +37,17 @@ const Product = () => {
     }
   };
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <ProtectedRoute>
-      <Card className='p-5'>
-        <div className="flex justify-end">
+        <div className="flex justify-between mb-10">
+          <InputField
+            placeholder="Search by name..."
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
           <DialogField
             name="Add Product"
             title="Add Product"
@@ -76,11 +83,13 @@ const Product = () => {
             </form>
           </DialogField>
         </div>
+      <Card className='p-5'>
         <div>
           <TableField
             activePage={activePage}
             onPageChange={setActivePage}
             showMenu={true}
+            searchQuery={searchQuery}
           />
         </div>
       </Card>
