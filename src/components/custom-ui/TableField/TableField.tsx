@@ -63,7 +63,10 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   filterProgress = "All",
   filterContentType = "All",
   searchQuery = "",
-}: TabelFieldProps<T> & { filterContentType?: string }) => {
+  filterRole = "All Role",
+  filterSubriset = "All SubRiset",
+  filterStatus = "All Status",
+}: TabelFieldProps<T> & { filterContentType?: string, filterRole?: string, filterSubriset?: string, filterStatus?: string }) => {
   const {
     isReport,
     isAttendance,
@@ -170,6 +173,9 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         onPageChange={onPageChange}
         showMenu={showMenu}
         data={data as MembersItem[]}
+        filterRole={filterRole}
+        filterSubriset={filterSubriset}
+        filterStatus={filterStatus}
       />
     );
 

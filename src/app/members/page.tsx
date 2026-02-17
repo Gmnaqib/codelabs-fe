@@ -8,6 +8,7 @@ import { TableField } from "@/components/custom-ui/TableField";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { getAllUsers, createUser } from "@/services/users/userService";
 import { UserApiResponse, UserType } from "@/types/user";
+import { Card } from "@/components/ui/card";
 
 const Members = () => {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -45,6 +46,7 @@ const Members = () => {
           ? u.research || "Other"
           : "Other",
         change_device_id: u.change_device_id,
+        product_id: u.product_id,
       }));
 
       setUsers(mapped);
@@ -119,29 +121,38 @@ const Members = () => {
 
             <DropdownField
               title={filterRole}
-              menu={["All Role", "User", "Minister", "Admin", "President"]}
-              onSelect={(v) => setFilterRole(v)}
+              menu={["All Role", "admin", "lecturer", "president", "vice president", "minister of research", "minister of competition", "minister of branding", "minister of operation", "user"]}
+              onSelect={(v) => {
+                setFilterRole(v);
+                console.log('Filter Role selected:', v);
+              }}
             />
 
             <DropdownField
               title={filterSubriset}
               menu={[
                 "All SubRiset",
-                "UI/UX",
-                "Mobile",
-                "IOT",
-                "Web",
-                "Game",
-                "Data",
-                "Other",
+                "ui/ux",
+                "mobile",
+                "iot",
+                "website",
+                "game",
+                "data",
+                "other",
               ]}
-              onSelect={(v) => setFilterSubriset(v)}
+              onSelect={(v) => {
+                setFilterSubriset(v);
+                console.log('Filter Subriset selected:', v);
+              }}
             />
 
             <DropdownField
               title={filterStatus}
-              menu={["All Status", "Active", "Inactive", "Graduated"]}
-              onSelect={(v) => setFilterStatus(v)}
+              menu={["All Status", "active", "inactive", "graduated"]}
+              onSelect={(v) => {
+                setFilterStatus(v);
+                console.log('Filter Status selected:', v);
+              }}
             />
           </div>
 
@@ -211,13 +222,17 @@ const Members = () => {
           </DialogField>
         </div>
 
-        <TableField
-          activePage="members"
-          onPageChange={() => {}}
-          showMenu={false}
-          data={filteredUsers}
-        />
-
+        <Card className="p-5">
+          <TableField
+            activePage="members"
+            onPageChange={() => {}}
+            showMenu={false}
+            data={filteredUsers}
+            filterRole={filterRole}
+            filterSubriset={filterSubriset}
+            filterStatus={filterStatus}
+          />
+        </Card>
       </div>
     </ProtectedRoute>
   );

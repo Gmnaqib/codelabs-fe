@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Card } from "@/components/ui/card";
 import {
   Table,
   TableHead,
@@ -24,6 +23,7 @@ interface MembersItem {
   role?: string;
   status?: string;
   change_device_id?: string;
+  product_id?: string;
 }
 
 interface Props {
@@ -31,13 +31,29 @@ interface Props {
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
   data?: MembersItem[];
+  filterRole?: string;
+  filterSubriset?: string;
+  filterStatus?: string;
 }
+
+import { useEffect, useState } from "react";
+import { getProducts } from "@/services/product/productsService";
 
 const MembersTable = ({
   activePage,
   data = [],
+  filterRole = "All Role",
+  filterSubriset = "All SubRiset",
+  filterStatus = "All Status",
 }: Props) => {
   const headers = members[activePage] || [];
+  const [products, setProducts] = useState<{ _id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    getProducts().then((res) => {
+      setProducts(Array.isArray(res) ? res : []);
+    });
+  }, []);
 
   const handleUpdate = async (id: string, key: string, value: string) => {
     try {
@@ -57,10 +73,21 @@ const MembersTable = ({
     }
   };
 
+  // Client-side filter for role, subriset, status
+  const filteredData = data
+    .filter((u) =>
+      filterRole === "All Role" ? true : u.role === filterRole
+    )
+    .filter((u) =>
+      filterSubriset === "All SubRiset" ? true : u.subriset === filterSubriset
+    )
+    .filter((u) =>
+      filterStatus === "All Status" ? true : u.status === filterStatus
+    );
+
   return (
     <div className="w-full">
-      <Card className="w-full rounded-lg shadow-sm">
-        <div className="w-full px-5">
+        <div className="w-full">
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
@@ -71,9 +98,9 @@ const MembersTable = ({
             </TableHeader>
 
             <TableBody>
-                {data.length > 0 ? (
-                data.map((item, i) => {
-                  console.log(item);
+                {filteredData.length > 0 ? (
+                filteredData.map((item, i) => {
+                  // ...existing code...
                   return (
                   <TableRow key={i}>
                     <TableCell className="w-[120px] break-words">
@@ -90,6 +117,7 @@ const MembersTable = ({
 
                     <TableCell className="w-[150px]">
                       <DropdownField
+                        key={`subriset-${item._id}`}
                         title={item.subriset}
                         menu={["Website", "Mobile", "Game", "UI/UX", "Data", "Other"]}
                         onSelect={(val: string) =>
@@ -99,19 +127,43 @@ const MembersTable = ({
                     </TableCell>
 
                     <TableCell className="w-[150px]">
-                      <DropdownField
-                        title="Agrimate"
-                        menu={["Agrimate", "Splace Classroom", "Snaily", "Other"]}
-                      />
+                      {products.length === 0 ? (
+                        <span>Loading products...</span>
+                      ) : (() => {
+                        let dropdownTitle = "Other";
+                        if (item.product_id && products.length > 0) {
+                          const pid = String(item.product_id).toLowerCase();
+                          const found = products.find((p) => String(p._id).toLowerCase() === pid);
+                          dropdownTitle = found ? found.name.split(' ')[0] : "Other";
+                        }
+                        return (
+                          <DropdownField
+                            key={`product-${item._id}`}
+                            title={dropdownTitle}
+                            menu={products.map((p) => p.name)}
+                            onSelect={(val: string) => {
+                              const selectedProduct = products.find((p) => p.name === val);
+                              handleUpdate(item._id, "product_id", selectedProduct ? selectedProduct._id : "");
+                            }}
+                          />
+                        );
+                      })()}
                     </TableCell>
 
                     <TableCell className="w-[200px]">
                       <DropdownField
-                        title={
-                            item.role && item.role.length > 15
-                            ? item.role.slice(0, 14) + "..."
-                            : item.role
-                        }
+                        key={`role-${item._id}`}
+                        title={(() => {
+                          const roleMap: Record<string, string> = {
+                            "vice president": "vice",
+                            "minister of research": "research",
+                            "minister of competition": "competition",
+                            "minister of branding": "branding",
+                            "minister of operation": "operation"
+                          };
+                          if (!item.role) return "";
+                          return roleMap[item.role] || item.role.toLowerCase();
+                        })()}
                         menu={[
                           "Admin",
                           "Lecturer",
@@ -131,6 +183,7 @@ const MembersTable = ({
 
                     <TableCell className="w-[150px]">
                       <DropdownField
+                        key={`deviceid-${item._id}`}
                         title={
                           String(item.change_device_id) === "true"
                             ? "Enabled"
@@ -150,6 +203,7 @@ const MembersTable = ({
                     </TableCell>
                     <TableCell className="w-[150px]">
                       <DropdownField
+                        key={`status-${item._id}`}
                         title={item.status }
                         menu={["Active", "Inactive", "Graduated"]}
                         onSelect={(val: string) =>
@@ -173,7 +227,6 @@ const MembersTable = ({
             </TableBody>
           </Table>
         </div>
-      </Card>
     </div>
   );
 };

@@ -19,6 +19,7 @@ export type UserApiResponse = {
   status?: string;
   research?: string;
   change_device_id?: string;
+  product_id?: string;
 };
 
 export interface LoginResponse {
