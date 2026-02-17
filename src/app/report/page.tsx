@@ -22,7 +22,7 @@ const WeeklyReport = () => {
   const [filterWeek, setFilterWeek] = useState("All");
   const [filterProgress, setFilterProgress] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()+ 1);
+  const [selectedMonth, setSelectedMonth] = useState( new Date().getMonth()+ 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const handleSubmit = async () => {

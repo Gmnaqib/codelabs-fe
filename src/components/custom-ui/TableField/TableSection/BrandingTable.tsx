@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -9,12 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Menubar } from "../../MenuBar";
 import { branding } from "../headerConfig";
 import DialogField from "../../DialogField";
 import { Card } from "@/components/ui/card";
-
 import {
   Pagination,
   PaginationContent,
@@ -23,27 +20,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
 import {
   getAllBranding,
   getBrandingById,
   updateBrandingStatus,
 } from "@/services/branding/brandingService";
-
 import { DropdownField } from "../../DropdownField";
-
-const getStatusClass = (status: string) => {
-  switch (status?.toUpperCase()) {
-    case "APPROVED":
-      return "bg-green-100 text-green-700";
-    case "PENDING":
-      return "bg-yellow-100 text-yellow-700";
-    case "REJECTED":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
-};
+import { getStatusColor } from "@/utils/statusColor";
 
 interface Branding {
   _id: string;
@@ -53,25 +36,36 @@ interface Branding {
   research: string;
   link: string;
   description: string;
+  createdAt?: string;
+  week?: number | string;
 }
 
 interface BrandingTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
+  filterWeek?: string;
+  filterContentType?: string;
+  searchQuery?: string;
+  month?: number;
+  year?: number;
 }
 
 const BrandingTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  filterWeek = "All",
+  filterContentType = "All",
+  searchQuery = "",
+  month = new Date().getMonth() + 1,
+  year = new Date().getFullYear(),
 }: BrandingTableProps) => {
   const [brandingData, setBrandingData] = useState<Branding[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [selectedId, setSelectedId] = useState<Branding | null>(null);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -79,8 +73,13 @@ const BrandingTable = ({
   const brandingHeaders = branding[brandingKey] ?? [];
 
   const fetchBranding = async () => {
+    setLoading(true);
     try {
-      const data = await getAllBranding();
+      const date = `${year}-${String(month).padStart(2, "0")}`;
+      const params = {
+        date,
+      };
+      const data = await getAllBranding(params);
       setBrandingData(data);
     } catch (err) {
       console.error("Error fetching branding:", err);
@@ -91,10 +90,44 @@ const BrandingTable = ({
 
   useEffect(() => {
     fetchBranding();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, year]);
 
-  const totalPages = Math.ceil(brandingData.length / itemsPerPage);
-  const paginatedData = brandingData.slice(
+
+  // Filtering logic
+  const filteredData = brandingData.filter((item) => {
+    // Filter by month and year if item.createdAt exists
+    let matchMonth = true;
+    let matchYear = true;
+    if (item.createdAt) {
+      const date = new Date(item.createdAt);
+      matchMonth = date.getMonth() + 1 === month;
+      matchYear = date.getFullYear() === year;
+    }
+    // Filter by week if available
+    let matchWeek = true;
+    if (filterWeek !== "All") {
+      if (item.week !== undefined && item.week !== null) {
+        matchWeek = `Week ${item.week}` === filterWeek;
+      } else {
+        matchWeek = false;
+      }
+    }
+    // Filter by content type (level or research)
+    let matchContentType = true;
+    if (filterContentType !== "All") {
+      matchContentType = (item.level === filterContentType || item.research === filterContentType);
+    }
+    // Filter by searchQuery prop (name)
+    let matchSearch = true;
+    if (searchQuery) {
+      matchSearch = item.name?.toLowerCase().includes(searchQuery.toLowerCase());
+    }
+    return matchMonth && matchYear && matchWeek && matchContentType && matchSearch;
+  });
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -127,6 +160,8 @@ const BrandingTable = ({
         />
       )}
 
+
+
       <Card>
         <Table className="w-full table-fixed">
           <TableHeader>
@@ -156,7 +191,7 @@ const BrandingTable = ({
                   {/* status */}
                   <TableCell className="text-center">
                     <span
-                      className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(
+                      className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusColor(
                         item.status
                       )}`}
                     >

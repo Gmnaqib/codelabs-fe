@@ -13,6 +13,7 @@ export interface TabelFieldProps<T = TableFieldDataItem> {
   showMenu?: boolean;
   filterWeek?: string;
   filterProgress?: string;
+  filterContentType?: string;
   searchQuery?: string;
   search?: string;
 }

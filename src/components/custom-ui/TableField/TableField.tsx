@@ -61,8 +61,9 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   showMenu = true,
   filterWeek = "All",
   filterProgress = "All",
+  filterContentType = "All",
   searchQuery = "",
-}: TabelFieldProps<T>) => {
+}: TabelFieldProps<T> & { filterContentType?: string }) => {
   const {
     isReport,
     isAttendance,
@@ -196,6 +197,11 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
+        filterWeek={filterWeek}
+        filterContentType={filterContentType}
+        searchQuery={searchQuery}
+        month={month}
+        year={year}
       />
     );
 

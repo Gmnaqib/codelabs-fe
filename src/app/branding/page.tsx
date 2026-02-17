@@ -6,37 +6,48 @@ import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
 import React, { useState } from 'react'
 
+
 const Branding = () => {
   const [activePage, setActivePage] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [filterWeek, setFilterWeek] = useState<string>("All");
+  const [filterContentType, setFilterContentType] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   return (
     <div>
       <div className="flex justify-between mb-10">
         <div className="flex gap-5">
-            <InputField placeholder='Search by name...' type='text' />
-            <DropdownField 
-            title="All Week"
-            menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
-            />
-            <DropdownField 
-            title="Content Type"
-            menu={["All", "CL Academy", "Sosmed"]}
-            />
+          <InputField
+            placeholder="Search by name..."
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
         </div>
-         <CalendarMonthYearPicker />
+        <CalendarMonthYearPicker
+          onChange={({ month, year }) => {
+            setSelectedMonth(month + 1);
+            setSelectedYear(year);
+          }}
+        />
       </div>
 
-      <Card className='p-5'>
+      <Card className="p-5">
         <TableField
           activePage={activePage}
           onPageChange={setActivePage}
           showMenu={false}
-          // filterWeek={filterWeek}
-          // month={selectedMonth}
-          // year={selectedYear}
+          month={selectedMonth}
+          year={selectedYear}
+          filterWeek={filterWeek}
+          filterContentType={filterContentType}
+          searchQuery={searchQuery}
         />
       </Card>
     </div>
-  )
+  );
 }
 
 export default Branding

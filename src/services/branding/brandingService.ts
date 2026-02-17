@@ -17,8 +17,15 @@ export const updateBranding = async (id: string, payload: BrandingPayload) => {
 };
 import { axiosClient } from "@/lib/axiosClient";
 
-export const getAllBranding = async () => {
-  const res = await axiosClient.get("/branding");
+export interface BrandingFilterParams {
+  date?: string;
+  week?: string | number;
+  contentType?: string;
+  search?: string;
+}
+
+export const getAllBranding = async (params?: BrandingFilterParams) => {
+  const res = await axiosClient.get("/branding", { params });
   return res.data.data;
 };
 
