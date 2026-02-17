@@ -17,8 +17,12 @@ export const updateCompetition = async (id: string, payload: CompetitionPayload)
 };
 import { axiosClient } from "@/lib/axiosClient";
 
-export const getAllCompetition = async () => {
-  const res = await axiosClient.get("/competition");
+export interface CompetitionFilterParams {
+  date?: string; // format: YYYY-MM
+}
+
+export const getAllCompetition = async (params?: CompetitionFilterParams) => {
+  const res = await axiosClient.get("/competition", { params });
   return res.data.data;
 };
 

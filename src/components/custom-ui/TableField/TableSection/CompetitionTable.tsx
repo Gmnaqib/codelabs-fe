@@ -60,12 +60,18 @@ interface CompetitionTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
+  month?: number;
+  year?: number;
+  searchQuery?: string;
 }
 
 const CompetitionTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  month = new Date().getMonth() + 1,
+  year = new Date().getFullYear(),
+  searchQuery = "",
 }: CompetitionTableProps) => {
   const [competitionData, setCompetitionData] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,9 +85,13 @@ const CompetitionTable = ({
   const competitionKey = Object.keys(competition)[0];
   const competitionHeaders = competition[competitionKey] ?? [];
 
+
   const fetchCompetition = async () => {
+    setLoading(true);
     try {
-      const data = await getAllCompetition();
+      const date = `${year}-${String(month).padStart(2, "0")}`;
+      const params = { date };
+      const data = await getAllCompetition(params);
       setCompetitionData(data);
     } catch (err) {
       console.error("Error fetching competition:", err);
@@ -92,10 +102,19 @@ const CompetitionTable = ({
 
   useEffect(() => {
     fetchCompetition();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, year]);
 
-  const totalPages = Math.ceil(competitionData.length / itemsPerPage);
-  const paginatedData = competitionData.slice(
+
+  // Client-side search filter
+  const filteredData = searchQuery
+    ? competitionData.filter((item) =>
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : competitionData;
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
