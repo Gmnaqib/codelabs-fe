@@ -9,8 +9,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   useEffect(() => {
     const token = localStorage.getItem("token")
+    const device_id = localStorage.getItem("device_id")
 
-    if (!token) {
+    if (!token || !device_id) {
       router.push("/login")
       setIsAuthenticated(false)
     } else {

@@ -35,7 +35,7 @@ export async function updateUser(id: string, payload: UserPayload) {
 
 
 export interface DeviceIdPayload {
-  device_id: string;
+  device_id: string | null;
 }
 
 export async function updateDeviceId(payload: DeviceIdPayload) {

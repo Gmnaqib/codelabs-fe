@@ -11,9 +11,22 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: {
-    default: "Home | myCodeLabs",
-    template: "%s | myCodeLabs",
+  title: 'CodeLabs Attendance',
+  description: 'Attendance and management system for CodeLabs',
+  manifest: '/manifest.json',
+  themeColor: '#000000',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'CodeLabs',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
   },
 };
 
@@ -24,12 +37,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="theme-color" content="#000000" />
+      </head>
       <body className={`${poppins.className} antialiased bg-secondary`}>
         <AuthProvider>
           <LayoutWrapper>
             <AutoTitle />
-              {children}
-            <Toaster/>
+            {children}
+            <Toaster />
           </LayoutWrapper>
         </AuthProvider>
       </body>

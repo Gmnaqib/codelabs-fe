@@ -115,4 +115,3 @@ export async function reviewLeaveRequest(id: string, status: string) {
     throw error;
   }
 }
-

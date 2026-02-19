@@ -13,12 +13,12 @@ interface User {
   nim: string
   major: string
   status: string
-  device_id?: string
-  
+  device_id?: string | null
 }
 
 interface AuthContextType {
   user: User | null
+  setUser: React.Dispatch<React.SetStateAction<User | null>> 
   loading: boolean
   login: (nim: string, password: string) => Promise<void>
   logout: () => void
@@ -100,6 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser, 
         loading,
         login,
         logout,

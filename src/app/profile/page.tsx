@@ -12,21 +12,9 @@ import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 
 const Profile = () => {
-    const handleUpdateDeviceId = async () => {
-      try {
-        await updateDeviceId({ device_id: "67hhgduisuhgfiuwuisd2" });
-        if (user?.id) {
-          const updated = await getUserById(user.id);
-          setUserDetail(updated);
-        }
-        toast.success("Device ID berhasil diupdate");
-      } catch {
-        showErrorToast("Gagal update Device ID.", { duration: 5000 });
-      }
-    };
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { user } = useAuth();
+  const { user, setUser } = useAuth(); 
   const [userDetail, setUserDetail] = useState<import("@/types/user").UserType | null>(null);
 
   React.useEffect(() => {
@@ -35,13 +23,57 @@ const Profile = () => {
     }
   }, [user]);
 
+  // Fungsi untuk sensor device_id
+  const maskDeviceId = (deviceId: string | null | undefined): string => {
+    if (!deviceId) return "No Device ID";
+    
+    if (deviceId.length <= 6) return deviceId;
+    
+    const first3 = deviceId.slice(0, 3);
+    const last3 = deviceId.slice(-3);
+    
+    const maskedLength = deviceId.length - 6;
+    const masked = "x".repeat(maskedLength);
+    
+    return `${first3}${masked}${last3}`;
+  };
+
+  const handleUpdateDeviceId = async () => {
+    try {
+      await updateDeviceId({ device_id: null });
+
+      toast.success("Device ID berhasil dihapus. Redirecting...");
+      
+      localStorage.removeItem('device_id');
+      localStorage.removeItem('token');
+      
+      if (setUser) {
+        setUser(null);
+      }
+      
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1000);
+      
+    } catch {
+      showErrorToast("Gagal update Device ID.", { duration: 5000 });
+    }
+  };
+
   const handleUpdatePassword = async () => {
     if (!newPassword || !confirmPassword) {
-      return alert("Password tidak boleh kosong!");
+      showErrorToast("Password tidak boleh kosong!");
+      return;
     }
 
     if (newPassword !== confirmPassword) {
-      return alert("Password tidak sama!");
+      showErrorToast("Password tidak sama!");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      showErrorToast("Password minimal 6 karakter!");
+      return;
     }
 
     try {
@@ -103,8 +135,8 @@ const Profile = () => {
               <InputField
                 label="Device Id"
                 type="text"
-                placeholder="XXXXXXXXXXXXXX"
-                value={userDetail?.device_id || user?.device_id || "XXXXXXXXXXXXXX"}
+                placeholder="No Device ID"
+                value={maskDeviceId(userDetail?.device_id)}
                 readOnly
               />
             </div>
@@ -113,10 +145,19 @@ const Profile = () => {
               disabled={userDetail?.change_device_id === "false" || userDetail?.change_device_id === undefined}
               onClick={handleUpdateDeviceId}
             >
-              Update
+              Reset
             </Button>
         </div>
-        <p>To change the Device ID, you can contact the <a href="https://t.me/zulfifazhar" className="text-primary font-semibold">President</a> or <a href="https://t.me/RaflyRayhansyah" className="text-primary font-semibold">Vice President</a>.</p>
+        <p className="text-sm text-gray-600">
+          To change the Device ID permission, contact the{" "}
+          <a href="https://t.me/zulfifazhar" className="text-primary font-semibold hover:underline">
+            President
+          </a>
+          {" "}or{" "}
+          <a href="https://t.me/RaflyRayhansyah" className="text-primary font-semibold hover:underline">
+            Vice President
+          </a>.
+        </p>
       </div>
     </ProtectedRoute>
   );
