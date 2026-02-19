@@ -53,6 +53,12 @@ const RistekTable = ({
   onPageChange,
   showMenu = true,
 }: RistekTableProps) => {
+  // Month/year filter state
+  const currentDate = new Date();
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const [filterYear, setFilterYear] = useState(currentYear);
+    const [filterMonth, setFilterMonth] = useState(currentMonth);
   type RistekResearchItem = {
     _id: string;
     userId?: { name?: string };
@@ -73,8 +79,9 @@ const RistekTable = ({
   const ristekHeaders = ristek[ristekKey] ?? [];
 
   const fetchResearchData = async () => {
+    setLoading(true);
     try {
-      const data = await getAllResearchRecords();
+      const data = await getAllResearchRecords(filterYear, filterMonth + 1);
       setResearchData(data);
     } catch (err) {
       console.error("Error fetching research:", err);
@@ -85,7 +92,7 @@ const RistekTable = ({
 
   useEffect(() => {
     fetchResearchData();
-  }, []);
+  }, [filterYear, filterMonth]);
 
   const handleReview = async (id: string, value: string) => {
     try {
@@ -109,6 +116,15 @@ const RistekTable = ({
           menus={Object.keys(ristek)}
           activeMenu={activePage}
           onChange={onPageChange}
+          filter
+          filterProps={{
+                onChange: ({ year, month }) => {
+                  setFilterYear(year);
+                  setFilterMonth(month);
+                },
+                defaultYear: filterYear,
+                defaultMonth: filterMonth,
+              }}
         />
       )}
 
@@ -135,12 +151,10 @@ const RistekTable = ({
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item, i) => (
                 <TableRow key={i}>
-                  {/* NAME */}
                   <TableCell className="text-center">
                     {item?.userId?.name ?? "-"}
                   </TableCell>
 
-                  {/* STATUS */}
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(

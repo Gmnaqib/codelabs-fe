@@ -61,7 +61,10 @@ const OperationalTable = ({
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInfo, setShowInfo] = useState(true);
-  const [selectedDate, setSelectedDate] = useState({ year, month });
+   const [selectedDate, setSelectedDate] = useState<{ year: number; month: number }>({
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+    });
   const [search, setSearch] = useState(searchQuery ?? "");
 
   useEffect(() => {
@@ -78,8 +81,8 @@ const OperationalTable = ({
 
         const [userRes, attendanceRes, operationalRes] = await Promise.all([
           getAllUsers(),
-          getAttendance(selectedDate.year, selectedDate.month),
-          type ? getOperationalRecords(type, undefined, selectedDate.year, selectedDate.month) : Promise.resolve([]),
+          getAttendance(selectedDate.year, selectedDate.month + 1),
+          type ? getOperationalRecords(type, undefined, selectedDate.year, selectedDate.month + 1) : Promise.resolve([]),
         ]);
 
 
@@ -163,9 +166,9 @@ const OperationalTable = ({
           filter
           search={true}
           filterProps={{
-            onChange: (val: { year: number; month: number }) => setSelectedDate({ year: val.year, month: val.month - 1 }),
-            defaultYear: year,
-            defaultMonth: month - 1,
+            onChange: (val: { year: number; month: number }) => setSelectedDate(val),
+            defaultYear: selectedDate.year,
+            defaultMonth: selectedDate.month,
           }}
           searchQuery={search}
           onSearch={setSearch}
