@@ -27,7 +27,7 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user } = useAuth();
-  const [userDetail, setUserDetail] = useState<any>(null);
+  const [userDetail, setUserDetail] = useState<import("@/types/user").UserType | null>(null);
 
   React.useEffect(() => {
     if (user?.id) {
@@ -110,7 +110,7 @@ const Profile = () => {
             </div>
             <Button
               className="w-fit"
-              disabled={userDetail?.change_device_id === false}
+              disabled={userDetail?.change_device_id === "false" || userDetail?.change_device_id === undefined}
               onClick={handleUpdateDeviceId}
             >
               Update

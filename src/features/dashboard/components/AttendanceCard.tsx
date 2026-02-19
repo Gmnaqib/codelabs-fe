@@ -30,7 +30,7 @@ const AttendanceCard = () => {
   const [leaveStartDate, setLeaveStartDate] = useState('');
   const [leaveEndDate, setLeaveEndDate] = useState('');
   const [leaveAttachment, setLeaveAttachment] = useState<File | null>(null);
-  const [leaveLoading, setLeaveLoading] = useState(false);
+  // const [leaveLoading, setLeaveLoading] = useState(false);
   const [leaveResult, setLeaveResult] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isCheckedIn, setIsCheckedIn] = useState<boolean | null>(null);
@@ -89,7 +89,7 @@ const AttendanceCard = () => {
         const allowed = userIp.startsWith(UNIKOM_PREFIX);
 
         setIsIpAllowed(allowed);
-      } catch (error) {
+      } catch {
         setIsIpAllowed(false);
       }
     };
@@ -251,7 +251,6 @@ const AttendanceCard = () => {
                 setLeaveResult('Semua field wajib diisi!');
                 return;
               }
-              setLeaveLoading(true);
               setLeaveResult(null);
               try {
                 await postLeaveRequest({
@@ -267,10 +266,9 @@ const AttendanceCard = () => {
                 setLeaveEndDate('');
                 setLeaveAttachment(null);
                 if (fileInputRef.current) fileInputRef.current.value = '';
-              } catch (e) {
+              } catch {
                 setLeaveResult('Gagal mengirim izin!');
               }
-              setLeaveLoading(false);
             }}
           >
             <div>
@@ -309,7 +307,7 @@ const AttendanceCard = () => {
                   >
                     <div
                       className="bg-white rounded shadow-lg p-4"
-                      onClick={e => e.stopPropagation()}
+                      onClick={() => {}}
                     >
                       <DateRangePicker
                         startDate={leaveStartDate || null}

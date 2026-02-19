@@ -20,7 +20,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
       let mediaStream: MediaStream;
       try {
         mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (e) {
+      } catch {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
       setStream(mediaStream);

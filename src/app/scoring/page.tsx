@@ -12,8 +12,8 @@ const KPIScoring = () => {
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
-  const [filterYear, setFilterYear] = useState(currentYear);
-  const [filterMonth, setFilterMonth] = useState(currentMonth);
+  const [filterYear] = useState(currentYear);
+  const [filterMonth] = useState(currentMonth);
 
   useEffect(() => {
     console.log('Filter Year:', filterYear, 'Filter Month:', filterMonth + 1);

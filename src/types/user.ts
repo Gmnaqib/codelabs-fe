@@ -8,6 +8,7 @@ export type UserType = {
   status: string;
   subriset: string;
   change_device_id?: string;
+  device_id?: string;
 };
 
 export type UserApiResponse = {

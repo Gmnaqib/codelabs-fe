@@ -1,6 +1,5 @@
 "use client"
 import { CalendarMonthYearPicker } from '@/components/custom-ui/CalendarMonthYearPicker'
-import { DropdownField } from '@/components/custom-ui/DropdownField'
 import InputField from '@/components/custom-ui/InputField'
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
@@ -11,8 +10,8 @@ const Branding = () => {
   const [activePage, setActivePage] = useState<string>("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [filterWeek, setFilterWeek] = useState<string>("All");
-  const [filterContentType, setFilterContentType] = useState<string>("All");
+  const [filterWeek] = useState<string>("All");
+  const [filterContentType] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   return (
