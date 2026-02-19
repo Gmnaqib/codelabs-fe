@@ -33,6 +33,11 @@ interface RistekTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
+  searchQuery?: string;
+  filterContentType?: string;
+  filterWeek?: string;
+  month?: number;
+  year?: number;
 }
 
 const getStatusClass = (status: string) => {
@@ -52,6 +57,11 @@ const RistekTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  searchQuery = "",
+  filterContentType = "All SubResearch",
+  filterWeek = "All Week",
+  month,
+  year,
 }: RistekTableProps) => {
   type RistekResearchItem = {
     _id: string;
@@ -73,8 +83,13 @@ const RistekTable = ({
   const ristekHeaders = ristek[ristekKey] ?? [];
 
   const fetchResearchData = async () => {
+    setLoading(true);
     try {
-      const data = await getAllResearchRecords();
+      // Default to current year/month if not provided
+      const now = new Date();
+      const y = typeof year === 'number' ? year : now.getFullYear();
+      const m = typeof month === 'number' ? month : now.getMonth() + 1;
+      const data = await getAllResearchRecords(y, m);
       setResearchData(data);
     } catch (err) {
       console.error("Error fetching research:", err);
@@ -85,7 +100,19 @@ const RistekTable = ({
 
   useEffect(() => {
     fetchResearchData();
-  }, []);
+  }, [month, year]);
+
+  // Client-side filter for search, subresearch, week
+  const filteredData = researchData
+    .filter((item) =>
+      !searchQuery || (item.userId?.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((item) =>
+      filterContentType === "All SubResearch" ? true : (item.progress ?? "").toLowerCase() === filterContentType.toLowerCase()
+    )
+    .filter((item) =>
+      filterWeek === "All Week" ? true : `Week ${item.week}` === filterWeek
+    );
 
   const handleReview = async (id: string, value: string) => {
     try {
@@ -96,8 +123,8 @@ const RistekTable = ({
     }
   };
 
-  const totalPages = Math.ceil(researchData.length / itemsPerPage);
-  const paginatedData = researchData.slice(
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -109,6 +136,13 @@ const RistekTable = ({
           menus={Object.keys(ristek)}
           activeMenu={activePage}
           onChange={onPageChange}
+          filter
+          filterProps={{
+            // No-op, filter state handled in page and passed as props
+            onChange: () => {},
+            defaultYear: year ?? new Date().getFullYear(),
+            defaultMonth: typeof month === 'number' ? month : new Date().getMonth(),
+          }}
         />
       )}
 
@@ -135,12 +169,10 @@ const RistekTable = ({
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item, i) => (
                 <TableRow key={i}>
-                  {/* NAME */}
                   <TableCell className="text-center">
                     {item?.userId?.name ?? "-"}
                   </TableCell>
 
-                  {/* STATUS */}
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(

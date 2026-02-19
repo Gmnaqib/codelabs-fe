@@ -55,6 +55,11 @@ export const getAttendance = async (year: number, month: number) => {
   return res.data.data;
 };
 
+export const getAttendanceMe = async () => {
+  const res = await axiosClient.get("/attendance/summary/me");
+  return res.data.data;
+};
+
 export async function getAllLeaveRequests(year: number, month: number) {
   type LeaveRequest = { start_date?: string; startDate?: string };
   const { data } = await axiosClient.get(`/attendance/leave-requests`);

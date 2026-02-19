@@ -55,11 +55,13 @@ const OrganizationSummaryTable = ({
   });
   const [search, setSearch] = useState(searchQuery ?? "");
 
-  const filteredKpiData = kpiData
-    .filter((item: KPIUser) =>
-      item.name.toLowerCase().includes(search.trim().toLowerCase())
-    )
-    .sort((a: KPIUser, b: KPIUser) => b.totalPoint - a.totalPoint);
+  const filteredKpiData = Array.isArray(kpiData)
+    ? kpiData
+        .filter((item: KPIUser) =>
+          item.name.toLowerCase().includes(search.trim().toLowerCase())
+        )
+        .sort((a: KPIUser, b: KPIUser) => b.totalPoint - a.totalPoint)
+    : [];
   useEffect(() => {
     if (activePage === "Attendance") {
       const fetchKPI = async () => {
@@ -68,9 +70,10 @@ const OrganizationSummaryTable = ({
             selectedDate.year,
             selectedDate.month + 1
           );
-          setKpiData(res);
+          setKpiData(Array.isArray(res) ? res : []);
         } catch (error) {
           console.error("Error fetching KPI data:", error);
+          setKpiData([]);
         }
       };
       fetchKPI();
@@ -81,9 +84,10 @@ const OrganizationSummaryTable = ({
             selectedDate.year,
             selectedDate.month + 1
           );
-          setKpiData(res);
+          setKpiData(Array.isArray(res) ? res : []);
         } catch (error) {
           console.error("Error fetching KPI research data:", error);
+          setKpiData([]);
         }
       };
       fetchKPIResearch();
@@ -91,9 +95,10 @@ const OrganizationSummaryTable = ({
       const fetchUsers = async () => {
         try {
           const result = await getAllUsers();
-          setUsers(result);
+          setUsers(Array.isArray(result) ? result : []);
         } catch (error) {
           console.error("Error fetching users:", error);
+          setUsers([]);
         }
       };
       fetchUsers();

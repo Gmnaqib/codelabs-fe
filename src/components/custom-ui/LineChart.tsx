@@ -1,8 +1,6 @@
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
-
-import { getKPIAllOperational, getKPIAllResearch } from '@/services/kpi/kpiService';
+import { getKPIStatistic } from '@/services/kpi/kpiService';
 import {
   Chart,
   LineController,
@@ -41,22 +39,15 @@ const LineChart = ({ year }: LineChartProps) => {
   useEffect(() => {
     const fetchData = async () => {
       const y = year ? Number(year) : new Date().getFullYear();
-      const researchPoints: number[] = [];
-      const attendancePoints: number[] = [];
-      for (let month = 1; month <= 12; month++) {
-        try {
-          const researchRes = await getKPIAllResearch(y, month);
-          const attendanceRes = await getKPIAllOperational(y, month);
-          const researchTotal = Array.isArray(researchRes) ? researchRes.reduce((sum, item) => sum + (item.totalPoint || 0), 0) : 0;
-          const attendanceTotal = Array.isArray(attendanceRes) ? attendanceRes.reduce((sum, item) => sum + (item.totalPoint || 0), 0) : 0;
-          researchPoints.push(researchTotal);
-          attendancePoints.push(attendanceTotal);
-        } catch {
-          researchPoints.push(0);
-          attendancePoints.push(0);
-        }
+      try {
+        const res = await getKPIStatistic(y);
+        const dataArr = res?.data || [];
+        const researchPoints = dataArr.map((item: any) => item.totalResearch || 0);
+        const attendancePoints = dataArr.map((item: any) => item.totalAttendance || 0);
+        setChartData({ research: researchPoints, attendance: attendancePoints });
+      } catch {
+        setChartData({ research: Array(12).fill(0), attendance: Array(12).fill(0) });
       }
-      setChartData({ research: researchPoints, attendance: attendancePoints });
     };
     fetchData();
   }, [year]);

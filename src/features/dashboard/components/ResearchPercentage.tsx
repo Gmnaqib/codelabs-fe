@@ -7,15 +7,18 @@ import { BeakerIcon } from '@heroicons/react/24/solid'
 import React, { useEffect, useState } from 'react'
 
 const ResearchPercentage = () => {
-   const [totalUsers, setTotalUsers] = useState(0);
-   const [allResearchUsers, setAllResearchUsers] = useState(0);
 
-   useEffect(() => {
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [allResearchUsers, setAllResearchUsers] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [users, research] = await Promise.all([
           getAllUsers(),
-          getAllResearchRecords()
+          getAllResearchRecords(selectedYear, selectedMonth)
         ]);
 
         setTotalUsers(users.length);
@@ -27,19 +30,24 @@ const ResearchPercentage = () => {
         );
 
         setAllResearchUsers(uniqueIds.size);
-        
       } catch (error) {
         console.error("Error fetching research or user data", error);
       }
     };
-
     fetchData();
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
    return (
       <CardField title="Research Percentage" icon={<BeakerIcon />}>
         <div className="flex flex-col gap-2">
-          <CalendarMonthYearPicker />
+          <CalendarMonthYearPicker
+            onChange={({ month, year }) => {
+              setSelectedMonth(month + 1);
+              setSelectedYear(year);
+            }}
+            defaultMonth={selectedMonth - 1}
+            defaultYear={selectedYear}
+          />
           <DoughnutChart 
             filled={allResearchUsers} 
             total={totalUsers} 
