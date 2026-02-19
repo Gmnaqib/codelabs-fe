@@ -20,6 +20,23 @@ const MonthlyProgressCard = () => {
     };
     fetchKPI();
   }, []);
+  let statusLabel = 'Note Safe';
+  let statusClass = 'text-warning';
+  if (totalPoint !== null) {
+    if (totalPoint <= 150) {
+      statusLabel = 'Danger';
+      statusClass = 'text-destructive';
+    } else if (totalPoint <= 250) {
+      statusLabel = 'Warning';
+      statusClass = 'text-warning';
+    } else if (totalPoint <= 400) {
+      statusLabel = 'Safe';
+      statusClass = 'text-success';
+    } else if (totalPoint > 400) {
+      statusLabel = 'Excellent';
+      statusClass = 'text-primary';
+    }
+  }
   return (
     <CardField title="Monthly Progress" icon={<ChartBarSquareIcon />} bg>
       <div className="flex flex-col gap-8">
@@ -33,8 +50,8 @@ const MonthlyProgressCard = () => {
         </div>
         <div className="flex flex-col gap-2">
           <p className='font-normal text-md'>Your KPI Progress</p>
-          <Progress value={33} />
-          <p className='text-center text-destructive'>Danger</p>
+          <Progress value={Math.floor(totalPoint / 4)} />
+          <p className={`text-center ${statusClass}`}>{statusLabel}</p>
         </div>
       </div>
     </CardField>
