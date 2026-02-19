@@ -33,6 +33,11 @@ interface RistekTableProps {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
+  searchQuery?: string;
+  filterContentType?: string;
+  filterWeek?: string;
+  month?: number;
+  year?: number;
 }
 
 const getStatusClass = (status: string) => {
@@ -52,13 +57,12 @@ const RistekTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  searchQuery = "",
+  filterContentType = "All SubResearch",
+  filterWeek = "All Week",
+  month,
+  year,
 }: RistekTableProps) => {
-  // Month/year filter state
-  const currentDate = new Date();
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
-  const [filterYear, setFilterYear] = useState(currentYear);
-    const [filterMonth, setFilterMonth] = useState(currentMonth);
   type RistekResearchItem = {
     _id: string;
     userId?: { name?: string };
@@ -81,7 +85,11 @@ const RistekTable = ({
   const fetchResearchData = async () => {
     setLoading(true);
     try {
-      const data = await getAllResearchRecords(filterYear, filterMonth + 1);
+      // Default to current year/month if not provided
+      const now = new Date();
+      const y = typeof year === 'number' ? year : now.getFullYear();
+      const m = typeof month === 'number' ? month : now.getMonth() + 1;
+      const data = await getAllResearchRecords(y, m);
       setResearchData(data);
     } catch (err) {
       console.error("Error fetching research:", err);
@@ -92,7 +100,19 @@ const RistekTable = ({
 
   useEffect(() => {
     fetchResearchData();
-  }, [filterYear, filterMonth]);
+  }, [month, year]);
+
+  // Client-side filter for search, subresearch, week
+  const filteredData = researchData
+    .filter((item) =>
+      !searchQuery || (item.userId?.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((item) =>
+      filterContentType === "All SubResearch" ? true : (item.progress ?? "").toLowerCase() === filterContentType.toLowerCase()
+    )
+    .filter((item) =>
+      filterWeek === "All Week" ? true : `Week ${item.week}` === filterWeek
+    );
 
   const handleReview = async (id: string, value: string) => {
     try {
@@ -103,8 +123,8 @@ const RistekTable = ({
     }
   };
 
-  const totalPages = Math.ceil(researchData.length / itemsPerPage);
-  const paginatedData = researchData.slice(
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -118,13 +138,11 @@ const RistekTable = ({
           onChange={onPageChange}
           filter
           filterProps={{
-                onChange: ({ year, month }) => {
-                  setFilterYear(year);
-                  setFilterMonth(month);
-                },
-                defaultYear: filterYear,
-                defaultMonth: filterMonth,
-              }}
+            // No-op, filter state handled in page and passed as props
+            onChange: () => {},
+            defaultYear: year ?? new Date().getFullYear(),
+            defaultMonth: typeof month === 'number' ? month : new Date().getMonth(),
+          }}
         />
       )}
 

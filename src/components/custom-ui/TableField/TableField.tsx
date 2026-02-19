@@ -185,6 +185,11 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
+        searchQuery={searchQuery}
+        filterContentType={filterContentType}
+        filterWeek={filterWeek}
+        month={month}
+        year={year}
       />
     );
 
