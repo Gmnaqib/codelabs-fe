@@ -10,27 +10,18 @@ export const getKPIAllResearch = async (year: number, month: number) => {
   return res.data.data;
 };
 
-export const getKPIMeResearch = async () => {
-const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+export const getKPIMeResearch = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi/research/me?year=${year}&month=${month}`);
   return res.data.data;
 };
 
-export const getKPIMeOperational = async () => {
-const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+export const getKPIMeOperational = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi/operational/me?year=${year}&month=${month}`);
   return res.data.data;
 };
 
 
-export const getKPIMeRankings = async () => {
-const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+export const getKPIMeRankings = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi/me?year=${year}&month=${month}`);
   return res.data.data;
 };

@@ -18,7 +18,7 @@ export const updateCompetition = async (id: string, payload: CompetitionPayload)
 import { axiosClient } from "@/lib/axiosClient";
 
 export interface CompetitionFilterParams {
-  date?: string; // format: YYYY-MM
+  date?: string; 
 }
 
 export const getAllCompetition = async (params?: CompetitionFilterParams) => {
@@ -26,8 +26,8 @@ export const getAllCompetition = async (params?: CompetitionFilterParams) => {
   return res.data.data;
 };
 
-export const getMeCompetition = async () => {
-  const res = await axiosClient.get("/competition/me");
+export const getMeCompetition = async (year: number, month: number) => {
+  const res = await axiosClient.get(`/competition/me?year=${year}&month=${month}`);
   return res.data.data;
 };
 

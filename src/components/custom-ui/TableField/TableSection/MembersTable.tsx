@@ -140,7 +140,7 @@ const MembersTable = ({
                           <DropdownField
                             key={`product-${item._id}`}
                             title={dropdownTitle}
-                            menu={products.map((p) => p.name)}
+                            menu={products.map((p) => p.name).concat(["Other"])}
                             onSelect={(val: string) => {
                               const selectedProduct = products.find((p) => p.name === val);
                               handleUpdate(item._id, "product_id", selectedProduct ? selectedProduct._id : "");

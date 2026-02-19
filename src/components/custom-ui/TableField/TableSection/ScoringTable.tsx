@@ -10,10 +10,8 @@ import { getMyBranding, getBrandingById, updateBranding, addBranding } from "@/s
 import DialogField from "../../DialogField";
 import InputField from "../../InputField";
 import { DropdownField } from "../../DropdownField";
-
 import { getStatusColor } from "@/utils/statusColor";
 import { getKPIMeResearch } from "@/services/kpi/kpiService";
-
 
 const ScoringTable = ({
   activePage,
@@ -62,7 +60,7 @@ const ScoringTable = ({
       await addCompetition(payload);
       setOpenAddDialog(false);
       resetAddCompetition();
-      getMeCompetition().then((res) => setCompetitionData(res || []));
+      getMeCompetition(filterYear, filterMonth + 1).then((res) => setCompetitionData(res || []));
     } finally {
       setLoadingAdd(false);
     }
@@ -80,7 +78,7 @@ const ScoringTable = ({
       await addBranding(payload);
       setOpenAddDialog(false);
       resetAddBranding();
-      getMyBranding().then((res) => setBrandingData(res || []));
+      getMyBranding(filterYear, filterMonth + 1).then((res) => setBrandingData(res || []));
     } finally {
       setLoadingAdd(false);
     }
@@ -108,6 +106,10 @@ const ScoringTable = ({
 
   const [competitionData, setCompetitionData] = useState<CompetitionItem[]>([]);
   const [loadingCompetition, setLoadingCompetition] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const [filterYear, setFilterYear] = useState(currentYear);
+  const [filterMonth, setFilterMonth] = useState(currentMonth);
   const [brandingData, setBrandingData] = useState<BrandingItem[]>([]);
   const [loadingBranding, setLoadingBranding] = useState(false);
   const [openBrandingDetailId, setOpenBrandingDetailId] = useState<string | null>(null);
@@ -154,9 +156,8 @@ const ScoringTable = ({
         };
         await updateBranding(selectedBranding._id, payload);
         setOpenBrandingEditId(null);
-        getMyBranding().then((res) => setBrandingData(res || []));
+        getMyBranding(filterYear, filterMonth + 1).then((res) => setBrandingData(res || []));
       } catch {
-        // handle error
       } finally {
         setLoadingBrandingEdit(false);
       }
@@ -218,7 +219,7 @@ const ScoringTable = ({
         };
         await updateCompetition(selectedCompetition._id, payload);
         setOpenEditId(null);
-        getMeCompetition().then((res) => setCompetitionData(res || []));
+        getMeCompetition(filterYear, filterMonth + 1).then((res) => setCompetitionData(res || []));
       } catch {
 
       } finally {
@@ -241,36 +242,50 @@ const ScoringTable = ({
   useEffect(() => {
     if (activePage === "competition") {
       setLoadingCompetition(true);
-      getMeCompetition()
+      getMeCompetition(filterYear, filterMonth + 1) 
         .then((res) => setCompetitionData(res || []))
         .finally(() => setLoadingCompetition(false));
     } else if (activePage === "branding") {
       setLoadingBranding(true);
-      getMyBranding()
+      getMyBranding(filterYear, filterMonth + 1)
         .then((res) => setBrandingData(res || []))
         .finally(() => setLoadingBranding(false));
     }
-  }, [activePage]);
+  }, [activePage, filterYear, filterMonth]);
 
     const [myResearch, setMyResearch] = useState<{ totalApproved?: number; totalPoint?: number } | null>(null);
 
   const [myOperational, setMyOperational] = useState<{ totalAttendance?: number; totalTematik?: number; totalPicket?: number; totalPoint?: number; year?: number; month?: number } | null>(null);
   useEffect(() => {
     if (activePage === "research") {
-      getKPIMeResearch().then(res => setMyResearch(res || {}));
+      getKPIMeResearch(filterYear, filterMonth + 1).then(res => setMyResearch(res || {}));
     } else if (activePage === "operational") {
       import("@/services/kpi/kpiService").then(({ getKPIMeOperational }) => {
-        getKPIMeOperational().then(res => setMyOperational(res || {}));
+        getKPIMeOperational(filterYear, filterMonth + 1).then(res => setMyOperational(res || {}));
       });
     }
-  }, [activePage]);
+  }, [activePage, filterYear, filterMonth]);
 
   return (
     <div className="w-full rounded-lg overflow-hidden px-5">
       {showMenu && (
         <div className="flex justify-between gap-5">
           <div className=" w-full flex">
-            <Menubar menus={Object.keys(scoring)} activeMenu={activePage} onChange={onPageChange} filter search={false} />
+            <Menubar
+              menus={Object.keys(scoring)}
+              activeMenu={activePage}
+              onChange={onPageChange}
+              filter={true}
+              search={false}
+              filterProps={{
+                onChange: ({ year, month }) => {
+                  setFilterYear(year);
+                  setFilterMonth(month);
+                },
+                defaultYear: filterYear,
+                defaultMonth: filterMonth,
+              }}
+            />
           </div>
           {(activePage === "competition" || activePage === "branding") && (
             <div className="mt-1">

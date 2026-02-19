@@ -29,8 +29,8 @@ export const getAllBranding = async (params?: BrandingFilterParams) => {
   return res.data.data;
 };
 
-export const getMyBranding = async () => {
-  const res = await axiosClient.get("/branding/me");
+export const getMyBranding = async (year: number, month: number) => {
+  const res = await axiosClient.get(`/branding/me?year=${year}&month=${month}`);
   return res.data.data;
 };
 

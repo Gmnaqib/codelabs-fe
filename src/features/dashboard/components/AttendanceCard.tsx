@@ -179,7 +179,7 @@ const AttendanceCard = () => {
           (() => {
             const now = new Date();
             const hour = now.getHours();
-            if (hour >= 6 && hour < 17) {
+            if (hour >= 6 && hour < 9) {
               return (
                 <>
                    <Button 

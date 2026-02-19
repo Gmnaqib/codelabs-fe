@@ -5,16 +5,22 @@ import ProtectedRoute from '@/features/login/components/ProtectedRoute';
 import React, { useState, useEffect } from 'react'
 import { getKPIMeRankings } from '@/services/kpi/kpiService';
 
+
 const KPIScoring = () => {
-  const [activePage, setActivePage] = useState<string>("research")
+  const [activePage, setActivePage] = useState<string>("research");
   const [myPoint, setMyPoint] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const [filterYear, setFilterYear] = useState(currentYear);
+  const [filterMonth, setFilterMonth] = useState(currentMonth);
 
   useEffect(() => {
+    console.log('Filter Year:', filterYear, 'Filter Month:', filterMonth + 1);
     const fetchMe = async () => {
       try {
-        const res = await getKPIMeRankings();
-        setMyPoint(res?.data?.totalPoint ?? 0);
+        const res = await getKPIMeRankings(filterYear, filterMonth + 1);
+        setMyPoint(res?.totalPoint ?? 0);
       } catch {
         setMyPoint(0);
       } finally {
@@ -22,7 +28,7 @@ const KPIScoring = () => {
       }
     };
     fetchMe();
-  }, []);
+  }, [filterYear, filterMonth]);
 
   let statusLabel = 'Note Safe';
   let statusClass = 'text-warning';
@@ -41,7 +47,6 @@ const KPIScoring = () => {
       statusClass = 'text-primary';
     }
   }
-
   return (
     <ProtectedRoute>
       <Card>
@@ -69,10 +74,12 @@ const KPIScoring = () => {
         <div className="px-5">
           <hr />
         </div>
-          <TableField 
+          <TableField
             activePage={activePage}
             onPageChange={setActivePage}
-            showMenu={true} 
+            showMenu={true}
+            year={filterYear}
+            month={filterMonth + 1}
           />
       </Card>
     </ProtectedRoute>
