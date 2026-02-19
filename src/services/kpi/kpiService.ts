@@ -11,7 +11,7 @@ export const getKPIStatistic = async (year: number) => {
   };
 
 export const getKPIAllResearch = async (year: number, month: number) => {
-  const res = await axiosClient.get(`/kpi/statistic?year=${year}&month=${month}`);
+  const res = await axiosClient.get(`/kpi/research?year=${year}&month=${month}`);
   return res.data.data;
 };
 
