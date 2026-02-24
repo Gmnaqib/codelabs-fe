@@ -34,7 +34,7 @@ export async function loginUser(
   const payload: LoginPayload = {
     nim,
     password,
-    ...(existingDeviceId && { device_id: existingDeviceId }),
+    ...(existingDeviceId ? { device_id: existingDeviceId } : {}),
   };
 
   try {
@@ -45,6 +45,13 @@ export async function loginUser(
 
     if (data?.data?.token) {
       saveToken(data.data.token);
+    }
+
+    if (
+      data.data.role === "admin" ||
+      data.data.role === "lecturer"
+    ) {
+      localStorage.removeItem("device_id");
     }
 
     return data;
