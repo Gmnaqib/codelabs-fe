@@ -10,23 +10,52 @@ import { getKPIAllOperational, getKPIAllResearch } from "@/services/kpi/kpiServi
 
 interface OrganizationUser {
   _id: string;
-  name?: string;
+  userName?: string;
 
   }
 
-  interface KPIUser {
-    name: string;
-    // For Attendance
-    totalAttendance?: number;
-    totalTematik?: number;
-    totalPicket?: number;
-    // For ResearchPoints
-    totalUnfinished?: number;
-    totalFinished?: number;
-    totalApproved?: number;
-    totalPoint: number;
-    year: number;
-    month: number;
+  interface OperationalDetail {
+    attendance: {
+      count: number;
+      code: string;
+      point: number;
+      total: number;
+    };
+    picket: {
+      count: number;
+      code: string;
+      point: number;
+      total: number;
+    };
+    thematic: {
+      count: number;
+      code: string;
+      point: number;
+      total: number;
+    };
+  }
+
+
+  interface KPIAttendance {
+    userId: string;
+    userName: string;
+    totalPoints: number;
+    operationalDetail: OperationalDetail;
+    year?: number;
+    month?: number;
+  }
+
+  interface KPIResearch {
+    userId: string;
+    userName: string;
+    totalPoints: number;
+    byCategory: {
+      personal: { count: number; total: number };
+      product: { count: number; total: number };
+      workshop: { count: number; total: number };
+    };
+    year?: number;
+    month?: number;
   }
 
 
@@ -48,7 +77,7 @@ const OrganizationSummaryTable = ({
 }: OrganizationTableProps) => {
   const organizationHeaders = organization[activePage] ?? [];
   const [users, setUsers] = useState<OrganizationUser[]>([]);
-  const [kpiData, setKpiData] = useState<KPIUser[]>([]);
+  const [kpiData, setKpiData] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<{ year: number; month: number }>({
     year: new Date().getFullYear(),
     month: new Date().getMonth(),
@@ -57,10 +86,10 @@ const OrganizationSummaryTable = ({
 
   const filteredKpiData = Array.isArray(kpiData)
     ? kpiData
-        .filter((item: KPIUser) =>
-          item.name.toLowerCase().includes(search.trim().toLowerCase())
+        .filter((item: KPIAttendance | KPIResearch) =>
+          item.userName && item.userName.toLowerCase().includes(search.trim().toLowerCase())
         )
-        .sort((a: KPIUser, b: KPIUser) => b.totalPoint - a.totalPoint)
+        .sort((a: KPIAttendance | KPIResearch, b: KPIAttendance | KPIResearch) => b.totalPoints - a.totalPoints)
     : [];
   useEffect(() => {
     if (activePage === "Attendance") {
@@ -84,7 +113,15 @@ const OrganizationSummaryTable = ({
             selectedDate.year,
             selectedDate.month + 1
           );
-          setKpiData(Array.isArray(res) ? res : []);
+          if (res && Array.isArray(res)) {
+            setKpiData(res);
+          } else if (res && Array.isArray(res.byUser)) {
+            setKpiData(res.byUser);
+          } else if (res && res.data && Array.isArray(res.data.byUser)) {
+            setKpiData(res.data.byUser);
+          } else {
+            setKpiData([]);
+          }
         } catch (error) {
           console.error("Error fetching KPI research data:", error);
           setKpiData([]);
@@ -105,6 +142,7 @@ const OrganizationSummaryTable = ({
     }
   }, [activePage, selectedDate]);
 
+  console.log("KPI Data:", kpiData);
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {showMenu && (
@@ -139,35 +177,35 @@ const OrganizationSummaryTable = ({
 
         <TableBody className="overflow-y-auto">
           {activePage === "Attendance"
-            ? filteredKpiData.map((item: KPIUser, i: number) => (
-                <TableRow key={item.name + i}>
+            ? filteredKpiData.map((item: KPIAttendance, i: number) => (
+                <TableRow key={item.userName + i}>
                   <TableCell className="text-center">{i + 1}</TableCell>
-                  <TableCell className="text-center">{item.name}</TableCell>
-                  <TableCell className="text-center">{item.totalAttendance}</TableCell>
-                  <TableCell className="text-center">{item.totalTematik}</TableCell>
-                  <TableCell className="text-center">{item.totalPicket}</TableCell>
-                  <TableCell className="text-center">{item.totalPoint}</TableCell>
+                  <TableCell className="text-center">{item.userName}</TableCell>
+                  <TableCell className="text-center">{item.operationalDetail.attendance.count}</TableCell>
+                  <TableCell className="text-center">{item.operationalDetail.thematic.count}</TableCell>
+                  <TableCell className="text-center">{item.operationalDetail.picket.count}</TableCell>
+                  <TableCell className="text-center">{item.totalPoints}</TableCell>
                 </TableRow>
               ))
             : activePage === "ResearchPoints"
-            ? filteredKpiData.map((item: KPIUser, i: number) => (
-                <TableRow key={item.name + i}>
+            ? filteredKpiData.map((item: KPIResearch, i: number) => (
+                <TableRow key={item.userName + i}>
                   <TableCell className="text-center">{i + 1}</TableCell>
-                  <TableCell className="text-center">{item.name}</TableCell>
-                  <TableCell className="text-center">{item.totalUnfinished}</TableCell>
-                  <TableCell className="text-center">{item.totalFinished}</TableCell>
-                  <TableCell className="text-center">{item.totalApproved}</TableCell>
-                  <TableCell className="text-center">{item.totalPoint}</TableCell>
+                  <TableCell className="text-center">{item.userName}</TableCell>
+                  <TableCell className="text-center">{item.byCategory?.personal?.count ?? 0}</TableCell>
+                  <TableCell className="text-center">{item.byCategory?.product?.count ?? 0}</TableCell>
+                  <TableCell className="text-center">{item.byCategory?.workshop?.count ?? 0}</TableCell>
+                  <TableCell className="text-center">{item.totalPoints}</TableCell>
                 </TableRow>
               ))
             : users
                 .filter((user: OrganizationUser) =>
-                  user.name?.toLowerCase().includes(search.trim().toLowerCase())
+                  user.userName?.toLowerCase().includes(search.trim().toLowerCase())
                 )
                 .map((user: OrganizationUser, i: number) => (
                   <TableRow key={user._id}>
                     <TableCell className="text-center">{i + 1}</TableCell>
-                    <TableCell className="text-center">{user.name}</TableCell>
+                    <TableCell className="text-center">{user.userName}</TableCell>
                     <TableCell className="text-center">-</TableCell>
                     <TableCell className="text-center">-</TableCell>
                     <TableCell className="text-center">-</TableCell>

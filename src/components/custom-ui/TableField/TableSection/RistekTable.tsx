@@ -85,7 +85,6 @@ const RistekTable = ({
   const fetchResearchData = async () => {
     setLoading(true);
     try {
-      // Default to current year/month if not provided
       const now = new Date();
       const y = typeof year === 'number' ? year : now.getFullYear();
       const m = typeof month === 'number' ? month : now.getMonth() + 1;
@@ -102,7 +101,6 @@ const RistekTable = ({
     fetchResearchData();
   }, [month, year]);
 
-  // Client-side filter for search, subresearch, week
   const filteredData = researchData
     .filter((item) =>
       !searchQuery || (item.userId?.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())

@@ -28,7 +28,7 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("❌ API ERROR:", error.response?.data || error.message);
+    // console.error("❌ API ERROR:", error.response?.data || error.message);
 
     if (error.response?.status === 401) {
       console.warn("Unauthorized - token sudah kadaluarsa");

@@ -6,7 +6,7 @@ import { getKPIRankings } from "@/services/kpi/kpiService"
 
 interface KPIRankingUser {
   name: string;
-  totalPoint: number;
+  totalPoints: number;
   year: number;
   month: number;
 }
@@ -32,8 +32,8 @@ const KPIRangkings = () => {
 
   const sortedUsers = [...users].sort((a, b) => {
     return filter === "highest"
-      ? b.totalPoint - a.totalPoint
-      : a.totalPoint - b.totalPoint
+      ? b.totalPoints - a.totalPoints
+      : a.totalPoints - b.totalPoints
   });
 
   if (loading) {
@@ -72,7 +72,7 @@ const KPIRangkings = () => {
 
             <div className="flex justify-between items-center w-full">
               <p className="text-base">{user.name.split(" ")[0]}</p>
-              <p className="font-normal text-primary text-base">{user.totalPoint}</p>
+              <p className="font-normal text-primary text-base">{user.totalPoints}</p>
             </div>
           </div>
         ))}
