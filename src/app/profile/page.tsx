@@ -23,7 +23,6 @@ const Profile = () => {
     }
   }, [user]);
 
-  // Fungsi untuk sensor device_id
   const maskDeviceId = (deviceId: string | null | undefined): string => {
     if (!deviceId) return "No Device ID";
     
