@@ -25,9 +25,13 @@ export const getKPIMeOperational = async (year: number, month: number) => {
   return res.data.data;
 };
 
-
 export const getKPIMeRankings = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi/me?year=${year}&month=${month}`);
+  return res.data.data;
+};
+
+export const getKPIMeDetail = async (id: string) => {
+  const res = await axiosClient.get(`/kpi/summary/${id}`);
   return res.data.data;
 };
 

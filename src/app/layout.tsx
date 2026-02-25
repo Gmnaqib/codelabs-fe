@@ -1,4 +1,5 @@
 import { Poppins } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import LayoutWrapper from "@/components/layouts/LayoutWrapper";
 import { AuthProvider } from "../context/AuthContext";
@@ -10,24 +11,25 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-export const metadata = {
-  title: 'CodeLabs Attendance',
-  description: 'Attendance and management system for CodeLabs',
-  manifest: '/manifest.json',
-  themeColor: '#000000',
+export const metadata: Metadata = {
+  title: "CodeLabs Attendance",
+  description: "Attendance and management system for CodeLabs",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'CodeLabs',
+    statusBarStyle: "default",
+    title: "CodeLabs",
   },
   formatDetection: {
     telephone: false,
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -37,13 +39,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#000000" />
-      </head>
       <body className={`${poppins.className} antialiased bg-secondary`}>
         <AuthProvider>
           <LayoutWrapper>

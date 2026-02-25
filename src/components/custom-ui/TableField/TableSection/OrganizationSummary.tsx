@@ -77,7 +77,7 @@ const OrganizationSummaryTable = ({
 }: OrganizationTableProps) => {
   const organizationHeaders = organization[activePage] ?? [];
   const [users, setUsers] = useState<OrganizationUser[]>([]);
-  const [kpiData, setKpiData] = useState<any[]>([]);
+  const [kpiData, setKpiData] = useState<(KPIAttendance | KPIResearch)[]>([]);
   const [selectedDate, setSelectedDate] = useState<{ year: number; month: number }>({
     year: new Date().getFullYear(),
     month: new Date().getMonth(),
@@ -142,7 +142,6 @@ const OrganizationSummaryTable = ({
     }
   }, [activePage, selectedDate]);
 
-  console.log("KPI Data:", kpiData);
   return (
     <div className="w-full rounded-lg overflow-hidden">
       {showMenu && (
@@ -177,27 +176,31 @@ const OrganizationSummaryTable = ({
 
         <TableBody className="overflow-y-auto">
           {activePage === "Attendance"
-            ? filteredKpiData.map((item: KPIAttendance, i: number) => (
-                <TableRow key={item.userName + i}>
-                  <TableCell className="text-center">{i + 1}</TableCell>
-                  <TableCell className="text-center">{item.userName}</TableCell>
-                  <TableCell className="text-center">{item.operationalDetail.attendance.count}</TableCell>
-                  <TableCell className="text-center">{item.operationalDetail.thematic.count}</TableCell>
-                  <TableCell className="text-center">{item.operationalDetail.picket.count}</TableCell>
-                  <TableCell className="text-center">{item.totalPoints}</TableCell>
-                </TableRow>
-              ))
+            ? filteredKpiData
+                .filter((item): item is KPIAttendance => (item as KPIAttendance).operationalDetail !== undefined)
+                .map((item, i: number) => (
+                  <TableRow key={item.userName + i}>
+                    <TableCell className="text-center">{i + 1}</TableCell>
+                    <TableCell className="text-center">{item.userName}</TableCell>
+                    <TableCell className="text-center">{item.operationalDetail.attendance.count}</TableCell>
+                    <TableCell className="text-center">{item.operationalDetail.thematic.count}</TableCell>
+                    <TableCell className="text-center">{item.operationalDetail.picket.count}</TableCell>
+                    <TableCell className="text-center">{item.totalPoints}</TableCell>
+                  </TableRow>
+                ))
             : activePage === "ResearchPoints"
-            ? filteredKpiData.map((item: KPIResearch, i: number) => (
-                <TableRow key={item.userName + i}>
-                  <TableCell className="text-center">{i + 1}</TableCell>
-                  <TableCell className="text-center">{item.userName}</TableCell>
-                  <TableCell className="text-center">{item.byCategory?.personal?.count ?? 0}</TableCell>
-                  <TableCell className="text-center">{item.byCategory?.product?.count ?? 0}</TableCell>
-                  <TableCell className="text-center">{item.byCategory?.workshop?.count ?? 0}</TableCell>
-                  <TableCell className="text-center">{item.totalPoints}</TableCell>
-                </TableRow>
-              ))
+            ? filteredKpiData
+                .filter((item): item is KPIResearch => (item as KPIResearch).byCategory !== undefined)
+                .map((item, i: number) => (
+                  <TableRow key={item.userName + i}>
+                    <TableCell className="text-center">{i + 1}</TableCell>
+                    <TableCell className="text-center">{item.userName}</TableCell>
+                    <TableCell className="text-center">{item.byCategory?.personal?.count ?? 0}</TableCell>
+                    <TableCell className="text-center">{item.byCategory?.product?.count ?? 0}</TableCell>
+                    <TableCell className="text-center">{item.byCategory?.workshop?.count ?? 0}</TableCell>
+                    <TableCell className="text-center">{item.totalPoints}</TableCell>
+                  </TableRow>
+                ))
             : users
                 .filter((user: OrganizationUser) =>
                   user.userName?.toLowerCase().includes(search.trim().toLowerCase())

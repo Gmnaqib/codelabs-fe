@@ -26,8 +26,6 @@ const OperationalTable = ({
   activePage,
   onPageChange,
   showMenu = true,
-  month,
-  year,
   headersConfig,
   searchQuery = "",
 }: OperationalTableProps) => {

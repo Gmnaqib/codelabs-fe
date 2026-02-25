@@ -7,12 +7,16 @@ const AnnouncementCard = () => {
   const [summary, setSummary] = React.useState<Record<string, number>>({});
   const [spCount, setSpCount] = React.useState<number>(0);
   React.useEffect(() => {
+    interface StatusSummaryItem {
+      status: string;
+      count: number;
+    }
     const fetchSummary = async () => {
       try {
         const data = await getAttendanceMe();
         const map: Record<string, number> = {};
         if (data && Array.isArray(data.statusSummary)) {
-          data.statusSummary.forEach((item: any) => {
+          (data.statusSummary as StatusSummaryItem[]).forEach((item) => {
             map[item.status] = item.count;
           });
         }

@@ -13,7 +13,7 @@ const AverageMonthly = () => {
       try {
         const data = await getKPIRankings();
         if (Array.isArray(data) && data.length > 0) {
-          const total = data.reduce((sum, user) => sum + (user.totalPoint || 0), 0);
+          const total = data.reduce((sum, user) => sum + (user.totalPoints || 0), 0);
           setAverage(Math.round(total / data.length));
         } else {
           setAverage(0);

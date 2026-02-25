@@ -37,13 +37,17 @@ const LineChart = ({ year }: LineChartProps) => {
   );
 
   useEffect(() => {
+    interface KPIStatisticItem {
+      totalResearch?: number;
+      totalAttendance?: number;
+    }
     const fetchData = async () => {
       const y = year ? Number(year) : new Date().getFullYear();
       try {
         const res = await getKPIStatistic(y);
-        const dataArr = res?.data || [];
-        const researchPoints = dataArr.map((item: any) => item.totalResearch || 0);
-        const attendancePoints = dataArr.map((item: any) => item.totalAttendance || 0);
+        const dataArr: KPIStatisticItem[] = res?.data || [];
+        const researchPoints = dataArr.map((item) => item.totalResearch || 0);
+        const attendancePoints = dataArr.map((item) => item.totalAttendance || 0);
         setChartData({ research: researchPoints, attendance: attendancePoints });
       } catch {
         setChartData({ research: Array(12).fill(0), attendance: Array(12).fill(0) });

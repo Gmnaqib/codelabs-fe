@@ -99,7 +99,7 @@ const RistekTable = ({
 
   useEffect(() => {
     fetchResearchData();
-  }, [month, year]);
+  }, [month, year, fetchResearchData]);
 
   const filteredData = researchData
     .filter((item) =>
