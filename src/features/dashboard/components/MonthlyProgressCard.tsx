@@ -49,7 +49,6 @@ const MonthlyProgressCard = () => {
         <div className="flex flex-col text-center">
           <p className='text-sm text-muted'>Curent Rank</p>
           <p className='font-medium text-2xl text-primary'>{rank !== null ? rank : '-'}</p>
-          {name && <p className='text-sm text-muted'>Name: {name}</p>}
         </div>
         <div className="flex flex-col text-center">
           <p className='text-sm text-muted'>Curent Points</p>

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 export interface DialogFieldProps {
-  name: string,
+  name: ReactNode,
   title: string,
   variant?: "default" | "link" | "destructive" | "outline" | "secondary" | "ghost",
   size?: "default" | "sm" | "lg" | "noPadding" | "icon",
@@ -12,4 +12,6 @@ export interface DialogFieldProps {
   onSubmit?: () => void; 
   onCancel?: () => void;
   onTriggerClick?: () => void;
+  submitDisabled?: boolean;
+  disabled?: boolean;
 }

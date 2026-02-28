@@ -12,11 +12,7 @@ import {
 import { DialogFieldProps } from "@/types/DialogFieldProps";
 import { Button } from "../ui/button";
 
-interface ExtendedDialogFieldProps extends DialogFieldProps {
-  submitDisabled?: boolean;
-}
-
-const DialogField = (props: ExtendedDialogFieldProps) => {
+const DialogField = (props: DialogFieldProps) => {
   const {
     name,
     title,
@@ -30,6 +26,7 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
     onTriggerClick,
     noPadding = false, 
     submitDisabled = false,
+    disabled = false,
   } = props;
 
   const [internalOpen, setInternalOpen] = useState(false);
@@ -56,6 +53,7 @@ const DialogField = (props: ExtendedDialogFieldProps) => {
           onClick={onTriggerClick}
           className={noPadding ? "py-0" : ""} 
           size={size}
+          disabled={disabled}
         >
           {name}
         </Button>

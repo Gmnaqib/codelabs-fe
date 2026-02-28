@@ -15,13 +15,6 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user, setUser } = useAuth(); 
-  const [userDetail, setUserDetail] = useState<import("@/types/user").UserType | null>(null);
-
-  React.useEffect(() => {
-    if (user?.id) {
-      getUserById(user.id).then(setUserDetail);
-    }
-  }, [user]);
 
   const maskDeviceId = (deviceId: string | null | undefined): string => {
     if (!deviceId) return "No Device ID";
@@ -135,13 +128,13 @@ const Profile = () => {
                 label="Device Id"
                 type="text"
                 placeholder="No Device ID"
-                value={maskDeviceId(userDetail?.device_id)}
+                value={maskDeviceId(user?.device_id)}
                 readOnly
               />
             </div>
             <Button
               className="w-fit"
-              disabled={userDetail?.change_device_id === "false" || userDetail?.change_device_id === undefined}
+              disabled={user?.change_device_id === "false" || user?.change_device_id === undefined}
               onClick={handleUpdateDeviceId}
             >
               Reset
