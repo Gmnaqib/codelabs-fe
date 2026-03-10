@@ -22,8 +22,9 @@ const WeeklyReport = () => {
   const [filterWeek, setFilterWeek] = useState("All");
   const [filterProgress, setFilterProgress] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState( new Date().getMonth()+ 1);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
   const handleSubmit = async () => {
     if (!title || !week || !progress) {
@@ -55,15 +56,16 @@ const WeeklyReport = () => {
     try {
       await createResearchRecord(payload);
       toast.success("Data Berhasil Ditambahkan");
-
       setTitle("");
       setWeek("");
       setProgress("");
       setLink("");
       setChallenge("");
       setIsDialogOpen(false);
-    } catch {
-      showErrorToast("Gagal menambahkan research.", { duration: 5000 });
+      setFetchTrigger(Date.now());
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.message || error?.message || "Gagal menambahkan research.";
+      showErrorToast(errMsg, { duration: 5000 });
     }
   };
 
@@ -168,6 +170,7 @@ const WeeklyReport = () => {
             filterProgress={filterProgress}
             month={selectedMonth}
             year={selectedYear}
+            fetchTrigger={fetchTrigger}
           />
         </div>
       </Card>

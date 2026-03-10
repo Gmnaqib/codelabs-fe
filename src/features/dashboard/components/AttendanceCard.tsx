@@ -66,8 +66,9 @@ const AttendanceCard = () => {
         setLeaveEndDate('');
         setLeaveAttachment(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
-      } catch {
-        toast.error('Gagal mengirim izin!');
+      } catch (error: any) {
+        const errMsg = error?.response?.data?.message || error?.message || 'Gagal mengirim izin!';
+        toast.error(errMsg);
       }
   };
 
@@ -163,8 +164,9 @@ const AttendanceCard = () => {
       setIsCheckedIn(!!found);
       setDialogOpen(false);
       setReason('');
-    } catch {
-      toast.error("Gagal melakukan check-in.");
+    } catch (error: any) {
+      const errMsg = error?.response?.data?.message || error?.message || "Gagal melakukan check-in.";
+      toast.error(errMsg);
     }
     setCheckinLoading(false);
   };

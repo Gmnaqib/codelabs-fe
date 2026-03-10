@@ -66,7 +66,8 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   filterRole = "All Role",
   filterSubriset = "All SubRiset",
   filterStatus = "All Status",
-}: TabelFieldProps<T> & { filterContentType?: string, filterRole?: string, filterSubriset?: string, filterStatus?: string }) => {
+  fetchTrigger,
+}: TabelFieldProps<T> & { filterContentType?: string, filterRole?: string, filterSubriset?: string, filterStatus?: string, fetchTrigger?: number }) => {
   const {
     isReport,
     isAttendance,
@@ -80,7 +81,6 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
     isPicketSchedule,
     isProducts,
     checkedState,
-    researchData,
     handleToggleCheckbox,
   } = useTableLogic(activePage, month, year, data, onPageChange);
 
@@ -101,24 +101,17 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
       ? members
       : customHeaderConfig ?? operasional;
 
-  
-  const filteredData = (researchData as ResearchItem[]).filter((item) => {
-    const date = new Date(item.createdAt);
-    const matchMonth = date.getMonth() + 1 === month;
-    const matchYear = date.getFullYear() === year;
-    const matchWeek = filterWeek === "All" || `Week ${item.week}` === filterWeek;
-    const matchProgress = filterProgress === "All" || item.progress.toLowerCase() === filterProgress.toLowerCase();
-
-    return matchMonth && matchYear && matchWeek && matchProgress;
-  });
-
   if (isReport)
     return (
       <ReportTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={showMenu}
-        researchData={filteredData}
+        month={month}
+        year={year}
+        filterWeek={filterWeek}
+        filterProgress={filterProgress}
+        fetchTrigger={fetchTrigger}
       />
     );
 
