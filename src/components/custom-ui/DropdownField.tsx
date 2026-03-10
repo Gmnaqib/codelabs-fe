@@ -58,7 +58,7 @@ export function DropdownField({
                 ? "border-primary text-primary bg-transparent"
                 : white
                   ? "border-white text-white bg-transparent"
-                  : "border-muted-foreground text-muted-foreground bg-white"}
+                  : "border-muted-foreground text-black bg-white text-base"}
             `}
             disabled={disabled}
           >

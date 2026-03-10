@@ -55,11 +55,11 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
     context.drawImage(videoRef.current, 0, 0, 320, 240);
     canvasRef.current.toBlob(blob => {
       if (blob) {
-        const file = new File([blob], `photo_${Date.now()}.png`, { type: 'image/png' });
+        const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
         onCapture(file);
         stopCamera();
       }
-    }, 'image/png');
+    }, 'image/jpeg', 0.7);
   };
 
   return (

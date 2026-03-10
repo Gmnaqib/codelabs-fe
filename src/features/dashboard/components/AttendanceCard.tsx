@@ -46,6 +46,31 @@ const AttendanceCard = () => {
   const now = new Date();
   const hour = now.getHours();
 
+  const handlePermissionSubmit = async () => {
+      if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
+        toast.error('Semua field wajib diisi!');
+        return;
+      }
+      setLeaveResult(null);
+      try {
+        await postLeaveRequest({
+          type: leaveType,
+          reason: leaveReason,
+          attachment: leaveAttachment,
+          start_date: leaveStartDate,
+          end_date: leaveEndDate,
+        });
+        toast.success('Sukses mengirim izin!');
+        setLeaveReason('');
+        setLeaveStartDate('');
+        setLeaveEndDate('');
+        setLeaveAttachment(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      } catch {
+        toast.error('Gagal mengirim izin!');
+      }
+  };
+
   useEffect(() => {
     const fetchAttendance = async () => {
       if (!user) {
@@ -328,33 +353,10 @@ const AttendanceCard = () => {
             }
           })()
         )}
-        {hour >= 6 && hour < 10 && !isCheckedIn && (
-          <div className="flex items-center gap-2 mt-3">
+        {hour >= 6 && hour < 15 && !isCheckedIn && (
+          <div className="flex items-center gap-2 mt-3 cursor-pointer">
             <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
-              onSubmit={async () => {
-                if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
-                  setLeaveResult('Semua field wajib diisi!');
-                  return;
-                }
-                setLeaveResult(null);
-                try {
-                  await postLeaveRequest({
-                    type: leaveType,
-                    reason: leaveReason,
-                    attachment: leaveAttachment,
-                    start_date: leaveStartDate,
-                    end_date: leaveEndDate,
-                  });
-                  setLeaveResult('Sukses mengirim izin!');
-                  setLeaveReason('');
-                  setLeaveStartDate('');
-                  setLeaveEndDate('');
-                  setLeaveAttachment(null);
-                  if (fileInputRef.current) fileInputRef.current.value = '';
-                } catch {
-                  setLeaveResult('Gagal mengirim izin!');
-                }
-              }}
+              onSubmit={handlePermissionSubmit}
             >
               <div>
                 <p className='mb-1'>Select Permission</p>
@@ -372,22 +374,25 @@ const AttendanceCard = () => {
                   onChange={e => setLeaveReason(e.target.value)}
                 />
                 <div>
-                  <label className="block text-sm font-medium mb-1">Leave Date</label>
-                  <button
-                    type="button"
-                    className="border rounded-lg px-2 py-1 w-full text-left bg-white"
-                    onClick={() => setShowDateModal(true)}
+                  <label className="block mb-1">Leave Date</label>
+                  <Button
+                  type='button'
+                    className='rounded-full px-2 py-4 w-full text-base bg-white text-black border border-muted-foreground font-light hover:bg-primary hover:text-white'
+                    onClick={() => {
+                      if (!showDateModal) {
+                        setShowDateModal(true);
+                      }
+                    }}
                   >
                     {leaveStartDate && leaveEndDate && leaveStartDate !== leaveEndDate
                       ? `${leaveStartDate} s/d ${leaveEndDate}`
                       : leaveStartDate
                       ? leaveStartDate
-                      : 'Select leave date'}
-                  </button>
+                      : 'Select Leave Date'}
+                  </Button>
                   {showDateModal && (
                     <div
                       className="fixed inset-0 z-50 flex items-center justify-center"
-                      onClick={() => setShowDateModal(false)}
                       style={{ background: 'transparent' }}
                     >
                       <div
@@ -404,7 +409,11 @@ const AttendanceCard = () => {
                           }}
                         />
                         <div className="flex gap-2 mt-4 justify-end">
-                          <Button type="button" onClick={() => setShowDateModal(false)}>
+                          <Button type="button" onClick={() => {
+                            if (leaveStartDate) {
+                              setShowDateModal(false);
+                            }
+                          }}>
                             Pilih
                           </Button>
                         </div>
@@ -413,12 +422,14 @@ const AttendanceCard = () => {
                   )}
                 </div>
                   
+                {!leaveAttachment ? (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Take Picture</label>
-                  <CameraCapture onCapture={file => setLeaveAttachment(file)} />
-                  {leaveAttachment && <span className="text-xs">Foto sudah diambil</span>}
+                  <label className="block text-base font-light mb-1">Take Picture</label>
+                    <CameraCapture onCapture={file => setLeaveAttachment(file)} />
                 </div>
-                {leaveResult && <p className="text-xs text-center mt-2">{leaveResult}</p>}
+                ) : (
+                  <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>
+                )}
               </div>
             </DialogField>
             <ArrowUpRightIcon className="size-5 text-primary" />

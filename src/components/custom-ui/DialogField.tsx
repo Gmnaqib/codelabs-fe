@@ -72,7 +72,7 @@ const DialogField = (props: DialogFieldProps) => {
             : children}
 
           <div className="flex justify-center gap-4 mt-5">
-            <Button variant="outline" onClick={handleCancel}>
+            <Button variant="outline" onClick={handleCancel} className="text-lg">
               Batal
             </Button>
             {onSubmit && (

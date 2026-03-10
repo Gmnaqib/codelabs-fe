@@ -33,20 +33,15 @@ const Profile = () => {
   const handleUpdateDeviceId = async () => {
     try {
       await updateDeviceId({ device_id: null });
-
       toast.success("Device ID berhasil dihapus. Redirecting...");
-      
       localStorage.removeItem('device_id');
       localStorage.removeItem('token');
-      
       if (setUser) {
         setUser(null);
       }
-      
       setTimeout(() => {
         window.location.href = '/login';
       }, 1000);
-      
     } catch {
       showErrorToast("Gagal update Device ID.", { duration: 5000 });
     }
