@@ -9,12 +9,16 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const VIDEO_WIDTH = 360;
+  const VIDEO_HEIGHT = 640;
 
   const startCamera = async () => {
     try {
       const constraints = {
         video: {
-          facingMode: { exact: 'environment' }
+          facingMode: { exact: 'environment' },
+          width: { ideal: VIDEO_WIDTH },
+          height: { ideal: VIDEO_HEIGHT }
         }
       };
       let mediaStream: MediaStream;
@@ -52,7 +56,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
     if (!canvasRef.current || !videoRef.current) return;
     const context = canvasRef.current.getContext('2d');
     if (!context) return;
-    context.drawImage(videoRef.current, 0, 0, 320, 240);
+    context.drawImage(videoRef.current, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
     canvasRef.current.toBlob(blob => {
       if (blob) {
         const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
@@ -70,15 +74,15 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
         <>
           <video
             ref={videoRef}
-            width={320}
-            height={240}
+            width={VIDEO_WIDTH}
+            height={VIDEO_HEIGHT}
             autoPlay
             playsInline
             muted
             className="rounded border"
             style={{ background: '#000', transform: 'none' }}
           />
-          <canvas ref={canvasRef} width={320} height={240} style={{ display: 'none' }} />
+          <canvas ref={canvasRef} width={VIDEO_WIDTH} height={VIDEO_HEIGHT} style={{ display: 'none' }} />
           <div className="flex gap-2 mt-2">
             <button type="button" onClick={handleCapture} className="px-3 py-1 bg-green-500 text-white rounded">Take Picture</button>
             <button type="button" onClick={stopCamera} className="px-3 py-1 bg-gray-400 text-white rounded">Close</button>

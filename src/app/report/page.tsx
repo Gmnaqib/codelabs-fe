@@ -63,8 +63,13 @@ const WeeklyReport = () => {
       setChallenge("");
       setIsDialogOpen(false);
       setFetchTrigger(Date.now());
-    } catch (error: any) {
-      const errMsg = error?.response?.data?.message || error?.message || "Gagal menambahkan research.";
+    } catch (error: unknown) {
+      let errMsg = "Gagal menambahkan research.";
+      if (error && typeof error === "object") {
+        errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
+          || (error as { message?: string })?.message
+          || errMsg;
+      }
       showErrorToast(errMsg, { duration: 5000 });
     }
   };

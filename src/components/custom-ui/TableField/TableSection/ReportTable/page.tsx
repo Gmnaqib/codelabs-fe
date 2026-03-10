@@ -70,7 +70,7 @@ const ReportTable = ({
       try {
         const data = await getMeResearchRecords();
         setResearchData(Array.isArray(data) ? data : []);
-      } catch (e) {
+      } catch {
         setResearchData([]);
       } finally {
         setLoading(false);

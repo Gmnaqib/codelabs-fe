@@ -2,7 +2,6 @@
 import InputField from "@/components/custom-ui/InputField";
 import { updateUser } from "@/services/users/userService";
 import { updateDeviceId } from "@/services/users/userService";
-import { getUserById } from "@/services/users/userService";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";

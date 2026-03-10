@@ -34,7 +34,6 @@ const AttendanceCard = () => {
   const [leaveEndDate, setLeaveEndDate] = useState('');
   const [leaveAttachment, setLeaveAttachment] = useState<File | null>(null);
   // const [leaveLoading, setLeaveLoading] = useState(false);
-  const [leaveResult, setLeaveResult] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isCheckedIn, setIsCheckedIn] = useState<boolean | null>(null);
   const [isCheckedOut, setIsCheckedOut] = useState<boolean | null>(null);
@@ -51,7 +50,6 @@ const AttendanceCard = () => {
         toast.error('Semua field wajib diisi!');
         return;
       }
-      setLeaveResult(null);
       try {
         await postLeaveRequest({
           type: leaveType,
@@ -66,8 +64,13 @@ const AttendanceCard = () => {
         setLeaveEndDate('');
         setLeaveAttachment(null);
         if (fileInputRef.current) fileInputRef.current.value = '';
-      } catch (error: any) {
-        const errMsg = error?.response?.data?.message || error?.message || 'Gagal mengirim izin!';
+      } catch (error: unknown) {
+        let errMsg = 'Gagal mengirim izin!';
+        if (error && typeof error === 'object') {
+          errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
+            || (error as { message?: string })?.message
+            || errMsg;
+        }
         toast.error(errMsg);
       }
   };
@@ -164,8 +167,13 @@ const AttendanceCard = () => {
       setIsCheckedIn(!!found);
       setDialogOpen(false);
       setReason('');
-    } catch (error: any) {
-      const errMsg = error?.response?.data?.message || error?.message || "Gagal melakukan check-in.";
+    } catch (error: unknown) {
+      let errMsg = "Gagal melakukan check-in.";
+      if (error && typeof error === "object") {
+        errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
+          || (error as { message?: string })?.message
+          || errMsg;
+      }
       toast.error(errMsg);
     }
     setCheckinLoading(false);

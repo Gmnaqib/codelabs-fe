@@ -7,7 +7,6 @@ import { getKPIMeRankings } from '@/services/kpi/kpiService'
 const MonthlyProgressCard = () => {
   const [totalPoints, setTotalPoints] = React.useState<number>(0);
   const [rank, setRank] = React.useState<number | null>(null);
-  const [name, setName] = React.useState<string>("");
   React.useEffect(() => {
     const now = new Date();
     const year = now.getFullYear();
@@ -17,11 +16,9 @@ const MonthlyProgressCard = () => {
         const data = await getKPIMeRankings(year, month);
         setTotalPoints(data.totalPoints);
         setRank(data.rank ?? null);
-        setName(data.name ?? "");
       } catch {
         setTotalPoints(0);
         setRank(null);
-        setName("");
       }
     };
     fetchKPI();

@@ -82,7 +82,7 @@ const RistekTable = ({
   const ristekKey = Object.keys(ristek)[0];
   const ristekHeaders = ristek[ristekKey] ?? [];
 
-  const fetchResearchData = async () => {
+  const fetchResearchData = React.useCallback(async () => {
     setLoading(true);
     try {
       const now = new Date();
@@ -95,7 +95,7 @@ const RistekTable = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [year, month]);
 
   useEffect(() => {
     fetchResearchData();
