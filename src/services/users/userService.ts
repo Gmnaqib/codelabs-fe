@@ -17,6 +17,10 @@ export interface UserPayload {
   [key: string]: unknown;
 }
 
+export interface MultipleRegisterPayload {
+  emails: string[];
+}
+
 export const createUser = async (payload: UserPayload) => {
   const res = await axiosClient.post("/auth/register", payload);
   return res.data;
@@ -36,6 +40,11 @@ export async function updateUser(id: string, payload: UserPayload) {
   const { data } = await axiosClient.patch(`/users/${id}`, payload);
   return data;
 }
+
+export const multipleRegisterUsers = async (payload: MultipleRegisterPayload) => {
+  const res = await axiosClient.post("/auth/multiple-register", payload);
+  return res.data;
+};
 
 
 export interface DeviceIdPayload {

@@ -38,6 +38,7 @@ interface Props {
 
 import { useEffect, useState } from "react";
 import { getProducts } from "@/services/product/productsService";
+import { toast } from "sonner";
 
 const MembersTable = ({
   activePage,
@@ -68,12 +69,12 @@ const MembersTable = ({
       };
 
       await updateUser(id, safePayload);
+      toast.success(`Successfully updated ${key}`);
     } catch (err) {
-      console.error(`❌ Gagal update ${key}:`, err);
+      toast.error(`Failed to update ${key}`);
     }
   };
 
-  // Client-side filter for role, subriset, status
   const filteredData = data
     .filter((u) =>
       filterRole === "All Role" ? true : u.role === filterRole
@@ -127,9 +128,7 @@ const MembersTable = ({
                     </TableCell>
 
                     <TableCell className="w-[150px]">
-                      {products.length === 0 ? (
-                        <span>Loading products...</span>
-                      ) : (() => {
+                      {(() => {
                         let dropdownTitle = "Other";
                         if (item.product_id && products.length > 0) {
                           const pid = String(item.product_id).toLowerCase();
