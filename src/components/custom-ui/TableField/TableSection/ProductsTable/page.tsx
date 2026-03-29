@@ -75,14 +75,6 @@ const ProductsTable = ({
 
   return (
     <div>
-      {showMenu && (
-        <Menubar
-          menus={Object.keys(products)}
-          activeMenu={activePage}
-          onChange={onPageChange}
-        />
-      )}
-
       <Table className="w-full table-fixed">
         <TableHeader>
           <TableRow>

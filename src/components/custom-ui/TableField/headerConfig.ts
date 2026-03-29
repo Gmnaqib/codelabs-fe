@@ -52,3 +52,7 @@ export const assessments: Record<string, string[]> = {
 export const products: Record<string, string[]> = {
   products: ["Product","Action"],
 };
+
+export const points: Record<string, string[]> = {
+  points: ["Category","Code", "Points", "Action"],
+};

@@ -12,6 +12,7 @@ import {
   TrophyIcon as TrophySolid,
   UserGroupIcon as UserGroupSolid,
   CubeIcon as CubeSolid,
+  CircleStackIcon as CircleStackSolid,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -28,6 +29,7 @@ import {
   TrophyIcon as TrophyOutline,
   UserGroupIcon as UserGroupOutline,
   CubeIcon as CubeOutline,
+  CircleStackIcon as CircleStackOutline,
 } from "@heroicons/react/24/outline";
 
 export const menuItems = [
@@ -122,6 +124,13 @@ export const menuItems = [
     roles: ["admin", "minister of branding"],
   },
   {
+    title: "KPI Points",
+    iconSolid: CircleStackSolid,
+    iconOutline: CircleStackOutline,
+    route: "/points",
+    roles: ["admin", "president", "vice president"],
+  },
+  {
     title: "Log Out",
     iconSolid: ArrowLeftSolid,
     iconOutline: ArrowLeftOutline,
@@ -148,4 +157,5 @@ export const menuNavbar = [
   { path: '/ristek', title: 'Research & Tech' },
   { path: '/competition', title: 'Competition' },
   { path: '/branding', title: 'Branding' },
+  { path: '/points', title: 'KPI Points' },
 ]

@@ -42,6 +42,7 @@ export const useTableLogic = (
   const [isAssessments, setIsAssessments] = useState(false);
   const [isPicketSchedule, setIsPicketSchedule] = useState(false);
   const [isProducts, setIsProducts] = useState(false);
+  const [isPoints, setIsPoints] = useState(false);
 
   const [checkedState, setCheckedState] = useState<Record<string, boolean>>({});
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
@@ -197,6 +198,7 @@ export const useTableLogic = (
       members: "members",
       picketschedule: "picketSchedule",
       products: "products",
+      points: "points",
       ristek: "ristek",
     };
 
@@ -229,6 +231,7 @@ export const useTableLogic = (
     setIsCompetition(category === "competition");
     setIsBranding(category === "branding");
     setIsProducts(category === "products");
+    setIsPoints(category === "points");
     setIsPicketSchedule(category === "picketSchedule");
 
     if (category === "organization" && norm === "organization") {
@@ -253,6 +256,7 @@ export const useTableLogic = (
     isAssessments,
     isPicketSchedule,
     isProducts,
+    isPoints,
     checkedState,
     recordIds,
     researchData,

@@ -10,6 +10,7 @@ import {
   members,
   ristek,
   products,
+  points,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -27,6 +28,7 @@ import PicketScheduleTable from "./TableSection/PicketScheduleTable/page";
 import ReportTable from "./TableSection/ReportTable/page";
 import { ResearchItem } from "@/types/ReportTableProps";
 import ProductsTable from "./TableSection/ProductsTable/page";
+import PointsTable from "./TableSection/PointsTable/page";
 
 type AssessmentItem = {
   rank?: number | string;
@@ -80,6 +82,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
     isBranding,
     isPicketSchedule,
     isProducts,
+    isPoints,
     checkedState,
     handleToggleCheckbox,
   } = useTableLogic(activePage, month, year, data, onPageChange);
@@ -98,6 +101,8 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
       : isRistek
       ? products
       : isProducts
+      ? points
+      : isPoints
       ? members
       : customHeaderConfig ?? operasional;
 
@@ -229,6 +234,15 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         showMenu={false}
         searchQuery={searchQuery}
         fetchTrigger={fetchTrigger}
+      />
+    );
+
+  if (isPoints)
+    return (
+      <PointsTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={false}
       />
     );
 
