@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Menubar } from "@/components/custom-ui/MenuBar";
 import { getAllUsers } from "@/services/users/userService";
 import { getAttendance } from "@/services/attendance/attendanceService";
-import { getOperationalRecords } from "@/services/operational/operationalService";
+import { getOperationalRecords, getSchedulesPicket } from "@/services/operational/operationalService";
 import { OperationalTableProps } from "@/types/OperationalTableProps";
 import Image from "next/image";
 import {
@@ -64,6 +64,7 @@ const OperationalTable = ({
       month: new Date().getMonth(),
     });
   const [search, setSearch] = useState(searchQuery ?? "");
+  const [picketSchedules, setPicketSchedules] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,12 +78,14 @@ const OperationalTable = ({
             ? "picket"
             : undefined;
 
-        const [userRes, attendanceRes, operationalRes] = await Promise.all([
+        const [userRes, attendanceRes, operationalRes, picketRes] = await Promise.all([
           getAllUsers(),
           getAttendance(selectedDate.year, selectedDate.month + 1),
           type ? getOperationalRecords(type, undefined, selectedDate.year, selectedDate.month + 1) : Promise.resolve([]),
+          getSchedulesPicket(),
         ]);
 
+        setPicketSchedules(picketRes.data || picketRes || []);
 
         const attendanceMap = attendanceRes.reduce(
           (acc: Record<string, AttendanceRecord[]>, att: AttendanceRecord) => {
@@ -141,7 +144,7 @@ const OperationalTable = ({
 
     const renderCell = (day: string | number, rowIndex: number, data: User[]) => {
       const user = data[rowIndex];
-      if (isPiket) return renderPicketCell(day, rowIndex, data);
+      if (isPiket) return renderPicketCell(day, rowIndex, data, picketSchedules);
       if (isThematic) return renderThematicCell(day, rowIndex, data);
       return renderAbsenceCell(Number(day), user._id, user.records);
     };
@@ -230,7 +233,6 @@ const OperationalTable = ({
             if (key === "nim") value = row.nim;
             else if (key === "name") value = row.name;
             else if (key === "_id") value = row._id;
-            // Add more fields as needed
             if (value === undefined || value === null) value = "-";
             if (h === "Nama" && typeof value === "string") value = value.split(" ")[0];
             return value;

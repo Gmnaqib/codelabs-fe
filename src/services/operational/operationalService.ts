@@ -57,3 +57,13 @@ export const deleteOperationalRecord = async (id: string) => {
   const res = await axiosClient.delete(`/operational-records/${id}`);
   return res.data;
 };
+
+export const getSchedulesPicket = async () => {
+  const res = await axiosClient.get(`/schedules?type=picket`);
+  return res.data;
+};
+
+export const getProducts = async () => {
+    const res = await axiosClient.get('/products/');
+    return res.data.data;
+};
