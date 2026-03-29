@@ -8,9 +8,11 @@ import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
 import { ChangeEvent } from 'react';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
+import { toast } from 'sonner';
 
 interface ProductsTableProps extends ReportTableProps {
   searchQuery?: string;
+   fetchTrigger?: number;
 }
 
 const ProductsTable = ({
@@ -18,18 +20,17 @@ const ProductsTable = ({
   onPageChange,
   showMenu = true,
   searchQuery = "",
+  fetchTrigger,
 }: ProductsTableProps) => {
 
   const productHeaders = products[activePage] ?? [];
   const [productData, setProductData] = useState<{ _id: string; name: string; description: string; status: string  }[]>([]);
 
-  // State untuk edit produk
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editStatus, setEditStatus] = useState('active');
 
-  // Saat dialog edit dibuka, set data
   const handleOpenEdit = (product: { _id: string; name: string; description: string; status: string }) => {
     setEditId(product._id);
     setEditName(product.name);
@@ -37,7 +38,6 @@ const ProductsTable = ({
     setEditStatus(product.status);
   };
 
-  // Submit edit
   const handleEditSubmit = async () => {
     if (!editId) return;
     try {
@@ -50,8 +50,8 @@ const ProductsTable = ({
       const data = await getProducts();
       setProductData(data);
       setEditId(null);
+      toast.success("Product updated successfully!");
     } catch {
-      // handle error
     }
   };
 
@@ -65,9 +65,8 @@ const ProductsTable = ({
       }
     };
     fetchProducts();
-  }, []);
+  }, [fetchTrigger]);
 
-  // Client-side search filter
   const filteredData = searchQuery
     ? productData.filter((product) =>
         product.name?.toLowerCase().includes(searchQuery.toLowerCase())

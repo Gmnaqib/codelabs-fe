@@ -32,6 +32,7 @@ import {
 } from "@/services/competition/competitionService";
 
 import { DropdownField } from "../../DropdownField";
+import { toast } from "sonner";
 
 const getStatusClass = (status: string) => {
   switch (status?.toUpperCase()) {
@@ -128,12 +129,12 @@ const CompetitionTable = ({
       console.error("ID tidak ditemukan. selectedId:", selectedId);
       return;
     }
-
     try {
       await updateCompetitionStatus(selectedId._id, newStatus);
       await fetchCompetition(); 
+      toast.success(`Competition ${newStatus.toLowerCase()} successfully!`);
     } catch (err) {
-      console.error("Gagal update status:", err);
+      toast.error(`Failed to update competition ${newStatus.toLowerCase()}.`);
     }
   }
 
@@ -214,7 +215,9 @@ const CompetitionTable = ({
 
                           <div className="">
                             <p className="font-semibold mt-2">Competition Link</p>
-                            <p>{item.link}</p>
+                            <a href={item.link} target="_blank" rel="noopener noreferrer">
+                              {item.link}
+                            </a>
                           </div>
 
                           

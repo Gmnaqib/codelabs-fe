@@ -27,6 +27,7 @@ import {
 } from "@/services/branding/brandingService";
 import { DropdownField } from "../../DropdownField";
 import { getStatusColor } from "@/utils/statusColor";
+import { toast } from "sonner";
 
 interface Branding {
   _id: string;
@@ -145,8 +146,9 @@ const BrandingTable = ({
     try {
       await updateBrandingStatus(selectedId._id, newStatus);
       await fetchBranding();
+      toast.success(`Branding ${newStatus.toLowerCase()} successfully!`);
     } catch (err) {
-      console.error("Gagal update status:", err);
+      toast.error(`Failed to update branding ${newStatus.toLowerCase()}.`);
     }
   }
 
@@ -159,8 +161,6 @@ const BrandingTable = ({
           onChange={onPageChange}
         />
       )}
-
-
 
       <Card>
         <Table className="w-full table-fixed">
@@ -185,10 +185,8 @@ const BrandingTable = ({
             ) : paginatedData.length > 0 ? (
               paginatedData.map((item, i) => (
                 <TableRow key={i}>
-                  {/* name */}
                   <TableCell className="text-center">{item.name}</TableCell>
 
-                  {/* status */}
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusColor(
@@ -199,7 +197,6 @@ const BrandingTable = ({
                     </span>
                   </TableCell>
 
-                  {/* DETAIL DIALOG */}
                   <TableCell className="text-center">
                     <DialogField
                       name="Review"

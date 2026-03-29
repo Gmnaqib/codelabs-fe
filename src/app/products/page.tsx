@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/login/components/ProtectedRoute'
 import React, { useState, ChangeEvent } from 'react'
 import { postProduct } from '@/services/product/productsService';
+import { toast } from 'sonner';
 
 const Product = () => {
   const [activePage, setActivePage] = useState<string>("products");
@@ -16,6 +17,7 @@ const Product = () => {
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+   const [fetchTrigger, setFetchTrigger] = useState(0);
 
   const isFormIncomplete = !name || !description || !status;
 
@@ -28,9 +30,10 @@ const Product = () => {
       setName("");
       setDescription("");
       setStatus("active");
-      // TODO: refresh table jika perlu
+      setFetchTrigger(Date.now());
+      toast.success("Product added successfully!");
     } catch {
-      // handle error
+      toast.error("Failed to add product.");
     } finally {
       setLoading(false);
       setTimeout(() => setSuccess(false), 1200);
@@ -90,6 +93,7 @@ const Product = () => {
             onPageChange={setActivePage}
             showMenu={true}
             searchQuery={searchQuery}
+            fetchTrigger={fetchTrigger}
           />
         </div>
       </Card>

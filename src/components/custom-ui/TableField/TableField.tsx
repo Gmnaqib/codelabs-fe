@@ -228,6 +228,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         onPageChange={onPageChange}
         showMenu={false}
         searchQuery={searchQuery}
+        fetchTrigger={fetchTrigger}
       />
     );
 

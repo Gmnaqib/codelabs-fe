@@ -28,6 +28,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { DropdownField } from "../../DropdownField";
+import { toast } from "sonner";
 
 interface RistekTableProps {
   activePage: string;
@@ -116,8 +117,9 @@ const RistekTable = ({
     try {
       await updateResearchStatus(id, value);
       fetchResearchData();
+      toast.success(`Research ${value.toLowerCase()} successfully!`);
     } catch (err) {
-      console.error("Gagal update research:", err);
+      toast.error(`Failed to update research ${value.toLowerCase()}.`);
     }
   };
 
@@ -206,7 +208,9 @@ const RistekTable = ({
 
                         <div className="">
                           <p className="font-semibold mt-2">Output Link</p>
-                          <p>{item.link}</p>
+                          <a href={item.link} target="_blank" rel="noopener noreferrer">
+                            {item.link}
+                          </a>
                         </div>
 
                         <div className="w-fit">
