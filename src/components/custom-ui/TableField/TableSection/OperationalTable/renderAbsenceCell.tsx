@@ -18,7 +18,6 @@ export const renderAbsenceCell = (
   data: AbsenceRecord[],
 ) => {
 
-  // Cek jika hari Minggu, jangan render icon apapun
   let month = undefined;
   let year = undefined;
   if (data && data.length > 0) {
@@ -30,15 +29,12 @@ export const renderAbsenceCell = (
     month = now.getMonth();
     year = now.getFullYear();
   }
-  // Buat tanggal dari hari, bulan, tahun
   const currentDate = new Date(year, month, day);
   if (currentDate.getDay() === 0) {
     return null;
   }
-  // Jangan render icon untuk tanggal di masa depan KECUALI jika ada izin/sakit yang sudah approved
   const today = new Date();
   today.setHours(0,0,0,0);
-  // ...existing code...
 
   const record = data.find((r) => {
     if (r.userId !== userId) return false;
@@ -75,7 +71,7 @@ export const renderAbsenceCell = (
     }
   }
 
-   if (( record.status === "permit")) {
+   if ( record.status === "permit") {
     if (record.approval_status === "approved") {
       return <ExclamationCircleIcon className="size-6 text-warning" />;
     }

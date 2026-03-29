@@ -16,10 +16,6 @@ const renderThematicCell = (
   const user = data[rowIndex];
   const ops: ThematicRecord[] = user?.operationalRecords || [];
 
-  const record = ops.find(
-    (r) => new Date(r.date).getDate() === Number(day)
-  );
-
   const now = new Date();
 
   const cellDate = new Date(
@@ -43,6 +39,14 @@ const renderThematicCell = (
     status = "Not Yet Thematic";
   }
   else {
+    const record = ops.find(
+      (r) => {
+        const d = new Date(r.date);
+        return d.getUTCDate() === Number(day) &&
+          d.getUTCMonth() === now.getUTCMonth() &&
+          d.getUTCFullYear() === now.getUTCFullYear();
+      }
+    );
     status = record ? "Thematic" : "No Thematic";
   }
 
