@@ -13,7 +13,13 @@ export const KPIItem = async () => {
 	return data;
 };
 
+export const createKPIItem = async (payload: { category: string; code: string; point: number }) => {
+	const res = await axiosClient.post('/kpi/item', payload);
+	return res.data;
+};
+
 export const updateKPIItem = async (id: string, payload: { category: string; code: string; point: number }) => {
 	const res = await axiosClient.put(`/kpi/item/${id}`, payload);
 	return res.data;
 };
+

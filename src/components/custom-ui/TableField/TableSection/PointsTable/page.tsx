@@ -11,9 +11,16 @@ import { ChangeEvent } from 'react';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { toast } from 'sonner';
 
+interface ProductsTableProps extends ReportTableProps {
+  searchQuery?: string;
+   fetchTrigger?: number;
+}
+
 const PointsTable = ({
   activePage,
-}: ReportTableProps) => {
+  searchQuery,
+  fetchTrigger
+}: ProductsTableProps) => {
 
   const pointsHeaders = points[activePage] ?? [];
   const [kpiItems, setKpiItems] = useState<any[]>([]);
@@ -30,9 +37,19 @@ const PointsTable = ({
     }
   };
 
+
   useEffect(() => {
     fetchKPI();
-  }, []);
+  }, [fetchTrigger]);
+
+  const filteredData = searchQuery
+    ? kpiItems.filter((item) =>
+        item.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.point?.toString().includes(searchQuery.toLowerCase())
+      )
+    : kpiItems;
+
 
   const handleEditClick = (item: any) => {
     setEditId(item._id);
@@ -68,7 +85,7 @@ const PointsTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {kpiItems.map((item, idx) => (
+          {filteredData.map((item, idx) => (
             <TableRow key={item._id || idx}>
               <TableCell className='text-center'>{item.category}</TableCell>
               <TableCell className='text-center'>{item.code}</TableCell>
@@ -90,12 +107,11 @@ const PointsTable = ({
                   }}
                 >
                   <form className="flex flex-col gap-2 p-4" onSubmit={e => e.preventDefault()}>
-                    <InputField
-                      type="string"
-                      placeholder="Ex: OPERATIONAL"
+                    <DropdownField
                       label="Category"
+                      menu={["OPERATIONAL", "RESEARCH", "BRANDING", "COMPETITION"]}
                       value={editCategory}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditCategory(e.target.value)}
+                      onChange={setEditCategory}
                     />
                     <InputField
                       type="string"

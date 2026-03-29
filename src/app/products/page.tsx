@@ -17,7 +17,8 @@ const Product = () => {
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-   const [fetchTrigger, setFetchTrigger] = useState(0);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isFormIncomplete = !name || !description || !status;
 
@@ -39,8 +40,6 @@ const Product = () => {
       setTimeout(() => setSuccess(false), 1200);
     }
   };
-
-  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <ProtectedRoute>
