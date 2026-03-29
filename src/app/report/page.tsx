@@ -11,6 +11,7 @@ import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import { CalendarMonthYearPicker } from "@/components/custom-ui/CalendarMonthYearPicker";
+import MotionWrapper from "@/components/custom-ui/MotionWrapper";
 
 const WeeklyReport = () => {
   const [activePage, setActivePage] = useState<string>("report");
@@ -76,109 +77,110 @@ const WeeklyReport = () => {
 
   return (
     <ProtectedRoute>
-      <div className="flex w-full justify-between mb-10">
-        <div className="flex gap-5">
-          <CalendarMonthYearPicker 
-            onChange={({ month, year }) => {
-              setSelectedMonth(month + 1); 
-              setSelectedYear(year);
-            }}
-          />
+      <MotionWrapper>
+        <div className="flex w-full justify-between mb-10">
+          <div className="flex gap-5">
+            <CalendarMonthYearPicker 
+              onChange={({ month, year }) => {
+                setSelectedMonth(month + 1); 
+                setSelectedYear(year);
+              }}
+            />
 
-          <DropdownField
-            key="week-filter"
-            title="Week"
-            menu={["All", "Week 1", "Week 2", "Week 3", "Week 4"]}
-            onChange={(value) => setFilterWeek(value)}
-          />
+            <DropdownField
+              key="week-filter"
+              title="Week"
+              menu={["All", "Week 1", "Week 2", "Week 3", "Week 4"]}
+              onChange={(value) => setFilterWeek(value)}
+            />
 
-          <DropdownField
-            key="progress-filter"
-            title="Progress"
-            menu={["All", "Finished", "Unfinished"]}
-            onChange={(value) => setFilterProgress(value)}
-          />
-        </div>
+            <DropdownField
+              key="progress-filter"
+              title="Progress"
+              menu={["All", "Finished", "Unfinished"]}
+              onChange={(value) => setFilterProgress(value)}
+            />
+          </div>
 
-        <div>
-          {(() => {
-            const isLinkValid = link.startsWith("https://");
-            const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;
-            return (
-              <DialogField
-                name="Add New Plan"
-                title="Add New Plan"
-                open={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
-                onSubmit={handleSubmit}
-                submitDisabled={isFormIncomplete}
-              >
-                <div className="flex flex-col gap-5">
-                  <InputField
-                    type="string"
-                    placeholder="Ex: Learn how to make responsive web"
-                    label="Title"
-                    value={title}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                  />
-
-                  <div className="flex gap-5">
-                    <DropdownField
-                      key="week-input"
-                      title="Choose Week"
-                      menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
-                      label="Week"
-                      onChange={(value) => setWeek(value)}
-                    />
-                    <DropdownField
-                      key="progress-input"
-                      title="Your Progress"
-                      menu={["Finished", "Unfinished"]}
-                      label="Progress"
-                      onChange={(value) => setProgress(value)}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
+          <div>
+            {(() => {
+              const isLinkValid = link.startsWith("https://");
+              const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;
+              return (
+                <DialogField
+                  name="Add New Plan"
+                  title="Add New Plan"
+                  open={isDialogOpen}
+                  onOpenChange={setIsDialogOpen}
+                  onSubmit={handleSubmit}
+                  submitDisabled={isFormIncomplete}
+                >
+                  <div className="flex flex-col gap-5">
                     <InputField
                       type="string"
-                      placeholder="Ex: https://github.com/unikom-codelabs/"
-                      label="Link"
-                      value={link}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
+                      placeholder="Ex: Learn how to make responsive web"
+                      label="Title"
+                      value={title}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                     />
-                    {link && !isLinkValid && (
-                      <span className="text-sm text-red-500">Link harus diawali dengan &#39;https://&#39;</span>
-                    )}
+
+                    <div className="flex gap-5">
+                      <DropdownField
+                        key="week-input"
+                        title="Choose Week"
+                        menu={["Week 1", "Week 2", "Week 3", "Week 4"]}
+                        label="Week"
+                        onChange={(value) => setWeek(value)}
+                      />
+                      <DropdownField
+                        key="progress-input"
+                        title="Your Progress"
+                        menu={["Finished", "Unfinished"]}
+                        label="Progress"
+                        onChange={(value) => setProgress(value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <InputField
+                        type="string"
+                        placeholder="Ex: https://github.com/unikom-codelabs/"
+                        label="Link"
+                        value={link}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
+                      />
+                      {link && !isLinkValid && (
+                        <span className="text-sm text-red-500">Link harus diawali dengan &#39;https://&#39;</span>
+                      )}
+                    </div>
+
+                    <Textarea
+                      label="Challenge"
+                      placeholder="Ex: Ada kendala pada fitur upload gambar..."
+                      value={challenge}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setChallenge(e.target.value)}
+                    />
                   </div>
-
-                  <Textarea
-                    label="Challenge"
-                    placeholder="Ex: Ada kendala pada fitur upload gambar..."
-                    value={challenge}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setChallenge(e.target.value)}
-                  />
-                </div>
-              </DialogField>
-            );
-          })()}
+                </DialogField>
+              );
+            })()}
+          </div>
         </div>
-      </div>
-
-      <Card>
-        <div className="p-5">
-          <TableField
-            activePage={activePage}
-            onPageChange={setActivePage}
-            showMenu={false}
-            filterWeek={filterWeek}
-            filterProgress={filterProgress}
-            month={selectedMonth}
-            year={selectedYear}
-            fetchTrigger={fetchTrigger}
-          />
-        </div>
-      </Card>
+        <Card>
+          <div className="p-5">
+            <TableField
+              activePage={activePage}
+              onPageChange={setActivePage}
+              showMenu={false}
+              filterWeek={filterWeek}
+              filterProgress={filterProgress}
+              month={selectedMonth}
+              year={selectedYear}
+              fetchTrigger={fetchTrigger}
+            />
+          </div>
+        </Card>
+      </MotionWrapper>
     </ProtectedRoute>
   );
 };

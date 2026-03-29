@@ -10,6 +10,7 @@ import { BsFillPeopleFill } from 'react-icons/bs'
 
 
 import { getKPIRankings } from '@/services/kpi/kpiService';
+import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 
 const Assessments = () => {
     const [average, setAverage] = useState<number | null>(null);
@@ -78,47 +79,49 @@ const Assessments = () => {
 
     return (
         <ProtectedRoute>
-            <Card>
-                <div className="flex flex-col gap-10 p-5">
-                    <div className="flex justify-between items-center">
-                        <InputField
-                            type="string"
-                            placeholder="Search by Name"
-                        />
-                        <CalendarMonthYearPicker />
-                    </div>
-                    <div className="grid grid-cols-6 gap-4">
-                        <div className="col-span-2">
-                            <CardField title="Average Points" icon={<BsFillPeopleFill size={22} />}>
-                                <div className="flex gap-8 items-center justify-center">
-                                    <p className="font-semibold text-3xl text-orange-400">
-                                        {average !== null ? `${average.toFixed(2)}` : '-'}
-                                    </p>
-                                    <div className="bg-slate-400 w-0.5 h-10"></div>
-                                    <p className={`font-semibold text-3xl ${statusClass}`}>{statusLabel}</p>
-                                </div>
+            <MotionWrapper>
+                <Card>
+                    <div className="flex flex-col gap-10 p-5">
+                        <div className="flex justify-between items-center">
+                            <InputField
+                                type="string"
+                                placeholder="Search by Name"
+                            />
+                            <CalendarMonthYearPicker />
+                        </div>
+                        <div className="grid grid-cols-6 gap-4">
+                            <div className="col-span-2">
+                                <CardField title="Average Points" icon={<BsFillPeopleFill size={22} />}>
+                                    <div className="flex gap-8 items-center justify-center">
+                                        <p className="font-semibold text-3xl text-orange-400">
+                                            {average !== null ? `${average.toFixed(2)}` : '-'}
+                                        </p>
+                                        <div className="bg-slate-400 w-0.5 h-10"></div>
+                                        <p className={`font-semibold text-3xl ${statusClass}`}>{statusLabel}</p>
+                                    </div>
+                                </CardField>
+                            </div>
+                            <CardField title="Total Excellent">
+                                <p className="font-semibold text-3xl text-center">{countExcellent}</p>
+                            </CardField>
+                            <CardField title="Total safe">
+                                <p className="font-semibold text-3xl text-center">{countSafe}</p>
+                            </CardField>
+                            <CardField title="Total Warning">
+                                <p className="font-semibold text-3xl text-center">{countWarning}</p>
+                            </CardField>
+                            <CardField title="Total Danger">
+                                <p className="font-semibold text-3xl text-center">{countDanger}</p>
                             </CardField>
                         </div>
-                        <CardField title="Total Excellent">
-                            <p className="font-semibold text-3xl text-center">{countExcellent}</p>
-                        </CardField>
-                        <CardField title="Total safe">
-                            <p className="font-semibold text-3xl text-center">{countSafe}</p>
-                        </CardField>
-                        <CardField title="Total Warning">
-                            <p className="font-semibold text-3xl text-center">{countWarning}</p>
-                        </CardField>
-                        <CardField title="Total Danger">
-                            <p className="font-semibold text-3xl text-center">{countDanger}</p>
-                        </CardField>
+                        <TableField
+                            activePage="assessments"
+                            onPageChange={() => { }}
+                            showMenu={false}
+                        />
                     </div>
-                    <TableField
-                        activePage="assessments"
-                        onPageChange={() => { }}
-                        showMenu={false}
-                    />
-                </div>
-            </Card>
+                </Card>
+            </MotionWrapper>
         </ProtectedRoute>
     );
 }

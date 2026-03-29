@@ -8,6 +8,7 @@ import ProtectedRoute from '@/features/login/components/ProtectedRoute'
 import React, { useState, ChangeEvent } from 'react'
 import { postProduct } from '@/services/product/productsService';
 import { toast } from 'sonner';
+import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 const Product = () => {
   const [activePage, setActivePage] = useState<string>("products");
@@ -43,6 +44,7 @@ const Product = () => {
 
   return (
     <ProtectedRoute>
+      <MotionWrapper>
         <div className="flex justify-between mb-10">
           <InputField
             placeholder="Search by name..."
@@ -85,17 +87,18 @@ const Product = () => {
             </form>
           </DialogField>
         </div>
-      <Card className='p-5'>
-        <div>
-          <TableField
-            activePage={activePage}
-            onPageChange={setActivePage}
-            showMenu={true}
-            searchQuery={searchQuery}
-            fetchTrigger={fetchTrigger}
-          />
-        </div>
-      </Card>
+        <Card className='p-5'>
+          <div>
+            <TableField
+              activePage={activePage}
+              onPageChange={setActivePage}
+              showMenu={true}
+              searchQuery={searchQuery}
+              fetchTrigger={fetchTrigger}
+            />
+          </div>
+        </Card>
+      </MotionWrapper>
     </ProtectedRoute>
   )
 }

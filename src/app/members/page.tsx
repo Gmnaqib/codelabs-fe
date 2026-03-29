@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import MotionWrapper from "@/components/custom-ui/MotionWrapper";
 
 const Members = () => {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -148,174 +149,176 @@ const Members = () => {
 
   return (
     <ProtectedRoute>
-      <div className="w-full flex flex-col">
+      <MotionWrapper>
+        <div className="w-full flex flex-col">
 
-        <div className="flex w-full justify-between mb-4">
-          <div className="flex gap-4">
+          <div className="flex w-full justify-between mb-4">
+            <div className="flex gap-4">
 
-            <InputField
-              type="text"
-              placeholder="Search by Name"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+              <InputField
+                type="text"
+                placeholder="Search by Name"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
 
-            <DropdownField
-              title={filterRole}
-              menu={["All Role", "admin", "lecturer", "president", "vice president", "minister of research", "minister of competition", "minister of branding", "minister of operation", "user"]}
-              onSelect={(v) => {
-                setFilterRole(v);
-                console.log('Filter Role selected:', v);
-              }}
-            />
+              <DropdownField
+                title={filterRole}
+                menu={["All Role", "admin", "lecturer", "president", "vice president", "minister of research", "minister of competition", "minister of branding", "minister of operation", "user"]}
+                onSelect={(v) => {
+                  setFilterRole(v);
+                  console.log('Filter Role selected:', v);
+                }}
+              />
 
-            <DropdownField
-              title={filterSubriset}
-              menu={[
-                "All SubRiset",
-                "ui/ux",
-                "mobile",
-                "iot",
-                "website",
-                "game",
-                "data",
-                "other",
-              ]}
-              onSelect={(v) => {
-                setFilterSubriset(v);
-                console.log('Filter Subriset selected:', v);
-              }}
-            />
+              <DropdownField
+                title={filterSubriset}
+                menu={[
+                  "All SubRiset",
+                  "ui/ux",
+                  "mobile",
+                  "iot",
+                  "website",
+                  "game",
+                  "data",
+                  "other",
+                ]}
+                onSelect={(v) => {
+                  setFilterSubriset(v);
+                  console.log('Filter Subriset selected:', v);
+                }}
+              />
 
-            <DropdownField
-              title={filterStatus}
-              menu={["All Status", "active", "inactive", "graduated"]}
-              onSelect={(v) => {
-                setFilterStatus(v);
-                console.log('Filter Status selected:', v);
-              }}
-            />
-          </div>
-
-          <DialogField
-            name="Create New Member"
-            title="Create New Member"
-            onSubmit={(closeDialog?: () => void) => {
-              handleSubmitMember().then(() => {
-                if (closeDialog) closeDialog();
-              });
-            }}
-            submitDisabled={
-              mode === 'Register'
-                ? !form.name || !form.email || !form.nim || !form.majors || !form.years || !!isNimEmailMismatch
-                : multipleEmails.trim() === ""
-            }
-          >
-            <div className="flex justify-center">
-              <Button
-                variant="link"
-                className="w-80 flex items-center rounded-full relative select-none border border-gray-300 bg-gray-200 transition-colors duration-300"
-                onClick={() => setMode(mode === 'Register' ? 'Multiple Register' : 'Register')}
-              >
-                <span
-                  className="absolute center left-1 h-10 w-40 rounded-full transition-transform duration-300 bg-primary"
-                  style={{ transform: mode === 'Register' ? 'translateX(0)' : 'translateX(150px)' }}
-                />
-                <span className="w-full flex justify-between items-center relative z-10">
-                  <span className={`w-40 text-center text-base font-semibold leading-6 transition-colors duration-300 -ml-5 ${mode === 'Register' ? 'text-white' : 'text-gray-600'}`}>Register</span>
-                  <span className={`w-40 text-center text-base font-semibold leading-6 transition-colors duration-300 -mr-5 ${mode === 'Multiple Register' ? 'text-white' : 'text-gray-600'}`}>Multiple Register</span>
-                </span>
-              </Button>
+              <DropdownField
+                title={filterStatus}
+                menu={["All Status", "active", "inactive", "graduated"]}
+                onSelect={(v) => {
+                  setFilterStatus(v);
+                  console.log('Filter Status selected:', v);
+                }}
+              />
             </div>
 
-            {mode === 'Register' ? (
-              <div className="flex flex-col gap-3 ">
-                <InputField
-                  placeholder="1023456"
-                  label="NIM"
-                  type="number"
-                  value={form.nim}
-                  onChange={(e) => updateForm("nim", e.target.value)}
-                />
-
-                <InputField
-                  placeholder="Jhon Doe"
-                  label="Name"
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => updateForm("name", e.target.value)}
-                />
-
-                <div className="relative">
-                  <InputField
-                    placeholder="ramdani.1052302"
-                    label="Email"
-                    type="text"
-                    value={form.email.replace(/@mahasiswa\.unikom\.ac\.id$/, "")}
-                    onChange={(e) => updateForm("email", e.target.value.replace(/@mahasiswa\.unikom\.ac\.id$/, ""))}
+            <DialogField
+              name="Create New Member"
+              title="Create New Member"
+              onSubmit={(closeDialog?: () => void) => {
+                handleSubmitMember().then(() => {
+                  if (closeDialog) closeDialog();
+                });
+              }}
+              submitDisabled={
+                mode === 'Register'
+                  ? !form.name || !form.email || !form.nim || !form.majors || !form.years || !!isNimEmailMismatch
+                  : multipleEmails.trim() === ""
+              }
+            >
+              <div className="flex justify-center">
+                <Button
+                  variant="link"
+                  className="w-80 flex items-center rounded-full relative select-none border border-gray-300 bg-gray-200 transition-colors duration-300"
+                  onClick={() => setMode(mode === 'Register' ? 'Multiple Register' : 'Register')}
+                >
+                  <span
+                    className="absolute center left-1 h-10 w-40 rounded-full transition-transform duration-300 bg-primary"
+                    style={{ transform: mode === 'Register' ? 'translateX(0)' : 'translateX(150px)' }}
                   />
-                  <span className="absolute right-5 -mt-6 -translate-y-1/2 text-gray-500 text-sm select-none pointer-events-none">
-                    @mahasiswa.unikom.ac.id
+                  <span className="w-full flex justify-between items-center relative z-10">
+                    <span className={`w-40 text-center text-base font-semibold leading-6 transition-colors duration-300 -ml-5 ${mode === 'Register' ? 'text-white' : 'text-gray-600'}`}>Register</span>
+                    <span className={`w-40 text-center text-base font-semibold leading-6 transition-colors duration-300 -mr-5 ${mode === 'Multiple Register' ? 'text-white' : 'text-gray-600'}`}>Multiple Register</span>
                   </span>
-                  {form.email.includes('@') && (
+                </Button>
+              </div>
+
+              {mode === 'Register' ? (
+                <div className="flex flex-col gap-3 ">
+                  <InputField
+                    placeholder="1023456"
+                    label="NIM"
+                    type="number"
+                    value={form.nim}
+                    onChange={(e) => updateForm("nim", e.target.value)}
+                  />
+
+                  <InputField
+                    placeholder="Jhon Doe"
+                    label="Name"
+                    type="text"
+                    value={form.name}
+                    onChange={(e) => updateForm("name", e.target.value)}
+                  />
+
+                  <div className="relative">
+                    <InputField
+                      placeholder="ramdani.1052302"
+                      label="Email"
+                      type="text"
+                      value={form.email.replace(/@mahasiswa\.unikom\.ac\.id$/, "")}
+                      onChange={(e) => updateForm("email", e.target.value.replace(/@mahasiswa\.unikom\.ac\.id$/, ""))}
+                    />
+                    <span className="absolute right-5 -mt-6 -translate-y-1/2 text-gray-500 text-sm select-none pointer-events-none">
+                      @mahasiswa.unikom.ac.id
+                    </span>
+                    {form.email.includes('@') && (
+                      <div className="text-xs text-red-500 mt-1">
+                        No need to fill <b>@mahasiswa.unikom.ac.id</b> only Name and NIM
+                      </div>
+                    )}
+                    {isNimEmailMismatch && (
+                      <div className="text-xs text-red-500 mt-1">
+                        NIM pada email dan NIM input tidak sama
+                      </div>
+                    )}
+                  </div>
+
+                  <InputField
+                    placeholder="Teknik Informatika"
+                    label="Majors"
+                    type="text"
+                    value={form.majors}
+                    onChange={(e) => updateForm("majors", e.target.value)}
+                  />
+
+                  <InputField
+                    placeholder="2023"
+                    label="Years"
+                    type="text"
+                    value={form.years}
+                    onChange={(e) => updateForm("years", e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <Textarea
+                    label="Emails"
+                    placeholder="Enter Emails, one per line"
+                    value={multipleEmails}
+                    onChange={(e) => setMultipleEmails(e.target.value)}
+                    rows={8}
+                  />
+                  {multipleEmails.includes('@') && (
                     <div className="text-xs text-red-500 mt-1">
-                      No need to fill <b>@mahasiswa.unikom.ac.id</b> only Name and NIM
-                    </div>
-                  )}
-                  {isNimEmailMismatch && (
-                    <div className="text-xs text-red-500 mt-1">
-                      NIM pada email dan NIM input tidak sama
+                      No need to fill <b>@mahasiswa.unikom.ac.id</b>
                     </div>
                   )}
                 </div>
+              )}
+            </DialogField>
+          </div>
 
-                <InputField
-                  placeholder="Teknik Informatika"
-                  label="Majors"
-                  type="text"
-                  value={form.majors}
-                  onChange={(e) => updateForm("majors", e.target.value)}
-                />
-
-                <InputField
-                  placeholder="2023"
-                  label="Years"
-                  type="text"
-                  value={form.years}
-                  onChange={(e) => updateForm("years", e.target.value)}
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <Textarea
-                  label="Emails"
-                  placeholder="Enter Emails, one per line"
-                  value={multipleEmails}
-                  onChange={(e) => setMultipleEmails(e.target.value)}
-                  rows={8}
-                />
-                {multipleEmails.includes('@') && (
-                  <div className="text-xs text-red-500 mt-1">
-                    No need to fill <b>@mahasiswa.unikom.ac.id</b>
-                  </div>
-                )}
-              </div>
-            )}
-          </DialogField>
+          <Card className="p-5">
+            <TableField
+              activePage="members"
+              onPageChange={() => {}}
+              showMenu={false}
+              data={filteredUsers}
+              filterRole={filterRole}
+              filterSubriset={filterSubriset}
+              filterStatus={filterStatus}
+            />
+          </Card>
         </div>
-
-        <Card className="p-5">
-          <TableField
-            activePage="members"
-            onPageChange={() => {}}
-            showMenu={false}
-            data={filteredUsers}
-            filterRole={filterRole}
-            filterSubriset={filterSubriset}
-            filterStatus={filterStatus}
-          />
-        </Card>
-      </div>
+      </MotionWrapper>
     </ProtectedRoute>
   );
 };

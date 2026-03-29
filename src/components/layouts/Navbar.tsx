@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion';
 import { menuNavbar } from '@/config/menu'
 import { getMe } from '@/services/users/userService'
 import { UserType } from '@/types/user'
@@ -12,32 +13,62 @@ interface NavbarProps {
 }
 
 const Navbar = ({ isActive }: NavbarProps) => {
-  const pathname = usePathname()
+  const pathname = usePathname();
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showBar, setShowBar] = useState(false);
 
   useEffect(() => {
-      getMe().then((res) => {
-        setUser(res);
-        setLoading(false);
-      }).catch(() => setLoading(false));
-    }, []);
+    getMe().then((res) => {
+      setUser(res);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
-    if (loading) return null;
+  useEffect(() => {
+    setShowBar(true);
+    const timeout = setTimeout(() => setShowBar(false), 700);
+    return () => clearTimeout(timeout);
+  }, [pathname]);
 
+  if (loading) return null;
   if (!user) return null;
 
-  const current = menuNavbar.find(item => item.path === pathname)
-  let title = current?.title || ''
+  const current = menuNavbar.find(item => item.path === pathname);
+  let title = current?.title || '';
   if (pathname === "/") {
-  title = "Dashboard"
-}
+    title = "Dashboard";
+  }
 
   return (
     <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-20'>
+      <AnimatePresence>
+        {showBar && (
+          <motion.div
+            key={pathname}
+            className="absolute h-1 w-full flex top-0 right-0 z-50 bg-primary"
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            style={{ left: 0 }}
+          />
+        )}
+      </AnimatePresence>
       <div className="flex w-full justify-between items-center">
         <div>
-          <p className={`font-normal text-xl transition-all ${isActive? "ml-[270px]" : "ml-[60px]" }`}>{title}</p>
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={pathname}
+              className={`font-normal text-xl transition-all ${isActive? "ml-[270px]" : "ml-[60px]" }`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            >
+              {title}
+            </motion.p>
+          </AnimatePresence>
         </div>
         <Link href="/profile">
           <div className="flex items-center gap-3">

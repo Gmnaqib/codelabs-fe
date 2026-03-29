@@ -19,7 +19,7 @@ const LoginForm = () => {
     e.preventDefault()
 
     if (!nim || !password) {
-      alert("NIM dan Password tidak boleh kosong!")
+      toast.error("NIM dan Password tidak boleh kosong!")
       return
     }
 

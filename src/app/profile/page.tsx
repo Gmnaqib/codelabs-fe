@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
+import MotionWrapper from "@/components/custom-ui/MotionWrapper";
 
 const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -80,71 +81,73 @@ const Profile = () => {
 
   return (
     <ProtectedRoute>
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col items-center">
-          <Image
-            src="/icon/profile.png"
-            alt="profile"
-            width={130}
-            height={130}
-            className="rounded-full"
-          />
-          <p className="text-sm mt-2">{user?.name}</p>
-          <p className="capitalize font-bold text-2xl">{user?.role}</p>
-        </div>
+      <MotionWrapper>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col items-center">
+            <Image
+              src="/icon/profile.png"
+              alt="profile"
+              width={130}
+              height={130}
+              className="rounded-full"
+            />
+            <p className="text-sm mt-2">{user?.name}</p>
+            <p className="capitalize font-bold text-2xl">{user?.role}</p>
+          </div>
 
-        <p className="font-bold text-xl">Update Password</p>
-        <div className="grid grid-cols-2 gap-4">
-          <InputField
-            label="New Password"
-            type="password"
-            placeholder="********"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
+          <p className="font-bold text-xl">Update Password</p>
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="New Password"
+              type="password"
+              placeholder="********"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
 
-          <InputField
-            label="Confirm New Password"
-            type="password"
-            placeholder="********"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+            <InputField
+              label="Confirm New Password"
+              type="password"
+              placeholder="********"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
 
+          </div>
+          <div className="flex w-full justify-end">
+            <Button onClick={handleUpdatePassword} className="w-fit">Update</Button>
+          </div>
+          <p className="font-bold text-xl">Update Device Id</p>
+          <div className="flex w-1/2 items-end gap-4">
+              <div className="w-full">
+                <InputField
+                  label="Device Id"
+                  type="text"
+                  placeholder="No Device ID"
+                  value={maskDeviceId(user?.device_id)}
+                  readOnly
+                />
+              </div>
+              <Button
+                className="w-fit"
+                disabled={user?.change_device_id === "false" || user?.change_device_id === undefined}
+                onClick={handleUpdateDeviceId}
+              >
+                Reset
+              </Button>
+          </div>
+          <p className="text-sm text-gray-600">
+            To change the Device ID permission, contact the{" "}
+            <a href="https://t.me/zulfifazhar" className="text-primary font-semibold hover:underline">
+              President
+            </a>
+            {" "}or{" "}
+            <a href="https://t.me/RaflyRayhansyah" className="text-primary font-semibold hover:underline">
+              Vice President
+            </a>.
+          </p>
         </div>
-        <div className="flex w-full justify-end">
-          <Button onClick={handleUpdatePassword} className="w-fit">Update</Button>
-        </div>
-        <p className="font-bold text-xl">Update Device Id</p>
-        <div className="flex w-1/2 items-end gap-4">
-            <div className="w-full">
-              <InputField
-                label="Device Id"
-                type="text"
-                placeholder="No Device ID"
-                value={maskDeviceId(user?.device_id)}
-                readOnly
-              />
-            </div>
-            <Button
-              className="w-fit"
-              disabled={user?.change_device_id === "false" || user?.change_device_id === undefined}
-              onClick={handleUpdateDeviceId}
-            >
-              Reset
-            </Button>
-        </div>
-        <p className="text-sm text-gray-600">
-          To change the Device ID permission, contact the{" "}
-          <a href="https://t.me/zulfifazhar" className="text-primary font-semibold hover:underline">
-            President
-          </a>
-          {" "}or{" "}
-          <a href="https://t.me/RaflyRayhansyah" className="text-primary font-semibold hover:underline">
-            Vice President
-          </a>.
-        </p>
-      </div>
+      </MotionWrapper>
     </ProtectedRoute>
   );
 };
