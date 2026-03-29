@@ -1,9 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { Dispatch, SetStateAction } from 'react'
-import { menuNavbar } from '@/config/menu' // sesuaikan path
-import { useAuth } from '@/context/AuthContext'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { menuNavbar } from '@/config/menu'
+import { getMe } from '@/services/users/userService'
+import { UserType } from '@/types/user'
 
 interface NavbarProps {
   isActive: boolean,
@@ -12,7 +13,19 @@ interface NavbarProps {
 
 const Navbar = ({ isActive }: NavbarProps) => {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const [user, setUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+      getMe().then((res) => {
+        setUser(res);
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }, []);
+
+    if (loading) return null;
+
+  if (!user) return null;
 
   const current = menuNavbar.find(item => item.path === pathname)
   let title = current?.title || ''
