@@ -43,7 +43,6 @@ export const getAllSchedules = async ({ year, month, day, type = 'picket' }: { y
 	return res.data.data;
 };
 
-
 export const getAllSchedules2 = async () => {
 	const res = await axiosClient.get('/schedules?type=picket');
 	return res.data.data;
@@ -90,4 +89,9 @@ export const getRangeSchedules = async ({type = 'picket' }: { type?: string }) =
 export const postSchedulePicket = async (payload: any) => {
 	const res = await axiosClient.post('/schedules/batch', payload);
 	return res.data;
+};
+
+export const deleteSchedulePicket = async (id: string) => {
+  const res = await axiosClient.delete(`/schedules/${id}`);
+  return res.data;
 };
