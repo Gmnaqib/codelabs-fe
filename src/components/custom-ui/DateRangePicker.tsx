@@ -38,7 +38,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, endDate, o
       if (clickedStr < startDate) {
         onChange(clickedStr, null);
       } else if (clickedStr === startDate) {
-        onChange(clickedStr, null); // klik 2x tanggal sama, reset ke 1 hari
+        onChange(clickedStr, null); 
       } else {
         onChange(startDate, clickedStr);
       }

@@ -57,6 +57,7 @@ const ReportTable = ({
   const [openDetailId, setOpenDetailId] = useState<string | null>(null);
   const [selectedResearch, setSelectedResearch] = useState<ResearchDataItem | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [fetchTrigger1, setFetchTrigger1] = useState(0);
 
   const [title, setTitle] = useState("");
   const [week, setWeek] = useState("");
@@ -77,7 +78,7 @@ const ReportTable = ({
       }
     };
     fetchResearch();
-  }, [fetchTrigger]);
+  }, [fetchTrigger, fetchTrigger1]);
 
   const filteredData = useMemo(() => {
     return (researchData as ResearchDataItem[]).filter((item) => {
@@ -139,6 +140,7 @@ const ReportTable = ({
     try {
       await updateResearchRecord(selectedResearch._id, payload);
       toast.success("Data berhasil diperbarui!");
+      setFetchTrigger1(Date.now());
       setOpenEditId(null);
     } catch {
       showErrorToast("Gagal memperbarui data.", { duration: 5000 });

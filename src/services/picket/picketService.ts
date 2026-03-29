@@ -58,11 +58,9 @@ export const getRangeSchedules = async ({type = 'picket' }: { type?: string }) =
 	const startDateStr = startDate.toISOString().slice(0, 10);
 	const endDateStr = endDate.toISOString().slice(0, 10);
 
-	// Types
 	type AssignedUser = { _id: string; name: string };
 	type Schedule = { _id: string; date: string | Date; assignedUsers: AssignedUser[] };
 
-	// Get today's picket schedule
 	const year = today.getFullYear();
 	const month = String(today.getMonth() + 1).padStart(2, '0');
 	const day = String(today.getDate()).padStart(2, '0');
@@ -77,11 +75,8 @@ export const getRangeSchedules = async ({type = 'picket' }: { type?: string }) =
 		}
 	});
 
-	// Get range schedules
 	const res = await axiosClient.get(`/schedules?type=${type}&startDate=${startDateStr}&endDate=${endDateStr}`);
 	const rangeSchedules: Schedule[] = res.data.data || [];
-
-	// Filter out users who are already assigned today
 	const filteredSchedules = rangeSchedules.map((schedule: Schedule) => {
 		if (schedule.assignedUsers && Array.isArray(schedule.assignedUsers)) {
 			const filteredUsers = schedule.assignedUsers.filter((user: AssignedUser) => !todayAssignedUserIds.has(user._id));
@@ -90,4 +85,9 @@ export const getRangeSchedules = async ({type = 'picket' }: { type?: string }) =
 		return schedule;
 	});
 	return filteredSchedules;
+};
+
+export const postSchedulePicket = async (payload: any) => {
+	const res = await axiosClient.post('/schedules/batch', payload);
+	return res.data;
 };

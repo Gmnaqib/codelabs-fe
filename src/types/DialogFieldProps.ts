@@ -9,7 +9,7 @@ export interface DialogFieldProps {
   open?: boolean;
   noPadding?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onSubmit?: () => void; 
+  onSubmit?: (closeDialog?: () => void) => void;
   onCancel?: () => void;
   onTriggerClick?: () => void;
   submitDisabled?: boolean;

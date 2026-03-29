@@ -77,7 +77,7 @@ const DialogField = (props: DialogFieldProps) => {
             </Button>
             {onSubmit && (
               <Button
-                onClick={onSubmit}
+                onClick={() => onSubmit(closeDialog)}
                 disabled={submitDisabled}
               >
                 Submit

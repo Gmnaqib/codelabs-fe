@@ -2,7 +2,11 @@ import { axiosClient } from "@/lib/axiosClient";
 
 export async function getAllUsers() {
     const {data} = await axiosClient.get("/users")
-    return data.data
+    const sorted = [...data.data].sort((a, b) => {
+      if (!a.name || !b.name) return 0;
+      return a.name.localeCompare(b.name, 'id', { sensitivity: 'base' });
+    });
+    return sorted;
 }
 
 
