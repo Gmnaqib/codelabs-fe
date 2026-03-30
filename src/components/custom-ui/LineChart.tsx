@@ -100,7 +100,7 @@ const LineChart = ({ year }: LineChartProps) => {
   }, [chartData, labels]);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-72 md:h-full relative">
       <canvas ref={chartRef} className="!w-full !h-full" />
     </div>
   );

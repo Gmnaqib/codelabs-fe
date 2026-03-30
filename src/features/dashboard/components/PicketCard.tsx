@@ -87,7 +87,7 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
             <button
               onClick={() => setShowMap(false)}
-              className="absolute top-4 right-4 bg-white rounded-lg px-2 py-1 text-gray-500 hover:text-red-500 text-xl font-bold z-50"
+              className="absolute top-40 lg:top-4 right-4 bg-white rounded-lg px-2 py-1 text-gray-500 hover:text-red-500 text-xl font-bold z-50"
               aria-label="Close"
             >
               ×

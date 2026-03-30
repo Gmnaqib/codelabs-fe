@@ -52,7 +52,7 @@ const KPIRangkings = () => {
         />
       </div>
 
-      <div className="max-h-64 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
+      <div className="h-screen overflow-y-auto flex flex-col gap-4 scrollbar-none ">
         {sortedUsers.map((user, index) => (
           <div key={user.name + '-' + user.totalPoints + '-' + index} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative">

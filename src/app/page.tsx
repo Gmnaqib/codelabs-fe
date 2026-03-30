@@ -50,13 +50,27 @@ const Dashboard = () => {
               <div className={showMap ? "lg:z-50" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
-              <InProgressCard />
-              <TotalMembers/>
-              <AverageMonthly/>
-              <OperationalCash/>
-              <OrganizationStatistic className="h-full xl:col-span-2"/>
-              <ResearchPercentage/>
-              <OrganizationSummary className="h-full xl:col-span-3"/>
+              <div className="z-1">
+                <InProgressCard />
+              </div>
+              <div className="z-1">
+                <TotalMembers/>
+              </div>
+              <div className="z-1">
+                <AverageMonthly/>
+              </div>
+              <div className="z-1">
+                <OperationalCash/>
+              </div>
+              <div className="z-1 h-full xl:col-span-2">
+                <OrganizationStatistic />
+              </div>
+              <div className="z-1">
+                <ResearchPercentage/>
+              </div>
+              <div className="z-1 h-full xl:col-span-3">
+                <OrganizationSummary/>
+              </div>
             </>
           ) : role === 'lecturer' ? (
             <>
@@ -73,7 +87,7 @@ const Dashboard = () => {
               <MonthlyProgressCard />
               <CashBillsCard />
               <AnnouncementCard />
-              <div className={showMap ? "lg:z-50" : "lg:z-10"}>
+              <div className="z-50">
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <InProgressCard />
