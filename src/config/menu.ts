@@ -72,7 +72,7 @@ export const menuItems = [
     iconSolid: ClipboardCheckSolid,
     iconOutline: ClipboardCheckOutline,
     route: "/attendance",
-    roles: ["admin", "minister of operation"],
+    roles: ["admin", "minister of operation", "lecturer"],
   },
   {
     title: "Picket Schedule",

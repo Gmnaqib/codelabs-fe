@@ -249,8 +249,16 @@ const OperationalTable = ({
             return value;
           }}
           renderTotal={(row: User) => {
-            const totalPresent = row.records?.filter((r: AttendanceRecord) => r.status === "present").length ?? 0;
-            return totalPresent;
+            if (activePage === "Picket") {
+              // Hitung total piket (jumlah operationalRecords)
+              return row.operationalRecords?.length ?? 0;
+            } else if (activePage === "Thematic") {
+              // Hitung total thematic (jumlah operationalRecords type 'thematic')
+              return row.operationalRecords?.filter((r: any) => r.type === "thematic").length ?? 0;
+            } else {
+              // Default: absensi (jumlah present)
+              return row.records?.filter((r: AttendanceRecord) => r.status === "present").length ?? 0;
+            }
           }}
         />
 

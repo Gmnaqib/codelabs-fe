@@ -106,7 +106,6 @@ const AttendanceTable = ({
     statusSummary: StatusSummary[];
   }
 
-  // --- State ---
   const [todayData, setTodayData] = useState<LeaveRequest[]>([]);
   const [allData, setAllData] = useState<LeaveRequest[] | AttendanceSummaryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -412,7 +411,15 @@ const AttendanceTable = ({
         <TableCell className="text-center w-96">{item.counts?.sick ?? 0}</TableCell>
         <TableCell className="text-center w-96">{item.counts?.late ?? 0}</TableCell>
         <TableCell className="text-center w-96">{item.counts?.absent ?? 0}</TableCell>
-        <TableCell className="text-center w-96">1</TableCell>
+        <TableCell className="text-center w-96">
+          {(() => {
+            const absent = item.counts?.absent ?? 0;
+            if (absent >= 12) return 3;
+            if (absent >= 8) return 2;
+            if (absent >= 4) return 1;
+            return 0;
+          })()}
+        </TableCell>
         <TableCell className="text-center w-96">
           <DialogField
             name="Detail"
