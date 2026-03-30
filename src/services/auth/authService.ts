@@ -47,13 +47,6 @@ export async function loginUser(
       saveToken(data.data.token);
     }
 
-    if (
-      data.data.role === "admin" ||
-      data.data.role === "lecturer"
-    ) {
-      localStorage.removeItem("device_id");
-    }
-
     return data;
 
   } catch (err) {

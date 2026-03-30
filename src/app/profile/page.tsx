@@ -1,9 +1,9 @@
 "use client";
 import InputField from "@/components/custom-ui/InputField";
-import { updateUser } from "@/services/users/userService";
+import { getMe, updateUser } from "@/services/users/userService";
 import { updateDeviceId } from "@/services/users/userService";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
@@ -15,6 +15,17 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user, setUser } = useAuth(); 
+  const [loading, setLoading] = useState(true);
+  const localDeviceId = typeof window !== 'undefined' ? localStorage.getItem('device_id') : null;
+
+  useEffect(() => {
+      getMe().then((res) => {
+        setUser(res);
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }, []);
+    
+    if (loading) return null;
 
   const maskDeviceId = (deviceId: string | null | undefined): string => {
     if (!deviceId) return "No Device ID";
@@ -32,9 +43,8 @@ const Profile = () => {
 
   const handleUpdateDeviceId = async () => {
     try {
-      await updateDeviceId({ device_id: null });
+      await updateDeviceId({ device_id: localDeviceId });
       toast.success("Device ID berhasil dihapus. Redirecting...");
-      localStorage.removeItem('device_id');
       localStorage.removeItem('token');
       if (setUser) {
         setUser(null);
@@ -78,6 +88,8 @@ const Profile = () => {
       showErrorToast("Gagal Edit Password.", { duration: 5000 });
     }
   };
+
+  console.log("User Data:", user?.change_device_id );
 
   return (
     <ProtectedRoute>
@@ -128,13 +140,13 @@ const Profile = () => {
                   readOnly
                 />
               </div>
-              <Button
-                className="w-fit"
-                disabled={user?.change_device_id === "false" || user?.change_device_id === undefined}
-                onClick={handleUpdateDeviceId}
-              >
-                Reset
-              </Button>
+                <Button
+                  className="w-fit"
+                  disabled={!Boolean(user?.change_device_id)}
+                  onClick={handleUpdateDeviceId}
+                >
+                  Reset
+                </Button>
           </div>
           <p className="text-sm text-gray-600">
             To change the Device ID permission, contact the{" "}

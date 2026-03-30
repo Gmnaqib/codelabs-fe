@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { v4 as uuidv4 } from 'uuid';
 import InputField from "@/components/custom-ui/InputField"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
@@ -23,9 +24,17 @@ const LoginForm = () => {
       return
     }
 
+
+      
+
     setLoading(true)
     try {
       await loginUser(nim, password)
+      let deviceId = localStorage.getItem('device_id');
+      if (!deviceId) {
+        deviceId = uuidv4();
+        localStorage.setItem('device_id', deviceId);
+      }
       toast.success("Login berhasil")
       router.push("/")
     } catch {

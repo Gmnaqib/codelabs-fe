@@ -50,6 +50,13 @@ export const postCheckIn = async (device_id: string, reason: string = '') => {
   return res.data;
 };
 
+export const postCheckOut = async (device_id: string) => {
+  const res = await axiosClient.patch('/attendance/checkout', {
+    device_id,
+  });
+  return res.data;
+};
+
 export const getAttendance = async (year: number, month: number) => {
   const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}`);
   return res.data.data;

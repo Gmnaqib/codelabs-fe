@@ -3,7 +3,7 @@ import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { getAttendance, postCheckIn, postLeaveRequest } from '@/services/attendance/attendanceService';
+import { getAttendance, postCheckIn, postLeaveRequest, postCheckOut } from '@/services/attendance/attendanceService';
 import { useRef } from 'react';
 
 type AttendanceRecord = {
@@ -27,6 +27,8 @@ import '@/components/custom-ui/glow-animate.css';
 
 const AttendanceCard = () => {
   const { user } = useAuth();
+  const localDeviceId = localStorage.getItem('device_id');
+  const isDeviceIdMatch =  user?.device_id === localDeviceId;
   const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');
@@ -131,16 +133,15 @@ const AttendanceCard = () => {
     checkIp();
   }, []);
 
-
   const handleCheckin = async () => {
     if (!user) return;
     if (!user.device_id) {
-       showErrorToast("Device ID kosong. Tidak bisa melakukan check-in.", { duration: 5000 });
+      showErrorToast("Device ID kosong. Tidak bisa melakukan check-in.", { duration: 5000 });
       return;
     }
     const now = new Date();
     const hour = now.getHours();
-    if (hour >= 9) {
+    if (hour >= 9 && hour <= 10) {
       setDialogOpen(true);
       return;
     }
@@ -179,6 +180,28 @@ const AttendanceCard = () => {
     setCheckinLoading(false);
   };
 
+    const handleCheckout = async () => {
+    if (!user?.device_id) {
+      showErrorToast("Device ID kosong. Tidak bisa melakukan check-out.", { duration: 5000 });
+      return;
+    }
+    setCheckinLoading(true);
+    try {
+      await postCheckOut(user.device_id);
+      toast.success("Check-out berhasil!");
+      setIsCheckedOut(true);
+    } catch (error) {
+      let errMsg = "Gagal melakukan check-out.";
+      if (error && typeof error === "object") {
+        errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
+          || (error as { message?: string })?.message
+          || errMsg;
+      }
+      toast.error(errMsg);
+    }
+    setCheckinLoading(false);
+  };
+
   return (
     <CardField title="Attendance" icon={<CalendarDaysIcon />} bg>
       <div className="flex flex-col items-center">
@@ -197,7 +220,7 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour < 17) {
+            } else if (hour < 0) {
               return (
                 <>
                   <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
@@ -206,19 +229,20 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour >= 12 && hour < 24) {
-              const isLate = hour >= 19;
+            } else if (hour >= 0 && hour < 24) {
               return (
                 <>
                   <Button 
-                    onClick={handleCheckin} 
+                    onClick={handleCheckout} 
+                    className='h-28 cursor-pointer'
                     disabled={
                       checkinLoading ||
-                      isLate ||
                       isIpAllowed === false ||
                       isIpAllowed === null ||
-                      !user?.device_id
+                      !user?.device_id ||
+                      isDeviceIdMatch === false
                     }
+                    variant="link"
                   >
                     <div
                       className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
@@ -245,7 +269,7 @@ const AttendanceCard = () => {
           })()
         ) : (
           (() => {
-            if (hour >= 6 && hour < 9) {
+            if (hour >= 0 && hour <= 9) {
               return (
                 <>
                   <Button 
@@ -256,8 +280,8 @@ const AttendanceCard = () => {
                       checkinLoading ||
                       isIpAllowed === false ||
                       isIpAllowed === null ||
-                      !user?.device_id
-                      
+                      !user?.device_id ||
+                      isDeviceIdMatch === false
                     }
                   >
                     <div
@@ -280,7 +304,7 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour >= 9 && hour < 10) {
+            } else if (hour >= 9 && hour <= 10) {
               return (
                 <>
                   <DialogField
@@ -310,7 +334,8 @@ const AttendanceCard = () => {
                       checkinLoading ||
                       isIpAllowed === false ||
                       isIpAllowed === null ||
-                      !user?.device_id
+                      !user?.device_id ||
+                      isDeviceIdMatch === false
                     }
                   >
                     <div className="flex flex-col gap-4">
@@ -363,7 +388,7 @@ const AttendanceCard = () => {
             }
           })()
         )}
-        {hour >= 6 && hour < 15 && !isCheckedIn && (
+        {hour >= 6 && hour < 10 && !isCheckedIn && (
           <div className="flex items-center gap-2 mt-3 cursor-pointer">
             <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
               onSubmit={handlePermissionSubmit}
