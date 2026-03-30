@@ -1,7 +1,6 @@
 import { ReportTableProps } from '@/types/ReportTableProps';
 import React, { useEffect, useState } from 'react'
 import { products } from '../../headerConfig';
-import { Menubar } from '@/components/custom-ui/MenuBar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getProducts, editProduct } from '@/services/product/productsService';
 import DialogField from '@/components/custom-ui/DialogField';
@@ -17,8 +16,6 @@ interface ProductsTableProps extends ReportTableProps {
 
 const ProductsTable = ({
   activePage,
-  onPageChange,
-  showMenu = true,
   searchQuery = "",
   fetchTrigger,
 }: ProductsTableProps) => {

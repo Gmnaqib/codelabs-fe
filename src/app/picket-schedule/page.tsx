@@ -42,15 +42,16 @@ const Picket = () => {
   const [assignedUsers, setAssignedUsers] = useState<Record<string, string[]>>({});
   const [dateDisabled, setDateDisabled] = useState(false);
 
+  type User = { _id: string; name: string };
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const users = await getAllUsers();
-        setUserNames(users.map((u: any) => u.name));
+        const users: User[] = await getAllUsers();
+        setUserNames(users.map((u: User) => u.name));
         const map: Record<string, string> = {};
-        users.forEach((u: any) => { map[u.name] = u._id; });
+        users.forEach((u: User) => { map[u.name] = u._id; });
         setUserMap(map);
-      } catch (e) {
+      } catch {
         setUserNames([]);
         setUserMap({});
       }
@@ -68,18 +69,19 @@ const Picket = () => {
     setEndDate(date);
   };
 
+  type Schedule = { _id: string; date: string; description: string };
   useEffect(() => {
     async function fetchSchedules() {
       try {
         const all = await getAllSchedules2();
         const today = new Date();
         today.setHours(0,0,0,0);
-        const filtered = (all || []).filter((item: any) => {
+        const filtered = (all || []).filter((item: Schedule) => {
           const d = new Date(item.date);
           d.setHours(0,0,0,0);
           return d >= today;
         });
-        setFutureSchedules(filtered.map((item: any) => ({
+        setFutureSchedules(filtered.map((item: Schedule) => ({
           _id: item._id,
           date: item.date,
           description: item.description
@@ -129,7 +131,7 @@ const Picket = () => {
                     setDateDisabled(true);
                     toast.success('Success to make a schedule!');
                     if (typeof closeDialog === 'function') closeDialog();
-                  } catch (e) {
+                  } catch {
                     toast.error('Failed to submit schedule!');
                   }
                 }}
@@ -160,7 +162,7 @@ const Picket = () => {
                           })}
                           title='Select Member'
                           value={(assignedUsers[day] || []).map(id => {
-                            const entry = Object.entries(userMap).find(([name, _id]) => _id === id);
+                            const entry = Object.entries(userMap).find(([_id]) => _id === id);
                             return entry ? entry[0] : '';
                           }).filter(Boolean)}
                           onChange={(selectedNames: string[]) => {

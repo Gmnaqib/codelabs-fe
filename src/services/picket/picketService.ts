@@ -86,7 +86,18 @@ export const getRangeSchedules = async ({type = 'picket' }: { type?: string }) =
 	return filteredSchedules;
 };
 
-export const postSchedulePicket = async (payload: any) => {
+type SchedulePicketPayload = {
+	type: string;
+	startDate: string;
+	endDate: string;
+	patterns: {
+		daysOfWeek: number[];
+		assignedUsers: string[];
+		description: string;
+	}[];
+};
+
+export const postSchedulePicket = async (payload: SchedulePicketPayload) => {
 	const res = await axiosClient.post('/schedules/batch', payload);
 	return res.data;
 };

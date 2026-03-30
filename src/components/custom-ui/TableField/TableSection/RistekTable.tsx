@@ -118,7 +118,7 @@ const RistekTable = ({
       await updateResearchStatus(id, value);
       fetchResearchData();
       toast.success(`Research ${value.toLowerCase()} successfully!`);
-    } catch (err) {
+    } catch {
       toast.error(`Failed to update research ${value.toLowerCase()}.`);
     }
   };

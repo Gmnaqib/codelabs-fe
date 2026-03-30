@@ -133,7 +133,7 @@ const CompetitionTable = ({
       await updateCompetitionStatus(selectedId._id, newStatus);
       await fetchCompetition(); 
       toast.success(`Competition ${newStatus.toLowerCase()} successfully!`);
-    } catch (err) {
+    } catch {
       toast.error(`Failed to update competition ${newStatus.toLowerCase()}.`);
     }
   }

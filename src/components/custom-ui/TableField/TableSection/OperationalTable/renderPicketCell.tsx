@@ -18,11 +18,18 @@ type PicketUser = {
 };
 
 
+type PicketSchedule = {
+  _id: string;
+  date: string;
+  description?: string;
+  assignedUsers?: AssignedUser[];
+};
+
 const renderPicketCell = (
   day: string | number,
   rowIndex: number,
   data: PicketUser[],
-  picketSchedules?: any[]
+  picketSchedules?: PicketSchedule[]
 ) => {
   // Always log picketSchedules for debugging
   console.log("PICKET SCHEDULES (cell):", picketSchedules);

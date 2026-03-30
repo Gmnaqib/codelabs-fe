@@ -1,9 +1,7 @@
 import { ReportTableProps } from '@/types/ReportTableProps';
 import React, { useEffect, useState } from 'react'
-import { points, products } from '../../headerConfig';
-import { Menubar } from '@/components/custom-ui/MenuBar';
+import { points } from '../../headerConfig';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getProducts, editProduct } from '@/services/product/productsService';
 import { KPIItem, updateKPIItem } from '@/services/points/pointsService';
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
@@ -23,7 +21,13 @@ const PointsTable = ({
 }: ProductsTableProps) => {
 
   const pointsHeaders = points[activePage] ?? [];
-  const [kpiItems, setKpiItems] = useState<any[]>([]);
+  type KPIItem = {
+    _id: string;
+    category: string;
+    code: string;
+    point: number;
+  };
+  const [kpiItems, setKpiItems] = useState<KPIItem[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
   const [editCategory, setEditCategory] = useState('');
   const [editCode, setEditCode] = useState('');
@@ -32,7 +36,7 @@ const PointsTable = ({
     try {
       const data = await KPIItem();
       setKpiItems(data);
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch KPI items');
     }
   };
@@ -51,7 +55,7 @@ const PointsTable = ({
     : kpiItems;
 
 
-  const handleEditClick = (item: any) => {
+  const handleEditClick = (item: KPIItem) => {
     setEditId(item._id);
     setEditCategory(item.category);
     setEditCode(item.code);
@@ -69,7 +73,7 @@ const PointsTable = ({
       toast.success('KPI item updated');
       setEditId(null);
       fetchKPI();
-    } catch (err) {
+    } catch {
       toast.error('Failed to update KPI item');
     }
   };

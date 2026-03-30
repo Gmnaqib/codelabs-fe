@@ -147,7 +147,7 @@ const BrandingTable = ({
       await updateBrandingStatus(selectedId._id, newStatus);
       await fetchBranding();
       toast.success(`Branding ${newStatus.toLowerCase()} successfully!`);
-    } catch (err) {
+    } catch {
       toast.error(`Failed to update branding ${newStatus.toLowerCase()}.`);
     }
   }

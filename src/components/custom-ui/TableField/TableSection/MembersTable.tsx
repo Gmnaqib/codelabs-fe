@@ -70,7 +70,7 @@ const MembersTable = ({
 
       await updateUser(id, safePayload);
       toast.success(`Successfully updated ${key}`);
-    } catch (err) {
+    } catch {
       toast.error(`Failed to update ${key}`);
     }
   };

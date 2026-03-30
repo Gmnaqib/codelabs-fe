@@ -64,7 +64,18 @@ const OperationalTable = ({
       month: new Date().getMonth(),
     });
   const [search, setSearch] = useState(searchQuery ?? "");
-  const [picketSchedules, setPicketSchedules] = useState<any[]>([]);
+  type AssignedUser = {
+    nim?: string | number;
+    _id?: string;
+    name?: string;
+  };
+  type PicketSchedule = {
+    _id: string;
+    date: string;
+    description?: string;
+    assignedUsers?: AssignedUser[];
+  };
+  const [picketSchedules, setPicketSchedules] = useState<PicketSchedule[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {

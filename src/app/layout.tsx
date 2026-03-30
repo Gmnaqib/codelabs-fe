@@ -2,7 +2,6 @@ import { Poppins } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import LayoutWrapper from "@/components/layouts/LayoutWrapper";
-import MotionWrapper from "@/components/custom-ui/MotionWrapper";
 import { AuthProvider } from "../context/AuthContext";
 import { Toaster } from "sonner";
 import AutoTitle from "@/components/custom-ui/CustomTitle";
