@@ -13,7 +13,7 @@ import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
   const { formattedTime, formattedDate } = useClock();
-  const [isRightOpen, setIsRightOpen] = useState(true);
+  const [isRightOpen, setIsRightOpen] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const isXl = useMediaQuery("(min-width: 1280px)");
   const [role, setRole] = useState<string | null>(null);

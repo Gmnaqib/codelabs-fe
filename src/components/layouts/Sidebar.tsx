@@ -83,7 +83,7 @@ const Sidebar = ({ isActive, setIsActive }: SidebarProps) => {
           onClick={() => setIsActive(!isActive)}
         >
           <ChevronRightIcon
-            className={`transition-transform duration-300 size-5 ${isActive ? "" : "rotate-180"}`}
+            className={`transition-transform duration-300 size-5 ${isActive ? "rotate-180" : ""}`}
           />
         </Button>
       </div>

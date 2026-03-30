@@ -1,5 +1,6 @@
 
 import CardField from '@/components/custom-ui/CardField';
+import imageCompression from 'browser-image-compression';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
@@ -48,33 +49,39 @@ const AttendanceCard = () => {
   const hour = now.getHours();
 
   const handlePermissionSubmit = async () => {
-      if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
-        toast.error('Semua field wajib diisi!');
-        return;
+    if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
+      toast.error('Semua field wajib diisi!');
+      return;
+    }
+    try {
+      await postLeaveRequest({
+        type: leaveType,
+        reason: leaveReason,
+        attachment: leaveAttachment,
+        start_date: leaveStartDate,
+        end_date: leaveEndDate,
+      });
+      toast.success('Sukses mengirim izin!');
+      const day = new Date().getDay(); 
+      let telegramUsername = 'favianjiwani';
+      if (day === 2 || day === 5) telegramUsername = 'Ravarazan'; 
+      else if (day === 4 || day === 6) telegramUsername = 'Erwinhafizz'; 
+      const reasonText = encodeURIComponent(`Saya izin tidak masuk karena ${leaveReason} dari tanggal ${leaveStartDate} hingga ${leaveEndDate}`);
+      window.location.href = `https://t.me/${telegramUsername}?text=${reasonText}`;
+      setLeaveReason('');
+      setLeaveStartDate('');
+      setLeaveEndDate('');
+      setLeaveAttachment(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (error: unknown) {
+      let errMsg = 'Gagal mengirim izin!';
+      if (error && typeof error === 'object') {
+        errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
+          || (error as { message?: string })?.message
+          || errMsg;
       }
-      try {
-        await postLeaveRequest({
-          type: leaveType,
-          reason: leaveReason,
-          attachment: leaveAttachment,
-          start_date: leaveStartDate,
-          end_date: leaveEndDate,
-        });
-        toast.success('Sukses mengirim izin!');
-        setLeaveReason('');
-        setLeaveStartDate('');
-        setLeaveEndDate('');
-        setLeaveAttachment(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      } catch (error: unknown) {
-        let errMsg = 'Gagal mengirim izin!';
-        if (error && typeof error === 'object') {
-          errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
-            || (error as { message?: string })?.message
-            || errMsg;
-        }
-        toast.error(errMsg);
-      }
+      toast.error(errMsg);
+    }
   };
 
   useEffect(() => {
@@ -220,7 +227,7 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour < 0) {
+            } else if (hour < 17) {
               return (
                 <>
                   <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
@@ -229,7 +236,7 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour >= 0 && hour < 24) {
+            } else if (hour >= 17 && hour < 19) {
               return (
                 <>
                   <Button 
@@ -269,7 +276,7 @@ const AttendanceCard = () => {
           })()
         ) : (
           (() => {
-            if (hour >= 0 && hour <= 9) {
+            if (hour >= 6 && hour <= 9) {
               return (
                 <>
                   <Button 
@@ -374,11 +381,11 @@ const AttendanceCard = () => {
                     </div>
                   </Button>
                   {isCheckedIn ? (
-                    <p className="text-center text-sm mt-24">
+                    <p className="text-center text-sm mt-32">
                       Check-out is only allowed from 5 PM to 7 PM.
                     </p>
                   ): (
-                    <p className="text-center text-sm mt-24">
+                    <p className="text-center text-sm mt-32">
                       Check-in is only allowed from 6 AM to 10 AM.
                     </p>
                   )}
@@ -429,10 +436,11 @@ const AttendanceCard = () => {
                     <div
                       className="fixed inset-0 z-50 flex items-center justify-center"
                       style={{ background: 'transparent' }}
+                      onClick={() => setShowDateModal(false)}
                     >
                       <div
                         className="bg-white rounded shadow-lg p-4"
-                        onClick={() => {}}
+                        onClick={e => e.stopPropagation()}
                       >
                         <DateRangePicker
                           startDate={leaveStartDate || null}
@@ -459,8 +467,32 @@ const AttendanceCard = () => {
                   
                 {!leaveAttachment ? (
                 <div>
-                  <label className="block text-base font-light mb-1">Take Picture</label>
-                    <CameraCapture onCapture={file => setLeaveAttachment(file)} />
+                  <label className="block text-base font-light mb-1">Choose Picture</label>
+                  {/* <CameraCapture onCapture={file => setLeaveAttachment(file)} /> */}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    className="block w-full rounded-lg border border-gray-700 p-1 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#232329] file:text-white hover:file:bg-primary/80"
+                    onChange={async e => {
+                      if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0];
+                        if (["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+                          try {
+                            const compressedFile = await imageCompression(file, {
+                              maxSizeMB: 0.5, 
+                              maxWidthOrHeight: 1280,
+                              useWebWorker: true
+                            });
+                            setLeaveAttachment(compressedFile);
+                          } catch (err) {
+                            setLeaveAttachment(file); 
+                          }
+                        } else {
+                          setLeaveAttachment(file);
+                        }
+                      }
+                    }}
+                  />
                 </div>
                 ) : (
                   <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>

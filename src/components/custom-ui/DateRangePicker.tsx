@@ -4,7 +4,8 @@ interface DateRangePickerProps {
   startDate: string | null;
   endDate: string | null;
   onChange: (start: string | null, end: string | null) => void;
-  minDate?: string; 
+  minDate?: string;
+  onRequestClose?: () => void; // dipanggil jika klik di luar
 }
 
 function formatDate(date: Date) {
@@ -72,7 +73,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, endDate, o
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center" tabIndex={-1}>
       <div className="flex justify-between w-full mb-2">
         <button type="button" onClick={prevMonth}>&lt;</button>
         <span>{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
@@ -104,10 +105,6 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({ startDate, endDate, o
             </button>
           );
         })}
-      </div>
-      <div className="mt-2 text-xs">
-        {startDate && !endDate && `Selected: ${startDate}`}
-        {startDate && endDate && `Range: ${startDate} - ${endDate}`}
       </div>
     </div>
   );
