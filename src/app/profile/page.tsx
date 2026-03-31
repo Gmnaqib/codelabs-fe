@@ -106,7 +106,7 @@ const Profile = () => {
           </div>
 
           <p className="font-bold text-xl">Update Password</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="New Password"
               type="password"
@@ -125,10 +125,10 @@ const Profile = () => {
 
           </div>
           <div className="flex w-full justify-end">
-            <Button onClick={handleUpdatePassword} className="w-fit">Update</Button>
+            <Button onClick={handleUpdatePassword} className="md:w-fit" size="full">Update</Button>
           </div>
           <p className="font-bold text-xl">Update Device Id</p>
-          <div className="flex w-1/2 items-end gap-4">
+          <div className="grid grid-cols-1 md:w-1/2 md:grid-cols-none md:flex items-end gap-4">
               <div className="w-full">
                 <InputField
                   label="Device Id"
@@ -139,9 +139,10 @@ const Profile = () => {
                 />
               </div>
                 <Button
-                  className="w-fit"
+                  className="md:w-fit"
                   disabled={!Boolean(user?.change_device_id)}
                   onClick={handleUpdateDeviceId}
+                  size="full"
                 >
                   Reset
                 </Button>
