@@ -1,24 +1,24 @@
-"use client"
 
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-
-    if (!token) {
-      router.push("/login")
-      setIsAuthenticated(false)
-    } else {
-      setIsAuthenticated(true)
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
+      setChecking(false);
     }
-  }, [router])
+  }, [router]);
 
-  if (isAuthenticated === null) return <></>
+  if (checking) return null;
 
-  return <>{children}</>
+  return <>{children}</>;
 }

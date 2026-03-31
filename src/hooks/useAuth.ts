@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getToken } from "@/lib/token";
+import { getToken, removeToken } from "@/lib/token";
 import { jwtDecode } from "jwt-decode";
 
 export interface User {
@@ -27,9 +27,15 @@ export function useAuth() {
           major: string;
           status: string;
           device_id?: string;
+          exp?: number;
           [key: string]: unknown;
         }
         const decoded = jwtDecode<JwtPayload>(token);
+        if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+          removeToken();
+          setUser(null);
+          return;
+        }
         let device_id = undefined;
         if (typeof window !== 'undefined') {
           const userData = localStorage.getItem('user');

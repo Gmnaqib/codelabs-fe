@@ -162,8 +162,9 @@ const Picket = () => {
                           })}
                           title='Select Member'
                           value={(assignedUsers[day] || []).map(id => {
-                            const entry = Object.entries(userMap).find(([_id]) => _id === id);
-                            return entry ? entry[0] : '';
+                            // Find the name for this id
+                            const name = Object.keys(userMap).find(key => userMap[key] === id);
+                            return name || '';
                           }).filter(Boolean)}
                           onChange={(selectedNames: string[]) => {
                             setAssignedUsers(prev => ({
