@@ -4,7 +4,7 @@ export interface DialogFieldProps {
   name: ReactNode,
   title: string,
   variant?: "default" | "link" | "destructive" | "outline" | "secondary" | "ghost",
-  size?: "default" | "sm" | "lg" | "noPadding" | "icon",
+  size?: "default" | "sm" | "lg" | "noPadding" | "icon"| "full",
   children: ReactNode,
   open?: boolean;
   noPadding?: boolean;

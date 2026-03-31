@@ -3,18 +3,18 @@ import InputField from "@/components/custom-ui/InputField";
 import { getMe, updateUser } from "@/services/users/userService";
 import { updateDeviceId } from "@/services/users/userService";
 import Image from "next/image";
-import React, { use, useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import MotionWrapper from "@/components/custom-ui/MotionWrapper";
+import { UserType } from "@/types/user";
 
 const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { user, setUser } = useAuth(); 
+  const [user, setUser] = useState<UserType | null>(null); 
   const [loading, setLoading] = useState(true);
   const localDeviceId = typeof window !== 'undefined' ? localStorage.getItem('device_id') : null;
 
@@ -74,7 +74,7 @@ const Profile = () => {
     }
 
     try {
-      await updateUser(user!.id, {
+      await updateUser(user!._id, {
         name: user!.name,
         email: user!.email ?? "",
         password: newPassword,
@@ -88,8 +88,6 @@ const Profile = () => {
       showErrorToast("Gagal Edit Password.", { duration: 5000 });
     }
   };
-
-  console.log("User Data:", user?.change_device_id );
 
   return (
     <ProtectedRoute>

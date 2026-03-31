@@ -173,12 +173,21 @@ const ReportTable = ({
       {loading ? (
         <div className="text-center py-6">Loading...</div>
       ) : (
-        <Table className="w-full table-fixed">
+        <Table className="table-fixed w-full">
           <TableHeader>
             <TableRow>
-              {reportHeaders.map((header, i) => (
-                <TableHead key={i}>{header}</TableHead>
-              ))}
+              {reportHeaders.map((header, i) => {
+                // Hide these columns on screens below md
+                const hideOnMobile = ["Week", "Progress", "Status"].includes(header);
+                return (
+                  <TableHead
+                    key={i}
+                    className={hideOnMobile ? "hidden md:table-cell" : ""}
+                  >
+                    {header}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           </TableHeader>
 
@@ -187,9 +196,9 @@ const ReportTable = ({
               filteredData.map((item, i) => (
                 <TableRow key={i}>
                   <TableCell className="text-center">{typeof item.title === 'string' ? item.title : '-'}</TableCell>
-                  <TableCell className="text-center">{`Week ${typeof item.week === 'string' || typeof item.week === 'number' ? item.week : '-'}`}</TableCell>
-                  <TableCell className="text-center">{typeof item.progress === 'string' ? item.progress : '-'}</TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center hidden md:table-cell">{`Week ${typeof item.week === 'string' || typeof item.week === 'number' ? item.week : '-'}`}</TableCell>
+                  <TableCell className="text-center hidden md:table-cell">{typeof item.progress === 'string' ? item.progress : '-'}</TableCell>
+                  <TableCell className="text-center hidden md:table-cell">
                     <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(typeof item.status === 'string' ? item.status : '')}`}>
                       {typeof item.status === 'string' ? item.status.toUpperCase() : '-'}
                     </span>

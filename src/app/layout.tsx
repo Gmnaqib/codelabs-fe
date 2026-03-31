@@ -44,7 +44,7 @@ export default function RootLayout({
           <LayoutWrapper>
             <AutoTitle />
               {children}
-            <Toaster />
+            <Toaster richColors />
           </LayoutWrapper>
         </AuthProvider>
       </body>

@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
-import CameraCapture from '@/components/custom-ui/CameraCapture';
+// import CameraCapture from '@/components/custom-ui/CameraCapture';
 import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { Textarea } from '@/components/ui/textarea';
@@ -484,7 +484,7 @@ const AttendanceCard = () => {
                               useWebWorker: true
                             });
                             setLeaveAttachment(compressedFile);
-                          } catch (err) {
+                          } catch {
                             setLeaveAttachment(file); 
                           }
                         } else {

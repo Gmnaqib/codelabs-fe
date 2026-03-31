@@ -78,8 +78,8 @@ const WeeklyReport = () => {
   return (
     <ProtectedRoute>
       <MotionWrapper>
-        <div className="flex w-full justify-between mb-10">
-          <div className="flex gap-5">
+        <div className="flex flex-col w-full justify-between mb-10 md:flex-row">
+          <div className="flex flex-col gap-3 md:gap-5 md:flex-row">
             <CalendarMonthYearPicker 
               onChange={({ month, year }) => {
                 setSelectedMonth(month + 1); 
@@ -102,7 +102,7 @@ const WeeklyReport = () => {
             />
           </div>
 
-          <div>
+          <div className="mt-3">
             {(() => {
               const isLinkValid = link.startsWith("https://");
               const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;
@@ -110,6 +110,7 @@ const WeeklyReport = () => {
                 <DialogField
                   name="Add New Plan"
                   title="Add New Plan"
+                  size="full"
                   open={isDialogOpen}
                   onOpenChange={setIsDialogOpen}
                   onSubmit={handleSubmit}
