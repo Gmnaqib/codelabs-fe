@@ -40,14 +40,14 @@ const Dashboard = () => {
     <ProtectedRoute>
       <MotionWrapper>
         <div className="flex bg-secondary">
-          <div className="gap-5 grid grid-cols-1 xl:grid-cols-3 xl:mr-[263px]">
+          <div className="gap-5 grid grid-cols-1 lg:grid-cols-3 lg:mr-[263px]">
           {role === 'admin' ? (
             <>
               <AttendanceCard />
               <MonthlyProgressCard />
               <CashBillsCard />
               <AnnouncementCard />
-              <div className={showMap ? "lg:z-50" : "lg:z-10"}>
+              <div className={showMap ? "lg:z-40" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <div className="z-1">
@@ -87,7 +87,7 @@ const Dashboard = () => {
               <MonthlyProgressCard />
               <CashBillsCard />
               <AnnouncementCard />
-              <div className="z-50">
+              <div className="z-40">
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <InProgressCard />
@@ -96,7 +96,7 @@ const Dashboard = () => {
           </div>
           <Button
             variant="default"
-            className={`absolute top-24 bg-background text-primary rounded-sm p-0 z-50 xl:hidden ${isRightOpen? "right-68" : "right-0" }`}
+            className={`absolute top-24 bg-background text-primary rounded-sm p-0 z-40 xl:hidden ${isRightOpen? "right-68" : "right-0" }`}
             onClick={() => setIsRightOpen(!isRightOpen)}
           >
             <ChevronRightIcon

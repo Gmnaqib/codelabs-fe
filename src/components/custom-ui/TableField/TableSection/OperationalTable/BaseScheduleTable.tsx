@@ -78,7 +78,7 @@ function BaseScheduleTable<T = Record<string, unknown>>({
           </Table>
         </div>
 
-        <div className="overflow-x-auto max-w-[900px]">
+        <div className="overflow-x-auto w-[900px] xl:w-[calc(100vw-620px)]">
           <Table>
             <TableHeader>
               <TableRow>
@@ -120,7 +120,7 @@ function BaseScheduleTable<T = Record<string, unknown>>({
                   return (
                     <TableHead
                       key={day}
-                      className={`text-center w-[115px] min-w-[115px]${isRed ? ' bg-red-500 text-white' : ''}`}
+                      className={`text-center w-[115px] min-w-[115px] sticky top-0 z-20 ${isRed ? 'bg-red-500 text-white' : 'bg-white'}`}
                     >
                       {day}
                     </TableHead>

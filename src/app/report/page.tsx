@@ -125,7 +125,7 @@ const WeeklyReport = () => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                     />
 
-                    <div className="flex gap-5">
+                    <div className="flex flex-col md:flex-row gap-5">
                       <DropdownField
                         key="week-input"
                         title="Choose Week"

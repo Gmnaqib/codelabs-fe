@@ -75,7 +75,7 @@ export function CalendarMonthYearPicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="flex h-fit items-center gap-5 justify-between border border-muted-foreground rounded-full px-6 py-2 bg-white">
+      <PopoverTrigger className="flex h-fit w-full items-center gap-5 justify-between border border-muted-foreground rounded-full px-6 py-2 bg-white">
         <span>{displayLabel}</span>
         <CalendarDaysIcon className="size-5" />
       </PopoverTrigger>
