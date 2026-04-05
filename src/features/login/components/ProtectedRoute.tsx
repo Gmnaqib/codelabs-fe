@@ -16,14 +16,15 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         return;
       }
       try {
-        const decoded: any = jwtDecode(token);
+        type JWTPayload = { exp?: number };
+        const decoded = jwtDecode<JWTPayload>(token);
         if (decoded.exp && decoded.exp * 1000 < Date.now()) {
           // Token expired
           localStorage.removeItem('token');
           router.replace('/login');
           return;
         }
-      } catch (e) {
+      } catch {
         // Token tidak valid
         localStorage.removeItem('token');
         router.replace('/login');

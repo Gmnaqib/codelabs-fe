@@ -95,10 +95,10 @@ const Picket = () => {
     <ProtectedRoute>
       <MotionWrapper>
         <Card className='p-5'>
-          <div className="flex justify-between">
+          <div className="flex justify-between flex-col gap-3 lg:flex-row lg:gap-0">
             <div>
-              <p className='font-medium text-secondary-foreground text-lg'>Picket Schedule Today</p>
-              <p className='font-medium text-primary text-lg'>
+              <p className='font-medium text-center text-secondary-foreground text-lg lg:text-left'>Picket Schedule Today</p>
+              <p className='font-medium text-primary text-lg text-center lg:text-left'>
                 {new Date().toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
@@ -107,7 +107,7 @@ const Picket = () => {
                 })}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3 flex-col lg:flex-row lg:gap-2">
               <DialogField
                 name="Add Picket Schedule"
                 title='Add Picket Schedule'
@@ -137,17 +137,21 @@ const Picket = () => {
                 }}
               >
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 items-center gap-2">
+                  <div className="grid grid-cols-3 items-center gap-2">
                     <p>Start Date</p>
-                    <DatePicker value={startDate} onChange={handleStartDateChange} disabled={dateDisabled} />
+                    <div className="col-span-2">
+                      <DatePicker value={startDate} onChange={handleStartDateChange} disabled={dateDisabled} />
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 items-center gap-2">
+                  <div className="grid grid-cols-3 items-center gap-2">
                     <p>End Date</p>
-                    <DatePicker value={endDate} onChange={handleEndDateChange} minDate={startDate || undefined} disabled={!startDate || dateDisabled} />
+                    <div className="col-span-2">
+                      <DatePicker value={endDate} onChange={handleEndDateChange} minDate={startDate || undefined} disabled={!startDate || dateDisabled} />
+                    </div>
                   </div>
                   <p className='font-semibold mt-10'>Schedules Picket</p>
                   {days.map(day => (
-                    <div className="grid grid-cols-3" key={day}>
+                    <div className="grid grid-cols-1 gap-1 lg:gap-0 lg:grid-cols-3" key={day}>
                       <p>{day}</p>
                       <div className="col-span-2">
                         <MultiSelectDropdownField

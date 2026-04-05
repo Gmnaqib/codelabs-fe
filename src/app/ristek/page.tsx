@@ -19,8 +19,8 @@ const Ristek = () => {
   return (
     <ProtectedRoute>
       <MotionWrapper>
-        <div className="flex justify-between mb-10">
-          <div className="flex gap-5">
+        <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
+          <div className="flex gap-4 flex-col lg:flex-row">
             <InputField
               placeholder='Search by name...'
               type='text'

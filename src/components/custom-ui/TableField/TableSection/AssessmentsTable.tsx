@@ -141,71 +141,71 @@ const AssessmentsTable = ({
                         >
                           <div className="">
                             <p className="font-semibold">research</p>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Personal</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Personal</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.research?.personal?.count ?? '-'} ({kpiDetail?.research?.personal?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">product</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">product</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.research?.product?.count ?? '-'} ({kpiDetail?.research?.product?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Workshop</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Workshop</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.research?.workshop?.count ?? '-'} ({kpiDetail?.research?.workshop?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
                           </div>
                           <div className="">
                             <p className="font-semibold">operational</p>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Piket</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Piket</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.operational?.picket?.count ?? '-'} ({kpiDetail?.operational?.picket?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Tematik</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Tematik</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.operational?.thematic?.count ?? '-'} ({kpiDetail?.operational?.thematic?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
                           </div>
                           <div className="">
                             <p className="font-semibold">attendance</p>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Present</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Present</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.attendance?.present?.count ?? '-'} ({kpiDetail?.attendance?.present?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
                           </div>
                           <div className="">
                             <p className="font-semibold">branding</p>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Branding</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Branding</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.branding?.count ?? '-'} ({kpiDetail?.branding?.totalPoints ?? '-'} Point)
                               </p>
                             </div>
                           </div>
                           <div className="">
                             <p className="font-semibold">competition</p>
-                            <div className="grid grid-cols-12">
-                              <p className="col-span-2">Competition</p>
+                            <div className="grid grid-cols-3 lg:grid-cols-12">
+                              <p className="col-span-1 lg:col-span-2">Competition</p>
                               <p>:</p>
-                              <p className="col-span-4">
+                              <p className="col-span-1 lg:col-span-4">
                                 {kpiDetail?.competition?.count ?? '-'} ({kpiDetail?.competition?.totalPoints ?? '-'} Point)
                               </p>
                             </div>

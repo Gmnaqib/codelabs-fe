@@ -8,7 +8,6 @@ import ProtectedRoute from '@/features/login/components/ProtectedRoute'
 import React, { useEffect, useState } from 'react'
 import { BsFillPeopleFill } from 'react-icons/bs'
 
-
 import { getKPIRankings } from '@/services/kpi/kpiService';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 
@@ -82,14 +81,18 @@ const Assessments = () => {
             <MotionWrapper>
                 <Card>
                     <div className="flex flex-col gap-10 p-5">
-                        <div className="flex justify-between items-center">
-                            <InputField
-                                type="string"
-                                placeholder="Search by Name"
-                            />
-                            <CalendarMonthYearPicker />
+                        <div className="flex justify-between gap-3 items-center flex-col lg:flex-row lg:gap-0">
+                            <div className="w-full lg:w-fit">
+                                <InputField
+                                    type="string"
+                                    placeholder="Search by Name"
+                                />
+                            </div>
+                            <div className='w-full lg:w-fit'>
+                                <CalendarMonthYearPicker />
+                            </div>
                         </div>
-                        <div className="grid grid-cols-6 gap-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
                             <div className="col-span-2">
                                 <CardField title="Average Points" icon={<BsFillPeopleFill size={22} />}>
                                     <div className="flex gap-8 items-center justify-center">

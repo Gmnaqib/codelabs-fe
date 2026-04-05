@@ -45,7 +45,7 @@ const Product = () => {
   return (
     <ProtectedRoute>
       <MotionWrapper>
-        <div className="flex justify-between mb-10">
+        <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
           <InputField
             placeholder="Search by name..."
             type="text"
