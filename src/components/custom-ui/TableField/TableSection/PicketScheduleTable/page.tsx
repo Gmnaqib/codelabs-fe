@@ -102,7 +102,9 @@ const PicketScheduleTable = ({
         <TableHeader>
           <TableRow>
             {picketHeaders.map((header, i) => (
-              <TableHead key={i}>{header}</TableHead>
+              <TableHead key={i} className="w-40 lg:w-full">
+                {header}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>

@@ -14,7 +14,6 @@ import {
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
-import ScoringTable from "./TableSection/ScoringTable";
 import OrganizationSummaryTable from "./TableSection/OrganizationSummary";
 import AssessmentsTable from "./TableSection/AssessmentsTable"; 
 import MembersTable from "./TableSection/MembersTable";
@@ -29,6 +28,7 @@ import ReportTable from "./TableSection/ReportTable/page";
 import { ResearchItem } from "@/types/ReportTableProps";
 import ProductsTable from "./TableSection/ProductsTable/page";
 import PointsTable from "./TableSection/PointsTable/page";
+import ScoringTable from "./TableSection/ScoringTable";
 
 type AssessmentItem = {
   rank?: number | string;

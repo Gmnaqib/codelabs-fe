@@ -537,7 +537,7 @@ const AttendanceTable = ({
         />
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-5 mt-3">
+      <div className="grid grid-cols-5 gap-5 mt-3">
           <CardField title="Total Report" icon={<DocumentTextIcon />} noGap>
             <p className="text-primary font-medium text-center text-2xl mt-4">
               {loading ? "..." : totalOverall}
@@ -613,11 +613,11 @@ const AttendanceTable = ({
           {activePage === "Permissions" && (
             <p className="font-medium text-xl px-5">All Report</p>
           )}
-          <Table className="w-full">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
                 {attendanceHeaders.map((header, i) => (
-                  <TableHead key={i}>{header}</TableHead>
+                  <TableHead key={i} className="w-40 lg:w-full">{header}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

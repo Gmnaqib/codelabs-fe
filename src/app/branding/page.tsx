@@ -19,8 +19,8 @@ const Branding = () => {
   return (
     <ProtectedRoute>
       <MotionWrapper>
-        <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
-          <div className="flex gap-5">
+        <div className="flex justify-between mb-10">
+          <div className="flex gap-5 w-fit">
             <InputField
               placeholder="Search by name..."
               type="text"
@@ -28,12 +28,14 @@ const Branding = () => {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <CalendarMonthYearPicker
-            onChange={({ month, year }) => {
-              setSelectedMonth(month + 1);
-              setSelectedYear(year);
-            }}
-          />
+          <div className="">
+            <CalendarMonthYearPicker
+              onChange={({ month, year }) => {
+                setSelectedMonth(month + 1);
+                setSelectedYear(year);
+              }}
+            />
+          </div>
         </div>
 
         <Card className="p-5">

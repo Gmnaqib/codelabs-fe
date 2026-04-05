@@ -91,11 +91,11 @@ const AssessmentsTable = ({
 
       <Card>
         <div className="">
-          <Table className="w-full">
+          <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
                 {headers.map((header, i) => (
-                  <TableHead key={i}>{header}</TableHead>
+                  <TableHead key={i} className="w-40 lg:w-full">{header}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

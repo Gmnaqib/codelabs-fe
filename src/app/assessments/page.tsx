@@ -92,7 +92,7 @@ const Assessments = () => {
                                 <CalendarMonthYearPicker />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-3 lg:grid-cols-6 gap-4">
                             <div className="col-span-2">
                                 <CardField title="Average Points" icon={<BsFillPeopleFill size={22} />}>
                                     <div className="flex gap-8 items-center justify-center">

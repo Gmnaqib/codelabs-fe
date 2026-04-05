@@ -17,19 +17,21 @@ const Competiton = () => {
   return (
     <ProtectedRoute>
       <MotionWrapper>
-        <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
+        <div className="flex justify-between mb-10">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
-          <CalendarMonthYearPicker
-            onChange={({ month, year }) => {
-              setSelectedMonth(month + 1);
-              setSelectedYear(year);
-            }}
-          />
+          <div className="">
+            <CalendarMonthYearPicker
+              onChange={({ month, year }) => {
+                setSelectedMonth(month + 1);
+                setSelectedYear(year);
+              }}
+            />
+          </div>
         </div>
         <Card className="p-5">
           <TableField

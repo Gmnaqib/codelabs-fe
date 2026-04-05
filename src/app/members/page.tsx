@@ -152,8 +152,8 @@ const Members = () => {
       <MotionWrapper>
         <div className="w-full flex flex-col">
 
-          <div className="flex w-full justify-between mb-4 flex-col gap-4 lg:flex-row lg:gap-0">
-            <div className="flex gap-4 flex-col lg:flex-row">
+          <div className="flex w-full justify-between mb-4 gap-4">
+            <div className="flex gap-4">
               <InputField
                 type="text"
                 placeholder="Search by Name"

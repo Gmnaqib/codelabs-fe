@@ -93,7 +93,7 @@ const MembersTable = ({
             <TableHeader>
               <TableRow>
                 {headers.map((h, i) => (
-                  <TableHead key={i}>{h}</TableHead>
+                  <TableHead key={i} className="w-40 lg:w-full">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

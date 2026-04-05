@@ -177,12 +177,11 @@ const ReportTable = ({
           <TableHeader>
             <TableRow>
               {reportHeaders.map((header, i) => {
-                // Hide these columns on screens below md
                 const hideOnMobile = ["Week", "Progress", "Status"].includes(header);
                 return (
                   <TableHead
                     key={i}
-                    className={hideOnMobile ? "hidden md:table-cell" : ""}
+                    className={hideOnMobile ? "hidden w-60 md:table-cell lg:w-full" : "w-60 lg:w-full"}
                   >
                     {header}
                   </TableHead>
