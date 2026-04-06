@@ -10,19 +10,18 @@ export const report: Record<string, string[]> = {
 
 export const attendance: Record<string, string[]> = {
   Permissions: ["Name", "Status", "Date", "Reviewed", "Permission", "Detail"],
-  TotalAttendance: ["Name", "Present", "Permit", "Sick", "Late Arrivals", "No Report", "SP", "Action"]
+  "Total Attendance": ["Name", "Present", "Permit", "Sick", "Late Arrivals", "No Report", "SP", "Action"]
 }
 
 export const scoring: Record<string, string[]> = {
-  research: ["Ristek & Education Point", "Total", "Point"],
-  competition: ["Competition Name", "Status	", "Point", "Action"],
-  operational: ["Type of Absence	", "Type of Absence	", "Point"],
-  branding: ["Content Name", "Type", "Status", "Point", "Action"]
+  Research: ["Ristek & Education Point", "Total", "Point"],
+  Competition: ["Competition Name", "Status	", "Point", "Action"],
+  Operational: ["Type of Absence	", "Type of Absence	", "Point"],
+  Branding: ["Content Name", "Type", "Status", "Point", "Action"]
 }
-
 export const organization: Record<string, string[]> = {
   Attendance: ["No", "Name", "Attendance", "Thematic", "Picket", "Points"],
-  ResearchPoints: ["No", "Name", "Personal", "Product", "Workshop", "Points"],
+  "Research Points" : ["No", "Name", "Personal", "Product", "Workshop", "Points"],
 };
 
 export const members: Record<string, string[]> = {
@@ -42,7 +41,7 @@ export const ristek: Record<string, string[]> = {
 };
 
 export const picketschedule: Record<string, string[]> = {
-  picketschedule: ["Name", "Status", "Swap"],
+  "picket schedule": ["Name", "Status", "Swap"],
 };
 
 export const assessments: Record<string, string[]> = {

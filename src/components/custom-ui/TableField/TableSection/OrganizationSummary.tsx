@@ -106,7 +106,7 @@ const OrganizationSummaryTable = ({
         }
       };
       fetchKPI();
-    } else if (activePage === "ResearchPoints") {
+    } else if (activePage === "Research Points") {
       const fetchKPIResearch = async () => {
         try {
           const res = await getKPIAllResearch(
@@ -188,7 +188,7 @@ const OrganizationSummaryTable = ({
                     <TableCell className="text-center">{item.totalPoints}</TableCell>
                   </TableRow>
                 ))
-            : activePage === "ResearchPoints"
+            : activePage === "Research Points"
             ? filteredKpiData
                 .filter((item): item is KPIResearch => (item as KPIResearch).byCategory !== undefined)
                 .map((item, i: number) => (

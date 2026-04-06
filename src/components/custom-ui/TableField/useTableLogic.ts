@@ -182,7 +182,7 @@ export const useTableLogic = (
     const map: Record<string, string> = {
       report: "report",
       attendance: "organization",
-      researchpoints: "organization",
+      "research points": "organization",
       organization: "organization",
       permissions: "attendance",
       totalattendance: "attendance",

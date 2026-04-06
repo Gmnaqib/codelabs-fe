@@ -190,7 +190,7 @@ const AttendanceTable = ({
         const todayMapped = (todayRaw as RawLeaveItem[]).map(mapLeave);
         setTodayData(todayMapped);
         setAllData(all);
-      } else if (activePage === "TotalAttendance") {
+      } else if (activePage === "Total Attendance") {
         const [summary, users] = await Promise.all([
           getAttendanceSummary(selectedDate.year, selectedDate.month + 1),
           getAllUsers(),

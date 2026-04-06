@@ -8,7 +8,7 @@ import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 
 const KPIScoring = () => {
-  const [activePage, setActivePage] = useState<string>("research");
+  const [activePage, setActivePage] = useState<string>("Research");
   const [myPoint, setMyPoint] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();

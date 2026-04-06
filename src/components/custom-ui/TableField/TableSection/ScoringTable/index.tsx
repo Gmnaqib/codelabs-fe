@@ -240,12 +240,12 @@ const ScoringTable = ({
   };
 
   useEffect(() => {
-    if (activePage === "competition") {
+    if (activePage === "Competition") {
       setLoadingCompetition(true);
       getMeCompetition(filterYear, filterMonth + 1) 
         .then((res) => setCompetitionData(res || []))
         .finally(() => setLoadingCompetition(false));
-    } else if (activePage === "branding") {
+    } else if (activePage === "Branding") {
       setLoadingBranding(true);
       getMyBranding(filterYear, filterMonth + 1)
         .then((res) => setBrandingData(res || []))
@@ -257,9 +257,9 @@ const ScoringTable = ({
 
   const [myOperational, setMyOperational] = useState<{ totalAttendance?: number; totalTematik?: number; totalPicket?: number; totalPoint?: number; year?: number; month?: number } | null>(null);
   useEffect(() => {
-    if (activePage === "research") {
+    if (activePage === "Research") {
       getKPIMeResearch(filterYear, filterMonth + 1).then(res => setMyResearch(res || {}));
-    } else if (activePage === "operational") {
+    } else if (activePage === "Operational") {
       import("@/services/kpi/kpiService").then(({ getKPIMeOperational }) => {
         getKPIMeOperational(filterYear, filterMonth + 1).then(res => setMyOperational(res || {}));
       });
@@ -287,22 +287,22 @@ const ScoringTable = ({
               }}
             />
           </div>
-          {(activePage === "competition" || activePage === "branding") && (
+          {(activePage === "Competition" || activePage === "Branding") && (
             <div className="mt-1">
             <DialogField
               name="Add Information"
-              title={activePage === "competition" ? "Add Competition Information" : "Add Branding Information"}
+              title={activePage === "Competition" ? "Add Competition Information" : "Add Branding Information"}
               size="lg"
               open={openAddDialog}
               onOpenChange={setOpenAddDialog}
-              onSubmit={activePage === "competition" ? handleAddCompetition : handleAddBranding}
-              submitDisabled={loadingAdd || (activePage === "competition"
+              onSubmit={activePage === "Competition" ? handleAddCompetition : handleAddBranding}
+              submitDisabled={loadingAdd || (activePage === "Competition"
                 ? !addCompetitionName || !addCompetitionDescription || !addCompetitionDeadline || !addCompetitionLink || !addCompetitionType
                 : !addBrandingName || !addBrandingDescription || !addBrandingLink || !addBrandingResearch || !addBrandingLevel)}
             >
               {loadingAdd ? (
                 <p className="text-center text-sm text-gray-500">Loading...</p>
-              ) : activePage === "competition" ? (
+              ) : activePage === "Competition" ? (
                 <div className="flex flex-col gap-5">
                   <InputField
                     type="string"
@@ -397,7 +397,7 @@ const ScoringTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {activePage === "research" ? (
+          {activePage === "Research" ? (
             <>
               <TableRow>
                 <TableCell>Conduct research Responses</TableCell>
@@ -410,7 +410,7 @@ const ScoringTable = ({
                 <TableCell className="text-center font-semibold text-primary">0%</TableCell>
               </TableRow> */}
             </>
-          ) : activePage === "operational" ? (
+          ) : activePage === "Operational" ? (
             <>
               <TableRow>
                 <TableCell>Daily Attendance</TableCell>
@@ -428,7 +428,7 @@ const ScoringTable = ({
                 <TableCell className="text-center font-semibold text-primary">{myOperational?.totalPicket ?? 0}</TableCell>
               </TableRow>
             </>
-          ) : activePage === "competition" ? (
+          ) : activePage === "Competition" ? (
             loadingCompetition ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-gray-400">Loading...</TableCell>
@@ -555,7 +555,7 @@ const ScoringTable = ({
                 <TableCell colSpan={scoringHeaders.length} className="text-sm text-gray-500 text-center">No data found</TableCell>
               </TableRow>
             )
-          ) : activePage === "branding" ? (
+          ) : activePage === "Branding" ? (
             loadingBranding ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8 text-gray-400">Loading...</TableCell>
