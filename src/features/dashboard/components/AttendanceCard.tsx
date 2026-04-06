@@ -310,7 +310,7 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour >= 9 && hour <= 10) {
+            } else if (hour >= 9 && hour < 10) {
               return (
                 <>
                   <DialogField
