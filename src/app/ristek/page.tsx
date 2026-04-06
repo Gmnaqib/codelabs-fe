@@ -38,14 +38,16 @@ const Ristek = () => {
               onChange={setFilterWeek}
             />
           </div>
-          <CalendarMonthYearPicker
-            onChange={({ month, year }) => {
-              setSelectedMonth(month);
-              setSelectedYear(year);
-            }}
-            defaultMonth={selectedMonth}
-            defaultYear={selectedYear}
-          />
+          <div className="z-40">
+            <CalendarMonthYearPicker
+              onChange={({ month, year }) => {
+                setSelectedMonth(month);
+                setSelectedYear(year);
+              }}
+              defaultMonth={selectedMonth}
+              defaultYear={selectedYear}
+            />
+          </div>
         </div>
         <Card className='p-5'>
           <TableField

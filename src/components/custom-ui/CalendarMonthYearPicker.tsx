@@ -80,7 +80,8 @@ export function CalendarMonthYearPicker({
         <CalendarDaysIcon className="size-5" />
       </PopoverTrigger>
 
-      <PopoverContent>
+      <div className="z-40">
+        <PopoverContent>
         <div
           className={cn(
             "w-[260px] rounded-lg border bg-popover p-3 shadow-sm mt-2",
@@ -153,6 +154,7 @@ export function CalendarMonthYearPicker({
           )}
         </div>
       </PopoverContent>
+      </div>
     </Popover>
   )
 }

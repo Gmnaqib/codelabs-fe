@@ -102,7 +102,7 @@ const WeeklyReport = () => {
             />
           </div>
 
-          <div className="mt-3">
+          <div>
             {(() => {
               const isLinkValid = link.startsWith("https://");
               const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;

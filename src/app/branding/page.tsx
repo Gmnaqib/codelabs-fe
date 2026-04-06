@@ -28,7 +28,7 @@ const Branding = () => {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="">
+          <div className="z-40">
             <CalendarMonthYearPicker
               onChange={({ month, year }) => {
                 setSelectedMonth(month + 1);

@@ -88,7 +88,7 @@ const Assessments = () => {
                                     placeholder="Search by Name"
                                 />
                             </div>
-                            <div className='w-full lg:w-fit'>
+                            <div className='w-full z-40 lg:w-fit'>
                                 <CalendarMonthYearPicker />
                             </div>
                         </div>

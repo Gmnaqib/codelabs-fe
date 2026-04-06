@@ -24,7 +24,7 @@ const Competiton = () => {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
-          <div className="">
+          <div className="z-40">
             <CalendarMonthYearPicker
               onChange={({ month, year }) => {
                 setSelectedMonth(month + 1);

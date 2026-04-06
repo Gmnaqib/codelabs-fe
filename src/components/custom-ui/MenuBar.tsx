@@ -35,7 +35,7 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
       </MenubarRoot>
 
       {filter && (
-        <div className="flex gap-5 z-15">
+        <div className="flex gap-5 z-45">
           {search && (
             <InputField
               type="text"
@@ -48,9 +48,11 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
               size="sm"
             />
           )}
-          <CalendarMonthYearPicker
-            {...filterProps}
-          />
+          <div className="z-40">
+            <CalendarMonthYearPicker
+              {...filterProps}
+            />
+          </div>
         </div>
       )}
 
