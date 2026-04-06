@@ -24,7 +24,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { showErrorToast } from '@/lib/toastHelper';
 import { toast } from 'sonner';
-import '@/components/custom-ui/glow-animate.css';
 
 const AttendanceCard = () => {
   const { user } = useAuth();

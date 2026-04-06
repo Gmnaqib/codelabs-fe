@@ -78,7 +78,16 @@ const Navbar = ({ isActive }: NavbarProps) => {
             <div>
               <p className='text-sm'>{user ? user.name : "Loading..."}</p>
               <p className='text-xs text-[#5C5C5C]'>
-                as a <span className='font-medium'>{user? user?.role : "Loading..."}</span>
+                <span className="hidden md:inline font-medium">
+                  as a {user ? user.role : "Loading..."}
+                </span>
+                <span className="inline md:hidden font-medium">
+                  as a {user ? (
+                    user.role?.toLowerCase() === "vice president"
+                      ? user.role
+                      : user.role?.split(" ").slice(-1)[0]
+                  ) : "Loading..."}
+                </span>
               </p>
             </div>
           </div>
