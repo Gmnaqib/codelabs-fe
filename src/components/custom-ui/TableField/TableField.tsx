@@ -223,6 +223,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={false}
+        fetchTrigger={fetchTrigger}
       />
     );
 

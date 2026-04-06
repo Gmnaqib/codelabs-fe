@@ -12,6 +12,7 @@ const PicketScheduleTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  fetchTrigger
 }: ReportTableProps) => {
   const picketHeaders = picketschedule[activePage] ?? [];
   type AssignedUser = {
@@ -86,7 +87,7 @@ const PicketScheduleTable = ({
       }
     };
     fetchSchedules();
-  }, []);
+  }, [fetchTrigger]);
 
   return (
     <div>

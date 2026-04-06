@@ -4,6 +4,7 @@ export interface ReportTableProps {
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
   researchData?: ResearchDataItem[];
+  fetchTrigger?: number;
 }
 
 export type ResearchItem = {

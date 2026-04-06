@@ -23,6 +23,24 @@ const Picket = () => {
   const [userMap, setUserMap] = useState<Record<string, string>>({});
   const [futureSchedules, setFutureSchedules] = useState<{ _id: string, date: string, description: string }[]>([]);
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const [maxNames, setMaxNames] = useState(5);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  useEffect(() => {
+    function updateMaxNames() {
+      if (window.matchMedia('(max-width: 640px)').matches) {
+        setMaxNames(3); 
+      } else if (window.matchMedia('(max-width: 1024px)').matches) {
+        setMaxNames(5); 
+      } else {
+        setMaxNames(5); 
+      }
+    }
+    updateMaxNames();
+    window.addEventListener('resize', updateMaxNames);
+    return () => window.removeEventListener('resize', updateMaxNames);
+  }, []);
+
   const dayLabels: Record<string, string> = {
     Monday: 'Team Senin',
     Tuesday: 'Team Selasa',
@@ -130,6 +148,7 @@ const Picket = () => {
                     await postSchedulePicket(payload);
                     setDateDisabled(true);
                     toast.success('Success to make a schedule!');
+                    setFetchTrigger(Date.now());
                     if (typeof closeDialog === 'function') closeDialog();
                   } catch {
                     toast.error('Failed to submit schedule!');
@@ -166,10 +185,19 @@ const Picket = () => {
                           })}
                           title='Select Member'
                           value={(assignedUsers[day] || []).map(id => {
-                            // Find the name for this id
                             const name = Object.keys(userMap).find(key => userMap[key] === id);
                             return name || '';
                           }).filter(Boolean)}
+                          displayValue={(() => {
+                            const names = (assignedUsers[day] || []).map(id => {
+                              const name = Object.keys(userMap).find(key => userMap[key] === id);
+                              return name || '';
+                            }).filter(Boolean);
+                            if (names.length > maxNames) {
+                              return [...names.slice(0, maxNames), '...'];
+                            }
+                            return names;
+                          })()}
                           onChange={(selectedNames: string[]) => {
                             setAssignedUsers(prev => ({
                               ...prev,
@@ -205,6 +233,7 @@ const Picket = () => {
                               await deleteSchedulePicket(sch._id);
                               setFutureSchedules(prev => prev.filter(s => s._id !== sch._id));
                               toast.success('Schedule deleted!');
+                              setFetchTrigger(Date.now());
                             } catch {
                               toast.error('Failed to delete schedule!');
                             }
@@ -222,6 +251,7 @@ const Picket = () => {
               activePage={activePage}
               onPageChange={setActivePage}
               showMenu={true}
+              fetchTrigger={fetchTrigger}
             />
           </div>
         </Card>
