@@ -75,7 +75,7 @@ const Navbar = ({ isActive }: NavbarProps) => {
             <div>
               <Image src="/icon/profile.png" alt="profile" width={35} height={0} className='rounded-full' />
             </div>
-            <div>
+            <div className='hidden md:flex flex-col'>
               <p className='text-sm'>{user ? user.name : "Loading..."}</p>
               <p className='text-xs text-[#5C5C5C]'>
                 <span className="hidden md:inline font-medium">

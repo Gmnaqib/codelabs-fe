@@ -40,6 +40,15 @@ export const getKPIRankings = async () => {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const res = await axiosClient.get(`/kpi?year=${year}&month=${month}`);
-  return res.data.data;
+  const data = res.data.data;
+  // Kapitalisasi nama
+  if (Array.isArray(data)) {
+    data.forEach(item => {
+      if (item && typeof item.name === 'string' && item.name.length > 0) {
+        item.name = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+      }
+    });
+  }
+  return data;
 };
 

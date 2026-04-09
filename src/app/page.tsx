@@ -87,7 +87,7 @@ const Dashboard = () => {
               <MonthlyProgressCard />
               <CashBillsCard />
               <AnnouncementCard />
-              <div className="z-40">
+              <div className={showMap ? "lg:z-40" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <InProgressCard />

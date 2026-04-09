@@ -101,11 +101,11 @@ const Profile = () => {
               height={130}
               className="rounded-full"
             />
-            <p className="text-sm mt-2">{user?.name}</p>
-            <p className="capitalize font-bold text-2xl">{user?.role}</p>
+            <p className="text-lg mt-2">{user?.name}</p>
+            <p className="capitalize font-semibold text-xl md:text-2xl">{user?.role}</p>
           </div>
 
-          <p className="font-bold text-xl">Update Password</p>
+          <p className="font-semibold text-lg md:text-xl">Update Password</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField
               label="New Password"
@@ -127,7 +127,7 @@ const Profile = () => {
           <div className="flex w-full justify-end">
             <Button onClick={handleUpdatePassword} className="md:w-fit" size="full">Update</Button>
           </div>
-          <p className="font-bold text-xl">Update Device Id</p>
+          <p className="font-semibold text-lg md:text-xl">Update Device Id</p>
           <div className="grid grid-cols-1 md:w-1/2 md:grid-cols-none md:flex items-end gap-4">
               <div className="w-full">
                 <InputField

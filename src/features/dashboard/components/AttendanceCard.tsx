@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowUpRightIcon } from 'lucide-react';
 import { showErrorToast } from '@/lib/toastHelper';
 import { toast } from 'sonner';
+import CameraCapture from '@/components/custom-ui/CameraCapture';
 
 const AttendanceCard = () => {
   const { user } = useAuth();
@@ -48,7 +49,7 @@ const AttendanceCard = () => {
   const hour = now.getHours();
 
   const handlePermissionSubmit = async () => {
-    if (!leaveReason || !leaveStartDate || !leaveEndDate || !leaveAttachment) {
+    if (!leaveType ||!leaveReason || !leaveStartDate || !leaveAttachment) {
       toast.error('Semua field wajib diisi!');
       return;
     }
@@ -275,7 +276,7 @@ const AttendanceCard = () => {
           })()
         ) : (
           (() => {
-            if (hour >= 6 && hour <= 9) {
+            if (hour >= 6 && hour < 9) {
               return (
                 <>
                   <Button 
@@ -467,8 +468,8 @@ const AttendanceCard = () => {
                 {!leaveAttachment ? (
                 <div>
                   <label className="block text-base font-light mb-1">Choose Picture</label>
-                  {/* <CameraCapture onCapture={file => setLeaveAttachment(file)} /> */}
-                  <input
+                  <CameraCapture onCapture={file => setLeaveAttachment(file)} />
+                  {/* <input
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
                     className="block w-full rounded-lg border border-gray-700 p-1 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#232329] file:text-white hover:file:bg-primary/80"
@@ -491,7 +492,7 @@ const AttendanceCard = () => {
                         }
                       }
                     }}
-                  />
+                  /> */}
                 </div>
                 ) : (
                   <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>

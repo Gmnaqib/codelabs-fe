@@ -101,7 +101,6 @@ const MembersTable = ({
             <TableBody>
                 {filteredData.length > 0 ? (
                 filteredData.map((item, i) => {
-                  // ...existing code...
                   return (
                   <TableRow key={i}>
                     <TableCell className="w-[120px] break-words">

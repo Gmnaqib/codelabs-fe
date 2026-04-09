@@ -2,7 +2,14 @@ import { axiosClient } from "@/lib/axiosClient";
 
 export async function getAllUsers() {
     const {data} = await axiosClient.get("/users")
-    const sorted = [...data.data].sort((a, b) => {
+    const users = [...data.data];
+    // Kapitalisasi nama
+    users.forEach(user => {
+      if (user && typeof user.name === 'string' && user.name.length > 0) {
+        user.name = user.name.charAt(0).toUpperCase() + user.name.slice(1);
+      }
+    });
+    const sorted = users.sort((a, b) => {
       if (!a.name || !b.name) return 0;
       return a.name.localeCompare(b.name, 'id', { sensitivity: 'base' });
     });
@@ -28,7 +35,11 @@ export const createUser = async (payload: UserPayload) => {
 
 export async function getMe() {
   const { data } = await axiosClient.get("/auth/me");
-  return data.data;
+  const user = data.data;
+  if (user && typeof user.name === 'string' && user.name.length > 0) {
+    user.name = user.name.charAt(0).toUpperCase() + user.name.slice(1);
+  }
+  return user;
 }
 
 export async function getUserById(id: string) {
