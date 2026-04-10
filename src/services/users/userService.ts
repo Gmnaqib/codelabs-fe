@@ -3,7 +3,6 @@ import { axiosClient } from "@/lib/axiosClient";
 export async function getAllUsers() {
     const {data} = await axiosClient.get("/users")
     const users = [...data.data];
-    // Kapitalisasi nama
     users.forEach(user => {
       if (user && typeof user.name === 'string' && user.name.length > 0) {
         user.name = user.name.charAt(0).toUpperCase() + user.name.slice(1);
