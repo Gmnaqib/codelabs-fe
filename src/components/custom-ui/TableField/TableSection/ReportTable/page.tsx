@@ -181,7 +181,7 @@ const ReportTable = ({
                 return (
                   <TableHead
                     key={i}
-                    className={hideOnMobile ? "hidden w-60 md:table-cell lg:w-full" : "w-60 lg:w-full"}
+                    className={hideOnMobile ? "hidden max-w-screen w-1/2 lg:table-cell lg:w-full" : "max-w-screen w-1/2 lg:w-full"}
                   >
                     {header}
                   </TableHead>
@@ -194,7 +194,34 @@ const ReportTable = ({
             {filteredData.length > 0 ? (
               filteredData.map((item, i) => (
                 <TableRow key={i}>
-                  <TableCell className="text-center">{typeof item.title === 'string' ? item.title : '-'}</TableCell>
+                  <TableCell className="text-center">
+                    {typeof item.title === 'string' ? (
+                      <span className="block sm:inline">
+                        {(() => {
+                          // Only wrap for mobile (sm and below)
+                          if (item.title.length <= 15) return item.title;
+                          // Split into words and build lines
+                          const words = item.title.split(' ');
+                          const lines: string[] = [];
+                          let currentLine = '';
+                          for (const word of words) {
+                            if ((currentLine + (currentLine ? ' ' : '') + word).length > 15) {
+                              if (currentLine) lines.push(currentLine);
+                              currentLine = word;
+                            } else {
+                              currentLine += (currentLine ? ' ' : '') + word;
+                            }
+                          }
+                          if (currentLine) lines.push(currentLine);
+                          return lines.map((line, idx) => (
+                            <React.Fragment key={idx}>
+                              {line}
+                              {idx !== lines.length - 1 && <br />}
+                            </React.Fragment>
+                          ));
+                        })()}
+                      </span>
+                    ) : '-'}</TableCell>
                   <TableCell className="text-center hidden md:table-cell">{`Week ${typeof item.week === 'string' || typeof item.week === 'number' ? item.week : '-'}`}</TableCell>
                   <TableCell className="text-center hidden md:table-cell">{typeof item.progress === 'string' ? item.progress : '-'}</TableCell>
                   <TableCell className="text-center hidden md:table-cell">
@@ -203,7 +230,7 @@ const ReportTable = ({
                     </span>
                   </TableCell>
                   <TableCell className="text-center">
-                    <div className="flex gap-3 justify-center">
+                    <div className="flex gap-3 justify-center flex-col md:flex-row">
                       {(() => {
                         const isEditLinkValid = link.startsWith("https://");
                         const isEditFormIncomplete = !title || !week || !progress || !link || !challenge || !isEditLinkValid;

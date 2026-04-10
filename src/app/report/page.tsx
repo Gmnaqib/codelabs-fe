@@ -78,7 +78,7 @@ const WeeklyReport = () => {
   return (
     <ProtectedRoute>
       <MotionWrapper>
-        <div className="flex flex-col w-full justify-between mb-10 md:flex-row">
+        <div className="flex flex-col w-full justify-between mb-10 md:flex-row gap-5">
           <div className="flex flex-col gap-3 md:gap-5 md:flex-row">
             <CalendarMonthYearPicker 
               onChange={({ month, year }) => {
