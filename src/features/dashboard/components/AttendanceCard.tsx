@@ -49,24 +49,25 @@ const AttendanceCard = () => {
   const hour = now.getHours();
 
   const handlePermissionSubmit = async () => {
-    if (!leaveType ||!leaveReason || !leaveStartDate || !leaveAttachment) {
+    if (!leaveType || !leaveReason || !leaveStartDate || !leaveAttachment) {
       toast.error('Semua field wajib diisi!');
       return;
     }
+    const finalEndDate = leaveEndDate || leaveStartDate;
     try {
       await postLeaveRequest({
         type: leaveType,
         reason: leaveReason,
         attachment: leaveAttachment,
         start_date: leaveStartDate,
-        end_date: leaveEndDate,
+        end_date: finalEndDate,
       });
       toast.success('Sukses mengirim izin!');
       const day = new Date().getDay(); 
       let telegramUsername = 'favianjiwani';
       if (day === 2 || day === 5) telegramUsername = 'Ravarazan'; 
       else if (day === 4 || day === 6) telegramUsername = 'Erwinhafizz'; 
-      const reasonText = encodeURIComponent(`Saya izin tidak masuk karena ${leaveReason} dari tanggal ${leaveStartDate} hingga ${leaveEndDate}`);
+      const reasonText = encodeURIComponent(`Saya izin tidak masuk karena ${leaveReason} dari tanggal ${leaveStartDate} hingga ${finalEndDate}`);
       window.location.href = `https://t.me/${telegramUsername}?text=${reasonText}`;
       setLeaveReason('');
       setLeaveStartDate('');
