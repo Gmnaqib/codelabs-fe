@@ -81,7 +81,7 @@ const DoughnutChart = ({ filled, total }: Props) => {
   }, [filled, total, notFilled, percentage]);
 
   return (
-    <div className="h-56 xl:h-full flex">
+    <div className="h-5 flex">
       <canvas ref={chartRef} />
     </div>
   );

@@ -374,8 +374,26 @@ const AttendanceTable = ({
                 <p>{selectedLeave.reason}</p>
               </div>
               <div>
-                <p className="font-semibold">Avidance</p>
-                <a href={selectedLeave.attachment_url} target="_blank" rel="noopener noreferrer">{selectedLeave.attachment_url}</a>
+                <p className="font-semibold">Avidancea</p>
+                {selectedLeave.attachment_url ? (
+                  <img
+                    src={selectedLeave.attachment_url}
+                    alt="Attachment"
+                    style={{ maxWidth: '300px', maxHeight: '300px', borderRadius: '8px', marginTop: '8px' }}
+                    onError={e => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const link = document.createElement('a');
+                      link.href = selectedLeave.attachment_url!;
+                      link.target = '_blank';
+                      link.rel = 'noopener noreferrer';
+                      link.innerText = selectedLeave.attachment_url!;
+                      target.parentElement?.appendChild(link);
+                    }}
+                  />
+                ) : (
+                  <span className="text-sm">No attachment</span>
+                )}
               </div>
             </div>
           )}
