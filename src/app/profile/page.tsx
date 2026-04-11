@@ -89,6 +89,10 @@ const Profile = () => {
     }
   };
 
+
+  const handleLogout = () => {
+    window.location.href = '/logout';
+  };
   return (
     <ProtectedRoute>
       <MotionWrapper>
@@ -146,6 +150,7 @@ const Profile = () => {
                 >
                   Reset
                 </Button>
+                
           </div>
           <p className="text-sm text-gray-600">
             To change the Device ID permission, contact the{" "}
@@ -157,6 +162,11 @@ const Profile = () => {
               Vice President
             </a>.
           </p>
+          {user?.role === 'user' && (
+            <Button variant="destructive" onClick={handleLogout} className="md:w-fit">
+              Logout  
+            </Button>
+          )}
         </div>
       </MotionWrapper>
     </ProtectedRoute>

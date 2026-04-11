@@ -43,7 +43,7 @@ export default function RootLayout({
         <AuthProvider>
           <LayoutWrapper>
             <AutoTitle />
-              {children}
+                {children}
             <Toaster richColors />
           </LayoutWrapper>
         </AuthProvider>

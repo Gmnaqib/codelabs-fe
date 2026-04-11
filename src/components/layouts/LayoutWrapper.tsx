@@ -49,7 +49,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {(role === 'user' && !isLg) && <BottomNavbar />}
       <div className="flex-1">
         <Navbar isActive={isActive} setIsActive={setIsActive} />
-        <div className={`p-5 mt-20 transition-all duration-300 ease-in-out ${isActive ? 'ml-[60px] lg:ml-[270px]' : (role === 'user' ? '' : 'ml-[60px]')}`}>{children}</div>
+        <div className={`p-5 my-20 transition-all duration-300 ease-in-out ${isActive ? 'ml-[60px] lg:ml-[270px]' : (role === 'user' ? 'pb-20' : 'ml-[60px]')}`}>{children}</div>
       </div>
     </div>
   );
