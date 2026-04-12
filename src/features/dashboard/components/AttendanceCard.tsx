@@ -237,7 +237,8 @@ const AttendanceCard = () => {
                   </p>
                 </>
               );
-            } else if (hour >= 17 && hour < 19) {
+            } else if (hour >= 17 && hour < 24) {
+              const late = hour > 19;
               return (
                 <>
                   <Button 
@@ -245,6 +246,7 @@ const AttendanceCard = () => {
                     className='h-28 cursor-pointer'
                     disabled={
                       checkinLoading ||
+                      late ||
                       isIpAllowed === false ||
                       isIpAllowed === null ||
                       !user?.device_id ||
@@ -338,13 +340,6 @@ const AttendanceCard = () => {
                     onOpenChange={setDialogOpen}
                     onSubmit={() => submitCheckin(reason)}
                     onCancel={() => setDialogOpen(false)}
-                    disabled={
-                      checkinLoading ||
-                      isIpAllowed === false ||
-                      isIpAllowed === null ||
-                      !user?.device_id ||
-                      isDeviceIdMatch === false
-                    }
                   >
                     <div className="flex flex-col gap-4">
                       <InputField

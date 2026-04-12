@@ -60,7 +60,7 @@ const Navbar = ({ isActive }: NavbarProps) => {
           <AnimatePresence mode="wait">
             <motion.p
               key={pathname}
-              className={`font-normal text-xl transition-all ${user?.role === 'user' ? '' : (isActive ? 'ml-[60px] lg:ml-[270px]' : 'ml-[60px]')}`}
+              className={`font-normal text-xl transition-all ${user?.role === 'user' ? (isActive ? 'ml-[60px] lg:ml-[270px]' : 'lg:ml-[60px]') : (isActive ? 'ml-[60px] lg:ml-[270px]' : 'ml-[60px]')}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
