@@ -52,21 +52,21 @@ const KPIScoring = () => {
     <ProtectedRoute>
       <MotionWrapper>
         <Card>
-          <div className="flex justify-between px-5 pt-5">
+          <div className="flex flex-col lg:flex-row lg:justify-between px-5 pt-5">
             <div className="flex items-center 3">
                 <p className='font-normal text-lg'>KPI Tasks</p>
             </div>
-            <div className="flex gap-6">
-              <div className="text-center">
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="text-center ">
                 <p className='text-sm text-secondary-foreground'>Current Rank</p>
                 <p className='font-medium text-xl'>4</p>
               </div>
-              <div className="w-0.5 h-12 bg-muted opacity-20"></div>
+              <div className="w-0.5 h-12 bg-muted opacity-20 hidden lg:flex"></div>
               <div className="text-center">
                 <p className='text-sm text-secondary-foreground'>Current</p>
                 <p className='font-medium text-xl'>{loading ? '-' : myPoint}</p>
               </div>
-              <div className="w-0.5 h-12 bg-muted opacity-20"></div>
+              <div className="w-0.5 h-12 bg-muted opacity-20 hidden lg:flex"></div>
               <div className="text-center">
                 <p className='text-sm text-secondary-foreground'>Status</p>
                 <p className={`font-medium text-xl ${statusClass}`}>{statusLabel}</p>

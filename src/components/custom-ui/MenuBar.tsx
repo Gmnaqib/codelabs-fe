@@ -23,7 +23,7 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
               <MenubarTrigger
                 onClick={() => onChange?.(menu)}
                 className={cn(
-                  "py-2 px-5 font-medium text-sm mb-5",
+                  "py-2 px-5 font-medium text-sm mb-5 gap-5",
                   isActive ? "text-primary border-b-2 border-primary" : "text-neutral hover:bg-secondary hover:text-black"
                 )}
               >
@@ -35,7 +35,7 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
       </MenubarRoot>
 
       {filter && (
-        <div className="flex gap-5 z-45">
+        <div className="flex gap-5 z-25">
           {search && (
             <InputField
               type="text"

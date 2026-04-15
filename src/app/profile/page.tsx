@@ -163,7 +163,7 @@ const Profile = () => {
             </a>.
           </p>
           {user?.role === 'user' && (
-            <Button variant="destructive" onClick={handleLogout} className="md:w-fit">
+            <Button variant="destructive" onClick={handleLogout} className=" lg:hidden md:w-fit">
               Logout  
             </Button>
           )}

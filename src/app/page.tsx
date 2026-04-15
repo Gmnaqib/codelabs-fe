@@ -40,7 +40,7 @@ const Dashboard = () => {
     <ProtectedRoute>
       <MotionWrapper>
         <div className="flex bg-secondary">
-          <div className="gap-5 grid grid-cols-1 lg:grid-cols-3 lg:mr-[263px]">
+          <div className="gap-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:mr-[263px]">
           {role === 'admin' ? (
             <>
               <AttendanceCard />

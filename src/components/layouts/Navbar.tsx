@@ -41,7 +41,7 @@ const Navbar = ({ isActive }: NavbarProps) => {
   }
 
   return (
-    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-20'>
+    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-30'>
       <AnimatePresence>
         {showBar && (
           <motion.div
@@ -60,7 +60,7 @@ const Navbar = ({ isActive }: NavbarProps) => {
           <AnimatePresence mode="wait">
             <motion.p
               key={pathname}
-              className={`font-normal text-xl transition-all ${user?.role === 'user' ? (isActive ? 'ml-[60px] lg:ml-[270px]' : 'lg:ml-[60px]') : (isActive ? 'ml-[60px] lg:ml-[270px]' : 'ml-[60px]')}`}
+              className={`font-normal text-xl transition-all ${user?.role === 'user' ? (isActive ? 'ml-15 lg:ml-67.5' : 'lg:ml-15') : (isActive ? 'ml-15 lg:ml-67.5' : 'ml-15')}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

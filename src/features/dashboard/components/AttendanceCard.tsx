@@ -29,7 +29,7 @@ import CameraCapture from '@/components/custom-ui/CameraCapture';
 const AttendanceCard = () => {
   const { user } = useAuth();
   const localDeviceId = localStorage.getItem('device_id');
-  const isDeviceIdMatch =  user?.device_id === localDeviceId;
+  // const isDeviceIdMatch =  user?.device_id === localDeviceId;
   const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');
@@ -144,7 +144,7 @@ const AttendanceCard = () => {
   const handleCheckin = async () => {
     if (!user) return;
     if (!user.device_id) {
-      showErrorToast("Device ID kosong. Tidak bisa melakukan check-in.", { duration: 5000 });
+      showErrorToast("Device ID is empty. Please check the device ID in your profile.", { duration: 5000 });
       return;
     }
     const now = new Date();
@@ -248,9 +248,7 @@ const AttendanceCard = () => {
                       checkinLoading ||
                       late ||
                       isIpAllowed === false ||
-                      isIpAllowed === null ||
-                      !user?.device_id ||
-                      isDeviceIdMatch === false
+                      isIpAllowed === null
                     }
                     variant="link"
                   >
@@ -289,9 +287,7 @@ const AttendanceCard = () => {
                     disabled={
                       checkinLoading ||
                       isIpAllowed === false ||
-                      isIpAllowed === null ||
-                      !user?.device_id ||
-                      isDeviceIdMatch === false
+                      isIpAllowed === null 
                     }
                   >
                     <div
@@ -340,6 +336,11 @@ const AttendanceCard = () => {
                     onOpenChange={setDialogOpen}
                     onSubmit={() => submitCheckin(reason)}
                     onCancel={() => setDialogOpen(false)}
+                    disabled={
+                      checkinLoading ||
+                      isIpAllowed === false ||
+                      isIpAllowed === null 
+                    }
                   >
                     <div className="flex flex-col gap-4">
                       <InputField
