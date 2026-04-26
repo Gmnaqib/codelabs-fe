@@ -41,7 +41,7 @@ const Navbar = ({ isActive }: NavbarProps) => {
   }
 
   return (
-    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-30'>
+    <div className='flex w-full justify-between p-5 items-center shadow-lg shadow-gray-300 bg-white fixed top-0 z-41'>
       <AnimatePresence>
         {showBar && (
           <motion.div

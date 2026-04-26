@@ -30,15 +30,13 @@ export const getKPIMeRankings = async (year: number, month: number) => {
   return res.data.data;
 };
 
-export const getKPIMeDetail = async (id: string) => {
-  const res = await axiosClient.get(`/kpi/summary/${id}`);
+export const getKPIMeDetail = async (id: string, year: number, month: number) => {
+  const res = await axiosClient.get(`/kpi/summary/${id}?year=${year}&month=${month}`);
   return res.data.data;
 };
 
-export const getKPIRankings = async () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+
+export const getKPIRankings = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi?year=${year}&month=${month}`);
   const data = res.data.data;
   // Kapitalisasi nama

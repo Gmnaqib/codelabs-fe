@@ -47,7 +47,7 @@ const Dashboard = () => {
               <MonthlyProgressCard />
               <CashBillsCard />
               <AnnouncementCard />
-              <div className={showMap ? "lg:z-40" : "lg:z-10"}>
+              <div className={showMap ? "lg:z-42" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <div className="z-1">
@@ -87,7 +87,7 @@ const Dashboard = () => {
               <MonthlyProgressCard />
               <CashBillsCard />
               <AnnouncementCard />
-              <div className={showMap ? "lg:z-40" : "lg:z-10"}>
+              <div className={showMap ? "lg:z-42" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <InProgressCard />

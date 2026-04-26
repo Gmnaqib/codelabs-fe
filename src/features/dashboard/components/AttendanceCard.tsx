@@ -29,7 +29,7 @@ import CameraCapture from '@/components/custom-ui/CameraCapture';
 const AttendanceCard = () => {
   const { user } = useAuth();
   const localDeviceId = localStorage.getItem('device_id');
-  // const isDeviceIdMatch =  user?.device_id === localDeviceId;
+  const isDeviceIdMatch =  user?.device_id === localDeviceId;
   const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');
@@ -142,11 +142,6 @@ const AttendanceCard = () => {
   }, []);
 
   const handleCheckin = async () => {
-    if (!user) return;
-    if (!user.device_id) {
-      showErrorToast("Device ID is empty. Please check the device ID in your profile.", { duration: 5000 });
-      return;
-    }
     const now = new Date();
     const hour = now.getHours();
     if (hour >= 9 && hour <= 10) {
@@ -159,7 +154,7 @@ const AttendanceCard = () => {
   const submitCheckin = async (reasonValue: string) => {
     setCheckinLoading(true);
     try {
-      await postCheckIn(user!.device_id!, reasonValue);
+      await postCheckIn(localDeviceId ?? '', reasonValue);
       const now = new Date();
       const year = now.getFullYear();
       const month = now.getMonth() + 1;

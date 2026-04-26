@@ -19,7 +19,10 @@ const KPIRangkings = () => {
   useEffect(() => {
     const fetchRankings = async () => {
       try {
-        const res = await getKPIRankings();
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const res = await getKPIRankings(year, month);
         setUsers(res);
       } catch (error) {
         console.error("Failed to fetch KPI rankings:", error);

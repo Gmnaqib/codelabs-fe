@@ -32,15 +32,22 @@ interface Props {
   activePage: string;
   onPageChange: (menu: string) => void;
   showMenu?: boolean;
+  searchQuery?: string;
+  month?: number;
+  year?: number;
 }
 
 const AssessmentsTable = ({
   activePage,
   onPageChange,
   showMenu = true,
+  searchQuery = "",
+  month = new Date().getMonth() + 1,
+  year = new Date().getFullYear(),
 }: Props) => {
   const headers = assessments[activePage];
 
+  const [allRankingData, setAllRankingData] = useState<AssessmentItem[]>([]);
   const [rankingData, setRankingData] = useState<AssessmentItem[]>([]);
   interface KPIDetail {
     research?: {
@@ -61,22 +68,36 @@ const AssessmentsTable = ({
   const [kpiDetail, setKpiDetail] = useState<KPIDetail | null>(null);
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
   useEffect(() => {
-    getKPIRankings().then((res: unknown) => {
+    getKPIRankings(year, month).then((res: unknown) => {
       const arr = Array.isArray(res) ? res as AssessmentItem[] : [];
       const sorted = arr.sort((a, b) => (Number(b.monthly ?? b.totalPoints ?? 0)) - (Number(a.monthly ?? a.totalPoints ?? a.totalPoints ?? 0)));
-      setRankingData(sorted);
+      setAllRankingData(sorted);
     });
-  }, []);
+  }, [year, month]);
+
+  useEffect(() => {
+    let filtered = allRankingData;
+    if (searchQuery && searchQuery.trim() !== "") {
+      const q = searchQuery.trim().toLowerCase();
+      filtered = allRankingData.filter(item =>
+        (item.name?.toLowerCase().includes(q))
+        || (item.userId?.toLowerCase().includes(q))
+        || (item.status?.toLowerCase().includes(q))
+        || (item.totalPoints?.toString().includes(q))
+      );
+    }
+    setRankingData(filtered);
+  }, [allRankingData, searchQuery]);
 
   useEffect(() => {
     if (activeUserId) {
-      getKPIMeDetail(activeUserId)
+      getKPIMeDetail(activeUserId, year, month)
         .then((detail) => setKpiDetail(detail.summary))
         .catch(() => setKpiDetail(null));
     } else {
       setKpiDetail(null);
     }
-  }, [activeUserId]);
+  }, [activeUserId, year, month]);
 
 
   return (

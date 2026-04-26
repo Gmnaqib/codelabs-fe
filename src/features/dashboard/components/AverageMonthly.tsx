@@ -11,7 +11,10 @@ const AverageMonthly = () => {
   useEffect(() => {
     const fetchAverage = async () => {
       try {
-        const data = await getKPIRankings();
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const data = await getKPIRankings(year, month);
         if (Array.isArray(data) && data.length > 0) {
           const total = data.reduce((sum, user) => sum + (user.totalPoints || 0), 0);
           setAverage(Math.round(total / data.length));

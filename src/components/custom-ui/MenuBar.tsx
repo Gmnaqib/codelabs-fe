@@ -14,16 +14,16 @@ import { useState } from "react"
 export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
-    <div className="flex justify-between mt-1 w-full">
-      <MenubarRoot className="gap-0">
+    <div className="flex flex-col items-center  lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
+      <MenubarRoot className="grid grid-cols-2 lg:flex lg:gap-0">
         {menus.map((menu) => {
           const isActive = activeMenu === menu;
           return (
-            <MenubarMenu key={menu}>
+            <MenubarMenu key={menu} >
               <MenubarTrigger
                 onClick={() => onChange?.(menu)}
                 className={cn(
-                  "py-2 px-5 font-medium text-sm mb-5 gap-5",
+                  "py-2 px-5 font-medium text-sm mb-5",
                   isActive ? "text-primary border-b-2 border-primary" : "text-neutral hover:bg-secondary hover:text-black"
                 )}
               >

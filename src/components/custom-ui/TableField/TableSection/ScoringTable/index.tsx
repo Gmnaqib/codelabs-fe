@@ -269,8 +269,8 @@ const ScoringTable = ({
   return (
     <div className="w-full rounded-lg overflow-hidden px-5">
       {showMenu && (
-        <div className="flex justify-between gap-5">
-          <div className=" w-full flex">
+        <div className="flex flex-col gap-5 items-center lg:flex-row lg:justify-between">
+          <div className="w-full flex">
             <Menubar
               menus={Object.keys(scoring)}
               activeMenu={activePage}
@@ -288,10 +288,10 @@ const ScoringTable = ({
             />
           </div>
           {(activePage === "Competition" || activePage === "Branding") && (
-            <div className="mt-1">
+          <div className="mt-1">
             <DialogField
-              name="Add Information"
-              title={activePage === "Competition" ? "Add Competition Information" : "Add Branding Information"}
+              name={activePage === "Competition" ? "Add Competition" : "Add Branding"}
+              title={activePage === "Competition" ? "Add Competition" : "Add Branding"}
               size="lg"
               open={openAddDialog}
               onOpenChange={setOpenAddDialog}

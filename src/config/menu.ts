@@ -93,7 +93,7 @@ export const menuItems = [
     iconSolid: IdentificationSolid,
     iconOutline: IdentificationOutline,
     route: "/members",
-    roles: ["admin", "president", "vice president", "minister of research"],
+    roles: ["admin", "president", "vice president"],
   },
   {
     title: "Products",

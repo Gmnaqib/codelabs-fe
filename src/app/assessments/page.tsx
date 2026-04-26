@@ -14,14 +14,17 @@ import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 const Assessments = () => {
     const [average, setAverage] = useState<number | null>(null);
     const [statusLabel, setStatusLabel] = useState('Not Safe');
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [statusClass, setStatusClass] = useState('text-warning');
     const [countExcellent, setCountExcellent] = useState(0);
     const [countSafe, setCountSafe] = useState(0);
     const [countWarning, setCountWarning] = useState(0);
     const [countDanger, setCountDanger] = useState(0);
+    const [searchQuery, setSearchQuery] = useState<string>("");
 
     useEffect(() => {
-        getKPIRankings().then((res: unknown) => {
+        getKPIRankings(selectedYear, selectedMonth).then((res: unknown) => {
             if (Array.isArray(res) && res.length > 0) {
                 const total = res.reduce((sum, item) => sum + (item.totalPoints ?? 0), 0);
                 const avg = total / res.length;
@@ -74,7 +77,7 @@ const Assessments = () => {
                 setCountDanger(0);
             }
         });
-    }, []);
+    }, [selectedYear, selectedMonth]);
 
     return (
         <ProtectedRoute>
@@ -86,10 +89,16 @@ const Assessments = () => {
                                 <InputField
                                     type="string"
                                     placeholder="Search by Name"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
                                 />
                             </div>
                             <div className='w-full z-40 lg:w-fit'>
-                                <CalendarMonthYearPicker />
+                                <CalendarMonthYearPicker 
+                                onChange={({ month, year }) => {
+                                    setSelectedMonth(month + 1);
+                                    setSelectedYear(year);
+                                }}/>
                             </div>
                         </div>
                         <div className="grid grid-cols-3 lg:grid-cols-6 gap-4">
@@ -121,6 +130,9 @@ const Assessments = () => {
                             activePage="assessments"
                             onPageChange={() => { }}
                             showMenu={false}
+                            month={selectedMonth}
+                            year={selectedYear}
+                            searchQuery={searchQuery}
                         />
                     </div>
                 </Card>
