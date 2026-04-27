@@ -267,10 +267,10 @@ const ScoringTable = ({
   }, [activePage, filterYear, filterMonth]);
 
   return (
-    <div className="w-full rounded-lg overflow-hidden px-5">
+    <div className="w-full rounded-lg px-5">
       {showMenu && (
-        <div className="flex flex-col gap-5 items-center lg:flex-row lg:justify-between">
-          <div className="w-full flex">
+        <div className="flex flex-col gap-5 lg:flex-row lg:justify-between">
+          <div className={`w-full flex lg:mb-0${activePage === "Research" || activePage === "Operational" ? ' mb-5' : ''}`}>
             <Menubar
               menus={Object.keys(scoring)}
               activeMenu={activePage}
@@ -288,7 +288,7 @@ const ScoringTable = ({
             />
           </div>
           {(activePage === "Competition" || activePage === "Branding") && (
-          <div className="mt-1">
+          <div className="flex justify-center mb-5 lg:mb-0 lg:mt-1">
             <DialogField
               name={activePage === "Competition" ? "Add Competition" : "Add Branding"}
               title={activePage === "Competition" ? "Add Competition" : "Add Branding"}
@@ -388,330 +388,386 @@ const ScoringTable = ({
         </div>
       )}
 
-      <Table className="table-fixed w-full">
-        <TableHeader>
-          <TableRow>
-            {scoringHeaders.map((header, i) => (
-              <TableHead key={i} className="w-60 lg:w-full">{header}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {activePage === "Research" ? (
-            <>
-              <TableRow>
-                <TableCell>Conduct research Responses</TableCell>
-                <TableCell className="text-center">{myResearch?.totalApproved ?? 0}</TableCell>
-                <TableCell className="text-center font-semibold text-primary">{myResearch?.totalPoint ?? 0}</TableCell>
-              </TableRow>
-              {/* <TableRow>
-                <TableCell>Leading the workshop</TableCell>
-                <TableCell className="text-center">0</TableCell>
-                <TableCell className="text-center font-semibold text-primary">0%</TableCell>
-              </TableRow> */}
-            </>
-          ) : activePage === "Operational" ? (
-            <>
-              <TableRow>
-                <TableCell>Daily Attendance</TableCell>
-                <TableCell className="text-center">{myOperational?.totalAttendance ?? 0}</TableCell>
-                <TableCell className="text-center font-semibold text-primary">{myOperational?.totalAttendance ?? 0}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Thematic Attendance</TableCell>
-                <TableCell className="text-center">{myOperational?.totalTematik ?? 0}</TableCell>
-                <TableCell className="text-center font-semibold text-primary">{myOperational?.totalTematik ?? 0}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Picket Attendance</TableCell>
-                <TableCell className="text-center">{myOperational?.totalPicket ?? 0}</TableCell>
-                <TableCell className="text-center font-semibold text-primary">{myOperational?.totalPicket ?? 0}</TableCell>
-              </TableRow>
-            </>
-          ) : activePage === "Competition" ? (
-            loadingCompetition ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-gray-400">Loading...</TableCell>
-              </TableRow>
-            ) : Array.isArray(competitionData) && competitionData.length > 0 ? (
-              competitionData.map((item, idx: number) => (
-                <TableRow key={item._id || idx}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell className="text-center">
-                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
-                      {(item.status ?? "").toUpperCase()}
+      <div className="overflow-x-auto w-full ">
+        <Table
+          className={`table-fixed w-full min-w-[${scoringHeaders.length * 15}rem]`}
+        >
+          <TableHeader>
+            <TableRow className="flex w-full lg:table-row">
+              {scoringHeaders.map((header, i) => (
+                <TableHead
+                  key={i}
+                  className={
+                    i === scoringHeaders.length - 1
+                      ? "sticky right-0 z-10 min-w-28 flex-1 basis-0 lg:static lg:w-full "
+                      : "min-w-full flex-1 basis-0 lg:w-full lg:min-w-60"
+                  }
+                >
+                  {header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {activePage === "Research" ? (
+              <>
+                <TableRow className="flex w-full bg-white">
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center bg-inherit">
+                    <span className="block md:hidden">
+                      {"Conduct research Responses"
+                        .split(" ")
+                        .map((word, idx) => (
+                          <span key={idx} className="block">{word}</span>
+                        ))}
                     </span>
+                    <span className="hidden md:block">Conduct research Responses</span>
                   </TableCell>
-                  <TableCell className="text-center">0</TableCell>
-                  <TableCell className="text-center gap-2 flex justify-center">
-                    <DialogField
-                      name="Edit"
-                      title="Edit Competition"
-                      variant="outline"
-                      noPadding
-                      open={openEditId === item._id}
-                      onOpenChange={(isOpen) => setOpenEditId(isOpen ? item._id : null)}
-                      onTriggerClick={() => handleOpenEdit(item._id)}
-                      onSubmit={handleEditSubmit}
-                      submitDisabled={loadingEdit || !editName || !editDescription || !editDeadline || !editLink || !editType || !editStatus}
-                    >
-                      {loadingEdit ? (
-                        <p className="text-center text-sm text-gray-500">Loading...</p>
-                      ) : (
-                        <div className="flex flex-col gap-5">
-                          <InputField
-                            type="string"
-                            placeholder="Ex: Competition Name"
-                            label="Title"
-                            value={editName}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
-                          />
-                          <InputField
-                            type="string"
-                            placeholder="Ex: Competition Description"
-                            label="Description"
-                            value={editDescription}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
-                          />
-                          <InputField
-                            placeholder="Ex: Competition Description"
-                            type="datetime-local"
-                            label="Deadline"
-                            value={editDeadline}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
-                          />
-                          <InputField
-                            type="string"
-                            placeholder="Ex: https://competition.com"
-                            label="Link"
-                            value={editLink}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
-                          />
-                          <DropdownField
-                            key="type-input"
-                            title="Type"
-                            menu={["international", "national"]}
-                            label="Type"
-                            value={editType}
-                            onChange={(value) => setEditType(value)}
-                          />
-                        </div>
-                      )}
-                    </DialogField>
-                    <DialogField
-                      name="Detail"
-                      title="Detail Competition"
-                      variant="outline"
-                      noPadding
-                      open={openDetailId === item._id}
-                      onOpenChange={(isOpen) => setOpenDetailId(isOpen ? item._id : null)}
-                      onTriggerClick={() => handleOpenDetail(item._id)}
-                    >
-                      {loadingDetail ? (
-                        <p className="text-center text-sm text-gray-500">Loading...</p>
-                      ) : selectedCompetition ? (
-                        <div className="flex flex-col gap-5 text-lg">
-                          <div>
-                            <p className="font-semibold">Title</p>
-                            <p>{selectedCompetition.name}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Description</p>
-                            <p>{selectedCompetition.description}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Deadline</p>
-                            <p>{selectedCompetition.deadline ? new Date(selectedCompetition.deadline).toLocaleString() : '-'}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Link</p>
-                            <a
-                              href={selectedCompetition.link?.startsWith('http') ? selectedCompetition.link : `https://${selectedCompetition.link}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 underline"
-                            >
-                              {selectedCompetition.link}
-                            </a>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Status</p>
-                            <p>{selectedCompetition.status}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Type</p>
-                            <p>{selectedCompetition.type}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500 text-center">No data found</p>
-                      )}
-                    </DialogField>
-                  </TableCell>
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{myResearch?.totalApproved ?? 0}</TableCell>
+                  <TableCell className="sticky right-0 min-w-28 flex-1 basis-0 bg-white lg:bg-none lg:min-w-full lg:static lg:w-full flex items-center text-center justify-center font-semibold text-primary bg-inherit">{myResearch?.totalPoint ?? 0}</TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={scoringHeaders.length} className="text-sm text-gray-500 text-center">No data found</TableCell>
-              </TableRow>
-            )
-          ) : activePage === "Branding" ? (
-            loadingBranding ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-400">Loading...</TableCell>
-              </TableRow>
-            ) : Array.isArray(brandingData) && brandingData.length > 0 ? (
-              brandingData.map((item, idx: number) => (
-                <TableRow key={item._id || idx}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell className="text-center">{item.research}</TableCell>
-                  <TableCell className="text-center">
-                    <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
-                      {(item.status ?? "").toUpperCase()}
+                {/* <TableRow className="flex w-full">
+                  <TableCell className="w-60 min-w-[15rem] flex-1 basis-0 flex items-center">Leading the workshop</TableCell>
+                  <TableCell className="w-60 min-w-[15rem] flex-1 basis-0 flex items-center text-center">0</TableCell>
+                  <TableCell className="w-60 min-w-[15rem] flex-1 basis-0 flex items-center text-center font-semibold text-primary">0%</TableCell>
+                </TableRow> */}
+              </>
+            ) : activePage === "Operational" ? (
+              <>
+                <TableRow className="flex w-full bg-white">
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center bg-inherit">
+                    <span className="block md:hidden">
+                      {"Daily Attendance"
+                        .split(" ")
+                        .map((word, idx) => (
+                          <span key={idx} className="block">{word}</span>
+                        ))}
                     </span>
+                    <span className="hidden md:block">Daily Attendance</span>
                   </TableCell>
-                  <TableCell className="text-center">0</TableCell>
-                  <TableCell className="text-center gap-2 flex justify-center">
-                    <DialogField
-                      name="Edit"
-                      title="Edit Branding"
-                      variant="outline"
-                      noPadding
-                      open={openBrandingEditId === item._id}
-                      onOpenChange={(isOpen) => setOpenBrandingEditId(isOpen ? item._id : null)}
-                      onTriggerClick={() => handleOpenBrandingEdit(item._id)}
-                      onSubmit={handleBrandingEditSubmit}
-                      submitDisabled={loadingBrandingEdit || !editBrandingName || !editBrandingDescription || !editBrandingLink }
-                    >
-                      {loadingBrandingEdit ? (
-                        <p className="text-center text-sm text-gray-500">Loading...</p>
-                      ) : (
-                        <div className="flex flex-col gap-5">
-                          <InputField
-                            type="string"
-                            placeholder="Ex: Branding Name"
-                            label="Title"
-                            value={editBrandingName}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingName(e.target.value)}
-                          />
-                          <InputField
-                            type="string"
-                            placeholder="Ex: Branding Description"
-                            label="Description"
-                            value={editBrandingDescription}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingDescription(e.target.value)}
-                          />
-                          <InputField
-                            type="string"
-                            placeholder="Ex: https://branding.com"
-                            label="Link"
-                            value={editBrandingLink}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingLink(e.target.value)}
-                          />
-                          <DropdownField
-                            key="research-branding-input"
-                            title="research"
-                            menu={["website", "mobile", "game", "ui/ux", "data", "other"]}
-                            label="research"
-                            value={editBrandingResearch}
-                            onChange={(value) => setEditBrandingResearch(value)}
-                          />
-                          <DropdownField
-                            key="level-branding-input"
-                            title="Level"
-                            menu={["beginner", "intermediate", "advanced"]}
-                            label="Level"
-                            value={editBrandingLevel}
-                            onChange={(value) => setEditBrandingLevel(value)}
-                          />
-                        </div>
-                      )}
-                    </DialogField>
-                    <DialogField
-                      name="Detail"
-                      title="Detail Branding"
-                      variant="outline"
-                      noPadding
-                      open={openBrandingDetailId === item._id}
-                      onOpenChange={(isOpen) => setOpenBrandingDetailId(isOpen ? item._id : null)}
-                      onTriggerClick={() => handleOpenBrandingDetail(item._id)}
-                    >
-                      {loadingBrandingDetail ? (
-                        <p className="text-center text-sm text-gray-500">Loading...</p>
-                      ) : selectedBranding ? (
-                        <div className="flex flex-col gap-5 text-lg">
-                          <div>
-                            <p className="font-semibold">Title</p>
-                            <p>{selectedBranding.name }</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Description</p>
-                            <p>{selectedBranding.description}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Type</p>
-                            <p>{selectedBranding.research}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Link</p>
-                            <a
-                              href={selectedBranding.link?.startsWith('http') ? selectedBranding.link : `https://${selectedBranding.link}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 underline"
-                            >
-                              {selectedBranding.link}
-                            </a>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Status</p>
-                            <p>{selectedBranding.status}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Level</p>
-                            <p>{selectedBranding.level}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-500 text-center">No data found</p>
-                      )}
-                    </DialogField>
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{myOperational?.totalAttendance ?? 0}</TableCell>
+                  <TableCell className="sticky right-0 min-w-28 flex-1 basis-0 bg-white lg:bg-none lg:min-w-full lg:static lg:w-full flex items-center text-center justify-center font-semibold text-primary bg-inherit">{myOperational?.totalAttendance ?? 0}</TableCell>
+                </TableRow>
+                <TableRow className="flex w-full bg-surface">
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center bg-inherit">
+                    <span className="block md:hidden">
+                      {"Thematic Attendance"
+                        .split(" ")
+                        .map((word, idx) => (
+                          <span key={idx} className="block">{word}</span>
+                        ))}
+                    </span>
+                    <span className="hidden md:block">Thematic Attendance</span>
                   </TableCell>
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{myOperational?.totalTematik ?? 0}</TableCell>
+                  <TableCell className="sticky right-0 min-w-28 flex-1 basis-0 bg-white lg:bg-none lg:min-w-full lg:static lg:w-full flex items-center text-center justify-center font-semibold text-primary bg-inherit">{myOperational?.totalTematik ?? 0}</TableCell>
+                </TableRow>
+                <TableRow className="flex w-full bg-white">
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center bg-inherit">
+                    <span className="block md:hidden">
+                      {"Picket Attendance"
+                        .split(" ")
+                        .map((word, idx) => (
+                          <span key={idx} className="block">{word}</span>
+                        ))}
+                    </span>
+                    <span className="hidden md:block">Picket Attendance</span>
+                  </TableCell>
+                  <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{myOperational?.totalPicket ?? 0}</TableCell>
+                  <TableCell className="sticky right-0 min-w-28 flex-1 basis-0 bg-white lg:bg-none lg:min-w-full lg:static lg:w-full flex items-center text-center justify-center font-semibold text-primary bg-inherit">{myOperational?.totalPicket ?? 0}</TableCell>
+                </TableRow>
+              </>
+            ) : activePage === "Competition" ? (
+              loadingCompetition ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8 text-gray-400">Loading...</TableCell>
+                </TableRow>
+              ) : Array.isArray(competitionData) && competitionData.length > 0 ? (
+                competitionData.map((item, idx: number) => (
+                  <TableRow key={item._id || idx} className={`flex flex-row ${idx % 2 === 0 ? "bg-white" : "bg-surface"}`}>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{item.name}</TableCell>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">
+                      <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
+                        {(item.status ?? "").toUpperCase()}
+                      </span>
+                    </TableCell>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">0</TableCell>
+                    <TableCell className="gap-2 sticky right-0 min-w-28 flex-1 basis-0 bg-white flex-col lg:flex-row lg:bg-none lg:min-w-full lg:static lg:w-full flex items-center text-center justify-center font-semibold text-primary bg-inherit">
+                      <DialogField
+                        name="Edit"
+                        title="Edit Competition"
+                        variant="outline"
+                        noPadding
+                        open={openEditId === item._id}
+                        onOpenChange={(isOpen) => setOpenEditId(isOpen ? item._id : null)}
+                        onTriggerClick={() => handleOpenEdit(item._id)}
+                        onSubmit={handleEditSubmit}
+                        submitDisabled={loadingEdit || !editName || !editDescription || !editDeadline || !editLink || !editType || !editStatus}
+                      >
+                        {loadingEdit ? (
+                          <p className="text-center text-sm text-gray-500">Loading...</p>
+                        ) : (
+                          <div className="flex flex-col gap-5">
+                            <InputField
+                              type="string"
+                              placeholder="Ex: Competition Name"
+                              label="Title"
+                              value={editName}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
+                            />
+                            <InputField
+                              type="string"
+                              placeholder="Ex: Competition Description"
+                              label="Description"
+                              value={editDescription}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
+                            />
+                            <InputField
+                              placeholder="Ex: Competition Description"
+                              type="datetime-local"
+                              label="Deadline"
+                              value={editDeadline}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
+                            />
+                            <InputField
+                              type="string"
+                              placeholder="Ex: https://competition.com"
+                              label="Link"
+                              value={editLink}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
+                            />
+                            <DropdownField
+                              key="type-input"
+                              title="Type"
+                              menu={["international", "national"]}
+                              label="Type"
+                              value={editType}
+                              onChange={(value) => setEditType(value)}
+                            />
+                          </div>
+                        )}
+                      </DialogField>
+                      <DialogField
+                        name="Detail"
+                        title="Detail Competition"
+                        variant="outline"
+                        noPadding
+                        open={openDetailId === item._id}
+                        onOpenChange={(isOpen) => setOpenDetailId(isOpen ? item._id : null)}
+                        onTriggerClick={() => handleOpenDetail(item._id)}
+                      >
+                        {loadingDetail ? (
+                          <p className="text-center text-sm text-gray-500">Loading...</p>
+                        ) : selectedCompetition ? (
+                          <div className="flex flex-col gap-5 text-lg">
+                            <div>
+                              <p className="font-semibold">Title</p>
+                              <p>{selectedCompetition.name}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Description</p>
+                              <p>{selectedCompetition.description}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Deadline</p>
+                              <p>{selectedCompetition.deadline ? new Date(selectedCompetition.deadline).toLocaleString() : '-'}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Link</p>
+                              <a
+                                href={selectedCompetition.link?.startsWith('http') ? selectedCompetition.link : `https://${selectedCompetition.link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline"
+                              >
+                                {selectedCompetition.link}
+                              </a>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Status</p>
+                              <p>{selectedCompetition.status}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Type</p>
+                              <p>{selectedCompetition.type}</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 text-center">No data found</p>
+                        )}
+                      </DialogField>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={scoringHeaders.length} className="text-sm text-gray-500 text-center">No data found</TableCell>
+                </TableRow>
+              )
+            ) : activePage === "Branding" ? (
+              loadingBranding ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8 text-gray-400">Loading...</TableCell>
+                </TableRow>
+              ) : Array.isArray(brandingData) && brandingData.length > 0 ? (
+                brandingData.map((item, idx: number) => (
+                  <TableRow key={item._id || idx} className={`flex flex-row ${idx % 2 === 0 ? "bg-white" : "bg-surface"}`}>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center">{item.name}</TableCell>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{item.research}</TableCell>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">
+                      <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
+                        {(item.status ?? "").toUpperCase()}
+                      </span>
+                    </TableCell>
+                    <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">0</TableCell>
+                    <TableCell className="gap-2 sticky right-0 min-w-28 flex-1 basis-0 bg-white flex-col lg:flex-row lg:bg-none lg:min-w-full lg:static lg:w-full flex items-center text-center justify-center font-semibold text-primary bg-inherit">
+                      <DialogField
+                        name="Edit"
+                        title="Edit Branding"
+                        variant="outline"
+                        noPadding
+                        open={openBrandingEditId === item._id}
+                        onOpenChange={(isOpen) => setOpenBrandingEditId(isOpen ? item._id : null)}
+                        onTriggerClick={() => handleOpenBrandingEdit(item._id)}
+                        onSubmit={handleBrandingEditSubmit}
+                        submitDisabled={loadingBrandingEdit || !editBrandingName || !editBrandingDescription || !editBrandingLink }
+                      >
+                        {loadingBrandingEdit ? (
+                          <p className="text-center text-sm text-gray-500">Loading...</p>
+                        ) : (
+                          <div className="flex flex-col gap-5">
+                            <InputField
+                              type="string"
+                              placeholder="Ex: Branding Name"
+                              label="Title"
+                              value={editBrandingName}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingName(e.target.value)}
+                            />
+                            <InputField
+                              type="string"
+                              placeholder="Ex: Branding Description"
+                              label="Description"
+                              value={editBrandingDescription}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingDescription(e.target.value)}
+                            />
+                            <InputField
+                              type="string"
+                              placeholder="Ex: https://branding.com"
+                              label="Link"
+                              value={editBrandingLink}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditBrandingLink(e.target.value)}
+                            />
+                            <DropdownField
+                              key="research-branding-input"
+                              title="research"
+                              menu={["website", "mobile", "game", "ui/ux", "data", "other"]}
+                              label="research"
+                              value={editBrandingResearch}
+                              onChange={(value) => setEditBrandingResearch(value)}
+                            />
+                            <DropdownField
+                              key="level-branding-input"
+                              title="Level"
+                              menu={["beginner", "intermediate", "advanced"]}
+                              label="Level"
+                              value={editBrandingLevel}
+                              onChange={(value) => setEditBrandingLevel(value)}
+                            />
+                          </div>
+                        )}
+                      </DialogField>
+                      <DialogField
+                        name="Detail"
+                        title="Detail Branding"
+                        variant="outline"
+                        noPadding
+                        open={openBrandingDetailId === item._id}
+                        onOpenChange={(isOpen) => setOpenBrandingDetailId(isOpen ? item._id : null)}
+                        onTriggerClick={() => handleOpenBrandingDetail(item._id)}
+                      >
+                        {loadingBrandingDetail ? (
+                          <p className="text-center text-sm text-gray-500">Loading...</p>
+                        ) : selectedBranding ? (
+                          <div className="flex flex-col gap-5 text-lg">
+                            <div>
+                              <p className="font-semibold">Title</p>
+                              <p>{selectedBranding.name }</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Description</p>
+                              <p>{selectedBranding.description}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Type</p>
+                              <p>{selectedBranding.research}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Link</p>
+                              <a
+                                href={selectedBranding.link?.startsWith('http') ? selectedBranding.link : `https://${selectedBranding.link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 underline"
+                              >
+                                {selectedBranding.link}
+                              </a>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Status</p>
+                              <p>{selectedBranding.status}</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold">Level</p>
+                              <p>{selectedBranding.level}</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 text-center">No data found</p>
+                        )}
+                      </DialogField>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={scoringHeaders.length} className="text-center py-8 text-gray-400">
+                  Tidak ada data untuk halaman ini.
+                </TableCell>
+                </TableRow>
+              )
+            ) : data && data.length > 0 ? (
+              data.map((row, i) => (
+                <TableRow key={i} className={`flex w-full ${i % 2 === 0 ? "bg-white" : "bg-surface"}`}>
+                  {scoringHeaders.map((header, j) => {
+                    const value = (row as Record<string, unknown>)[header];
+                    return (
+                      <TableCell
+                        key={j}
+                        className={
+                          (j === scoringHeaders.length - 1
+                            ? "sticky right-0  z-10 flex-1 basis-0 flex items-center bg-inherit"
+                            : "w-60 min-w-60 flex-1 basis-0 flex items-center bg-inherit")
+                        }
+                      >
+                        {typeof value === "string" || typeof value === "number"
+                          ? value
+                          : value !== undefined && value !== null
+                          ? String(value)
+                          : "-"}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={scoringHeaders.length} className="text-center py-8 text-gray-400">
-                Tidak ada data untuk halaman ini.
-              </TableCell>
+                  Tidak ada data untuk halaman ini.
+                </TableCell>
               </TableRow>
-            )
-          ) : data && data.length > 0 ? (
-            data.map((row, i) => (
-              <TableRow key={i}>
-                {scoringHeaders.map((header, j) => {
-                  const value = (row as Record<string, unknown>)[header];
-                  return (
-                    <TableCell key={j}>{
-                      typeof value === "string" || typeof value === "number"
-                        ? value
-                        : value !== undefined && value !== null
-                        ? String(value)
-                        : "-"
-                    }</TableCell>
-                  );
-                })}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={scoringHeaders.length} className="text-center py-8 text-gray-400">
-                Tidak ada data untuk halaman ini.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

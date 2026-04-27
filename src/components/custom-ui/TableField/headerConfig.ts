@@ -16,7 +16,7 @@ export const attendance: Record<string, string[]> = {
 export const scoring: Record<string, string[]> = {
   Research: ["Ristek & Education Point", "Total", "Point"],
   Competition: ["Competition Name", "Status	", "Point", "Action"],
-  Operational: ["Type of Absence	", "Type of Absence	", "Point"],
+  Operational: ["Type of Absence	", "Total	", "Point"],
   Branding: ["Content Name", "Type", "Status", "Point", "Action"]
 }
 export const organization: Record<string, string[]> = {

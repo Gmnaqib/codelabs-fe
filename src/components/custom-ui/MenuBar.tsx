@@ -14,7 +14,7 @@ import { useState } from "react"
 export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
-    <div className="flex flex-col items-center  lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
+    <div className="flex flex-col items-center lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
       <MenubarRoot className="grid grid-cols-2 lg:flex lg:gap-0">
         {menus.map((menu) => {
           const isActive = activeMenu === menu;
@@ -48,7 +48,7 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
               size="sm"
             />
           )}
-          <div className="z-40">
+          <div className="z-40 mt-5 lg:mt-0">
             <CalendarMonthYearPicker
               {...filterProps}
             />
