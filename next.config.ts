@@ -11,9 +11,10 @@ const withPWA = withPWAInit({
   // },
 });
 
+
 const nextConfig: NextConfig = {
-  // Konfigurasi Next.js yang sudah ada
   reactStrictMode: true,
+  turbopack: {}, 
 };
 
 export default withPWA(nextConfig);
