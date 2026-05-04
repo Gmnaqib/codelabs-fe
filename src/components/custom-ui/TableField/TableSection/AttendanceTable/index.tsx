@@ -38,6 +38,7 @@ import CardField from "../../../CardField";
 import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, HeartIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { AttendanceTableProps } from "@/types/AttendanceTableProps";
+import DetailAttendanceCard from "@/features/attendance/components/DetailAttendanceCard";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -374,7 +375,7 @@ const AttendanceTable = ({
                 <p>{selectedLeave.reason}</p>
               </div>
               <div>
-                <p className="font-semibold">Avidancea</p>
+                <p className="font-semibold">Evidancea</p>
                 {selectedLeave.attachment_url ? (
                   <img
                     src={selectedLeave.attachment_url}
@@ -449,66 +450,8 @@ const AttendanceTable = ({
             {detailDialogUserId === item.userId && detailLoading ? (
               <p>Loading...</p>
             ) : detailDialogUserId === item.userId && detailData && detailData.statusSummary ? (
-              <div className="flex gap-5 max-h-96 overflow-y-auto">
-                <div className="w-1/2">
-                  <p className="font-semibold text-white bg-primary py-1 rounded-sm text-center mb-2">Permit</p>
-                  {detailData.statusSummary
-                    .filter((s: StatusSummary) => s.status === "permit")
-                    .flatMap((s: StatusSummary) => s.records)
-                    .map((rec: StatusRecord, idx: number) => (
-                      <React.Fragment key={idx}>
-                        <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
-                        <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
-                        <p className="text-sm font-extralight mb-1">{rec.reason}</p>
-                        <p className={`text-sm ${getStatusColor(rec.approvalStatus ?? "")}`}>
-                          {rec.approvalStatus?.toUpperCase()}
-                        </p>
-                        <hr className="my-2" />
-                      </React.Fragment>
-                    ))}
-                </div>
-
-                <div className="w-1/2">
-                  <div className="flex flex-col gap-4">
-                    <div className="">
-                      <p className="font-semibold text-center text-white bg-warning py-1 rounded-sm mb-2">Sick</p>
-                      {detailData.statusSummary
-                        .filter((s: StatusSummary) => s.status === "sick")
-                        .flatMap((s: StatusSummary) => s.records)
-                        .map((rec: StatusRecord, idx: number) => (
-                          <React.Fragment key={idx}>
-                            <p className="font-semibold text-sm">{new Date(rec.date).toLocaleDateString("en-US", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
-                            <p className="font-semibold text-xs mb-1">{new Date(rec.date).toLocaleTimeString("en-US")}</p>
-                            <p className="text-sm font-extralight mb-1">{rec.reason}</p>
-                            <p className={`text-sm ${getStatusColor(rec.approvalStatus ?? "")}`}>
-                              {rec.approvalStatus?.toUpperCase()}
-                            </p>
-                            <hr className="my-2" />
-                          </React.Fragment>
-                        ))}
-                    </div>
-                    <div className="">
-                      <p className="font-semibold bg-destructive text-center rounded-sm py-1 text-white mb-2">Absent</p>
-                      {detailData.statusSummary
-                        .filter((s: StatusSummary) => s.status === "absent")
-                        .flatMap((s: StatusSummary) => s.records)
-                        .filter((rec: StatusRecord) => rec.reason === "No data")
-                        .map((rec: StatusRecord, idx: number) => (
-                          <React.Fragment key={idx}>
-                            <p className="text-sm font-bold">
-                              {new Date(rec.date).toLocaleDateString("en-US", {
-                                weekday: "long",
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric",
-                              })}
-                            </p>
-                            <hr className="my-2" />
-                          </React.Fragment>
-                        ))}
-                    </div>
-                  </div>
-                </div>
+              <div className="max-h-96 overflow-y-auto">
+                <DetailAttendanceCard statusSummary={detailData.statusSummary} />
               </div>
             ) : (
               <p>No detail data available.</p>
