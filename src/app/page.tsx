@@ -11,6 +11,7 @@ import { getMe } from '@/services/users/userService'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import TotalAttendance from '@/features/dashboard/components/TotalAttendance'
 import OperationalTotalAttendanceCard from '@/features/dashboard/components/OperationalTotalAttendanceCard'
+import OperationalPicketCard from '@/features/dashboard/components/OperationalPicketCard'
 
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -54,6 +55,9 @@ const Dashboard = () => {
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
               <div className="z-1">
+                <OperationalPicketCard />
+              </div>
+              <div className="z-1">
                 <InProgressCard />
               </div>
               <div className="z-1">
@@ -90,8 +94,8 @@ const Dashboard = () => {
               <MonthlyProgressCard />
               <CashBillsCard />
               <OperationalTotalAttendanceCard />
-              <div className={showMap ? "lg:z-42" : "lg:z-10"}>
-                <PicketCard showMap={showMap} setShowMap={setShowMap} />
+              <div className="z-1">
+                <OperationalPicketCard />
               </div>
               <div className="z-1">
                 <InProgressCard />

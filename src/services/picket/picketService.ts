@@ -33,9 +33,21 @@ export const postOperationalRecord = async (payload: {
 	const res = await axiosClient.post('/operational-records', payload);
 	return res.data;
 };
+
 export const getOperationalRecords = async () => {
 	const res = await axiosClient.get('/operational-records?type=picket');
 	return res.data.data;
+};
+
+export const getOperationalRecordsToday = async (year: string | number, month: string | number) => {
+	const res = await axiosClient.get(`/operational-records?type=picket&year=${year}&month=${month}`);
+	const today = new Date();
+	const todayStr = today.toISOString().slice(0, 10); 
+	const filtered = (res.data.data || []).filter((item: any) => {
+		const dateStr = item.date ? item.date.slice(0, 10) : null;
+		return dateStr === todayStr;
+	});
+	return filtered;
 };
 
 export const getAllSchedules = async ({ year, month, day, type = 'picket' }: { year: string | number; month: string | number; day: string | number; type?: string }) => {
