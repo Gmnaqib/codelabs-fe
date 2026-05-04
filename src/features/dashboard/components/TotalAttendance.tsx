@@ -3,7 +3,7 @@ import CardField from '@/components/custom-ui/CardField'
 import { MegaphoneIcon } from '@heroicons/react/24/solid'
 import { getAttendanceMe } from '@/services/attendance/attendanceService'
 
-const AnnouncementCard = () => {
+const TotalAttendance = () => {
   const [summary, setSummary] = React.useState<Record<string, number>>({});
   const [spCount, setSpCount] = React.useState<number>(0);
   React.useEffect(() => {
@@ -50,7 +50,6 @@ const AnnouncementCard = () => {
     <CardField title="Total Attendance" icon={<MegaphoneIcon />} bg>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col text-center gap-5">
-          <p className='font-normal text-base'>Total Attendance</p>
           <div className="flex flex-col gap-2">
             <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>Present</p>
@@ -89,4 +88,4 @@ const AnnouncementCard = () => {
   )
 }
 
-export default AnnouncementCard
+export default TotalAttendance

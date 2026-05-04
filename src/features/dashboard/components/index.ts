@@ -1,7 +1,7 @@
 export { default as AttendanceCard } from "./AttendanceCard"
 export { default as MonthlyProgressCard } from "./MonthlyProgressCard"
 export { default as CashBillsCard } from "./CashBillsCard"
-export { default as AnnouncementCard } from "./AnnouncementCard"
+export { default as AnnouncementCard } from "./TotalAttendance"
 export { default as PicketCard } from "./PicketCard"
 export { default as InProgressCard } from "./InProgressCard"
 export { default as TotalMembers } from "./TotalMembers"

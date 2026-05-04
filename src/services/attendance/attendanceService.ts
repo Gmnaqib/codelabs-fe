@@ -62,6 +62,15 @@ export const getAttendance = async (year: number, month: number) => {
   return res.data.data;
 };
 
+export const getAttendanceToday = async () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
+  const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}&day=${day}`);
+  return res.data.data;
+};
+
 export const getAttendanceMe = async () => {
   const res = await axiosClient.get("/attendance/summary/me");
   return res.data.data;

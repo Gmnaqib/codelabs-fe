@@ -24,7 +24,8 @@ const DialogField = (props: DialogFieldProps) => {
     onSubmit,
     onCancel,
     onTriggerClick,
-    noPadding = false, 
+    noPadding = false,
+    noPaddingX = false,
     submitDisabled = false,
     disabled = false,
   } = props;
@@ -51,7 +52,9 @@ const DialogField = (props: DialogFieldProps) => {
         <Button
           variant={variant}
           onClick={onTriggerClick}
-          className={noPadding ? "py-0" : ""} 
+          className={
+            `${noPadding ? "py-0" : ""} ${noPaddingX ? "px-0" : ""}`.trim()
+          }
           size={size}
           disabled={disabled}
         >

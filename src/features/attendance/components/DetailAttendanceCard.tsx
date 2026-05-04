@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStatusColor } from "@/utils/statusColor";
+import { DocumentTextIcon, HeartIcon, ExclamationTriangleIcon, ClockIcon } from "@heroicons/react/24/solid";
 
 export interface StatusRecord {
 	date: string;
@@ -18,8 +19,8 @@ interface DetailAttendanceCardProps {
 	statusSummary: StatusSummary[];
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string; borderActive: string; borderInactive: string; bg: string; iconBg: string; radio: string }> = {
-    absent: {
+const STATUS_LABELS: Record<string, { label: string; color: string; borderActive: string; borderInactive: string; bg: string; iconBg: string; radio: string; icon: React.ReactNode }> = {
+	absent: {
 		label: "Absent",
 		color: "text-red-600",
 		borderActive: "border-red-400",
@@ -27,8 +28,9 @@ const STATUS_LABELS: Record<string, { label: string; color: string; borderActive
 		bg: "bg-red-50",
 		iconBg: "bg-red-100 text-red-600",
 		radio: "border-red-500",
+		icon: <ExclamationTriangleIcon className="w-7 h-7" />,
 	},
-    late: {
+	late: {
 		label: "Late",
 		color: "text-yellow-700",
 		borderActive: "border-yellow-400",
@@ -36,6 +38,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string; borderActive
 		bg: "bg-yellow-50",
 		iconBg: "bg-yellow-100 text-yellow-700",
 		radio: "border-yellow-500",
+		icon: <ClockIcon className="w-7 h-7" />,
 	},
 	permit: {
 		label: "Permit",
@@ -45,6 +48,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string; borderActive
 		bg: "bg-blue-50",
 		iconBg: "bg-blue-100 text-blue-600",
 		radio: "border-blue-500",
+		icon: <DocumentTextIcon className="w-7 h-7" />,
 	},
 	sick: {
 		label: "Sick",
@@ -54,30 +58,28 @@ const STATUS_LABELS: Record<string, { label: string; color: string; borderActive
 		bg: "bg-green-50",
 		iconBg: "bg-green-100 text-green-600",
 		radio: "border-green-500",
+		icon: <HeartIcon className="w-7 h-7" />,
 	},
 };
 
 const DetailAttendanceCard: React.FC<DetailAttendanceCardProps> = ({ statusSummary }) => {
 	const [selected, setSelected] = useState<string>("permit");
 
-	// Get all available status types from the data
 	const availableStatus = statusSummary.map((s) => s.status);
-	// Only show menu for available status
 	const menu = Object.entries(STATUS_LABELS).filter(([key]) => availableStatus.includes(key));
 	const selectedSummary = statusSummary.find((s) => s.status === selected);
 
 	return (
 			<div className="flex gap-8 w-full max-h-96">
-				{/* Left menu */}
 				<div className="flex flex-col gap-4 w-72 min-w-60 shrink-0">
-					{menu.map(([key, { label, color, borderActive, borderInactive, bg, iconBg, radio }]) => (
+					{menu.map(([key, { label, color, icon, borderActive, borderInactive, bg, iconBg, radio }]) => (
 						<div
 							key={key}
 							className={`rounded-xl border-2 cursor-pointer transition-all duration-150 flex items-center px-4 py-3 ${selected === key ? borderActive : borderInactive} ${selected === key ? bg : "bg-white"}`}
 							onClick={() => setSelected(key)}
 						>
 							<div className={`flex items-center justify-center w-12 h-12 rounded-lg ${iconBg} mr-4`}>
-								<span className="text-2xl font-bold">{label[0]}</span>
+								{icon}
 							</div>
 							<div className="flex-1">
 								<div className={`font-semibold text-lg ${color}`}>{label}</div>
@@ -95,7 +97,6 @@ const DetailAttendanceCard: React.FC<DetailAttendanceCardProps> = ({ statusSumma
 					))}
 				</div>
 
-				{/* Right data panel */}
 				<div className="flex-1 max-h-[32rem] overflow-y-auto">
 					<Card>
 						<CardContent className="py-6 flex flex-col gap-2">

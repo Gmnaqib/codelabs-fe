@@ -8,10 +8,12 @@ export interface DialogFieldProps {
   children: ReactNode,
   open?: boolean;
   noPadding?: boolean;
+  noPaddingX?: boolean;
   onOpenChange?: (open: boolean) => void;
   onSubmit?: (closeDialog?: () => void) => void;
   onCancel?: () => void;
   onTriggerClick?: () => void;
   submitDisabled?: boolean;
   disabled?: boolean;
+  icon?: boolean;
 }

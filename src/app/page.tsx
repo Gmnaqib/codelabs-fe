@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { Calendar } from "@/components/ui/calendar"
-import { AttendanceCard, MonthlyProgressCard, CashBillsCard, AnnouncementCard, PicketCard, InProgressCard, TotalMembers, AverageMonthly, OperationalCash, OrganizationStatistic, OrganizationSummary, KPIRangkings, ResearchPercentage } from "@/features/dashboard/components"
+import { AttendanceCard, MonthlyProgressCard, CashBillsCard, PicketCard, InProgressCard, TotalMembers, AverageMonthly, OperationalCash, OrganizationStatistic, OrganizationSummary, KPIRangkings, ResearchPercentage } from "@/features/dashboard/components"
 import ProtectedRoute from "@/features/login/components/ProtectedRoute"
 import { Button } from '@/components/ui/button'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
@@ -9,6 +9,8 @@ import { useClock } from '@/hooks/useClock'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { getMe } from '@/services/users/userService'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
+import TotalAttendance from '@/features/dashboard/components/TotalAttendance'
+import OperationalTotalAttendanceCard from '@/features/dashboard/components/OperationalTotalAttendanceCard'
 
 const Dashboard = () => {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -46,7 +48,8 @@ const Dashboard = () => {
               <AttendanceCard />
               <MonthlyProgressCard />
               <CashBillsCard />
-              <AnnouncementCard />
+              <TotalAttendance />
+              <OperationalTotalAttendanceCard />
               <div className={showMap ? "lg:z-42" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
@@ -81,12 +84,25 @@ const Dashboard = () => {
               <ResearchPercentage/>
               <OrganizationSummary className="h-full xl:col-span-3"/>
             </>
+          ) : role === 'minister of operation' ? (
+            <>
+              <AttendanceCard />
+              <MonthlyProgressCard />
+              <CashBillsCard />
+              <OperationalTotalAttendanceCard />
+              <div className={showMap ? "lg:z-42" : "lg:z-10"}>
+                <PicketCard showMap={showMap} setShowMap={setShowMap} />
+              </div>
+              <div className="z-1">
+                <InProgressCard />
+              </div>
+            </>
           ) : (
             <>
               <AttendanceCard />
               <MonthlyProgressCard />
               <CashBillsCard />
-              <AnnouncementCard />
+              <TotalAttendance />
               <div className={showMap ? "lg:z-42" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
