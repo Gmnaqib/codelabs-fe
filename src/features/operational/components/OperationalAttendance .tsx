@@ -20,10 +20,10 @@ const OperationalAttendance  = () => {
     const [reason, setReason] = useState<string>('');
     const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
     const [openPermitDialogUserId, setOpenPermitDialogUserId] = useState<string | null>(null);
-    const [permitReason, setPermitReason] = useState<string>('');
+    // const [permitReason, setPermitReason] = useState<string>('');
     const [permitLoadingUserId, setPermitLoadingUserId] = useState<string | null>(null);
-    const [activeUsers, setActiveUsers] = useState<any[]>([]);
-    const [permitUsers, setPermitUsers] = useState<any[]>([]);
+    // const [activeUsers, setActiveUsers] = useState<User[]>([]);
+    const [permitUsers, setPermitUsers] = useState<User[]>([]);
     const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
     const [leaveReason, setLeaveReason] = useState('');
     const [leaveStartDate, setLeaveStartDate] = useState('');
@@ -31,33 +31,35 @@ const OperationalAttendance  = () => {
     const [leaveAttachment, setLeaveAttachment] = useState<File | Blob | null>(null);
     const [showDateModal, setShowDateModal] = useState(false);
 
+    type User = { _id: string; name: string; status: string };
+    type Attendance = { checkIn?: string; checkOut?: string; userId: string };
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const data = await getAttendanceToday();
-                const attendanceArr = Array.isArray(data) ? data : [data];
+                const attendanceArr: Attendance[] = Array.isArray(data) ? data : [data];
                 // For checkout: checkIn exists, checkOut null
                 const filtered = attendanceArr.filter(
-                    (item: any) => item.checkIn && !item.checkOut && item.userId
+                    (item) => item.checkIn && !item.checkOut && item.userId
                 );
-                const userIds = filtered.map((item: any) => item.userId);
+                const userIds = filtered.map((item) => item.userId);
                 setCheckoutUserIds(userIds);
 
-                const users = await getAllUsers();
+                const users: User[] = await getAllUsers();
                 const map: Record<string, string> = {};
-                users.forEach((user: any) => {
+                users.forEach((user) => {
                     map[user._id] = user.name;
                 });
                 setUserMap(map);
                 // Save active users
-                const active = users.filter((user: any) => user.status === 'active');
-                setActiveUsers(active);
+                const active = users.filter((user) => user.status === 'active');
+                // setActiveUsers(active); // Not used
 
                 // For permit: users who are active and have NO attendance record today at all
-                const attendedUserIds = attendanceArr.map((item: any) => item.userId);
-                const permit = active.filter((user: any) => !attendedUserIds.includes(user._id));
+                const attendedUserIds = attendanceArr.map((item) => item.userId);
+                const permit = active.filter((user) => !attendedUserIds.includes(user._id));
                 setPermitUsers(permit);
-            } catch (err) {
+            } catch {
             }
         };
         fetchData();
@@ -69,7 +71,6 @@ const OperationalAttendance  = () => {
     };
     const handleOpenPermitDialog = (userId: string) => {
         setOpenPermitDialogUserId(userId);
-        setPermitReason('');
     };
 
     return (
@@ -135,7 +136,7 @@ const OperationalAttendance  = () => {
                                         await postCheckOutByOperational(openDialogUserId, reason);
                                         toast.success('Checkout successful');
                                         setMainDialogOpen(false); // Close main dialog
-                                    } catch (err) {
+                                    } catch {
                                         toast.error('Checkout failed');
                                     } finally {
                                         setOpenDialogUserId(null);
@@ -206,7 +207,7 @@ const OperationalAttendance  = () => {
                                         });
                                         toast.success('Permit request submitted successfully');
                                         setMainDialogOpen(false);
-                                    } catch (err) {
+                                    } catch {
                                         toast.error('Permit request failed');
                                     } finally {
                                         setOpenPermitDialogUserId(null);

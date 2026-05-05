@@ -11,9 +11,6 @@ import InputField from "./InputField"
 import { CalendarMonthYearPicker } from "./CalendarMonthYearPicker"
 
 import { useState } from "react"
-import DialogField from "./DialogField"
-import { PencilSquareIcon } from "@heroicons/react/24/solid"
-import { Button } from "../ui/button"
 import OperationalAttendance from "@/features/operational/components/OperationalAttendance "
 
 export function Menubar({ menus, onChange, activeMenu, sort = false, filter, operational = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {

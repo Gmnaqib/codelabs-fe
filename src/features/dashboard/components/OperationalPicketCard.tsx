@@ -23,7 +23,7 @@ export default function OperationalPicketCard({
             try {
                 const data = await getOperationalRecordsToday(year, month);
                 setValue(Array.isArray(data) ? data.length : 0);
-            } catch (e) {
+            } catch {
                 setValue(0);
             }
         };

@@ -127,8 +127,50 @@ const PicketScheduleTable = ({
               <TableRow key={user._id || idx}>
                 <TableCell className="text-center">{user.name.split(' ')[0]}</TableCell>
                 <TableCell className="text-center">
-                  <div>
-                    <DialogField
+                    <Checkbox
+                      checked={!!checkedUsers[user._id]}
+                      onCheckedChange={async (checked) => {
+                        if (checked && !checkedUsers[user._id]) {
+                          const today = new Date();
+                          const dateStr = today.toISOString();
+                          await postOperationalRecord({
+                            scheduleId,
+                            userId: user._id,
+                            type: 'picket',
+                            date: dateStr,
+                          });
+                          const operationalRecords = await getOperationalRecords();
+                          const checked: { [key: string]: boolean } = {};
+                          const ids: { [key: string]: string } = {};
+                          (operationalRecords as OperationalRecord[]).forEach((rec) => {
+                            if (rec.scheduleId === scheduleId) {
+                              checked[rec.userId] = true;
+                              ids[rec.userId] = rec._id;
+                            }
+                          });
+                          setCheckedUsers(checked);
+                          setRecordIds(ids);
+                        } else if (!checked && checkedUsers[user._id]) {
+                          const recordId = recordIds[user._id];
+                          if (recordId) {
+                            await deleteOperationalRecord(recordId);
+                            setCheckedUsers((prev) => {
+                              const copy = { ...prev };
+                              delete copy[user._id];
+                              return copy;
+                            });
+                            setRecordIds((prev) => {
+                              const copy = { ...prev };
+                              delete copy[user._id];
+                              return copy;
+                            });
+                          }
+                        }
+                      }}
+                    />
+                </TableCell>
+                <TableCell>
+                  <DialogField
                       variant='outline'
                       name="Swapping"
                       title="Swapping"
@@ -238,7 +280,6 @@ const PicketScheduleTable = ({
                         })()}
                       </div>
                     </DialogField>
-                  </div>
                 </TableCell>
               </TableRow>
             ))

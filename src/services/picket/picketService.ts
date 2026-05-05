@@ -42,8 +42,9 @@ export const getOperationalRecords = async () => {
 export const getOperationalRecordsToday = async (year: string | number, month: string | number) => {
 	const res = await axiosClient.get(`/operational-records?type=picket&year=${year}&month=${month}`);
 	const today = new Date();
-	const todayStr = today.toISOString().slice(0, 10); 
-	const filtered = (res.data.data || []).filter((item: any) => {
+	const todayStr = today.toISOString().slice(0, 10);
+	type OperationalRecord = { date?: string; userId?: string; scheduleId?: string; type?: string };
+	const filtered = (res.data.data || []).filter((item: OperationalRecord) => {
 		const dateStr = item.date ? item.date.slice(0, 10) : null;
 		return dateStr === todayStr;
 	});

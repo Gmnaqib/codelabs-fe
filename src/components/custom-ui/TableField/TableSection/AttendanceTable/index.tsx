@@ -377,11 +377,13 @@ const AttendanceTable = ({
               <div>
                 <p className="font-semibold">Evidancea</p>
                 {selectedLeave.attachment_url ? (
-                  <img
+                  <Image
                     src={selectedLeave.attachment_url}
                     alt="Attachment"
-                    style={{ maxWidth: '300px', maxHeight: '300px', borderRadius: '8px', marginTop: '8px' }}
-                    onError={e => {
+                    width={300}
+                    height={300}
+                    style={{ objectFit: 'contain', borderRadius: '8px', marginTop: '8px', maxWidth: '300px', maxHeight: '300px' }}
+                    onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       const link = document.createElement('a');

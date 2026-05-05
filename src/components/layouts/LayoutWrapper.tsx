@@ -13,7 +13,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const isNoLayout = noLayoutPages.includes(pathname);
   const [isActive, setIsActive] = useState(true);
   const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const isXl = useMediaQuery("(min-width: 1280px)");
   const isLg = useMediaQuery("(min-width: 1024px)");
 

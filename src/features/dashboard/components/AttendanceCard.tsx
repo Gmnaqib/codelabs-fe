@@ -1,6 +1,5 @@
 
 import CardField from '@/components/custom-ui/CardField';
-import imageCompression from 'browser-image-compression';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
@@ -29,7 +28,6 @@ import CameraCapture from '@/components/custom-ui/CameraCapture';
 const AttendanceCard = () => {
   const { user } = useAuth();
   const localDeviceId = localStorage.getItem('device_id');
-  const isDeviceIdMatch =  user?.device_id === localDeviceId;
   const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');

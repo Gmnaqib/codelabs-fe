@@ -7,7 +7,7 @@ import { ArrowUpRightIcon } from '@heroicons/react/24/outline';
 const OperationalTotalAttendanceCard = () => {
 
   const [lateTodayCount, setLateTodayCount] = useState(0);
-  const [lateTodayNames, setLateTodayNames] = useState<string[]>([]);
+  // const [lateTodayNames, setLateTodayNames] = useState<string[]>([]);
   const [lateTodayList, setLateTodayList] = useState<{ name: string, reason: string }[]>([]);
   const [absentCount, setAbsentCount] = useState(0);
   const [absentNames, setAbsentNames] = useState<string[]>([]);
@@ -32,18 +32,18 @@ const OperationalTotalAttendanceCard = () => {
           attendanceService.getAttendanceSummary(year, month),
         ]);
 
-        let lateNames: string[] = [];
+        // let lateNames: string[] = [];
         let lateCount = 0;
         let lateList: { name: string, reason: string }[] = [];
         if (Array.isArray(attendanceData) && Array.isArray(allUsers)) {
           const lateEntries = attendanceData.filter((item) => item.reason && item.checkIn !== null && item.reason.trim() !== '');
           lateCount = lateEntries.length;
-          const userMap = new Map(allUsers.map((u: any) => [u._id, u.name]));
-          lateNames = lateEntries.map((item) => userMap.get(item.userId) || '-');
+          type User = { _id: string; name: string };
+          const userMap = new Map((allUsers as User[]).map((u) => [u._id, u.name]));
+          // lateNames = lateEntries.map((item) => userMap.get(item.userId) || '-');
           lateList = lateEntries.map((item) => ({ name: userMap.get(item.userId) || '-', reason: item.reason }));
         }
         setLateTodayCount(lateCount);
-        setLateTodayNames(lateNames);
         setLateTodayList(lateList);
 
         const activeUsers = Array.isArray(allUsers)
@@ -77,7 +77,7 @@ const OperationalTotalAttendanceCard = () => {
           }
           return { name: item.userName || '-', count: item.counts.sick, reason };
         }));
-      } catch (e) {
+      } catch {
         setLateTodayCount(0);
         setAbsentCount(0);
         setLeaveExceededCount(0);
