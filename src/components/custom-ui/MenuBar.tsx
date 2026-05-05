@@ -9,9 +9,14 @@ import { MenuBarProps } from "@/types/MenubarProps"
 import { DropdownField } from "./DropdownField"
 import InputField from "./InputField"
 import { CalendarMonthYearPicker } from "./CalendarMonthYearPicker"
-import { useState } from "react"
 
-export function Menubar({ menus, onChange, activeMenu, sort = false, filter = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
+import { useState } from "react"
+import DialogField from "./DialogField"
+import { PencilSquareIcon } from "@heroicons/react/24/solid"
+import { Button } from "../ui/button"
+import OperationalAttendance from "@/features/operational/components/OperationalAttendance "
+
+export function Menubar({ menus, onChange, activeMenu, sort = false, filter, operational = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
     <div className="flex flex-col items-center lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
@@ -34,27 +39,33 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter = fa
         })}
       </MenubarRoot>
 
-      {filter && (
-        <div className="flex gap-5 z-25">
-          {search && (
-            <InputField
-              type="text"
-              placeholder="Search"
-              value={internalSearch}
-              onChange={(e) => {
-                setInternalSearch(e.target.value);
-                onSearch?.(e.target.value);
-              }}
-              size="sm"
-            />
-          )}
-          <div className="z-40 mt-5 lg:mt-0">
-            <CalendarMonthYearPicker
-              {...filterProps}
-            />
+      <div className="flex gap-5 items-center">
+        {filter && (
+          <div className="flex gap-5 z-25">
+            {search && (
+              <InputField
+                type="text"
+                placeholder="Search"
+                value={internalSearch}
+                onChange={(e) => {
+                  setInternalSearch(e.target.value);
+                  onSearch?.(e.target.value);
+                }}
+                size="sm"
+              />
+            )}
+            <div className="z-40 mt-5 lg:mt-0">
+              <CalendarMonthYearPicker
+                {...filterProps}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {operational && (
+          <OperationalAttendance />
+        ) }
+      </div>
 
       {sort && (
         <div className="flex items-center gap-3 mb-5">

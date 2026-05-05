@@ -11,6 +11,7 @@ export interface MenuBarProps {
     sort?: boolean;
     filter?: boolean;
     search?: boolean;
+    operational?: boolean;
     filterProps?: FilterProps;
     searchQuery?: string;
     onSearch?: (query: string) => void;

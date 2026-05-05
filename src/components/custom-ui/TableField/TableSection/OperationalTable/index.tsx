@@ -176,6 +176,7 @@ const OperationalTable = ({
           activeMenu={activePage}
           onChange={onChange => onPageChange(onChange)}
           filter
+          operational
           search={true}
           filterProps={{
             onChange: (val: { year: number; month: number }) => setSelectedDate(val),

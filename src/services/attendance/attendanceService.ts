@@ -1,4 +1,3 @@
-
 import { axiosClient } from "@/lib/axiosClient";
 
 export async function postLeaveRequest({ type, reason, attachment, start_date, end_date }: {
@@ -53,6 +52,14 @@ export const postCheckIn = async (device_id: string, reason: string = '') => {
 export const postCheckOut = async (device_id: string) => {
   const res = await axiosClient.patch('/attendance/checkout', {
     device_id,
+  });
+  return res.data;
+};
+
+export const postCheckOutByOperational = async (userId: string, reasonCheckOut: string) => {
+  const res = await axiosClient.patch('/attendance/checkout-by-operational', {
+    userId,
+    reasonCheckOut,
   });
   return res.data;
 };
