@@ -8,12 +8,13 @@ const OperationalTotalAttendanceCard = () => {
 
   const [lateTodayCount, setLateTodayCount] = useState(0);
   const [lateTodayNames, setLateTodayNames] = useState<string[]>([]);
+  const [lateTodayList, setLateTodayList] = useState<{ name: string, reason: string }[]>([]);
   const [absentCount, setAbsentCount] = useState(0);
   const [absentNames, setAbsentNames] = useState<string[]>([]);
   const [leaveExceededCount, setLeaveExceededCount] = useState(0);
   const [sickExceededCount, setSickExceededCount] = useState(0);
-  const [leaveExceededNames, setLeaveExceededNames] = useState<string[]>([]);
-  const [sickExceededNames, setSickExceededNames] = useState<string[]>([]);
+  const [leaveExceededList, setLeaveExceededList] = useState<{ name: string, count: number, reason?: string }[]>([]);
+  const [sickExceededList, setSickExceededList] = useState<{ name: string, count: number, reason?: string }[]>([]);
 
   useEffect(() => {
     async function fetchAttendanceAndUsers() {
@@ -33,14 +34,17 @@ const OperationalTotalAttendanceCard = () => {
 
         let lateNames: string[] = [];
         let lateCount = 0;
+        let lateList: { name: string, reason: string }[] = [];
         if (Array.isArray(attendanceData) && Array.isArray(allUsers)) {
           const lateEntries = attendanceData.filter((item) => item.reason && item.checkIn !== null && item.reason.trim() !== '');
           lateCount = lateEntries.length;
           const userMap = new Map(allUsers.map((u: any) => [u._id, u.name]));
           lateNames = lateEntries.map((item) => userMap.get(item.userId) || '-');
+          lateList = lateEntries.map((item) => ({ name: userMap.get(item.userId) || '-', reason: item.reason }));
         }
         setLateTodayCount(lateCount);
         setLateTodayNames(lateNames);
+        setLateTodayList(lateList);
 
         const activeUsers = Array.isArray(allUsers)
           ? allUsers.filter((user) => user.status === 'active')
@@ -56,13 +60,23 @@ const OperationalTotalAttendanceCard = () => {
           ? attendanceSummary.filter((item) => item.counts && item.counts.permit && item.counts.permit > 2)
           : [];
         setLeaveExceededCount(leaveExceeded.length);
-        setLeaveExceededNames(leaveExceeded.map((item) => item.userName || '-'));
+        setLeaveExceededList(leaveExceeded.map((item) => ({ name: item.userName || '-', count: item.counts.permit, reason: item.reason })));
 
         const sickExceeded = Array.isArray(attendanceSummary)
           ? attendanceSummary.filter((item) => item.counts && item.counts.sick && item.counts.sick > 4)
           : [];
         setSickExceededCount(sickExceeded.length);
-        setSickExceededNames(sickExceeded.map((item) => item.userName || '-'));
+        setSickExceededList(sickExceeded.map((item) => {
+          let reason = '';
+          if (Array.isArray(attendanceData)) {
+            // Cari semua data attendance user ini yang punya reason (bukan reasonCheckOut)
+            const userAttendances = attendanceData.filter((a) => a.userId === item.userId && a.reason && a.reason.trim() !== '');
+            if (userAttendances.length > 0) {
+              reason = userAttendances[0].reason;
+            }
+          }
+          return { name: item.userName || '-', count: item.counts.sick, reason };
+        }));
       } catch (e) {
         setLateTodayCount(0);
         setAbsentCount(0);
@@ -140,25 +154,38 @@ const OperationalTotalAttendanceCard = () => {
                 <p>There is no one absent.</p>
               )}
               <p className='font-semibold text-orange-600 mt-5'>Leave exceeded</p>
-              {leaveExceededNames.length > 0 ? (
+              {leaveExceededList.length > 0 ? (
                 <div className="grid grid-cols-4 gap-2 mt-1">
-                  {leaveExceededNames.map((name, idx) => <p key={name + idx}>{name}</p>)}
+                  {leaveExceededList.map((item, idx) => (
+                    <p key={item.name + idx}>{item.name} <span className="font-semibold">({item.count}x)</span></p>
+                  ))}
                 </div>
               ) : (
                 <p>There is no leave that exceeds the limit.</p>
               )}
               <p className='font-semibold text-yellow-600 mt-5'>Sick exceeded</p>
-              {sickExceededNames.length > 0 ? (
+              {sickExceededList.length > 0 ? (
                 <div className="grid grid-cols-4 gap-2 mt-1">
-                  {sickExceededNames.map((name, idx) => <p key={name + idx}>{name}</p>)}
+                  {sickExceededList.map((item, idx) => (
+                    <div key={item.name + idx} className="flex flex-col">
+                      <span>{item.name} <span className="font-semibold">({item.count}x)</span></span>
+                      {item.reason && <span className="text-xs text-gray-400">{item.reason}</span>}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <p>There is no leave that exceeds the limit.</p>
               )}
               <p className='font-semibold text-green-600 mt-5'>Late today</p>
-              {lateTodayNames.length > 0 ? (
+              {lateTodayList.length > 0 ? (
                 <div className="grid grid-cols-4 gap-2 mt-1">
-                  {lateTodayNames.map((name, idx) => <p key={name + idx}>{name}</p>)}
+                  {lateTodayList.map((item, idx) => (
+                    <div key={item.name + idx} className="flex flex-col">
+                      <p className='font-medium'>{item.name}</p>
+                      <p>{item.reason}</p>
+                      <hr />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <p>There is no one late today.</p>
