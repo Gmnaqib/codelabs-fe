@@ -27,6 +27,35 @@ export async function postLeaveRequest({ type, reason, attachment, start_date, e
   }
 }
 
+export async function postLeaveRequestByOperational({ userId, type, reason, attachment, start_date, end_date }: {
+  userId: string;
+  type: 'sick' | 'permit';
+  reason: string;
+  attachment: File | Blob;
+  start_date: string;
+  end_date: string;
+}) {
+  try {
+    const formData = new FormData();
+    formData.append('userId', userId);
+    formData.append('type', type);
+    formData.append('reason', reason);
+    formData.append('attachment', attachment);
+    formData.append('start_date', start_date);
+    formData.append('end_date', end_date);
+
+    const { data } = await axiosClient.post('/attendance/leave-requests-by-operational', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error('Error posting operational leave request:', error);
+    throw error;
+  }
+}
+
 export async function getAttendanceSummaryByUserId(userId: string, year?: number, month?: number) {
   try {
     let query = "";

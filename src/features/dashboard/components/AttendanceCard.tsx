@@ -387,7 +387,7 @@ const AttendanceCard = () => {
             }
           })()
         )}
-        {hour >= 6 && hour < 10 && !isCheckedIn && (
+        {hour >= 6 && hour < 20 && !isCheckedIn && (
           <div className="flex items-center gap-2 mt-3 cursor-pointer">
             <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
               onSubmit={handlePermissionSubmit}

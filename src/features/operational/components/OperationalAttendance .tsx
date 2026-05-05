@@ -2,10 +2,14 @@ import DialogField from '@/components/custom-ui/DialogField';
 import { Button } from '@/components/ui/button';
 import { PencilSquareIcon } from '@heroicons/react/24/solid';
 import React, { useState, useEffect } from 'react'
-import { getAttendanceToday, postCheckOutByOperational } from '@/services/attendance/attendanceService';
+import { getAttendanceToday, postCheckOutByOperational, postLeaveRequestByOperational } from '@/services/attendance/attendanceService';
 import { getAllUsers } from '@/services/users/userService';
 import InputField from '@/components/custom-ui/InputField';
+import imageCompression from 'browser-image-compression';
+import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import { toast } from 'sonner';
+import { DropdownField } from '@/components/custom-ui/DropdownField';
+import { Textarea } from '@/components/ui/textarea';
 
 const OperationalAttendance  = () => {
     const [mode, setMode] = useState<'Checkout' | 'Permit'>('Checkout');
@@ -15,53 +19,57 @@ const OperationalAttendance  = () => {
     const [openDialogUserId, setOpenDialogUserId] = useState<string | null>(null);
     const [reason, setReason] = useState<string>('');
     const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
+    const [openPermitDialogUserId, setOpenPermitDialogUserId] = useState<string | null>(null);
+    const [permitReason, setPermitReason] = useState<string>('');
+    const [permitLoadingUserId, setPermitLoadingUserId] = useState<string | null>(null);
+    const [activeUsers, setActiveUsers] = useState<any[]>([]);
+    const [permitUsers, setPermitUsers] = useState<any[]>([]);
+    const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
+    const [leaveReason, setLeaveReason] = useState('');
+    const [leaveStartDate, setLeaveStartDate] = useState('');
+    const [leaveEndDate, setLeaveEndDate] = useState('');
+    const [leaveAttachment, setLeaveAttachment] = useState<File | Blob | null>(null);
+    const [showDateModal, setShowDateModal] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch attendance
                 const data = await getAttendanceToday();
-                const filtered = (Array.isArray(data) ? data : [data]).filter(
+                const attendanceArr = Array.isArray(data) ? data : [data];
+                // For checkout: checkIn exists, checkOut null
+                const filtered = attendanceArr.filter(
                     (item: any) => item.checkIn && !item.checkOut && item.userId
                 );
                 const userIds = filtered.map((item: any) => item.userId);
                 setCheckoutUserIds(userIds);
 
-                // Fetch all users
                 const users = await getAllUsers();
-                // Build map: userId -> name
                 const map: Record<string, string> = {};
                 users.forEach((user: any) => {
                     map[user._id] = user.name;
                 });
                 setUserMap(map);
+                // Save active users
+                const active = users.filter((user: any) => user.status === 'active');
+                setActiveUsers(active);
+
+                // For permit: users who are active and have NO attendance record today at all
+                const attendedUserIds = attendanceArr.map((item: any) => item.userId);
+                const permit = active.filter((user: any) => !attendedUserIds.includes(user._id));
+                setPermitUsers(permit);
             } catch (err) {
-                // handle error if needed
             }
         };
         fetchData();
     }, []);
 
-    // Handler for opening dialog
     const handleOpenDialog = (userId: string) => {
         setOpenDialogUserId(userId);
         setReason('');
     };
-
-    // Handler for submitting checkout
-    const handleCheckout = async () => {
-        if (!openDialogUserId || !reason) return;
-        setLoadingUserId(openDialogUserId);
-        try {
-            await postCheckOutByOperational(openDialogUserId, reason);
-            setOpenDialogUserId(null);
-            setReason('');
-            // Optionally, refresh attendance list here
-        } catch (err) {
-            // handle error if needed
-        } finally {
-            setLoadingUserId(null);
-        }
+    const handleOpenPermitDialog = (userId: string) => {
+        setOpenPermitDialogUserId(userId);
+        setPermitReason('');
     };
 
     return (
@@ -111,7 +119,6 @@ const OperationalAttendance  = () => {
                                 <div></div>
                             </div>
                         )}
-                        {/* Dialog for checkout reason */}
                         {openDialogUserId && (
                             <DialogField
                                 name={userMap[openDialogUserId] || openDialogUserId}
@@ -152,7 +159,165 @@ const OperationalAttendance  = () => {
                         )}
                     </div>
                 ) : (
-                    <p className="text-center text-lg font-medium">permit</p>
+                    <div className="flex flex-col gap-2 mt-2 max-h-80 overflow-y-auto">
+                        {permitUsers.length > 0 ? (
+                            permitUsers.map((user) => (
+                                <div key={user._id} className="flex flex-col gap-2">
+                                    <div className="grid grid-cols-2 items-center justify-center">
+                                        <p className="text-center">{user.name}</p>
+                                        <div className="flex justify-center">
+                                            <Button type="button" className="px-6 py-2 text-base font-semibold w-fit" onClick={() => { setMainDialogOpen(true); handleOpenPermitDialog(user._id); }}>
+                                                Permit
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <hr />
+                                </div>
+                            ))
+                        ) : (
+                            <span className="block text-xs font-normal text-gray-400 text-center">No users available for permit</span>
+                        )}
+                        {openPermitDialogUserId && (
+                            <DialogField
+                                name='Add Permission'
+                                title='Permission'
+                                variant='link'
+                                size='noPadding'
+                                noPadding
+                                open
+                                onOpenChange={open => {
+                                    if (!open) setOpenPermitDialogUserId(null);
+                                }}
+                                onSubmit={async (closeDialog) => {
+                                    if (!leaveType || !leaveReason || !leaveStartDate || !leaveAttachment) {
+                                        toast.error('All fields are required');
+                                        return;
+                                    }
+                                    setPermitLoadingUserId(openPermitDialogUserId);
+                                    try {
+                                        const finalEndDate = leaveEndDate || leaveStartDate;
+                                        await postLeaveRequestByOperational({
+                                            userId: openPermitDialogUserId,
+                                            type: leaveType,
+                                            reason: leaveReason,
+                                            attachment: leaveAttachment,
+                                            start_date: leaveStartDate,
+                                            end_date: finalEndDate,
+                                        });
+                                        toast.success('Permit request submitted successfully');
+                                        setMainDialogOpen(false);
+                                    } catch (err) {
+                                        toast.error('Permit request failed');
+                                    } finally {
+                                        setOpenPermitDialogUserId(null);
+                                        setPermitLoadingUserId(null);
+                                        setLeaveType('sick');
+                                        setLeaveReason('');
+                                        setLeaveStartDate('');
+                                        setLeaveEndDate('');
+                                        setLeaveAttachment(null);
+                                        closeDialog?.();
+                                    }
+                                }}
+                                submitDisabled={permitLoadingUserId === openPermitDialogUserId || !leaveType || !leaveReason || !leaveStartDate || !leaveAttachment}
+                            >
+                                <div>
+                                    <p className='mb-1'>Select Permission</p>
+                                    <DropdownField
+                                        title={leaveType === 'sick' ? 'Sick' : 'Permit'}
+                                        menu={["Sick", "Permit"]}
+                                        onSelect={v => setLeaveType(v === 'Sick' ? 'sick' : 'permit')}
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    <Textarea
+                                        label="Reason"
+                                        placeholder="Enter reason..."
+                                        value={leaveReason}
+                                        onChange={e => setLeaveReason(e.target.value)}
+                                    />
+                                    <div>
+                                        <label className="block mb-1">Leave Date</label>
+                                        <Button className='w-full flex p-1'
+                                            onClick={() => {
+                                                if (!showDateModal) {
+                                                    setShowDateModal(true);
+                                                }
+                                            }}
+                                        >
+                                            {leaveStartDate && leaveEndDate && leaveStartDate !== leaveEndDate
+                                                ? `${leaveStartDate} s/d ${leaveEndDate}`
+                                                : leaveStartDate
+                                                    ? leaveStartDate
+                                                    : 'Select Leave Date'}
+                                        </Button>
+                                        {showDateModal && (
+                                            <div
+                                                className="fixed inset-0 z-50 flex items-center justify-center"
+                                                style={{ background: 'transparent' }}
+                                                onClick={() => setShowDateModal(false)}
+                                            >
+                                                <div
+                                                    className="bg-white rounded shadow-lg p-4"
+                                                    onClick={e => e.stopPropagation()}
+                                                >
+                                                    <DateRangePicker
+                                                        startDate={leaveStartDate || null}
+                                                        endDate={leaveEndDate || null}
+                                                        minDate={new Date().toISOString().split('T')[0]}
+                                                        onChange={(start, end) => {
+                                                            setLeaveStartDate(start || '');
+                                                            setLeaveEndDate(end || '');
+                                                        }}
+                                                    />
+                                                    <div className="flex gap-2 mt-4 justify-end">
+                                                        <Button type="button" onClick={() => {
+                                                            if (leaveStartDate) {
+                                                                setShowDateModal(false);
+                                                            }
+                                                        }}>
+                                                            Pilih
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {!leaveAttachment ? (
+                                        <div>
+                                            <label className="block text-base font-light mb-1">Choose Picture</label>
+                                            <input
+                                                type="file"
+                                                accept="image/png,image/jpeg,image/jpg"
+                                                className="block w-full rounded-lg border border-gray-700 p-1 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#232329] file:text-white hover:file:bg-primary/80"
+                                                onChange={async e => {
+                                                if (e.target.files && e.target.files[0]) {
+                                                    const file = e.target.files[0];
+                                                    if (["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+                                                    try {
+                                                        const compressedFile = await imageCompression(file, {
+                                                        maxSizeMB: 0.5, 
+                                                        maxWidthOrHeight: 1280,
+                                                        useWebWorker: true
+                                                        });
+                                                        setLeaveAttachment(compressedFile);
+                                                    } catch {
+                                                        setLeaveAttachment(file); 
+                                                    }
+                                                    } else {
+                                                    setLeaveAttachment(file);
+                                                    }
+                                                }
+                                                }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>
+                                    )}
+                                </div>
+                            </DialogField>
+                        )}
+                    </div>
                 )}
             </DialogField>
         </div>
