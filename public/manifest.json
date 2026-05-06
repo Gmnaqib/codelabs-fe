@@ -4,29 +4,13 @@
   "description": "Attendance and management system for CodeLabs",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#ff0000",
+  "theme_color": "#0000ff",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/logo/logoCL.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/logo/logoCL.png",
+      "src": "/logo/LogoAplication.png",
       "sizes": "256x256",
-      "type": "image/png"
-    },
-    {
-      "src": "/logo/logoCL.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "/logo/logoCL.png",
-      "sizes": "512x512",
       "type": "image/png"
     }
   ]
