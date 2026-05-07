@@ -62,6 +62,8 @@ const AttendanceTable = ({
   showMenu = true,
   searchQuery = "",
 }: AttendanceTableProps) => {
+  // Local search state like OperationalTable
+  const [search, setSearch] = useState(searchQuery ?? "");
   const attendanceHeaders = attendance[activePage] ?? [];
   interface LeaveRequest {
     _id: string;
@@ -237,12 +239,13 @@ const AttendanceTable = ({
   }, [selectedDate, activePage, fetchData]);
 
 
+  const query = search.trim().toLowerCase();
   const filteredTodayData = todayData.filter((item) =>
-    item.userName?.toLowerCase().includes(searchQuery.toLowerCase())
+    item.userName?.toLowerCase().includes(query)
   );
 
   const filteredData = allData.filter((item) =>
-    (item as { userName?: string }).userName?.toLowerCase().includes(searchQuery.toLowerCase())
+    (item as { userName?: string }).userName?.toLowerCase().includes(query)
   );
 
   const dataToPaginate = filteredData;
@@ -491,7 +494,9 @@ const AttendanceTable = ({
           activeMenu={activePage}
           onChange={onPageChange}
           filter
-          search={false}
+          search={true}
+          searchQuery={search}
+          onSearch={setSearch}
           filterProps={{
             onChange: (val: { year: number; month: number }) => setSelectedDate(val),
             defaultYear: selectedDate.year,
