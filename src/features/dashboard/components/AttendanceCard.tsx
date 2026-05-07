@@ -126,7 +126,7 @@ const AttendanceCard = () => {
 
         const userIp = data.ip;
 
-        const UNIKOM_PREFIX = "103."; 
+        const UNIKOM_PREFIX = "103.112.189.131"; 
 
         const allowed = userIp.startsWith(UNIKOM_PREFIX);
 
