@@ -12,7 +12,7 @@ import {
 
 import { DropdownField } from "@/components/custom-ui/DropdownField";
 import { members } from "@/components/custom-ui/TableField/headerConfig";
-import { updateUser } from "@/services/users/userService";
+import { getMe, updateUser } from "@/services/users/userService";
 
 interface MembersItem {
   _id: string;
@@ -49,12 +49,25 @@ const MembersTable = ({
 }: Props) => {
   const headers = members[activePage] || [];
   const [products, setProducts] = useState<{ _id: string; name: string }[]>([]);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     getProducts().then((res) => {
       setProducts(Array.isArray(res) ? res : []);
     });
   }, []);
+
+  useEffect(() => {
+      const fetchMe = async () => {
+        try {
+          const me = await getMe();
+          setRole(me.role);
+        } catch {
+          setRole(null);
+        }
+      };
+      fetchMe();
+    }, []);
 
   const handleUpdate = async (id: string, key: string, value: string) => {
     try {
@@ -76,15 +89,21 @@ const MembersTable = ({
   };
 
   const filteredData = data
-    .filter((u) =>
-      filterRole === "All Role" ? true : u.role === filterRole
-    )
+    .filter((u) => {
+      if (!role) return false;
+      const userRole = (u.role || "").toLowerCase();
+      if (role.toLowerCase() !== "admin" && ["admin", "lecturer"].includes(userRole)) {
+        return false;
+      }
+      return filterRole === "All Role" ? true : u.role === filterRole;
+    })
     .filter((u) =>
       filterSubriset === "All SubRiset" ? true : u.subriset === filterSubriset
     )
     .filter((u) =>
       filterStatus === "All Status" ? true : u.status === filterStatus
     );
+
 
   return (
     <div className="w-full">
@@ -153,7 +172,7 @@ const MembersTable = ({
                         key={`role-${item._id}`}
                         title={(() => {
                           const roleMap: Record<string, string> = {
-                            "vice president": "vice",
+                            // "vice president": "vice",
                             "minister of research": "research",
                             "minister of competition": "competition",
                             "minister of branding": "branding",
@@ -163,10 +182,10 @@ const MembersTable = ({
                           return roleMap[item.role] || item.role.toLowerCase();
                         })()}
                         menu={[
-                          "Admin",
+                          ...(role === "admin" ? ["Admin"] : []),
                           "Lecturer",
                           "President",
-                          "Vice President",
+                          // "Vice President",
                           "Minister of Research",
                           "Minister of Competition",
                           "Minister of Branding",
