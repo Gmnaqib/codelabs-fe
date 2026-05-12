@@ -377,7 +377,7 @@ const AttendanceTable = ({
                 <p>{selectedLeave.reason}</p>
               </div>
               <div>
-                <p className="font-semibold">Evidancea</p>
+                <p className="font-semibold">Avidancea</p>
                 <a href={selectedLeave.attachment_url} target="_blank" rel="noopener noreferrer">
                   {selectedLeave.attachment_url}
                 </a>

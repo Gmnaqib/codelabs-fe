@@ -3,7 +3,7 @@ import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { getAttendance, postCheckIn, postLeaveRequest, postCheckOut } from '@/services/attendance/attendanceService';
+import { getAttendance, getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut } from '@/services/attendance/attendanceService';
 import { useRef } from 'react';
 
 type AttendanceRecord = {
@@ -90,24 +90,14 @@ const AttendanceCard = () => {
         setLoading(false);
         return;
       }
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
       try {
         type AttendanceRecord = {
           userId: string;
           checkIn?: string | Date;
           checkOut?: string | Date;
         };
-        const data: AttendanceRecord[] = await getAttendance(year, month);
-        const pad = (n: number) => n.toString().padStart(2, '0');
-        const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-        const found = data.find((item: AttendanceRecord) => {
-          if (item.userId !== user.id || !item.checkIn) return false;
-          const checkInDate = new Date(item.checkIn);
-          const checkInLocal = `${checkInDate.getFullYear()}-${pad(checkInDate.getMonth() + 1)}-${pad(checkInDate.getDate())}`;
-          return checkInLocal === todayLocal;
-        });
+        const data: AttendanceRecord[] = await getAttendanceToday();
+        const found = data.find((item: AttendanceRecord) => item.userId === user.id && !!item.checkIn);
         setIsCheckedIn(!!found);
         setIsCheckedOut(found && found.checkOut ? true : false);
       } catch {
@@ -153,18 +143,8 @@ const AttendanceCard = () => {
     setCheckinLoading(true);
     try {
       await postCheckIn(localDeviceId ?? '', reasonValue);
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
-      const pad = (n: number) => n.toString().padStart(2, '0');
-      const todayLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-      const data: AttendanceRecord[] = await getAttendance(year, month);
-      const found = data.find((item: AttendanceRecord) => {
-        if (item.userId !== user!.id || !item.checkIn) return false;
-        const checkInDate = new Date(item.checkIn);
-        const checkInLocal = `${checkInDate.getFullYear()}-${pad(checkInDate.getMonth() + 1)}-${pad(checkInDate.getDate())}`;
-        return checkInLocal === todayLocal;
-      });
+      const data: AttendanceRecord[] = await getAttendanceToday();
+      const found = data.find((item: AttendanceRecord) => item.userId === user!.id && !!item.checkIn);
       toast.success("Check-in berhasil!");
       setIsCheckedIn(!!found);
       setDialogOpen(false);
@@ -385,7 +365,7 @@ const AttendanceCard = () => {
             }
           })()
         )}
-        {hour >= 6 && hour < 20 && !isCheckedIn && (
+        {hour >= 6 && hour < 10 && !isCheckedIn && (
           <div className="flex items-center gap-2 mt-3 cursor-pointer">
             <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
               onSubmit={handlePermissionSubmit}
