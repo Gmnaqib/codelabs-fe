@@ -1,3 +1,4 @@
+
 "use client"
 import CardField from '@/components/custom-ui/CardField'
 import { getAllUsers } from '@/services/users/userService'
@@ -5,6 +6,13 @@ import { IdentificationIcon } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
+interface User {
+  _id: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  status?: string;
+}
 const TotalMembers = () => {
   const [totalUsers, setTotalUsers] = useState<number | null>(null)
 
@@ -12,7 +20,12 @@ const TotalMembers = () => {
     const fetchUsers = async () => {
       try {
         const users = await getAllUsers()
-        setTotalUsers(users.length)
+        const filtered = (users as User[]).filter((u) => {
+          const status = (u.status || "").toLowerCase();
+          const role = (u.role || "").toLowerCase();
+          return status === "active" && !["admin", "lecturer"].includes(role);
+        });
+        setTotalUsers(filtered.length)
       } catch (error) {
         console.error("Failed to fetch users:", error)
       }
