@@ -62,9 +62,9 @@ const AttendanceCard = () => {
       });
       toast.success('Sukses mengirim izin!');
       const day = new Date().getDay(); 
-      let telegramUsername = 'favianjiwani';
-      if (day === 2 || day === 5) telegramUsername = 'Ravarazan'; 
-      else if (day === 4 || day === 6) telegramUsername = 'Erwinhafizz'; 
+      let telegramUsername = 'HakimMajid123';
+      if (day === 3 || day === 6) telegramUsername = 'iammmth'; 
+      else if (day === 4 || day === 5) telegramUsername = 'Aldzikra'; 
       const reasonText = encodeURIComponent(`Saya izin tidak masuk karena ${leaveReason} dari tanggal ${leaveStartDate} hingga ${finalEndDate}`);
       window.location.href = `https://t.me/${telegramUsername}?text=${reasonText}`;
       setLeaveReason('');

@@ -154,13 +154,13 @@ const Profile = () => {
           </div>
           <p className="text-sm text-gray-600">
             To change the Device ID permission, contact the{" "}
-            <a href="https://t.me/zulfifazhar" className="text-primary font-semibold hover:underline">
+            <a href="https://t.me/favianjiwani" className="text-primary font-semibold hover:underline">
               President
             </a>
-            {" "}or{" "}
+            {/* {" "}or{" "}
             <a href="https://t.me/RaflyRayhansyah" className="text-primary font-semibold hover:underline">
               Vice President
-            </a>.
+            </a>. */}
           </p>
           {user?.role === 'user' && (
             <Button variant="destructive" onClick={handleLogout} className=" lg:hidden md:w-fit">

@@ -46,12 +46,12 @@ function getReviewerByDate(dateString?: string | Date): string {
   const d = new Date(dateString);
   const day = d.getDay();
   const reviewers: Record<number, string> = {
-    1: "Favian",
-    2: "Rava",
-    3: "Favian",
-    4: "Erwin",
-    5: "Rava",
-    6: "Erwin",
+    1: "Hakim",
+    2: "Hakim",
+    3: "Ilham",
+    4: "Aldzikra",
+    5: "Aldzikra",
+    6: "Ilham",
   };
   return reviewers[day] ?? "-";
 }
