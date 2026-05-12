@@ -39,6 +39,7 @@ import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, H
 import Image from "next/image";
 import { AttendanceTableProps } from "@/types/AttendanceTableProps";
 import DetailAttendanceCard from "@/features/attendance/components/DetailAttendanceCard";
+import Link from "next/link";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
@@ -62,7 +63,6 @@ const AttendanceTable = ({
   showMenu = true,
   searchQuery = "",
 }: AttendanceTableProps) => {
-  // Local search state like OperationalTable
   const [search, setSearch] = useState(searchQuery ?? "");
   const attendanceHeaders = attendance[activePage] ?? [];
   interface LeaveRequest {
@@ -379,7 +379,10 @@ const AttendanceTable = ({
               </div>
               <div>
                 <p className="font-semibold">Evidancea</p>
-                {selectedLeave.attachment_url ? (
+                <a href={selectedLeave.attachment_url} target="_blank" rel="noopener noreferrer">
+                  {selectedLeave.attachment_url}
+                </a>
+                {/* {selectedLeave.attachment_url ? (
                   <Image
                     src={selectedLeave.attachment_url}
                     alt="Attachment"
@@ -399,7 +402,7 @@ const AttendanceTable = ({
                   />
                 ) : (
                   <span className="text-sm">No attachment</span>
-                )}
+                )} */}
               </div>
             </div>
           )}
