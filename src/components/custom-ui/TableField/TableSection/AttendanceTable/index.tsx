@@ -39,7 +39,6 @@ import { ClockIcon, DocumentTextIcon, ExclamationTriangleIcon, HandRaisedIcon, H
 import Image from "next/image";
 import { AttendanceTableProps } from "@/types/AttendanceTableProps";
 import DetailAttendanceCard from "@/features/attendance/components/DetailAttendanceCard";
-import Link from "next/link";
 
 function getReviewerByDate(dateString?: string | Date): string {
   if (!dateString) return "-";
