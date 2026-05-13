@@ -3,7 +3,7 @@ import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { getAttendance, getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut } from '@/services/attendance/attendanceService';
+import { getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut } from '@/services/attendance/attendanceService';
 import { useRef } from 'react';
 
 type AttendanceRecord = {
