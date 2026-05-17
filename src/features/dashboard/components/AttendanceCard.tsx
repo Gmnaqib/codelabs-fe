@@ -16,7 +16,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
-// import CameraCapture from '@/components/custom-ui/CameraCapture';
 import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,7 +26,7 @@ import CameraCapture from '@/components/custom-ui/CameraCapture';
 
 const AttendanceCard = () => {
   const { user } = useAuth();
-  const localDeviceId = localStorage.getItem('device_id');
+  // const localDeviceId = localStorage.getItem('device_id');
   const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');
