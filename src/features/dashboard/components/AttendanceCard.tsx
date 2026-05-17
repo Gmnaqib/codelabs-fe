@@ -142,7 +142,7 @@ const AttendanceCard = () => {
   const submitCheckin = async (reasonValue: string) => {
     setCheckinLoading(true);
     try {
-      await postCheckIn(localDeviceId ?? '', reasonValue);
+      await postCheckIn(user?.device_id || "", reasonValue);
       const data: AttendanceRecord[] = await getAttendanceToday();
       const found = data.find((item: AttendanceRecord) => item.userId === user!.id && !!item.checkIn);
       toast.success("Check-in berhasil!");
