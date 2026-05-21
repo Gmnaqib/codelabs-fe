@@ -9,16 +9,12 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const VIDEO_WIDTH = 360;
-  const VIDEO_HEIGHT = 640;
 
   const startCamera = async () => {
     try {
       const constraints = {
         video: {
-          facingMode: { exact: 'environment' },
-          width: { ideal: VIDEO_WIDTH },
-          height: { ideal: VIDEO_HEIGHT }
+          facingMode: { exact: 'environment' }
         }
       };
       let mediaStream: MediaStream;
@@ -54,9 +50,14 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
 
   const handleCapture = () => {
     if (!canvasRef.current || !videoRef.current) return;
+    const video = videoRef.current;
+    
+    canvasRef.current.width = video.videoWidth;
+    canvasRef.current.height = video.videoHeight;
+    
     const context = canvasRef.current.getContext('2d');
     if (!context) return;
-    context.drawImage(videoRef.current, 0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
+    context.drawImage(video, 0, 0);
     canvasRef.current.toBlob(blob => {
       if (blob) {
         const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
@@ -74,15 +75,13 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
         <>
           <video
             ref={videoRef}
-            width={VIDEO_WIDTH}
-            height={VIDEO_HEIGHT}
             autoPlay
             playsInline
             muted
             className="rounded border"
-            style={{ background: '#000', transform: 'none' }}
+            style={{ background: '#000', transform: 'none', maxWidth: '360px', maxHeight: '640px' }}
           />
-          <canvas ref={canvasRef} width={VIDEO_WIDTH} height={VIDEO_HEIGHT} style={{ display: 'none' }} />
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
           <div className="flex gap-2 mt-2">
             <button type="button" onClick={handleCapture} className="px-3 py-1 bg-green-500 text-white rounded">Take Picture</button>
             <button type="button" onClick={stopCamera} className="px-3 py-1 bg-gray-400 text-white rounded">Close</button>
