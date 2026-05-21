@@ -377,11 +377,11 @@ const AttendanceTable = ({
                 <p>{selectedLeave.reason}</p>
               </div>
               <div>
-                <p className="font-semibold">Avidancea</p>
-                <a href={selectedLeave.attachment_url} target="_blank" rel="noopener noreferrer">
+                <p className="font-semibold">Evidancea</p>
+                {/* <a href={selectedLeave.attachment_url} target="_blank" rel="noopener noreferrer">
                   {selectedLeave.attachment_url}
-                </a>
-                {/* {selectedLeave.attachment_url ? (
+                </a> */}
+                {selectedLeave.attachment_url ? (
                   <Image
                     src={selectedLeave.attachment_url}
                     alt="Attachment"
@@ -401,7 +401,7 @@ const AttendanceTable = ({
                   />
                 ) : (
                   <span className="text-sm">No attachment</span>
-                )} */}
+                )}
               </div>
             </div>
           )}

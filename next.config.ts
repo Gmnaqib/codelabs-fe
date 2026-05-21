@@ -15,6 +15,9 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   turbopack: {}, 
+  images: {
+    domains: ["cdn.codelabspace.or.id"],
+  },
 };
 
 export default withPWA(nextConfig);
