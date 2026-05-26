@@ -68,19 +68,21 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 w-full px-2">
       {!stream ? (
         <button type="button" onClick={startCamera} className="px-3 py-1 bg-blue-500 text-white rounded">Open Camera</button>
       ) : (
         <>
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="rounded border"
-            style={{ background: '#000', transform: 'none', maxWidth: '360px', maxHeight: '640px' }}
-          />
+          <div className="w-full max-w-xs overflow-hidden rounded border bg-black">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-auto block"
+              style={{ background: '#000', objectFit: 'cover' }}
+            />
+          </div>
           <canvas ref={canvasRef} style={{ display: 'none' }} />
           <div className="flex gap-2 mt-2">
             <button type="button" onClick={handleCapture} className="px-3 py-1 bg-green-500 text-white rounded">Take Picture</button>

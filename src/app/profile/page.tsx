@@ -99,7 +99,7 @@ const Profile = () => {
         <div className="flex flex-col gap-5">
           <div className="flex flex-col items-center">
             <Image
-              src="/icon/profile.png"
+              src={(user?.image || "/logo/LogoAplication.png")}
               alt="profile"
               width={130}
               height={130}
