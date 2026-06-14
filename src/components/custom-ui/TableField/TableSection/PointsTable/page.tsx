@@ -1,9 +1,11 @@
+'use client';
 import { ReportTableProps } from '@/types/ReportTableProps';
 import React, { useEffect, useState } from 'react'
 import { points } from '../../headerConfig';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getKPIMaster } from '@/services/kpi/kpiService';
-import DialogField from '@/components/custom-ui/DialogField';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface ProductsTableProps extends ReportTableProps {
@@ -25,7 +27,7 @@ const PointsTable = ({
 
   const pointsHeaders = points[activePage] ?? [];
   const [kpiItems, setKpiItems] = useState<KPIMasterItem[]>([]);
-  const [editId, setEditId] = useState<string | null>(null);
+  const router = useRouter();
 
   const fetchKPI = async () => {
     try {
@@ -63,24 +65,13 @@ const PointsTable = ({
               <TableCell className='text-center'>{item.kementerian}</TableCell>
               <TableCell className='text-center'>{item.point}</TableCell>
               <TableCell className='flex justify-center'>
-                <DialogField
-                  title={`Detail Points ${item.kementerian}`}
-                  name="Detail"
+                <Button
                   variant='outline'
-                  noPadding
-                  open={editId === item._id}
-                  onOpenChange={(open: boolean) => {
-                    if (open) setEditId(item._id);
-                    else setEditId(null);
-                  }}
-                  onSubmit={async (closeDialog?: () => void) => {
-                    if (closeDialog) closeDialog();
-                  }}
+                  size='sm'
+                  onClick={() => router.push(`/points/details?id=${item._id}`)}
                 >
-                  <div className="p-4">
-                    {/* edit form coming soon */}
-                  </div>
-                </DialogField>
+                  Detail
+                </Button>
               </TableCell>
             </TableRow>
           ))}

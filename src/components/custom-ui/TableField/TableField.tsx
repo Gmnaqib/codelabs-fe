@@ -11,6 +11,7 @@ import {
   ristek,
   products,
   points,
+  pointsdetail,
 } from "./headerConfig";
 import { useTableLogic } from "./useTableLogic";
 
@@ -28,6 +29,7 @@ import ReportTable from "./TableSection/ReportTable/page";
 import { ResearchItem } from "@/types/ReportTableProps";
 import ProductsTable from "./TableSection/ProductsTable/page";
 import PointsTable from "./TableSection/PointsTable/page";
+import PointsDetailTable from "./TableSection/PointsDetailTable/page";
 import ScoringTable from "./TableSection/ScoringTable";
 
 type AssessmentItem = {
@@ -83,6 +85,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
     isPicketSchedule,
     isProducts,
     isPoints,
+    isPointsDetail,
     checkedState,
     handleToggleCheckbox,
   } = useTableLogic(activePage, month, year, data, onPageChange);
@@ -244,6 +247,17 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   if (isPoints)
     return (
       <PointsTable
+        activePage={activePage}
+        onPageChange={onPageChange}
+        showMenu={false}
+        searchQuery={searchQuery}
+        fetchTrigger={fetchTrigger}
+      />
+    );
+
+  if (isPointsDetail)
+    return (
+      <PointsDetailTable
         activePage={activePage}
         onPageChange={onPageChange}
         showMenu={false}
