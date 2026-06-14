@@ -53,5 +53,5 @@ export const products: Record<string, string[]> = {
 };
 
 export const points: Record<string, string[]> = {
-  points: ["Category","Code", "Points", "Action"],
+  points: ["Category","Max Percentage", "Action"],
 };
