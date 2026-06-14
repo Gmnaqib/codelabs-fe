@@ -22,6 +22,7 @@ type KPIDetailItem = {
 const PointsDetailTable = ({
   activePage,
   searchQuery,
+  fetchTrigger,
 }: PointsDetailTableProps) => {
 
   const headers = pointsdetail[activePage] ?? [];
@@ -40,7 +41,7 @@ const PointsDetailTable = ({
       }
     };
     fetchDetail();
-  }, [masterId]);
+  }, [masterId, fetchTrigger]);
 
   const filteredData = searchQuery
     ? detailItems.filter((item) =>
