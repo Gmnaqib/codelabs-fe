@@ -2,44 +2,71 @@
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/login/components/ProtectedRoute'
-import React, { useState, ChangeEvent } from 'react'
+import React, { useState, useEffect, ChangeEvent } from 'react'
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { createKPIItem } from '@/services/points/pointsService';
+import { getKPIMaster, updateKPIMaster } from '@/services/kpi/kpiService';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
+
+type KPIMasterItem = {
+  _id: string;
+  kementerian: string;
+  point: number;
+};
 
 const Points = () => {
   const [activePage, setActivePage] = useState<string>("points");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [category, setCategory] = useState("");
-  const [code, setCode] = useState("");
-  const [point, setPoint] = useState("");
+  const [kpiMasterList, setKpiMasterList] = useState<KPIMasterItem[]>([]);
+  const [selectedKementerian, setSelectedKementerian] = useState("");
+  const [editPoint, setEditPoint] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    const fetchMaster = async () => {
+      try {
+        const data = await getKPIMaster();
+        setKpiMasterList(data);
+      } catch {
+        toast.error("Failed to fetch KPI master");
+      }
+    };
+    fetchMaster();
+  }, [fetchTrigger]);
 
-  const isFormIncomplete = !category || !code || !point;
+  const selectedItem = kpiMasterList.find(
+    (item) => item.kementerian === selectedKementerian
+  );
+
+  const handleKementerianChange = (value: string) => {
+    setSelectedKementerian(value);
+    const item = kpiMasterList.find((i) => i.kementerian === value);
+    setEditPoint(item ? String(item.point) : "");
+  };
+
+  const isFormIncomplete = !selectedKementerian || !editPoint || !selectedItem;
 
   const handleSubmit = async () => {
+    if (!selectedItem) return;
     setLoading(true);
     try {
-      await createKPIItem({ category, code, point: Number(point) });
-      setSuccess(true);
+      await updateKPIMaster(selectedItem._id, {
+        name: selectedKementerian,
+        point: Number(editPoint),
+      });
       setIsDialogOpen(false);
-      setCategory("");
-      setCode("");
-      setPoint("");
+      setSelectedKementerian("");
+      setEditPoint("");
       setFetchTrigger(Date.now());
-      toast.success("Point added successfully!");
+      toast.success("Category updated successfully!");
     } catch {
-      toast.error("Failed to add point.");
+      toast.error("Failed to update category.");
     } finally {
       setLoading(false);
-      setTimeout(() => setSuccess(false), 1200);
     }
   };
 
@@ -48,14 +75,14 @@ const Points = () => {
       <MotionWrapper>
         <div className="flex justify-between mb-10">
           <InputField
-              placeholder="Search by name..."
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
+            placeholder="Search by name..."
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
           <DialogField
-            name="Add Point"
-            title="Add Point"
+            name="Edit Category"
+            title="Edit Category"
             open={isDialogOpen}
             onOpenChange={setIsDialogOpen}
             onSubmit={handleSubmit}
@@ -64,28 +91,25 @@ const Points = () => {
             <form className="flex flex-col gap-3 min-w-56" onSubmit={e => e.preventDefault()}>
               <DropdownField
                 label="Category"
-                menu={["OPERATIONAL", "RESEARCH", "BRANDING", "COMPETITION"]}
-                value={category}
-                onChange={setCategory}
-              />
-              <InputField
-                type="string"
-                placeholder="Ex: THEMATIC"
-                label="Code"
-                value={code}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
+                menu={kpiMasterList.map((item) => item.kementerian)}
+                value={selectedKementerian}
+                onChange={handleKementerianChange}
               />
               <InputField
                 type="number"
-                placeholder="Ex: 5"
+                placeholder="Ex: 30"
                 label="Point"
-                value={point}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPoint(e.target.value)}
+                value={editPoint}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPoint(e.target.value)}
               />
-              {success && <p className="text-green-600 text-sm">Berhasil ditambahkan!</p>}
             </form>
           </DialogField>
         </div>
+        {kpiMasterList.reduce((sum, item) => sum + item.point, 0) < 100 && (
+          <p className="text-md font-medium text-black mb-4">
+            Total Available Percentage : <span className='font-normal text-foreground'>{100 - kpiMasterList.reduce((sum, item) => sum + item.point, 0)}%</span>
+          </p>
+        )}
         <Card className='p-5'>
           <div>
             <TableField

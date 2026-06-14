@@ -41,6 +41,11 @@ export const getKPIMaster = async () => {
   return res.data.data;
 };
 
+export const updateKPIMaster = async (id: string, payload: { name: string; point: number }) => {
+  const res = await axiosClient.put(`/kpi/master/${id}`, payload);
+  return res.data.data;
+};
+
 export const getKPIRankings = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi?year=${year}&month=${month}`);
   const data = res.data.data;
