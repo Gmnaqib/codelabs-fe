@@ -62,6 +62,17 @@ export const createKPIDetail = async (payload: {
   return res.data.data;
 };
 
+export const updateKPIDetail = async (id: string, payload: {
+  kpi_item: string;
+  point: number;
+  max_activity: number;
+  id_kpi_master: string;
+  label: string;
+}) => {
+  const res = await axiosClient.put(`/kpi/detail/${id}`, payload);
+  return res.data.data;
+};
+
 export const getKPIRankings = async (year: number, month: number) => {
   const res = await axiosClient.get(`/kpi?year=${year}&month=${month}`);
   const data = res.data.data;
