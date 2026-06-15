@@ -39,9 +39,7 @@ export const getBrandingById = async (id: string) => {
   return res.data.data;
 };
 
-export const updateBrandingStatus = async (id: string, status: string) => {
-  const res = await axiosClient.patch(`/branding/${id}`, {
-    status: status.toLowerCase(),
-  });
+export const updateBrandingStatus = async (id: string, status: number) => {
+  const res = await axiosClient.patch(`/branding/${id}`, { status });
   return res.data.data;
 };

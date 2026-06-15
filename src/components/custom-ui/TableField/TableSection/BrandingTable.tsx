@@ -52,6 +52,14 @@ interface BrandingTableProps {
   year?: number;
 }
 
+const getStatusLabel = (status: string | number | null | undefined): string => {
+  if (status === null || status === undefined || status === "") return "Pending";
+  const num = Number(status);
+  if (num === 0) return "Rejected";
+  if (num >= 1 && num <= 5) return "Approved";
+  return "Pending";
+};
+
 const BrandingTable = ({
   activePage,
   onPageChange,
@@ -138,17 +146,14 @@ const BrandingTable = ({
     setSelectedId(detail); // detail adalah OBJECT -> sudah benar
   }
   async function handleReview(newStatus: string) {
-    if (!selectedId?._id) {
-      console.error("ID tidak ditemukan. selectedId:", selectedId);
-      return;
-    }
+    if (!selectedId?._id) return;
 
     try {
-      await updateBrandingStatus(selectedId._id, newStatus);
+      await updateBrandingStatus(selectedId._id, Number(newStatus));
       await fetchBranding();
-      toast.success(`Branding ${newStatus.toLowerCase()} successfully!`);
+      toast.success(`Status updated to ${newStatus} successfully!`);
     } catch {
-      toast.error(`Failed to update branding ${newStatus.toLowerCase()}.`);
+      toast.error(`Failed to update branding status.`);
     }
   }
 
@@ -190,10 +195,10 @@ const BrandingTable = ({
                   <TableCell className="text-center">
                     <span
                       className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusColor(
-                        item.status
+                        getStatusLabel(item.status)
                       )}`}
                     >
-                      {item.status}
+                      {getStatusLabel(item.status)}
                     </span>
                   </TableCell>
 
@@ -235,8 +240,8 @@ const BrandingTable = ({
                           <p className="font-semibold mt-2">Status</p>
                         <div className="mt-1">
                           <DropdownField
-                            title={item.status}
-                            menu={["Approved", "Rejected"]}
+                            title="Select Status"
+                            menu={["0", "1", "2", "3", "4", "5"]}
                             onSelect={(value) => handleReview(value)}
                           />
                           </div>
