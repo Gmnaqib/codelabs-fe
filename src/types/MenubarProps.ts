@@ -15,4 +15,5 @@ export interface MenuBarProps {
     filterProps?: FilterProps;
     searchQuery?: string;
     onSearch?: (query: string) => void;
+    onExportExcel?: () => void;
 }

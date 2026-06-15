@@ -12,8 +12,10 @@ import { CalendarMonthYearPicker } from "./CalendarMonthYearPicker"
 
 import { useState } from "react"
 import OperationalAttendance from "@/features/operational/components/OperationalAttendance "
+import { Button } from "@/components/ui/button"
+import { RiFileExcel2Line } from "react-icons/ri"
 
-export function Menubar({ menus, onChange, activeMenu, sort = false, filter, operational = false, search = true, filterProps, searchQuery = "", onSearch }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
+export function Menubar({ menus, onChange, activeMenu, sort = false, filter, operational = false, search = true, filterProps, searchQuery = "", onSearch, onExportExcel }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
     <div className="flex flex-col items-center lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
@@ -61,7 +63,12 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter, ope
 
         {operational && (
           <OperationalAttendance />
-        ) }
+        )}
+        {onExportExcel && (
+          <Button size="sm" onClick={onExportExcel} className="flex items-center gap-2 bg-green-600 hover:border-green-600">
+            <RiFileExcel2Line className="text-white text-lg hover:text-green-600" />
+          </Button>
+        )}
       </div>
 
       {sort && (

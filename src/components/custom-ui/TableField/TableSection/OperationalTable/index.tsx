@@ -160,6 +160,172 @@ const OperationalTable = ({
       return renderAbsenceCell(Number(day), user._id, user.records);
     };
 
+  const handleExportExcel = async () => {
+    const year = selectedDate.year;
+    const month = selectedDate.month + 1;
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+    const [userRes, attendanceRes, thematicRes, picketRes, picketSchRes] = await Promise.all([
+      getAllUsers(),
+      getAttendance(year, month),
+      getOperationalRecords("thematic", undefined, year, month),
+      getOperationalRecords("picket", undefined, year, month),
+      getSchedulesPicket(),
+    ]);
+
+    const schedules: PicketSchedule[] = picketSchRes?.data || picketSchRes || [];
+
+    type ExportAttRecord = { userId: string; status?: string; approval_status?: string; checkIn?: string | Date; checkOut?: string | Date; start_date?: string | Date; end_date?: string | Date; createdAt?: string | Date };
+    type ExportOpRecord = { userId: string; date: string | Date };
+
+    const attByUser: Record<string, ExportAttRecord[]> = {};
+    (attendanceRes as ExportAttRecord[]).forEach((r) => {
+      if (!attByUser[r.userId]) attByUser[r.userId] = [];
+      attByUser[r.userId].push(r);
+    });
+
+    const thematicByUser: Record<string, ExportOpRecord[]> = {};
+    (thematicRes as ExportOpRecord[] || []).forEach((r) => {
+      if (!thematicByUser[r.userId]) thematicByUser[r.userId] = [];
+      thematicByUser[r.userId].push(r);
+    });
+
+    const picketByUser: Record<string, ExportOpRecord[]> = {};
+    (picketRes as ExportOpRecord[] || []).forEach((r) => {
+      if (!picketByUser[r.userId]) picketByUser[r.userId] = [];
+      picketByUser[r.userId].push(r);
+    });
+
+    const getAbsenceStatus = (day: number, user: User): string => {
+      const currentDate = new Date(year, month - 1, day);
+      if (currentDate.getDay() === 0) return "-";
+      const records = attByUser[user._id] || [];
+      const record = records.find((r) => {
+        const start = r.start_date ? new Date(r.start_date) : r.checkIn ? new Date(r.checkIn) : r.createdAt ? new Date(r.createdAt) : null;
+        const end = r.end_date ? new Date(r.end_date) : start;
+        if (!start || !end) return false;
+        if ((r.status === "sick" || r.status === "permit") && r.start_date && r.end_date) {
+          const check = new Date(year, month - 1, day);
+          return check >= start && check <= end;
+        }
+        return start.getDate() === day && start.getMonth() === month - 1 && start.getFullYear() === year;
+      });
+      if (!record) return "Absence";
+      if (record.checkIn && record.checkOut) return "Present";
+      if (record.status === "sick" && record.approval_status === "approved") return "Sick";
+      if (record.status === "permit" && record.approval_status === "approved") return "Permit";
+      return "Absence";
+    };
+
+    const getThematicStatus = (day: number, user: User): string => {
+      const cellDate = new Date(year, month - 1, day);
+      const now = new Date();
+      const endTime = new Date(cellDate); endTime.setHours(17, 30, 0, 0);
+      if (cellDate > now || (cellDate.toDateString() === now.toDateString() && now < endTime)) return "Not Yet";
+      const ops = thematicByUser[user._id] || [];
+      const found = ops.find((r) => { const d = new Date(r.date); return d.getUTCDate() === day && d.getUTCMonth() === month - 1 && d.getUTCFullYear() === year; });
+      return found ? "Thematic" : "No Thematic";
+    };
+
+    const getPicketStatus = (day: number, user: User): string => {
+      const cellDate = new Date(Date.UTC(year, month - 1, day));
+      const now = new Date();
+      const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+      const cellOnly = new Date(cellDate); cellOnly.setUTCHours(0, 0, 0, 0);
+      const cellDateStr = cellDate.toISOString().slice(0, 10);
+      const isScheduled = schedules.some((s) => {
+        const sStr = (typeof s.date === "string" ? s.date : new Date(s.date).toISOString()).slice(0, 10);
+        if (sStr !== cellDateStr) return false;
+        return (s.assignedUsers || []).some((u) => (u.nim && user.nim && String(u.nim) === String(user.nim)) || (u._id && user._id && String(u._id) === String(user._id)));
+      });
+      const ops = picketByUser[user._id] || [];
+      const found = ops.find((r) => { const d = new Date(r.date); return d.getUTCFullYear() === cellDate.getUTCFullYear() && d.getUTCMonth() === cellDate.getUTCMonth() && d.getUTCDate() === cellDate.getUTCDate(); });
+      if (cellOnly > today) return "Not Yet";
+      if (cellOnly.getTime() === today.getTime() && now.getHours() < 17) return "Not Yet";
+      if (!isScheduled) return "-";
+      return found ? "Picket" : "No Picket";
+    };
+
+    const absenceColor: Record<string, { bg: string; fg: string } | null> = {
+      "Absence":  { bg: "FFFF0000", fg: "FFFFFFFF" },
+      "Sick":     { bg: "FF00B050", fg: "FFFFFFFF" },
+      "Present":  { bg: "FF4472C4", fg: "FFFFFFFF" },
+      "Permit":   { bg: "FFFFC000", fg: "FFFFFFFF" },
+    };
+    const thematicColor: Record<string, { bg: string; fg: string } | null> = {
+      "Thematic":    { bg: "FF00B050", fg: "FFFFFFFF" },
+      "No Thematic": { bg: "FFFF0000", fg: "FFFFFFFF" },
+    };
+    const picketColor: Record<string, { bg: string; fg: string } | null> = {
+      "Picket":    { bg: "FF00B050", fg: "FFFFFFFF" },
+      "No Picket": { bg: "FFFF0000", fg: "FFFFFFFF" },
+    };
+
+    const ExcelJS = (await import("exceljs")).default;
+    const wb = new ExcelJS.Workbook();
+    const totalCols = 2 + days.length;
+
+    const buildSheet = (
+      sheetName: string,
+      title: string,
+      getStatus: (day: number, user: User) => string,
+      colorMap: Record<string, { bg: string; fg: string } | null>
+    ) => {
+      const ws = wb.addWorksheet(sheetName);
+
+      // Row 1: title merged & centered
+      ws.mergeCells(1, 1, 1, totalCols);
+      const titleCell = ws.getCell(1, 1);
+      titleCell.value = title;
+      titleCell.alignment = { horizontal: "center", vertical: "middle" };
+      titleCell.font = { name: "Times New Roman", bold: true, size: 14 };
+      ws.getRow(1).height = 30;
+
+      // Row 2: empty
+      ws.getRow(2).height = 8;
+
+      // Row 3: headers
+      const headerRow = ws.getRow(3);
+      headerRow.values = ["", "NIM", "Nama", ...days.map(String)];
+      headerRow.eachCell((cell, col) => {
+        cell.font = { name: "Times New Roman", bold: true };
+        if (col >= 4) cell.alignment = { horizontal: "center", vertical: "middle" };
+      });
+      headerRow.height = 20;
+
+      // Data rows
+      (userRes as User[]).forEach((user, i) => {
+        const row = ws.getRow(4 + i);
+        row.values = ["", user.nim ?? "-", user.name ?? "-", ...days.map((d) => getStatus(d, user))];
+        row.eachCell((cell, col) => {
+          cell.font = { name: "Times New Roman" };
+          if (col >= 4) {
+            cell.alignment = { horizontal: "center", vertical: "middle" };
+            const style = colorMap[cell.value as string];
+            if (style) {
+              cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: style.bg } };
+              cell.font = { name: "Times New Roman", color: { argb: style.fg } };
+            }
+          }
+        });
+      });
+    };
+
+    buildSheet("Absensi",  "Laporan Absensi",  getAbsenceStatus,  absenceColor);
+    buildSheet("Thematic", "Laporan Thematic", getThematicStatus, thematicColor);
+    buildSheet("Picket",   "Laporan Picket",   getPicketStatus,   picketColor);
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Laporan_Operasional_${year}_${String(month).padStart(2, "0")}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="text-center py-10 text-gray-500">
@@ -177,6 +343,7 @@ const OperationalTable = ({
           onChange={onChange => onPageChange(onChange)}
           filter
           operational
+          
           search={true}
           filterProps={{
             onChange: (val: { year: number; month: number }) => setSelectedDate(val),
@@ -185,6 +352,7 @@ const OperationalTable = ({
           }}
           searchQuery={search}
           onSearch={setSearch}
+          onExportExcel={handleExportExcel}
         />
       )}
 
