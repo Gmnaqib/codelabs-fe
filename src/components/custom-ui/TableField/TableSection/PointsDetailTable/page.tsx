@@ -17,6 +17,7 @@ type KPIDetailItem = {
   kpi_item: string;
   point: number;
   label: string;
+  max_activity: number;
 };
 
 const PointsDetailTable = ({
@@ -66,6 +67,7 @@ const PointsDetailTable = ({
             <TableRow key={item._id || idx}>
               <TableCell className='text-center'>{item.kpi_item}</TableCell>
               <TableCell className='text-center'>{item.point}</TableCell>
+              <TableCell className='text-center'>{item.max_activity}</TableCell>
               <TableCell className='text-center'>{item.label}</TableCell>
             </TableRow>
           ))}
