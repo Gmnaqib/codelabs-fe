@@ -2,7 +2,7 @@
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/login/components/ProtectedRoute'
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, useEffect, ChangeEvent, Suspense } from 'react'
 import InputField from '@/components/custom-ui/InputField';
 import DialogField from '@/components/custom-ui/DialogField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
@@ -25,6 +25,14 @@ type KPIDetailItem = {
 };
 
 const PointsDetails = () => {
+  return (
+    <Suspense fallback={null}>
+      <PointsDetailsContent />
+    </Suspense>
+  );
+};
+
+const PointsDetailsContent = () => {
   const searchParams = useSearchParams();
   const masterId = searchParams.get('id') ?? '';
 

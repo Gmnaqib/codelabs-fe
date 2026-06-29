@@ -4,7 +4,7 @@ import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three-stdlib';
 import CardField from "@/components/custom-ui/CardField";
-import { getAllSchedules } from "@/services/picket/picketService";
+import { getTodayPicketSchedule } from "@/services/picket/picketService";
 import { Label } from "@/components/ui/label";
 import { PicketPerson } from "@/types/PicketPersonProps";
 import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
@@ -16,25 +16,12 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
         type AssignedUser = { _id: string; name: string };
         type Schedule = { assignedUsers?: AssignedUser[] };
-        const data: Schedule[] = await getAllSchedules({ year, month, day, type: 'picket' });
+        const data: Schedule[] = await getTodayPicketSchedule();
         const withUsers = data.filter((d) => d.assignedUsers && d.assignedUsers.length > 0);
         const users: AssignedUser[] = withUsers.length > 0 ? withUsers[0].assignedUsers! : [];
-        const getWeekNumber = (date: Date) => {
-          const firstDay = new Date(date.getFullYear(), 0, 1);
-          const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
-          return Math.ceil((days + firstDay.getDay() + 1) / 7);
-        };
-        const week = getWeekNumber(today);
-        const maxPicket = 6;
-        const limitedUsers = users.slice(0, maxPicket);
-        const rotated = limitedUsers.slice(week % limitedUsers.length).concat(limitedUsers.slice(0, week % limitedUsers.length));
-        const names: PicketPerson[] = rotated.map((u) => ({
+        const names: PicketPerson[] = users.map((u) => ({
           name: u.name,
           userId: u._id,
         }));

@@ -4,7 +4,7 @@
   import { Checkbox } from '@/components/ui/checkbox';
   import DialogField from '@/components/custom-ui/DialogField';
   import { picketschedule } from '../../headerConfig';
-  import { getAllSchedules, getOperationalRecords, postOperationalRecord, deleteOperationalRecord, getRangeSchedules, swapPicketUsers } from '@/services/picket/picketService';
+  import { getTodayPicketSchedule, getOperationalRecords, postOperationalRecord, deleteOperationalRecord, getUpcomingPicketScheduleForSwap, swapPicketUsers } from '@/services/picket/picketService';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ReportTableProps } from '@/types/ReportTableProps';
@@ -48,26 +48,13 @@ const PicketScheduleTable = ({
     const fetchSchedules = async () => {
       setLoading(true);
       try {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const data = await getAllSchedules({ year, month, day });
+        const data = await getTodayPicketSchedule();
         const operationalRecords = await getOperationalRecords();
         const withUsers = data.filter((d: Schedule) => d.assignedUsers && d.assignedUsers.length > 0);
         const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
         const scheduleIdValue = withUsers.length > 0 ? withUsers[0]._id : '';
         setScheduleId(scheduleIdValue);
-        const getWeekNumber = (date: Date) => {
-          const firstDay = new Date(date.getFullYear(), 0, 1);
-          const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
-          return Math.ceil((days + firstDay.getDay() + 1) / 7);
-        };
-        const week = getWeekNumber(today);
-        const maxPicket = 6;
-        const limitedUsers = users.slice(0, maxPicket);
-        const rotated = limitedUsers.slice(week % limitedUsers.length).concat(limitedUsers.slice(0, week % limitedUsers.length));
-        setPicketData(rotated);
+        setPicketData(users);
         const checked: { [key: string]: boolean } = {};
         const ids: { [key: string]: string } = {};
         (operationalRecords as OperationalRecord[]).forEach((rec) => {
@@ -79,8 +66,14 @@ const PicketScheduleTable = ({
         setCheckedUsers(checked);
         setRecordIds(ids);
 
-        const range = await getRangeSchedules({});
-        setRangeSchedules(range);
+        // jangan tawarkan swap dengan orang yang sudah piket hari ini
+        const todayUserIds = new Set(users.map((u: AssignedUser) => u._id));
+        const range = await getUpcomingPicketScheduleForSwap();
+        const filteredRange = range.map((schedule: Schedule) => ({
+          ...schedule,
+          assignedUsers: (schedule.assignedUsers || []).filter((u: AssignedUser) => !todayUserIds.has(u._id)),
+        }));
+        setRangeSchedules(filteredRange);
       } catch {
         setPicketData([]);
         setCheckedUsers({});
@@ -246,26 +239,18 @@ const PicketScheduleTable = ({
                                       });
                                     }
 
-                                    const range = await getRangeSchedules({});
-                                    setRangeSchedules(range);
-
-                                    const today = new Date();
-                                    const year = today.getFullYear();
-                                    const month = String(today.getMonth() + 1).padStart(2, '0');
-                                    const day = String(today.getDate()).padStart(2, '0');
-                                    const data = await getAllSchedules({ year, month, day });
+                                    const data = await getTodayPicketSchedule();
                                     const withUsers = data.filter((d: Schedule) => d.assignedUsers && d.assignedUsers.length > 0);
                                     const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
-                                    const getWeekNumber = (date: Date) => {
-                                      const firstDay = new Date(date.getFullYear(), 0, 1);
-                                      const days = Math.floor((date.getTime() - firstDay.getTime()) / (24 * 60 * 60 * 1000));
-                                      return Math.ceil((days + firstDay.getDay() + 1) / 7);
-                                    };
-                                    const week = getWeekNumber(today);
-                                    const maxPicket = 6;
-                                    const limitedUsers = users.slice(0, maxPicket);
-                                    const rotated = limitedUsers.slice(week % limitedUsers.length).concat(limitedUsers.slice(0, week % limitedUsers.length));
-                                    setPicketData(rotated);
+                                    setPicketData(users);
+
+                                    const todayUserIds = new Set(users.map((u: AssignedUser) => u._id));
+                                    const range = await getUpcomingPicketScheduleForSwap();
+                                    const filteredRange = range.map((sch: Schedule) => ({
+                                      ...sch,
+                                      assignedUsers: (sch.assignedUsers || []).filter((u: AssignedUser) => !todayUserIds.has(u._id)),
+                                    }));
+                                    setRangeSchedules(filteredRange);
                                     toast.success('Berhasil mengganti piket!');
                                   } catch (err) {
                                     console.error('Swap failed', err);
