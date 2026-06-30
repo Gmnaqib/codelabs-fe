@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
 import { getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut, checkNetwork } from '@/services/attendance/attendanceService';
+import { getTimeSettingByCode, TimeSetting } from '@/services/timeSetting/timeSettingService';
 import { useRef } from 'react';
 
 type AttendanceRecord = {
@@ -24,6 +25,18 @@ import { ArrowUpRightIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import CameraCapture from '@/components/custom-ui/CameraCapture';
 
+const toMin = (hhmm: string) => {
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + (m ?? 0);
+};
+
+const getDayCode = (): "WEEKDAY" | "SATURDAY" | "SUNDAY" => {
+  const day = new Date().getDay();
+  if (day === 0) return "SUNDAY";
+  if (day === 6) return "SATURDAY";
+  return "WEEKDAY";
+};
+
 const AttendanceCard = () => {
   const { user } = useAuth();
   const [showDateModal, setShowDateModal] = useState(false);
@@ -40,14 +53,23 @@ const AttendanceCard = () => {
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reason, setReason] = useState('');
-  const now = new Date();
-  const hour = now.getHours();
+  const [timeSetting, setTimeSetting] = useState<TimeSetting | null>(null);
 
-  // Check-in: 06.00–14.00 | Late (butuh reason): 12.00–14.00
-  const canCheckIn = hour >= 6 && hour < 14;
-  const isLateCheckin = hour >= 12 && hour < 14;
-  // Check-out: 11.00–24.00
-  const canCheckOut = hour >= 11;
+  const dayCode = getDayCode();
+  const isSunday = dayCode === "SUNDAY";
+
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  const canCheckIn = timeSetting
+    ? nowMin >= toMin(timeSetting.checkin) && nowMin < toMin(timeSetting.checkinlatelimit)
+    : false;
+  const isLateCheckin = timeSetting
+    ? nowMin >= toMin(timeSetting.checkinlimit) && nowMin < toMin(timeSetting.checkinlatelimit)
+    : false;
+  const canCheckOut = timeSetting
+    ? nowMin >= toMin(timeSetting.checkout)
+    : false;
 
   const handlePermissionSubmit = async () => {
     if (!leaveType || !leaveReason || !leaveStartDate || !leaveAttachment) {
@@ -89,6 +111,11 @@ const AttendanceCard = () => {
   useEffect(() => {
     checkNetwork().then(setIsOnNetwork).catch(() => setIsOnNetwork(false));
   }, []);
+
+  useEffect(() => {
+    if (isSunday) return;
+    getTimeSettingByCode(dayCode).then(setTimeSetting).catch(() => setTimeSetting(null));
+  }, [dayCode, isSunday]);
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -178,7 +205,17 @@ const AttendanceCard = () => {
   return (
     <CardField title="Attendance" icon={<CalendarDaysIcon />} bg>
       <div className="flex flex-col items-center">
-        {loading ? (
+        {isSunday ? (
+          <>
+            <Button disabled variant="link">
+              <div className="w-32 h-32 rounded-full flex flex-col items-center justify-center mt-16 bg-gray-300">
+                <Image src="/icon/attendance-hand.png" alt="Icon Check-In" width={40} height={40} />
+                <p className="text-white text-sm mt-2">CHECK IN</p>
+              </div>
+            </Button>
+            <p className="text-center text-sm mt-32">Attendance is not available on Sunday.</p>
+          </>
+        ) : loading || !timeSetting ? (
           <p className="text-center text-sm mt-5">Loading...</p>
         ) : isCheckedIn ? (
           <>
@@ -213,7 +250,7 @@ const AttendanceCard = () => {
               <>
                 <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
                 <p className="text-center text-sm mt-5">
-                  Welcome to Codelabs! You are successfully check in today. Check-out available from 11:00.
+                  Welcome to Codelabs! You are successfully check in today. Check-out available from {timeSetting.checkout}.
                 </p>
               </>
             )}
@@ -252,7 +289,9 @@ const AttendanceCard = () => {
                     </div>
                   </DialogField>
                   <p className="text-center text-sm mt-24">
-                    Late check-in (12:00–14:00) requires a reason.
+                    {isOnNetwork === false
+                      ? "You must be connected to the Codelabs network to record attendance."
+                      : "Welcome! You are late, please provide a reason for check-in."}
                   </p>
                 </>
               ) : (
@@ -274,7 +313,7 @@ const AttendanceCard = () => {
                   </div>
                 </Button>
                 <p className="text-center text-sm mt-32">
-                  Check-in is only available from 06:00 to 14:00.
+                  Check-in is only available from {timeSetting.checkin} to {timeSetting.checkinlatelimit}.
                 </p>
               </>
             )}

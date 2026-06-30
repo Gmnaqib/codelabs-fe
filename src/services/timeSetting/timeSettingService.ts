@@ -19,3 +19,12 @@ export const updateTimeSetting = async (id: string, payload: Partial<Omit<TimeSe
   const { data } = await axiosClient.patch(`/time-setting/${id}`, payload);
   return data.data;
 };
+
+export const getTimeSettingByCode = async (code: string): Promise<TimeSetting | null> => {
+  try {
+    const { data } = await axiosClient.get(`/time-setting/code/${code}`);
+    return data.data ?? null;
+  } catch {
+    return null;
+  }
+};
