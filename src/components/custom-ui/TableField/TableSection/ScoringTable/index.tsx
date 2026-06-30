@@ -11,7 +11,7 @@ import DialogField from "../../../DialogField";
 import InputField from "../../../InputField";
 import { DropdownField } from "../../../DropdownField";
 import { getStatusColor } from "@/utils/statusColor";
-import { getKPIMeResearch } from "@/services/kpi/kpiService";
+import { getKPIMeResearch, getKPIItemsByKementerian } from "@/services/kpi/kpiService";
 
 const ScoringTable = ({
   activePage,
@@ -24,6 +24,7 @@ const ScoringTable = ({
   const [addCompetitionDeadline, setAddCompetitionDeadline] = useState("");
   const [addCompetitionLink, setAddCompetitionLink] = useState("");
   const [addCompetitionType, setAddCompetitionType] = useState("");
+  const [addCompetitionCategory, setAddCompetitionCategory] = useState("");
   const [addBrandingName, setAddBrandingName] = useState("");
   const [addBrandingDescription, setAddBrandingDescription] = useState("");
   const [addBrandingLink, setAddBrandingLink] = useState("");
@@ -38,6 +39,7 @@ const ScoringTable = ({
     setAddCompetitionDeadline("");
     setAddCompetitionLink("");
     setAddCompetitionType("");
+    setAddCompetitionCategory("");
   };
   const resetAddBranding = () => {
     setAddBrandingName("");
@@ -56,6 +58,7 @@ const ScoringTable = ({
         deadline: addCompetitionDeadline,
         link: addCompetitionLink,
         type: addCompetitionType,
+        category: addCompetitionCategory,
       };
       await addCompetition(payload);
       setOpenAddDialog(false);
@@ -242,18 +245,27 @@ const ScoringTable = ({
   useEffect(() => {
     if (activePage === "Competition") {
       setLoadingCompetition(true);
-      getMeCompetition(filterYear, filterMonth + 1) 
+      getMeCompetition(filterYear, filterMonth + 1)
         .then((res) => setCompetitionData(res || []))
         .finally(() => setLoadingCompetition(false));
+      if (competitionCategories.length === 0) {
+        getKPIItemsByKementerian("competition").then(setCompetitionCategories).catch(() => setCompetitionCategories([]));
+      }
     } else if (activePage === "Branding") {
       setLoadingBranding(true);
       getMyBranding(filterYear, filterMonth + 1)
         .then((res) => setBrandingData(res || []))
         .finally(() => setLoadingBranding(false));
+      if (brandingCategories.length === 0) {
+        getKPIItemsByKementerian("branding").then(setBrandingCategories).catch(() => setBrandingCategories([]));
+      }
     }
   }, [activePage, filterYear, filterMonth]);
 
-    const [myResearch, setMyResearch] = useState<{ totalApproved?: number; totalPoint?: number } | null>(null);
+    const [competitionCategories, setCompetitionCategories] = useState<string[]>([]);
+  const [brandingCategories, setBrandingCategories] = useState<string[]>([]);
+
+  const [myResearch, setMyResearch] = useState<{ totalApproved?: number; totalPoint?: number } | null>(null);
 
   const [myOperational, setMyOperational] = useState<{ totalAttendance?: number; totalTematik?: number; totalPicket?: number; totalPoint?: number; year?: number; month?: number } | null>(null);
   useEffect(() => {
@@ -297,7 +309,7 @@ const ScoringTable = ({
               onOpenChange={setOpenAddDialog}
               onSubmit={activePage === "Competition" ? handleAddCompetition : handleAddBranding}
               submitDisabled={loadingAdd || (activePage === "Competition"
-                ? !addCompetitionName || !addCompetitionDescription || !addCompetitionDeadline || !addCompetitionLink || !addCompetitionType
+                ? !addCompetitionName || !addCompetitionDescription || !addCompetitionDeadline || !addCompetitionLink || !addCompetitionType || !addCompetitionCategory
                 : !addBrandingName || !addBrandingDescription || !addBrandingLink || !addBrandingResearch || !addBrandingLevel)}
             >
               {loadingAdd ? (
@@ -340,6 +352,14 @@ const ScoringTable = ({
                     value={addCompetitionType}
                     onChange={(value) => setAddCompetitionType(value)}
                   />
+                  <DropdownField
+                    key="category-input"
+                    title="Category"
+                    menu={competitionCategories}
+                    label="Category"
+                    value={addCompetitionCategory}
+                    onChange={(value) => setAddCompetitionCategory(value)}
+                  />
                 </div>
               ) : (
                 <div className="flex flex-col gap-5">
@@ -367,7 +387,7 @@ const ScoringTable = ({
                   <DropdownField
                     key="research-branding-input"
                     title="research"
-                    menu={["website", "mobile", "game", "ui/ux", "data", "other"]}
+                    menu={brandingCategories}
                     label="research"
                     value={addBrandingResearch}
                     onChange={(value) => setAddBrandingResearch(value)}
@@ -659,7 +679,7 @@ const ScoringTable = ({
                             <DropdownField
                               key="research-branding-input"
                               title="research"
-                              menu={["website", "mobile", "game", "ui/ux", "data", "other"]}
+                              menu={brandingCategories}
                               label="research"
                               value={editBrandingResearch}
                               onChange={(value) => setEditBrandingResearch(value)}

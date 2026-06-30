@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import React, { useState } from "react";
 import { createResearchRecord } from "@/services/research/researchService";
+import { getKPIItemsByKementerian } from "@/services/kpi/kpiService";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
@@ -20,6 +21,12 @@ const WeeklyReport = () => {
   const [progress, setProgress] = useState("");
   const [link, setLink] = useState("");
   const [challenge, setChallenge] = useState("");
+  const [category, setCategory] = useState("");
+  const [researchCategories, setResearchCategories] = useState<string[]>([]);
+
+  React.useEffect(() => {
+    getKPIItemsByKementerian("research").then(setResearchCategories).catch(() => setResearchCategories([]));
+  }, []);
   const [filterWeek, setFilterWeek] = useState("All");
   const [filterProgress, setFilterProgress] = useState("All");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -28,8 +35,8 @@ const WeeklyReport = () => {
   const [fetchTrigger, setFetchTrigger] = useState(0);
 
   const handleSubmit = async () => {
-    if (!title || !week || !progress) {
-      showErrorToast("Harap isi semua field wajib (Title, Week, Progress)", {
+    if (!title || !week || !progress || !category) {
+      showErrorToast("Harap isi semua field wajib (Title, Week, Progress, Category)", {
         duration: 5000,
       });
       return;
@@ -46,8 +53,7 @@ const WeeklyReport = () => {
 
     const payload = {
       week: weekNumber,
-      category: "personal",
-      research_type: "Literature Review",
+      category,
       title,
       link: link || "https://example.com/research",
       progress: progress.toLowerCase(),
@@ -62,6 +68,7 @@ const WeeklyReport = () => {
       setProgress("");
       setLink("");
       setChallenge("");
+      setCategory("");
       setIsDialogOpen(false);
       setFetchTrigger(Date.now());
     } catch (error: unknown) {
@@ -105,7 +112,7 @@ const WeeklyReport = () => {
           <div>
             {(() => {
               const isLinkValid = link.startsWith("https://");
-              const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid;
+              const isFormIncomplete = !title || !week || !progress || !link || !challenge || !isLinkValid || !category;
               return (
                 <DialogField
                   name="Add New Plan"
@@ -141,6 +148,13 @@ const WeeklyReport = () => {
                         onChange={(value) => setProgress(value)}
                       />
                     </div>
+                    <DropdownField
+                      key="category-input"
+                      title="Category"
+                      menu={researchCategories}
+                      label="Category"
+                      onChange={(value) => setCategory(value)}
+                    />
 
                     <div className="flex flex-col gap-1">
                       <InputField
