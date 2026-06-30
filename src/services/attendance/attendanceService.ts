@@ -93,6 +93,11 @@ export const postCheckOutByOperational = async (userId: string, reasonCheckOut: 
   return res.data;
 };
 
+export const postCheckOutAllByOperational = async (reasonCheckOut: string) => {
+  const res = await axiosClient.patch('/attendance/checkout-all-by-operational', { reasonCheckOut });
+  return res.data;
+};
+
 export const getAttendance = async (year: number, month: number) => {
   const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}`);
   return res.data.data;

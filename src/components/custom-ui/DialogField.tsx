@@ -63,7 +63,7 @@ const DialogField = (props: DialogFieldProps) => {
       </DialogTrigger>
 
       <DialogPortal>
-        <DialogContent className="fixed left-1/2 top-1/2 w-full max-w-xs sm:max-w-xs md:max-w-lg lg:max-w-2xl -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-lg">
+        <DialogContent className="fixed left-1/2 top-1/2 w-[calc(100%-2rem)] max-w-xs sm:max-w-xs md:max-w-lg lg:max-w-2xl -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-lg max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold mb-3 text-left">
               {title}

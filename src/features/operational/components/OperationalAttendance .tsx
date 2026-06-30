@@ -1,8 +1,9 @@
 import DialogField from '@/components/custom-ui/DialogField';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { PencilSquareIcon } from '@heroicons/react/24/solid';
 import React, { useState, useEffect } from 'react'
-import { getAttendanceToday, postCheckOutByOperational, postLeaveRequestByOperational } from '@/services/attendance/attendanceService';
+import { getAttendanceToday, postCheckOutByOperational, postCheckOutAllByOperational, postLeaveRequestByOperational } from '@/services/attendance/attendanceService';
 import { getAllUsers } from '@/services/users/userService';
 import InputField from '@/components/custom-ui/InputField';
 import imageCompression from 'browser-image-compression';
@@ -30,6 +31,9 @@ const OperationalAttendance  = () => {
     const [leaveEndDate, setLeaveEndDate] = useState('');
     const [leaveAttachment, setLeaveAttachment] = useState<File | Blob | null>(null);
     const [showDateModal, setShowDateModal] = useState(false);
+    const [checkoutAllDialogOpen, setCheckoutAllDialogOpen] = useState(false);
+    const [checkoutAllReason, setCheckoutAllReason] = useState('');
+    const [checkoutAllLoading, setCheckoutAllLoading] = useState(false);
 
     type User = { _id: string; name: string; status: string };
     type Attendance = { checkIn?: string; checkOut?: string; userId: string };
@@ -77,7 +81,7 @@ const OperationalAttendance  = () => {
         <div>
             <DialogField
                 name={<PencilSquareIcon className="size-5" />}
-                title="Operational Mode"
+                title="Attendance Control"
                 noPadding
                 open={mainDialogOpen}
                 onOpenChange={setMainDialogOpen}
@@ -85,21 +89,35 @@ const OperationalAttendance  = () => {
                 <div className="flex justify-center mb-4">
                     <Button
                         variant="link"
-                        className="w-80 flex items-center rounded-full relative select-none border border-gray-300 bg-gray-200 transition-colors duration-300"
+                        className="w-full flex items-center rounded-full relative select-none border border-gray-300 bg-gray-200 transition-colors duration-300 px-1"
                         onClick={() => setMode(mode === 'Checkout' ? 'Permit' : 'Checkout')}
                     >
                         <span
-                            className="absolute left-1 h-10 w-40 rounded-full transition-transform duration-300 bg-primary"
-                            style={{ transform: mode === 'Checkout' ? 'translateX(0)' : 'translateX(150px)' }}
+                            className="absolute left-1 h-10 w-[calc(50%-4px)] rounded-full transition-transform duration-300 bg-primary"
+                            style={{ transform: mode === 'Checkout' ? 'translateX(0)' : 'translateX(calc(100% + 4px))' }}
                         />
                         <span className="w-full flex justify-between items-center relative z-10">
-                            <span className={`w-40 text-center text-base font-semibold leading-6 transition-colors duration-300 -ml-5 ${mode === 'Checkout' ? 'text-white' : 'text-gray-600'}`}>Checkout</span>
-                            <span className={`w-40 text-center text-base font-semibold leading-6 transition-colors duration-300 -mr-5 ${mode === 'Permit' ? 'text-white' : 'text-gray-600'}`}>Permit</span>
+                            <span className={`w-1/2 text-center text-base font-semibold leading-6 transition-colors duration-300 ${mode === 'Checkout' ? 'text-white' : 'text-gray-600'}`}>Checkout</span>
+                            <span className={`w-1/2 text-center text-base font-semibold leading-6 transition-colors duration-300 ${mode === 'Permit' ? 'text-white' : 'text-gray-600'}`}>Permit</span>
                         </span>
                     </Button>
                 </div>
                 {mode === 'Checkout' ? (
-                    <div className="flex flex-col gap-2 mt-2 max-h-80 overflow-y-auto">
+                    <div className="flex flex-col gap-2 mt-2">
+                        <div className="flex items-center justify-between px-1">
+                            <span className="text-sm text-gray-500">{checkoutUserIds.length} member{checkoutUserIds.length !== 1 ? 's' : ''} checked in</span>
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                disabled={checkoutUserIds.length === 0}
+                                onClick={() => { setCheckoutAllReason(''); setCheckoutAllDialogOpen(true); }}
+                            >
+                                Checkout All
+                            </Button>
+                        </div>
+                        <hr />
+                        <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
                         {checkoutUserIds.length > 0 ? (
                             checkoutUserIds.map((id) => (
                                 <div key={id} className="flex flex-col gap-2">
@@ -135,7 +153,7 @@ const OperationalAttendance  = () => {
                                     try {
                                         await postCheckOutByOperational(openDialogUserId, reason);
                                         toast.success('Checkout successful');
-                                        setMainDialogOpen(false); // Close main dialog
+                                        setMainDialogOpen(false);
                                     } catch {
                                         toast.error('Checkout failed');
                                     } finally {
@@ -158,6 +176,46 @@ const OperationalAttendance  = () => {
                                 </div>
                             </DialogField>
                         )}
+                        </div>
+                        <Dialog open={checkoutAllDialogOpen} onOpenChange={setCheckoutAllDialogOpen}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Checkout All</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex flex-col gap-2 py-2">
+                                    <InputField
+                                        label="Reason"
+                                        type="text"
+                                        placeholder="e.g. end of operational hours"
+                                        value={checkoutAllReason}
+                                        onChange={e => setCheckoutAllReason(e.target.value)}
+                                    />
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setCheckoutAllDialogOpen(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        disabled={checkoutAllLoading || !checkoutAllReason}
+                                        onClick={async () => {
+                                            setCheckoutAllLoading(true);
+                                            try {
+                                                const result = await postCheckOutAllByOperational(checkoutAllReason);
+                                                toast.success(`${result.data?.checkedOut ?? 0} user(s) checked out`);
+                                                setCheckoutAllDialogOpen(false);
+                                                setMainDialogOpen(false);
+                                            } catch {
+                                                toast.error('Checkout all failed');
+                                            } finally {
+                                                setCheckoutAllLoading(false);
+                                            }
+                                        }}
+                                    >
+                                        {checkoutAllLoading ? 'Processing...' : 'Confirm'}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2 mt-2 max-h-80 overflow-y-auto">

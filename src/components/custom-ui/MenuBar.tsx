@@ -19,7 +19,7 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter, ope
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
     <div className="flex flex-col items-center lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
-      <MenubarRoot className="grid grid-cols-2 lg:flex lg:gap-0">
+      <MenubarRoot className="grid grid-cols-2 sm:grid-cols-4 lg:gap-0">
         {menus.map((menu) => {
           const isActive = activeMenu === menu;
           return (
