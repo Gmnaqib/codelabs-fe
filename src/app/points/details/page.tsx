@@ -5,6 +5,8 @@ import ProtectedRoute from '@/features/login/components/ProtectedRoute'
 import React, { useState, useEffect, ChangeEvent, Suspense } from 'react'
 import InputField from '@/components/custom-ui/InputField';
 import DialogField from '@/components/custom-ui/DialogField';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { createKPIDetail, getKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
 import { toast } from 'sonner';
@@ -40,7 +42,6 @@ const PointsDetailsContent = () => {
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [detailList, setDetailList] = useState<KPIDetailItem[]>([]);
 
   // Add dialog state
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -49,42 +50,26 @@ const PointsDetailsContent = () => {
   const [maxActivity, setMaxActivity] = useState("");
   const [label, setLabel] = useState("");
 
-  // Edit dialog state
+  // Edit dialog state (triggered from row)
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedItemName, setSelectedItemName] = useState("");
+  const [editItem, setEditItem] = useState<KPIDetailItem | null>(null);
   const [editKpiItem, setEditKpiItem] = useState("");
   const [editPoint, setEditPoint] = useState("");
   const [editMaxActivity, setEditMaxActivity] = useState("");
   const [editLabel, setEditLabel] = useState("");
 
-  useEffect(() => {
-    if (!masterId) return;
-    const fetchDetail = async () => {
-      try {
-        const data = await getKPIDetail(masterId);
-        setDetailList(Array.isArray(data) ? data : [data]);
-      } catch {
-        toast.error("Failed to fetch KPI detail");
-      }
-    };
-    fetchDetail();
-  }, [masterId, fetchTrigger]);
-
-  const selectedEditItem = detailList.find((i) => i.kpi_item === selectedItemName);
-
-  const handleSelectEditItem = (name: string) => {
-    setSelectedItemName(name);
-    const item = detailList.find((i) => i.kpi_item === name);
-    if (item) {
-      setEditKpiItem(item.kpi_item);
-      setEditPoint(String(item.point));
-      setEditMaxActivity(String(item.max_activity));
-      setEditLabel(item.label);
-    }
-  };
-
   const isAddIncomplete = !kpiItem || !point || !maxActivity || !label;
-  const isEditIncomplete = !selectedItemName || !editKpiItem || !editPoint || !editMaxActivity || !editLabel;
+  const isEditIncomplete = !editKpiItem || !editPoint || !editMaxActivity || !editLabel;
+
+  const handleEditClick = (item: unknown) => {
+    const kpiDetail = item as KPIDetailItem;
+    setEditItem(kpiDetail);
+    setEditKpiItem(kpiDetail.kpi_item);
+    setEditPoint(String(kpiDetail.point));
+    setEditMaxActivity(String(kpiDetail.max_activity));
+    setEditLabel(kpiDetail.label);
+    setIsEditOpen(true);
+  };
 
   const handleAdd = async () => {
     setLoading(true);
@@ -114,10 +99,10 @@ const PointsDetailsContent = () => {
   };
 
   const handleEdit = async () => {
-    if (!selectedEditItem) return;
+    if (!editItem) return;
     setLoading(true);
     try {
-      await updateKPIDetail(selectedEditItem._id, {
+      await updateKPIDetail(editItem._id, {
         kpi_item: editKpiItem,
         point: Number(editPoint),
         max_activity: Number(editMaxActivity),
@@ -126,7 +111,7 @@ const PointsDetailsContent = () => {
       });
       toast.success("KPI detail updated successfully!");
       setIsEditOpen(false);
-      setSelectedItemName("");
+      setEditItem(null);
       setFetchTrigger(Date.now());
     } catch (err: unknown) {
       const message =
@@ -148,93 +133,44 @@ const PointsDetailsContent = () => {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
-          <div className="flex gap-2">
-            <DialogField
-              name="Edit Items"
-              title="Edit KPI Item"
-              open={isEditOpen}
-              onOpenChange={(open) => {
-                setIsEditOpen(open);
-                if (!open) setSelectedItemName("");
-              }}
-              onSubmit={handleEdit}
-              submitDisabled={isEditIncomplete || loading}
-            >
-              <form className="flex flex-col gap-3 min-w-56" onSubmit={e => e.preventDefault()}>
-                <DropdownField
-                  label="Select Item"
-                  menu={detailList.map((i) => i.kpi_item)}
-                  value={selectedItemName}
-                  onChange={handleSelectEditItem}
-                />
-                <DropdownField
-                  label="Label"
-                  menu={Object.values(KPILabel)}
-                  value={editLabel}
-                  onChange={setEditLabel}
-                />
-                <InputField
-                  type="text"
-                  placeholder="Ex: picket"
-                  label="KPI Item"
-                  value={editKpiItem}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditKpiItem(e.target.value)}
-                />
-                <InputField
-                  type="number"
-                  placeholder="Ex: 15"
-                  label="Point"
-                  value={editPoint}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPoint(e.target.value)}
-                />
-                <InputField
-                  type="number"
-                  placeholder="Ex: 10"
-                  label="Max Activity"
-                  value={editMaxActivity}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditMaxActivity(e.target.value)}
-                />
-              </form>
-            </DialogField>
-            <DialogField
-              name="Add Detail"
-              title="Add KPI Detail"
-              open={isAddOpen}
-              onOpenChange={setIsAddOpen}
-              onSubmit={handleAdd}
-              submitDisabled={isAddIncomplete || loading}
-            >
-              <form className="flex flex-col gap-3 min-w-56" onSubmit={e => e.preventDefault()}>
-                <DropdownField
-                  label="Label"
-                  menu={Object.values(KPILabel)}
-                  value={label}
-                  onChange={setLabel}
-                />
-                <InputField
-                  type="text"
-                  placeholder="Ex: picket"
-                  label="KPI Item"
-                  value={kpiItem}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setKpiItem(e.target.value)}
-                />
-                <InputField
-                  type="number"
-                  placeholder="Ex: 15"
-                  label="Point"
-                  value={point}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setPoint(e.target.value)}
-                />
-                <InputField
-                  type="number"
-                  placeholder="Ex: 10"
-                  label="Max Activity"
-                  value={maxActivity}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setMaxActivity(e.target.value)}
-                />
-              </form>
-            </DialogField>
-          </div>
+          <DialogField
+            name="Add Detail"
+            title="Add KPI Detail"
+            open={isAddOpen}
+            onOpenChange={setIsAddOpen}
+            onSubmit={handleAdd}
+            submitDisabled={isAddIncomplete || loading}
+          >
+            <form className="flex flex-col gap-3 min-w-56" onSubmit={e => e.preventDefault()}>
+              <InputField
+                type="text"
+                placeholder="Ex: picket"
+                label="Name"
+                value={kpiItem}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setKpiItem(e.target.value)}
+              />
+              <InputField
+                type="number"
+                placeholder="Ex: 15"
+                label="Weight"
+                value={point}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setPoint(e.target.value)}
+              />
+              <InputField
+                type="number"
+                placeholder="Ex: 10"
+                label="Activity Limit"
+                value={maxActivity}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setMaxActivity(e.target.value)}
+              />
+              <DropdownField
+                label="Requirement"
+                menu={Object.values(KPILabel)}
+                value={label}
+                onChange={setLabel}
+              />
+            </form>
+          </DialogField>
         </div>
         <Card className='p-5'>
           <div>
@@ -244,9 +180,51 @@ const PointsDetailsContent = () => {
               showMenu={true}
               searchQuery={searchQuery}
               fetchTrigger={fetchTrigger}
+              onEditItem={handleEditClick}
             />
           </div>
         </Card>
+
+        <Dialog open={isEditOpen} onOpenChange={(open) => { setIsEditOpen(open); if (!open) setEditItem(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Edit Detail {editItem?.kpi_item}</DialogTitle>
+            </DialogHeader>
+            <form className="flex flex-col gap-3" onSubmit={e => e.preventDefault()}>
+              <InputField
+                type="text"
+                placeholder="Ex: picket"
+                label="Name"
+                value={editKpiItem}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditKpiItem(e.target.value)}
+              />
+              <InputField
+                type="number"
+                placeholder="Ex: 15"
+                label="Weight"
+                value={editPoint}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPoint(e.target.value)}
+              />
+              <InputField
+                type="number"
+                placeholder="Ex: 10"
+                label="Activity Limit"
+                value={editMaxActivity}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditMaxActivity(e.target.value)}
+              />
+              <DropdownField
+                label="Requirement"
+                menu={Object.values(KPILabel)}
+                value={editLabel}
+                onChange={setEditLabel}
+              />
+              <div className="flex justify-center gap-4 mt-2">
+                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Batal</Button>
+                <Button onClick={handleEdit} disabled={isEditIncomplete || loading}>Submit</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </MotionWrapper>
     </ProtectedRoute>
   )

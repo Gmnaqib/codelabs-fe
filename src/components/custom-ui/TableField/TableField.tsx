@@ -71,6 +71,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
   filterSubriset = "All SubRiset",
   filterStatus = "All Status",
   fetchTrigger,
+  onEditItem,
 }: TabelFieldProps<T> & { filterContentType?: string, filterRole?: string, filterSubriset?: string, filterStatus?: string, fetchTrigger?: number }) => {
   const {
     isReport,
@@ -252,6 +253,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         showMenu={false}
         searchQuery={searchQuery}
         fetchTrigger={fetchTrigger}
+        onEdit={onEditItem}
       />
     );
 
@@ -263,6 +265,7 @@ const TableField = <T extends KnownTableTypes = TableFieldDataItem>({
         showMenu={false}
         searchQuery={searchQuery}
         fetchTrigger={fetchTrigger}
+        onEdit={onEditItem}
       />
     );
 

@@ -6,10 +6,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { getKPIDetail } from '@/services/kpi/kpiService';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface PointsDetailTableProps extends ReportTableProps {
   searchQuery?: string;
   fetchTrigger?: number;
+  onEdit?: (item: unknown) => void;
 }
 
 type KPIDetailItem = {
@@ -24,6 +26,7 @@ const PointsDetailTable = ({
   activePage,
   searchQuery,
   fetchTrigger,
+  onEdit,
 }: PointsDetailTableProps) => {
 
   const headers = pointsdetail[activePage] ?? [];
@@ -66,9 +69,20 @@ const PointsDetailTable = ({
           {filteredData.map((item, idx) => (
             <TableRow key={item._id || idx}>
               <TableCell className='text-center'>{item.kpi_item}</TableCell>
-              <TableCell className='text-center'>{item.point}</TableCell>
+              <TableCell className='text-center'>{item.point}%</TableCell>
               <TableCell className='text-center'>{item.max_activity}</TableCell>
               <TableCell className='text-center'>{item.label}</TableCell>
+              <TableCell className='flex justify-center'>
+                {onEdit && (
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => onEdit(item)}
+                  >
+                    Edit
+                  </Button>
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

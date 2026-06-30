@@ -16,4 +16,5 @@ export interface TabelFieldProps<T = TableFieldDataItem> {
   filterContentType?: string;
   searchQuery?: string;
   search?: string;
+  onEditItem?: (item: unknown) => void;
 }

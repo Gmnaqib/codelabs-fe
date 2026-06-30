@@ -3,9 +3,9 @@ import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/login/components/ProtectedRoute'
 import React, { useState, useEffect, ChangeEvent } from 'react'
-import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
-import { DropdownField } from '@/components/custom-ui/DropdownField';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { getKPIMaster, updateKPIMaster } from '@/services/kpi/kpiService';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
@@ -20,7 +20,7 @@ const Points = () => {
   const [activePage, setActivePage] = useState<string>("points");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [kpiMasterList, setKpiMasterList] = useState<KPIMasterItem[]>([]);
-  const [selectedKementerian, setSelectedKementerian] = useState("");
+  const [editItem, setEditItem] = useState<KPIMasterItem | null>(null);
   const [editPoint, setEditPoint] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(0);
@@ -38,33 +38,29 @@ const Points = () => {
     fetchMaster();
   }, [fetchTrigger]);
 
-  const selectedItem = kpiMasterList.find(
-    (item) => item.kementerian === selectedKementerian
-  );
-
-  const handleKementerianChange = (value: string) => {
-    setSelectedKementerian(value);
-    const item = kpiMasterList.find((i) => i.kementerian === value);
-    setEditPoint(item ? String(item.point) : "");
+  const handleEditClick = (item: unknown) => {
+    const kpiItem = item as KPIMasterItem;
+    setEditItem(kpiItem);
+    setEditPoint(String(kpiItem.point));
+    setIsDialogOpen(true);
   };
 
-  const isFormIncomplete = !selectedKementerian || !editPoint || !selectedItem;
-
   const handleSubmit = async () => {
-    if (!selectedItem) return;
+    if (!editItem) return;
     setLoading(true);
     try {
-      await updateKPIMaster(selectedItem._id, {
-        name: selectedKementerian,
+      await updateKPIMaster(editItem._id, {
+        name: editItem.kementerian,
         point: Number(editPoint),
       });
       setIsDialogOpen(false);
-      setSelectedKementerian("");
+      setEditItem(null);
       setEditPoint("");
       setFetchTrigger(Date.now());
       toast.success("Category updated successfully!");
-    } catch {
-      toast.error("Failed to update category.");
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to update category.";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -80,47 +76,43 @@ const Points = () => {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
-          <DialogField
-            name="Edit Category"
-            title="Edit Category"
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onSubmit={handleSubmit}
-            submitDisabled={isFormIncomplete || loading}
-          >
-            <form className="flex flex-col gap-3 min-w-56" onSubmit={e => e.preventDefault()}>
-              <DropdownField
-                label="Category"
-                menu={kpiMasterList.map((item) => item.kementerian)}
-                value={selectedKementerian}
-                onChange={handleKementerianChange}
-              />
-              <InputField
-                type="number"
-                placeholder="Ex: 30"
-                label="Point"
-                value={editPoint}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPoint(e.target.value)}
-              />
-            </form>
-          </DialogField>
         </div>
         {kpiMasterList.reduce((sum, item) => sum + item.point, 0) < 100 && (
-          <p className="text-md font-medium text-black mb-4">
-            Total Available Percentage : <span className='font-normal text-foreground'>{100 - kpiMasterList.reduce((sum, item) => sum + item.point, 0)}%</span>
+          <p className="text-md font-medium text-amber-500 mb-4">
+            Unallocated Weight: <span className='font-semibold'>{100 - kpiMasterList.reduce((sum, item) => sum + item.point, 0)}%</span>
           </p>
         )}
         <Card className='p-5'>
-          <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              searchQuery={searchQuery}
-              fetchTrigger={fetchTrigger}
-            />
-          </div>
+          <TableField
+            activePage={activePage}
+            onPageChange={setActivePage}
+            showMenu={true}
+            searchQuery={searchQuery}
+            fetchTrigger={fetchTrigger}
+            onEditItem={handleEditClick}
+          />
         </Card>
+
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) setEditItem(null); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Edit Category {editItem?.kementerian}</DialogTitle>
+            </DialogHeader>
+            <form className="flex flex-col gap-4" onSubmit={e => e.preventDefault()}>
+              <InputField
+                type="number"
+                placeholder="Ex: 30"
+                label="Weight"
+                value={editPoint}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPoint(e.target.value)}
+              />
+              <div className="flex justify-center gap-4 mt-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Batal</Button>
+                <Button onClick={handleSubmit} disabled={!editPoint || loading}>Submit</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </MotionWrapper>
     </ProtectedRoute>
   )
