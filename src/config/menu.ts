@@ -13,6 +13,7 @@ import {
   UserGroupIcon as UserGroupSolid,
   CubeIcon as CubeSolid,
   CircleStackIcon as CircleStackSolid,
+  Cog6ToothIcon as CogSolid,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -30,6 +31,7 @@ import {
   UserGroupIcon as UserGroupOutline,
   CubeIcon as CubeOutline,
   CircleStackIcon as CircleStackOutline,
+  Cog6ToothIcon as CogOutline,
 } from "@heroicons/react/24/outline";
 
 export const menuItems = [
@@ -131,6 +133,13 @@ export const menuItems = [
     roles: ["admin", "president", "vice president"],
   },
   {
+    title: "Settings",
+    iconSolid: CogSolid,
+    iconOutline: CogOutline,
+    route: "/settings",
+    roles: ["admin", "president"],
+  },
+  {
     title: "Log Out",
     iconSolid: ArrowLeftSolid,
     iconOutline: ArrowLeftOutline,
@@ -158,4 +167,5 @@ export const menuNavbar = [
   { path: '/competition', title: 'Competition' },
   { path: '/branding', title: 'Branding' },
   { path: '/points', title: 'KPI Points' },
+  { path: '/settings', title: 'Settings' },
 ]
