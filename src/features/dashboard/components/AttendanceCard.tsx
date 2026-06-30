@@ -3,7 +3,7 @@ import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut } from '@/services/attendance/attendanceService';
+import { getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut, checkNetwork } from '@/services/attendance/attendanceService';
 import { useRef } from 'react';
 
 type AttendanceRecord = {
@@ -20,34 +20,38 @@ import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowUpRightIcon } from 'lucide-react';
-import { showErrorToast } from '@/lib/toastHelper';
+
 import { toast } from 'sonner';
 import CameraCapture from '@/components/custom-ui/CameraCapture';
 
 const AttendanceCard = () => {
   const { user } = useAuth();
-  // const localDeviceId = localStorage.getItem('device_id');
   const [showDateModal, setShowDateModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
   const [leaveReason, setLeaveReason] = useState('');
   const [leaveStartDate, setLeaveStartDate] = useState('');
   const [leaveEndDate, setLeaveEndDate] = useState('');
   const [leaveAttachment, setLeaveAttachment] = useState<File | null>(null);
-  // const [leaveLoading, setLeaveLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isOnNetwork, setIsOnNetwork] = useState<boolean | null>(null);
   const [isCheckedIn, setIsCheckedIn] = useState<boolean | null>(null);
   const [isCheckedOut, setIsCheckedOut] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reason, setReason] = useState('');
-  const [isIpAllowed, setIsIpAllowed] = useState<boolean | null>(null);
   const now = new Date();
   const hour = now.getHours();
 
+  // Check-in: 06.00–14.00 | Late (butuh reason): 12.00–14.00
+  const canCheckIn = hour >= 6 && hour < 14;
+  const isLateCheckin = hour >= 12 && hour < 14;
+  // Check-out: 11.00–24.00
+  const canCheckOut = hour >= 11;
+
   const handlePermissionSubmit = async () => {
     if (!leaveType || !leaveReason || !leaveStartDate || !leaveAttachment) {
-      toast.error('Semua field wajib diisi!');
+      toast.error('All fields are required!');
       return;
     }
     const finalEndDate = leaveEndDate || leaveStartDate;
@@ -59,11 +63,11 @@ const AttendanceCard = () => {
         start_date: leaveStartDate,
         end_date: finalEndDate,
       });
-      toast.success('Sukses mengirim izin!');
-      const day = new Date().getDay(); 
+      toast.success('Leave request submitted successfully!');
+      const day = new Date().getDay();
       let telegramUsername = 'HakimMajid123';
-      if (day === 3 || day === 6) telegramUsername = 'iammmth'; 
-      else if (day === 4 || day === 5) telegramUsername = 'Aldzikra'; 
+      if (day === 3 || day === 6) telegramUsername = 'iammmth';
+      else if (day === 4 || day === 5) telegramUsername = 'Aldzikra';
       const reasonText = encodeURIComponent(`Saya izin tidak masuk karena ${leaveReason} dari tanggal ${leaveStartDate} hingga ${finalEndDate}`);
       window.location.href = `https://t.me/${telegramUsername}?text=${reasonText}`;
       setLeaveReason('');
@@ -83,6 +87,10 @@ const AttendanceCard = () => {
   };
 
   useEffect(() => {
+    checkNetwork().then(setIsOnNetwork).catch(() => setIsOnNetwork(false));
+  }, []);
+
+  useEffect(() => {
     const fetchAttendance = async () => {
       if (!user) {
         setIsCheckedIn(false);
@@ -90,11 +98,6 @@ const AttendanceCard = () => {
         return;
       }
       try {
-        type AttendanceRecord = {
-          userId: string;
-          checkIn?: string | Date;
-          checkOut?: string | Date;
-        };
         const data: AttendanceRecord[] = await getAttendanceToday();
         const found = data.find((item: AttendanceRecord) => item.userId === user.id && !!item.checkIn);
         setIsCheckedIn(!!found);
@@ -107,31 +110,8 @@ const AttendanceCard = () => {
     fetchAttendance();
   }, [user]);
 
-  useEffect(() => {
-  const checkIp = async () => {
-      try {
-        const res = await fetch("https://api.ipify.org?format=json");
-        const data = await res.json();
-
-        const userIp = data.ip;
-
-        const UNIKOM_PREFIX = "103.112.189.131"; 
-
-        const allowed = userIp.startsWith(UNIKOM_PREFIX);
-
-        setIsIpAllowed(allowed);
-      } catch {
-        setIsIpAllowed(false);
-      }
-    };
-
-    checkIp();
-  }, []);
-
   const handleCheckin = async () => {
-    const now = new Date();
-    const hour = now.getHours();
-    if (hour >= 9 && hour <= 10) {
+    if (isLateCheckin) {
       setDialogOpen(true);
       return;
     }
@@ -141,15 +121,15 @@ const AttendanceCard = () => {
   const submitCheckin = async (reasonValue: string) => {
     setCheckinLoading(true);
     try {
-      await postCheckIn(user?.device_id || "", reasonValue);
+      await postCheckIn(reasonValue);
       const data: AttendanceRecord[] = await getAttendanceToday();
       const found = data.find((item: AttendanceRecord) => item.userId === user!.id && !!item.checkIn);
-      toast.success("Check-in berhasil!");
+      toast.success("Check-in successful!");
       setIsCheckedIn(!!found);
       setDialogOpen(false);
       setReason('');
     } catch (error: unknown) {
-      let errMsg = "Gagal melakukan check-in.";
+      let errMsg = "Failed to check in.";
       if (error && typeof error === "object") {
         errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
           || (error as { message?: string })?.message
@@ -160,18 +140,14 @@ const AttendanceCard = () => {
     setCheckinLoading(false);
   };
 
-    const handleCheckout = async () => {
-    if (!user?.device_id) {
-      showErrorToast("Device ID kosong. Tidak bisa melakukan check-out.", { duration: 5000 });
-      return;
-    }
+  const handleCheckout = async () => {
     setCheckinLoading(true);
     try {
-      await postCheckOut(user.device_id);
-      toast.success("Check-out berhasil!");
+      await postCheckOut();
+      toast.success("Check-out successful!");
       setIsCheckedOut(true);
     } catch (error) {
-      let errMsg = "Gagal melakukan check-out.";
+      let errMsg = "Failed to check out.";
       if (error && typeof error === "object") {
         errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
           || (error as { message?: string })?.message
@@ -181,6 +157,23 @@ const AttendanceCard = () => {
     }
     setCheckinLoading(false);
   };
+
+  const renderCheckinButton = () => (
+    <Button
+      onClick={handleCheckin}
+      variant="link"
+      className='h-28 cursor-pointer'
+      disabled={checkinLoading || isOnNetwork === false}
+    >
+      <div
+        className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
+        style={{ background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)' }}
+      >
+        <Image src="/icon/attendance-hand.png" alt="Icon Check-In" width={40} height={40} />
+        <p className="text-white text-sm mt-2">CHECK IN</p>
+      </div>
+    </Button>
+  );
 
   return (
     <CardField title="Attendance" icon={<CalendarDaysIcon />} bg>
@@ -188,131 +181,65 @@ const AttendanceCard = () => {
         {loading ? (
           <p className="text-center text-sm mt-5">Loading...</p>
         ) : isCheckedIn ? (
-          (() => {
-            const now = new Date();
-            const hour = now.getHours();
-            if (isCheckedOut) {
-              return (
-                <>
-                  <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
-                  <p className="text-center text-sm mt-5">
-                    You are successfully check out today. See you tomorrow!
-                  </p>
-                </>
-              );
-            } else if (hour < 17) {
-              return (
-                <>
-                  <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
-                  <p className="text-center text-sm mt-5">
-                    Welcome to Codelabs! You are successfully check in today. Dont forget to check out at 5 PM.
-                  </p>
-                </>
-              );
-            } else if (hour >= 17 && hour < 24) {
-              const late = hour > 19;
-              return (
-                <>
-                  <Button 
-                    onClick={handleCheckout} 
-                    className='h-28 cursor-pointer'
-                    disabled={
-                      checkinLoading ||
-                      late ||
-                      isIpAllowed === false ||
-                      isIpAllowed === null
-                    }
-                    variant="link"
+          <>
+            {isCheckedOut ? (
+              <>
+                <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
+                <p className="text-center text-sm mt-5">
+                  You are successfully check out today. See you tomorrow!
+                </p>
+              </>
+            ) : canCheckOut ? (
+              <>
+                <Button
+                  onClick={handleCheckout}
+                  className='h-28 cursor-pointer'
+                  disabled={checkinLoading || isOnNetwork === false}
+                  variant="link"
+                >
+                  <div
+                    className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
+                    style={{ background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)' }}
                   >
-                    <div
-                      className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
-                      style={{
-                        background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)'
-                      }}
-                    >
-                      <Image 
-                        src="/icon/attendance-hand.png" 
-                        alt="Icon Check-Out" 
-                        width={40} 
-                        height={40} 
-                      />
-                      <p className="text-white text-sm mt-2">CHECK OUT</p>
-                    </div>
-                  </Button>
-                  <p className="text-center text-sm mt-8">
-                    You have to be in CodeLabs to do attendance &amp; If You will check out, you need check in first, please check in tomorrow on 6 AM - 10 AM.
-                  </p>
-                </>
-              );
-            }
-            return null;
-          })()
+                    <Image src="/icon/attendance-hand.png" alt="Icon Check-Out" width={40} height={40} />
+                    <p className="text-white text-sm mt-2">CHECK OUT</p>
+                  </div>
+                </Button>
+                <p className="text-center text-sm mt-8">
+                  You have successfully checked in today. Don&apos;t forget to check out before leaving.
+                </p>
+              </>
+            ) : (
+              <>
+                <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
+                <p className="text-center text-sm mt-5">
+                  Welcome to Codelabs! You are successfully check in today. Check-out available from 11:00.
+                </p>
+              </>
+            )}
+          </>
         ) : (
-          (() => {
-            if (hour >= 6 && hour < 9) {
-              return (
-                <>
-                  <Button 
-                    onClick={handleCheckin} 
-                    variant="link" 
-                    className='h-28 cursor-pointer'
-                    disabled={
-                      checkinLoading ||
-                      isIpAllowed === false ||
-                      isIpAllowed === null 
-                    }
-                  >
-                    <div
-                      className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
-                      style={{
-                        background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)'
-                      }}
-                    >
-                      <Image 
-                        src="/icon/attendance-hand.png" 
-                        alt="Icon Check-In" 
-                        width={40} 
-                        height={40} 
-                      />
-                      <p className="text-white text-sm mt-2">CHECK IN</p>
-                    </div>
-                  </Button>
-                  <p className="text-center text-sm mt-8">
-                    You have to be in CodeLabs to do attendance &amp; If You will check out, you need check in first, please check in tomorrow on 6 AM - 10 AM.
-                  </p>
-                </>
-              );
-            } else if (hour >= 9 && hour < 10) {
-              return (
+          <>
+            {canCheckIn ? (
+              isLateCheckin ? (
                 <>
                   <DialogField
                     name={
                       <div
                         className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow mt-16"
-                        style={{
-                          background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)'
-                        }}
+                        style={{ background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)' }}
                       >
-                        <Image 
-                          src="/icon/attendance-hand.png" 
-                          alt="Icon Check-In" 
-                          width={40} 
-                          height={40} 
-                        />
+                        <Image src="/icon/attendance-hand.png" alt="Icon Check-In" width={40} height={40} />
                         <p className="text-white text-sm mt-2">CHECK IN</p>
                       </div>
                     }
-                    title="State the reason why you are late"
-                    variant="link" 
+                    title="You are late, please provide a reason"
+                    variant="link"
                     open={dialogOpen}
                     onOpenChange={setDialogOpen}
                     onSubmit={() => submitCheckin(reason)}
                     onCancel={() => setDialogOpen(false)}
-                    disabled={
-                      checkinLoading ||
-                      isIpAllowed === false ||
-                      isIpAllowed === null 
-                    }
+                    disabled={checkinLoading || isOnNetwork === false}
                   >
                     <div className="flex flex-col gap-4">
                       <InputField
@@ -325,46 +252,35 @@ const AttendanceCard = () => {
                     </div>
                   </DialogField>
                   <p className="text-center text-sm mt-24">
-                    You have to be in CodeLabs to do attendance &amp; If You will check out, you need check in first, please check in tomorrow on 6 AM - 10 AM.
+                    Late check-in (12:00–14:00) requires a reason.
                   </p>
                 </>
-              );
-            } else {
-              return (
+              ) : (
                 <>
-                  <Button disabled variant="link">
-                    <div
-                      className="w-32 h-32 rounded-full flex flex-col items-center justify-center mt-16 bg-gray-300"
-                    >
-                      <Image 
-                        src="/icon/attendance-hand.png" 
-                        alt="Icon Check-Out" 
-                        width={40} 
-                        height={40} 
-                      />
-                      {isCheckedIn ? (
-                        <p className="text-white text-sm mt-2">CHECK OUT</p>
-                      ) : (
-                        <p className="text-white text-sm mt-2">CHECK IN</p>
-                      )}
-                    </div>
-                  </Button>
-                  {isCheckedIn ? (
-                    <p className="text-center text-sm mt-32">
-                      Check-out is only allowed from 5 PM to 7 PM.
-                    </p>
-                  ): (
-                    <p className="text-center text-sm mt-32">
-                      Check-in is only allowed from 6 AM to 10 AM.
-                    </p>
-                  )}
-                  
+                  {renderCheckinButton()}
+                  <p className="text-center text-sm mt-8">
+                    {isOnNetwork === false
+                      ? "You must be connected to the Codelabs network to record attendance."
+                      : "You are connected. Tap the button to check in."}
+                  </p>
                 </>
-              );
-            }
-          })()
+              )
+            ) : (
+              <>
+                <Button disabled variant="link">
+                  <div className="w-32 h-32 rounded-full flex flex-col items-center justify-center mt-16 bg-gray-300">
+                    <Image src="/icon/attendance-hand.png" alt="Icon Check-In" width={40} height={40} />
+                    <p className="text-white text-sm mt-2">CHECK IN</p>
+                  </div>
+                </Button>
+                <p className="text-center text-sm mt-32">
+                  Check-in is only available from 06:00 to 14:00.
+                </p>
+              </>
+            )}
+          </>
         )}
-        {hour >= 6 && hour < 10 && !isCheckedIn && (
+        {canCheckIn && !isCheckedIn && (
           <div className="flex items-center gap-2 mt-3 cursor-pointer">
             <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
               onSubmit={handlePermissionSubmit}
@@ -387,13 +303,9 @@ const AttendanceCard = () => {
                 <div>
                   <label className="block mb-1">Leave Date</label>
                   <Button
-                  type='button'
+                    type='button'
                     className='rounded-full px-2 py-4 w-full text-base bg-white text-black border border-muted-foreground font-light hover:bg-primary hover:text-white'
-                    onClick={() => {
-                      if (!showDateModal) {
-                        setShowDateModal(true);
-                      }
-                    }}
+                    onClick={() => { if (!showDateModal) setShowDateModal(true); }}
                   >
                     {leaveStartDate && leaveEndDate && leaveStartDate !== leaveEndDate
                       ? `${leaveStartDate} s/d ${leaveEndDate}`
@@ -421,11 +333,7 @@ const AttendanceCard = () => {
                           }}
                         />
                         <div className="flex gap-2 mt-4 justify-end">
-                          <Button type="button" onClick={() => {
-                            if (leaveStartDate) {
-                              setShowDateModal(false);
-                            }
-                          }}>
+                          <Button type="button" onClick={() => { if (leaveStartDate) setShowDateModal(false); }}>
                             Pilih
                           </Button>
                         </div>
@@ -433,36 +341,11 @@ const AttendanceCard = () => {
                     </div>
                   )}
                 </div>
-                  
                 {!leaveAttachment ? (
-                <div>
-                  <label className="block text-base font-light mb-1">Choose Picture</label>
-                  <CameraCapture onCapture={file => setLeaveAttachment(file)} />
-                  {/* <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg"
-                    className="block w-full rounded-lg border border-gray-700 p-1 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#232329] file:text-white hover:file:bg-primary/80"
-                    onChange={async e => {
-                      if (e.target.files && e.target.files[0]) {
-                        const file = e.target.files[0];
-                        if (["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-                          try {
-                            const compressedFile = await imageCompression(file, {
-                              maxSizeMB: 0.5, 
-                              maxWidthOrHeight: 1280,
-                              useWebWorker: true
-                            });
-                            setLeaveAttachment(compressedFile);
-                          } catch {
-                            setLeaveAttachment(file); 
-                          }
-                        } else {
-                          setLeaveAttachment(file);
-                        }
-                      }
-                    }}
-                  /> */}
-                </div>
+                  <div>
+                    <label className="block text-base font-light mb-1">Choose Picture</label>
+                    <CameraCapture onCapture={file => setLeaveAttachment(file)} />
+                  </div>
                 ) : (
                   <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>
                 )}

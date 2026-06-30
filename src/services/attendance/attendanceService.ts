@@ -70,18 +70,18 @@ export async function getAttendanceSummaryByUserId(userId: string, year?: number
   }
 }
 
-export const postCheckIn = async (device_id: string, reason: string = '') => {
-  const res = await axiosClient.post('/attendance/checkin', {
-    reason,
-    device_id,
-  });
+export const checkNetwork = async (): Promise<boolean> => {
+  const res = await axiosClient.get('/attendance/network-check');
+  return res.data.data?.connected ?? false;
+};
+
+export const postCheckIn = async (reason: string = '') => {
+  const res = await axiosClient.post('/attendance/checkin', { reason });
   return res.data;
 };
 
-export const postCheckOut = async (device_id: string) => {
-  const res = await axiosClient.patch('/attendance/checkout', {
-    device_id,
-  });
+export const postCheckOut = async () => {
+  const res = await axiosClient.patch('/attendance/checkout');
   return res.data;
 };
 
