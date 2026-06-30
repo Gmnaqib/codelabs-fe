@@ -97,6 +97,15 @@ const ScoringTable = ({
     type?: string;
     status?: string;
   };
+  const BRANDING_STATUS_LABELS: Record<number, string> = {
+    0: "Not Suitable", 1: "Poor", 2: "Fair", 3: "Good", 4: "Very Good", 5: "Excellent",
+  };
+  const brandingStatusLabel = (status?: number | string | null): string => {
+    if (status === null || status === undefined || status === "") return "PENDING";
+    const num = Number(status);
+    return isNaN(num) ? String(status).toUpperCase() : (BRANDING_STATUS_LABELS[num] ?? "PENDING").toUpperCase();
+  };
+
   type BrandingItem = {
     _id: string;
     name?: string;
@@ -104,7 +113,7 @@ const ScoringTable = ({
     link?: string;
     research?: string;
     level?: string;
-    status?: string;
+    status?: number | string;
   };
 
   const [competitionData, setCompetitionData] = useState<CompetitionItem[]>([]);
@@ -634,8 +643,8 @@ const ScoringTable = ({
                     <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center">{item.name}</TableCell>
                     <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">{item.research}</TableCell>
                     <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">
-                      <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(item.status ?? "")}`}>
-                        {(item.status ?? "").toUpperCase()}
+                      <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(String(item.status ?? ""))}`}>
+                        {brandingStatusLabel(item.status)}
                       </span>
                     </TableCell>
                     <TableCell className="min-w-full flex-1 basis-0 flex items-center text-center justify-center bg-inherit">0</TableCell>
@@ -733,7 +742,7 @@ const ScoringTable = ({
                             </div>
                             <div>
                               <p className="font-semibold">Status</p>
-                              <p>{selectedBranding.status}</p>
+                              <p>{brandingStatusLabel(selectedBranding.status)}</p>
                             </div>
                             <div>
                               <p className="font-semibold">Level</p>
