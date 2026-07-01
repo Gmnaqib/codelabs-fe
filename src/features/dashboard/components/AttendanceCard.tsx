@@ -49,12 +49,22 @@ const AttendanceCard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [timeSetting, setTimeSetting] = useState<TimeSetting | null>(null);
+  const [nowMin, setNowMin] = useState(() => {
+    const n = new Date();
+    return (n.getUTCHours() * 60 + n.getUTCMinutes() + 7 * 60) % (24 * 60);
+  });
 
   const dayCode = getDayCode();
   const isSunday = dayCode === "SUNDAY";
 
-  const now = new Date();
-  const nowMin = now.getHours() * 60 + now.getMinutes();
+  useEffect(() => {
+    const tick = () => {
+      const n = new Date();
+      setNowMin((n.getUTCHours() * 60 + n.getUTCMinutes() + 7 * 60) % (24 * 60));
+    };
+    const id = setInterval(tick, 5_000);
+    return () => clearInterval(id);
+  }, []);
 
   const canCheckIn = timeSetting
     ? nowMin >= toMin(timeSetting.checkin) && nowMin < toMin(timeSetting.checkinlatelimit)
@@ -63,7 +73,10 @@ const AttendanceCard = () => {
     ? nowMin >= toMin(timeSetting.checkinlimit) && nowMin < toMin(timeSetting.checkinlatelimit)
     : false;
   const canCheckOut = timeSetting
-    ? nowMin >= toMin(timeSetting.checkout)
+    ? nowMin >= toMin(timeSetting.checkout) && nowMin <= toMin(timeSetting.checkoutlate)
+    : false;
+  const isPastCheckout = timeSetting
+    ? nowMin > toMin(timeSetting.checkoutlate)
     : false;
 
   const handlePermissionSubmit = async () => {
@@ -114,11 +127,8 @@ const AttendanceCard = () => {
 
   useEffect(() => {
     const fetchAttendance = async () => {
-      if (!user) {
-        setIsCheckedIn(false);
-        setLoading(false);
-        return;
-      }
+      if (!user) return;
+
       try {
         const status = await getMyStatusToday();
         setIsCheckedIn(status.checkedIn);
@@ -238,6 +248,18 @@ const AttendanceCard = () => {
                   You have successfully checked in today. Don&apos;t forget to check out before leaving.
                 </p>
               </>
+            ) : isPastCheckout ? (
+              <>
+                <Button disabled variant="link" className='h-28'>
+                  <div className="w-32 h-32 rounded-full flex flex-col items-center justify-center bg-gray-300">
+                    <Image src="/icon/attendance-hand.png" alt="Icon Check-Out" width={40} height={40} />
+                    <p className="text-white text-sm mt-2">CHECK OUT</p>
+                  </div>
+                </Button>
+                <p className="text-center text-sm mt-8 text-red-500">
+                  Checkout time has passed. Last checkout was at {timeSetting?.checkoutlate}.
+                </p>
+              </>
             ) : (
               <>
                 <Image src="/icon/attendance.png" alt="Icon Attendance" width={150} height={150} />
@@ -269,6 +291,7 @@ const AttendanceCard = () => {
                     onSubmit={() => submitCheckin(reason)}
                     onCancel={() => setDialogOpen(false)}
                     disabled={checkinLoading}
+                    submitDisabled={!reason.trim() || checkinLoading}
                   >
                     <div className="flex flex-col gap-4">
                       <InputField
