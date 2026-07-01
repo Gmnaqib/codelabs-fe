@@ -57,12 +57,8 @@ export const multipleRegisterUsers = async (payload: MultipleRegisterPayload) =>
 };
 
 
-export interface DeviceIdPayload {
-  device_id: string | null;
-}
-
-export async function updateDeviceId(payload: DeviceIdPayload) {
-  const { data } = await axiosClient.patch(`/users/me/update-device`, payload);
+export async function registerMacAddress() {
+  const { data } = await axiosClient.patch(`/users/me/update-device`);
   return data;
 }
 

@@ -7,8 +7,8 @@ export type UserType = {
   role: string;
   status: string;
   subriset: string;
-  change_device_id?: string;
-  device_id?: string;
+  mac_address?: string;
+  change_mac_address?: boolean;
   image?: string;
 };
 

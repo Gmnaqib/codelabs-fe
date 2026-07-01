@@ -3,15 +3,10 @@ import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { getAttendanceToday, postCheckIn, postLeaveRequest, postCheckOut, checkNetwork } from '@/services/attendance/attendanceService';
+import { postCheckIn, postLeaveRequest, postCheckOut, checkNetwork, getMyStatusToday } from '@/services/attendance/attendanceService';
 import { getTimeSettingByCode, TimeSetting } from '@/services/timeSetting/timeSettingService';
 import { useRef } from 'react';
 
-type AttendanceRecord = {
-  userId: string;
-  checkIn?: string | Date;
-  checkOut?: string | Date;
-};
 
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -125,10 +120,9 @@ const AttendanceCard = () => {
         return;
       }
       try {
-        const data: AttendanceRecord[] = await getAttendanceToday();
-        const found = data.find((item: AttendanceRecord) => item.userId === user.id && !!item.checkIn);
-        setIsCheckedIn(!!found);
-        setIsCheckedOut(found && found.checkOut ? true : false);
+        const status = await getMyStatusToday();
+        setIsCheckedIn(status.checkedIn);
+        setIsCheckedOut(status.checkedOut);
       } catch {
         setIsCheckedIn(false);
       }
@@ -149,10 +143,8 @@ const AttendanceCard = () => {
     setCheckinLoading(true);
     try {
       await postCheckIn(reasonValue);
-      const data: AttendanceRecord[] = await getAttendanceToday();
-      const found = data.find((item: AttendanceRecord) => item.userId === user!.id && !!item.checkIn);
       toast.success("Check-in successful!");
-      setIsCheckedIn(!!found);
+      setIsCheckedIn(true);
       setDialogOpen(false);
       setReason('');
     } catch (error: unknown) {
@@ -190,7 +182,7 @@ const AttendanceCard = () => {
       onClick={handleCheckin}
       variant="link"
       className='h-28 cursor-pointer'
-      disabled={checkinLoading || isOnNetwork === false}
+      disabled={checkinLoading}
     >
       <div
         className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
@@ -231,7 +223,7 @@ const AttendanceCard = () => {
                 <Button
                   onClick={handleCheckout}
                   className='h-28 cursor-pointer'
-                  disabled={checkinLoading || isOnNetwork === false}
+                  disabled={checkinLoading}
                   variant="link"
                 >
                   <div
@@ -276,7 +268,7 @@ const AttendanceCard = () => {
                     onOpenChange={setDialogOpen}
                     onSubmit={() => submitCheckin(reason)}
                     onCancel={() => setDialogOpen(false)}
-                    disabled={checkinLoading || isOnNetwork === false}
+                    disabled={checkinLoading}
                   >
                     <div className="flex flex-col gap-4">
                       <InputField

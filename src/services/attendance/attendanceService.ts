@@ -117,6 +117,11 @@ export const getAttendanceMe = async () => {
   return res.data.data;
 };
 
+export const getMyStatusToday = async (): Promise<{ checkedIn: boolean; checkedOut: boolean }> => {
+  const res = await axiosClient.get("/attendance/me/today");
+  return res.data.data;
+};
+
 export async function getAllLeaveRequests(year: number, month: number) {
   type LeaveRequest = { start_date?: string; startDate?: string };
   const { data } = await axiosClient.get(`/attendance/leave-requests`);

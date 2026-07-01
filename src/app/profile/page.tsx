@@ -1,7 +1,6 @@
 "use client";
 import InputField from "@/components/custom-ui/InputField";
-import { getMe, updateUser } from "@/services/users/userService";
-import { updateDeviceId } from "@/services/users/userService";
+import { getMe, updateUser, registerMacAddress } from "@/services/users/userService";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -16,8 +15,6 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [user, setUser] = useState<UserType | null>(null); 
   const [loading, setLoading] = useState(true);
-  const localDeviceId = typeof window !== 'undefined' ? localStorage.getItem('device_id') : null;
-
   useEffect(() => {
       getMe().then((res) => {
         setUser(res);
@@ -27,33 +24,20 @@ const Profile = () => {
     
     if (loading) return null;
 
-  const maskDeviceId = (deviceId: string | null | undefined): string => {
-    if (!deviceId) return "No Device ID";
-    
-    if (deviceId.length <= 6) return deviceId;
-    
-    const first3 = deviceId.slice(0, 3);
-    const last3 = deviceId.slice(-3);
-    
-    const maskedLength = deviceId.length - 6;
-    const masked = "x".repeat(maskedLength);
-    
-    return `${first3}${masked}${last3}`;
+  const maskMac = (mac: string | null | undefined): string => {
+    if (!mac) return "No Device ID";
+    return mac[0] + "X".repeat(mac.length - 2) + mac[mac.length - 1];
   };
 
-  const handleUpdateDeviceId = async () => {
+  const handleRegisterMac = async () => {
     try {
-      await updateDeviceId({ device_id: localDeviceId });
-      toast.success("Device ID berhasil dihapus. Redirecting...");
-      localStorage.removeItem('token');
-      if (setUser) {
-        setUser(null);
-      }
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1000);
-    } catch {
-      showErrorToast("Gagal update Device ID.", { duration: 5000 });
+      await registerMacAddress();
+      toast.success("MAC address berhasil diregistrasi!");
+      const res = await getMe();
+      setUser(res);
+    } catch (error: unknown) {
+      const msg = (error as any)?.response?.data?.message || "Gagal registrasi MAC address.";
+      showErrorToast(msg, { duration: 5000 });
     }
   };
 
@@ -138,19 +122,18 @@ const Profile = () => {
                   label="Device Id"
                   type="text"
                   placeholder="No Device ID"
-                  value={maskDeviceId(user?.device_id)}
+                  value={maskMac(user?.mac_address)}
                   readOnly
                 />
               </div>
                 <Button
                   className="md:w-fit"
-                  disabled={!Boolean(user?.change_device_id)}
-                  onClick={handleUpdateDeviceId}
+                  disabled={!user?.change_mac_address}
+                  onClick={handleRegisterMac}
                   size="full"
                 >
                   Reset
                 </Button>
-                
           </div>
           <p className="text-sm text-gray-600">
             To change the Device ID permission, contact the{" "}
