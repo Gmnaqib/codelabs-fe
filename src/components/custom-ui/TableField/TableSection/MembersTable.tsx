@@ -22,7 +22,7 @@ interface MembersItem {
   subriset?: string;
   role?: string;
   status?: string;
-  change_device_id?: string;
+  change_mac_address?: boolean;
   product_id?: string;
 }
 
@@ -74,11 +74,15 @@ const MembersTable = ({
       const member = data.find((m) => m._id === id);
       if (!member) throw new Error("Member not found");
 
+      const parsedValue: string | boolean = key === "change_mac_address"
+        ? value === "true"
+        : value.toLowerCase();
+
       const safePayload = {
         name: member.name ?? "",
         email: member.email ?? "",
         ...member,
-        [key]: value.toLowerCase(),
+        [key]: parsedValue,
       };
 
       await updateUser(id, safePayload);
@@ -201,18 +205,12 @@ const MembersTable = ({
                     <TableCell className="w-[150px]">
                       <DropdownField
                         key={`deviceid-${item._id}`}
-                        title={
-                          String(item.change_device_id) === "true"
-                            ? "Enabled"
-                            : String(item.change_device_id) === "false"
-                            ? "Disabled"
-                            : "Not Set"
-                        }
+                        title={item.change_mac_address ? "Enabled" : "Disabled"}
                         menu={["Disabled", "Enabled"]}
                         onSelect={(val: string) =>
                           handleUpdate(
                             item._id,
-                            "change_device_id",
+                            "change_mac_address",
                             val === "Enabled" ? "true" : "false"
                           )
                         }

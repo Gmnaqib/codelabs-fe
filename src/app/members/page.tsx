@@ -51,7 +51,7 @@ const Members = () => {
         subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(u.research?.toLowerCase() || "")
           ? u.research || "Other"
           : "Other",
-        change_device_id: u.change_device_id,
+        change_mac_address: u.change_mac_address,
         product_id: u.product_id,
       }));
 

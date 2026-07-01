@@ -20,7 +20,7 @@ export type UserApiResponse = {
   role?: string;
   status?: string;
   research?: string;
-  change_device_id?: string;
+  change_mac_address?: boolean;
   product_id?: string;
 };
 
