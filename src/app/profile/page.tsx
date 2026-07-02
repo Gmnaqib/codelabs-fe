@@ -12,6 +12,8 @@ import { PencilIcon } from "@heroicons/react/24/solid";
 import Cropper from "react-easy-crop";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+const MAX_SIZE_BYTES = 500 * 1024; // 500KB
+
 const getCroppedImg = async (imageSrc: string, pixelCrop: { x: number; y: number; width: number; height: number }): Promise<Blob> => {
   const image = new Image();
   image.src = imageSrc;
@@ -21,12 +23,18 @@ const getCroppedImg = async (imageSrc: string, pixelCrop: { x: number; y: number
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
   const ctx = canvas.getContext("2d")!;
-
   ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, pixelCrop.width, pixelCrop.height);
 
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.9);
-  });
+  const toBlob = (quality: number): Promise<Blob> =>
+    new Promise((resolve) => canvas.toBlob((blob) => resolve(blob!), "image/jpeg", quality));
+
+  let quality = 0.9;
+  let blob = await toBlob(quality);
+  while (blob.size > MAX_SIZE_BYTES && quality > 0.1) {
+    quality -= 0.1;
+    blob = await toBlob(quality);
+  }
+  return blob;
 };
 
 const Profile = () => {
@@ -144,6 +152,11 @@ const Profile = () => {
     setUploadingPhoto(true);
     try {
       const croppedBlob = await getCroppedImg(cropSrc, croppedAreaPixels);
+      if (croppedBlob.size > MAX_SIZE_BYTES) {
+        showErrorToast("Ukuran foto terlalu besar. Maksimal 500KB.", { duration: 5000 });
+        setUploadingPhoto(false);
+        return;
+      }
       const file = new File([croppedBlob], "profile.jpg", { type: "image/jpeg" });
       const formData = new FormData();
       formData.append("image", file);
