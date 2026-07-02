@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
@@ -6,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { menuNavbar } from '@/config/menu'
 import { getMe } from '@/services/users/userService'
 import { UserType } from '@/types/user'
+import { resolveImageUrl } from '@/lib/utils'
 
 interface NavbarProps {
   isActive: boolean,
@@ -73,7 +73,8 @@ const Navbar = ({ isActive }: NavbarProps) => {
         <Link href="/profile">
           <div className="flex items-center gap-3">
             <div>
-              <Image src="/icon/profile.png" alt="profile" width={35} height={0} className='rounded-full' />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={resolveImageUrl(user?.image)} alt="profile" className='rounded-full object-cover' style={{ width: 35, height: 35 }} />
             </div>
             <div className='hidden md:flex flex-col'>
               <p className='text-sm'>{user ? user.name : "Loading..."}</p>

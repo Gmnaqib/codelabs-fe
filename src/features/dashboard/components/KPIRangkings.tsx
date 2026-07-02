@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react"
-import Image from "next/image"
 import SelectField from "@/components/custom-ui/SelectField"
 import { DataSelectRangkingsKPI } from "@/config/dashboard"
 import { getKPIRankings } from "@/services/kpi/kpiService"
+import { resolveImageUrl } from "@/lib/utils"
 
 interface KPIRankingUser {
   name: string;
   totalPoints: number;
   year: number;
   month: number;
+  image?: string | null;
 }
 
 const KPIRangkings = () => {
@@ -59,12 +60,13 @@ const KPIRangkings = () => {
         {sortedUsers.map((user, index) => (
           <div key={user.name + '-' + user.totalPoints + '-' + index} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative">
-              <Image
-                src="/icon/profile.png"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resolveImageUrl(user.image)}
                 alt="profile"
-                width={50}
                 height={50}
-                className="rounded-full"
+                width={50}
+                className="rounded-full object-cover"
               />
               <div className="absolute flex justify-center items-center top-0 right-0 -mr-1.5 bg-[#2080D9] w-5 h-5 rounded-full">
                 <p className="text-xs text-white font-semibold">
