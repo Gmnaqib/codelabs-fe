@@ -14,6 +14,7 @@ import {
   CubeIcon as CubeSolid,
   CircleStackIcon as CircleStackSolid,
   Cog6ToothIcon as CogSolid,
+  FingerPrintIcon as FingerPrintSolid,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -32,6 +33,7 @@ import {
   CubeIcon as CubeOutline,
   CircleStackIcon as CircleStackOutline,
   Cog6ToothIcon as CogOutline,
+  FingerPrintIcon as FingerPrintOutline,
 } from "@heroicons/react/24/outline";
 
 export const menuItems = [
@@ -140,6 +142,13 @@ export const menuItems = [
     roles: ["admin", "president"],
   },
   {
+    title: "Check In",
+    iconSolid: FingerPrintSolid,
+    iconOutline: FingerPrintOutline,
+    route: "/check-in",
+    roles: ["admin", "minister of operation", "president"],
+  },
+  {
     title: "Log Out",
     iconSolid: ArrowLeftSolid,
     iconOutline: ArrowLeftOutline,
@@ -168,4 +177,5 @@ export const menuNavbar = [
   { path: '/branding', title: 'Branding' },
   { path: '/points', title: 'KPI Points' },
   { path: '/settings', title: 'Settings' },
+  { path: '/check-in', title: 'Check In' },
 ]

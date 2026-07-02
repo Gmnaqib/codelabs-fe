@@ -172,6 +172,11 @@ export async function getLeaveRequestById(id: string) {
   }
 }
 
+export const postCheckinByAdmin = async (userId: string) => {
+  const res = await axiosClient.post('/attendance/checkin-by-admin', { userId });
+  return res.data;
+};
+
 export async function reviewLeaveRequest(id: string, status: string) {
   try {
     await axiosClient.patch(`/attendance/leave-requests/review/${id}`, {
