@@ -23,6 +23,12 @@ const Navbar = ({ isActive }: NavbarProps) => {
       setUser(res);
       setLoading(false);
     }).catch(() => setLoading(false));
+
+    const handlePhotoUpdate = () => {
+      getMe().then(setUser).catch(() => {});
+    };
+    window.addEventListener("user-photo-updated", handlePhotoUpdate);
+    return () => window.removeEventListener("user-photo-updated", handlePhotoUpdate);
   }, []);
 
   useEffect(() => {

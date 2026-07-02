@@ -10,6 +10,7 @@ export type UserType = {
   mac_address?: string;
   change_mac_address?: boolean;
   image?: string;
+  image_updated_at?: string;
 };
 
 export type UserApiResponse = {
