@@ -1,20 +1,22 @@
 "use client";
 import InputField from "@/components/custom-ui/InputField";
-import { getMe, updateUser, registerMacAddress } from "@/services/users/userService";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import { getMe, updateUser, updateMe, registerMacAddress } from "@/services/users/userService";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import ProtectedRoute from "@/features/login/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import MotionWrapper from "@/components/custom-ui/MotionWrapper";
 import { UserType } from "@/types/user";
+import { PencilIcon } from "@heroicons/react/24/solid";
 
 const Profile = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [user, setUser] = useState<UserType | null>(null); 
+  const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
       getMe().then((res) => {
         setUser(res);
@@ -23,6 +25,12 @@ const Profile = () => {
     }, []);
     
     if (loading) return null;
+
+  const resolveImageUrl = (img?: string | null) => {
+    if (!img) return "/logo/LogoAplication.png";
+    if (img.startsWith("/uploads/")) return `${process.env.NEXT_PUBLIC_API_URL}${img}`;
+    return img;
+  };
 
   const maskMac = (mac: string | null | undefined): string => {
     if (!mac) return "No Device ID";
@@ -74,6 +82,24 @@ const Profile = () => {
   };
 
 
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      await updateMe(formData);
+      toast.success("Foto profil berhasil diupdate!");
+      const res = await getMe();
+      setUser(res);
+    } catch {
+      showErrorToast("Gagal upload foto.", { duration: 5000 });
+    }
+    setUploadingPhoto(false);
+    e.target.value = "";
+  };
+
   const handleLogout = () => {
     window.location.href = '/logout';
   };
@@ -82,13 +108,28 @@ const Profile = () => {
       <MotionWrapper>
         <div className="flex flex-col gap-5">
           <div className="flex flex-col items-center">
-            <Image
-              src={(user?.image || "/logo/LogoAplication.png")}
-              alt="profile"
-              width={130}
-              height={130}
-              className="rounded-full"
-            />
+            <div className="relative w-32.5 h-32.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resolveImageUrl(user?.image)}
+                alt="profile"
+                className="rounded-full object-cover w-full h-full"
+              />
+              <button
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="absolute bottom-1 right-1 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
+              >
+                <PencilIcon className="w-4 h-4 text-white" />
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoChange}
+              />
+            </div>
             <p className="text-lg mt-2">{user?.name}</p>
             <p className="capitalize font-semibold text-xl md:text-2xl">{user?.role}</p>
           </div>

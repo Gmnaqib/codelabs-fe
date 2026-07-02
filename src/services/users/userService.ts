@@ -62,3 +62,10 @@ export async function registerMacAddress() {
   return data;
 }
 
+export async function updateMe(formData: FormData) {
+  const { data } = await axiosClient.patch(`/users/me`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+

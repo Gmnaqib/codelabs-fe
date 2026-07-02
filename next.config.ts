@@ -16,7 +16,18 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   turbopack: {}, 
   images: {
-    domains: ["cdn.codelabspace.or.id"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.codelabspace.or.id",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "4000",
+        pathname: "/uploads/**",
+      },
+    ],
   },
 };
 
