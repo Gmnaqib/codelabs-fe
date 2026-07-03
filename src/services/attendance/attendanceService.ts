@@ -70,9 +70,16 @@ export async function getAttendanceSummaryByUserId(userId: string, year?: number
   }
 }
 
+const CLL_WIFI_IP = "103.112.189.131";
+
 export const checkNetwork = async (): Promise<boolean> => {
-  const res = await axiosClient.get('/attendance/network-check');
-  return res.data.data?.connected ?? false;
+  try {
+    const res = await fetch("https://ipwho.is/", { signal: AbortSignal.timeout(5000) });
+    const data = await res.json();
+    return data.ip === CLL_WIFI_IP;
+  } catch {
+    return false;
+  }
 };
 
 export const postCheckIn = async (reason: string = '') => {
