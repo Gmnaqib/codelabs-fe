@@ -139,14 +139,14 @@ export const menuItems = [
     iconSolid: CogSolid,
     iconOutline: CogOutline,
     route: "/settings",
-    roles: ["admin", "president"],
+    roles: ["admin", "minister of operation"],
   },
   {
     title: "Check In",
     iconSolid: FingerPrintSolid,
     iconOutline: FingerPrintOutline,
     route: "/check-in",
-    roles: ["admin", "minister of operation", "president"],
+    roles: ["admin"],
   },
   {
     title: "Log Out",
