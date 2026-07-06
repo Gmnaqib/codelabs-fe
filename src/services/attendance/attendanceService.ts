@@ -74,9 +74,9 @@ const CLL_WIFI_IP = "103.112.189.131";
 
 export const checkNetwork = async (): Promise<boolean> => {
   try {
-    const res = await fetch("https://ipwho.is/", { signal: AbortSignal.timeout(5000) });
+    const res = await fetch("https://api.ipify.org?format=json", { signal: AbortSignal.timeout(5000) });
     const data = await res.json();
-    return data.ip === CLL_WIFI_IP;
+    return typeof data.ip === "string" && data.ip.startsWith(CLL_WIFI_IP);
   } catch {
     return false;
   }

@@ -142,6 +142,10 @@ const AttendanceCard = () => {
   }, [user]);
 
   const handleCheckin = async () => {
+    if (!isOnNetwork) {
+      toast.error('You must be connected to the Codelabs network to check in.');
+      return;
+    }
     if (isLateCheckin) {
       setDialogOpen(true);
       return;
@@ -150,6 +154,11 @@ const AttendanceCard = () => {
   };
 
   const submitCheckin = async (reasonValue: string) => {
+    if (!isOnNetwork) {
+      toast.error('You must be connected to the Codelabs network to check in.');
+      setDialogOpen(false);
+      return;
+    }
     setCheckinLoading(true);
     try {
       await postCheckIn(reasonValue);
@@ -192,7 +201,7 @@ const AttendanceCard = () => {
       onClick={handleCheckin}
       variant="link"
       className='h-28 cursor-pointer'
-      disabled={checkinLoading}
+      disabled={checkinLoading || !isOnNetwork}
     >
       <div
         className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
@@ -290,8 +299,8 @@ const AttendanceCard = () => {
                     onOpenChange={setDialogOpen}
                     onSubmit={() => submitCheckin(reason)}
                     onCancel={() => setDialogOpen(false)}
-                    disabled={checkinLoading}
-                    submitDisabled={!reason.trim() || checkinLoading}
+                    disabled={checkinLoading || !isOnNetwork}
+                    submitDisabled={!reason.trim() || checkinLoading || !isOnNetwork}
                   >
                     <div className="flex flex-col gap-4">
                       <InputField
