@@ -1,0 +1,1 @@
+export { useOperationalTable } from './useOperationalTable';
