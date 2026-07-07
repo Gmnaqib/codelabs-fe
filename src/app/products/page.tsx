@@ -4,13 +4,15 @@ import InputField from '@/components/custom-ui/InputField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, ChangeEvent } from 'react'
 import { postProduct } from '@/services/product/productsService';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
+import { useTableStore } from '@/shared/state';
 
 const Product = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const [activePage, setActivePage] = useState<string>("products");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [name, setName] = useState("");
@@ -43,14 +45,17 @@ const Product = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of research']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setGlobalSearchQuery(e.target.value);
+            }}
           />
           <DialogField
             name="Add Product"
