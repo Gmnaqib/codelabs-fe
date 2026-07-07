@@ -4,14 +4,17 @@ import CardField from '@/components/custom-ui/CardField'
 import InputField from '@/components/custom-ui/InputField'
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useEffect, useState } from 'react'
 import { BsFillPeopleFill } from 'react-icons/bs'
 
 import { getKPIRankings } from '@/services/kpi/kpiService';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
+import { useTableStore } from '@/shared/state'
 
 const Assessments = () => {
+    const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
+    const setGlobalDateRange = useTableStore((s) => s.setDateRange);
     const [average, setAverage] = useState<number | null>(null);
     const [statusLabel, setStatusLabel] = useState('Not Safe');
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -80,7 +83,7 @@ const Assessments = () => {
     }, [selectedYear, selectedMonth]);
 
     return (
-        <ProtectedRoute>
+        <ProtectedRoute roles={['admin', 'lecturer']}>
             <MotionWrapper>
                 <Card>
                     <div className="flex flex-col gap-10 p-5">
@@ -90,14 +93,18 @@ const Assessments = () => {
                                     type="string"
                                     placeholder="Search by Name"
                                     value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
+                                    onChange={e => {
+                                        setSearchQuery(e.target.value);
+                                        setGlobalSearchQuery(e.target.value);
+                                    }}
                                 />
                             </div>
                             <div className='w-full z-40 lg:w-fit'>
-                                <CalendarMonthYearPicker 
+                                <CalendarMonthYearPicker
                                 onChange={({ month, year }) => {
                                     setSelectedMonth(month + 1);
                                     setSelectedYear(year);
+                                    setGlobalDateRange(month + 1, year);
                                 }}/>
                             </div>
                         </div>
