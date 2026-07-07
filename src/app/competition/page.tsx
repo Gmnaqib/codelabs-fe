@@ -4,31 +4,38 @@ import InputField from '@/components/custom-ui/InputField'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
+import { useTableStore } from '@/shared/state'
 
 
 const Competiton = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
+  const setGlobalDateRange = useTableStore((s) => s.setDateRange);
   const [activePage, setActivePage] = useState<string>("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of competition']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setGlobalSearchQuery(e.target.value);
+            }}
           />
           <div className="z-40">
             <CalendarMonthYearPicker
               onChange={({ month, year }) => {
                 setSelectedMonth(month + 1);
                 setSelectedYear(year);
+                setGlobalDateRange(month + 1, year);
               }}
             />
           </div>
