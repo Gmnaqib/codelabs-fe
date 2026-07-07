@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from 'react'
 import { Calendar } from "@/components/ui/calendar"
 import { AttendanceCard, MonthlyProgressCard, CashBillsCard, PicketCard, InProgressCard, TotalMembers, AverageMonthly, OperationalCash, OrganizationStatistic, OrganizationSummary, KPIRangkings, ResearchPercentage } from "@/features/dashboard/components"
-import ProtectedRoute from "@/features/login/components/ProtectedRoute"
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute"
 import { Button } from '@/components/ui/button'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
 import { useClock } from '@/hooks/useClock'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { getMe } from '@/services/users/userService'
+import { useAuth } from '@/features/auth/hooks'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import TotalAttendance from '@/features/dashboard/components/TotalAttendance'
 import OperationalTotalAttendanceCard from '@/features/dashboard/components/OperationalTotalAttendanceCard'
@@ -19,7 +19,8 @@ const Dashboard = () => {
   const [isRightOpen, setIsRightOpen] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const isXl = useMediaQuery("(min-width: 1280px)");
-  const [role, setRole] = useState<string | null>(null);
+  const { user } = useAuth();
+  const role = user?.role;
 
   useEffect(() => {
     if (isXl) {
@@ -27,18 +28,6 @@ const Dashboard = () => {
     }
   }, [isXl]);
 
-  useEffect(() => {
-    const fetchMe = async () => {
-      try {
-        const me = await getMe();
-        setRole(me.role);
-      } catch {
-        setRole(null);
-      }
-    };
-    fetchMe();
-  }, []);
-  
   return (
     <ProtectedRoute>
       <MotionWrapper>
