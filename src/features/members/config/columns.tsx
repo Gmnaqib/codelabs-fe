@@ -1,8 +1,14 @@
+import React from 'react';
 import type { TableColumn } from '@/features/table/components';
 import type { User } from '@/types/domain';
 import { ROLE_LABELS } from '@/shared/constants';
+import MemberEditCell from '@/features/members/components/MemberEditCell';
 
-export function createMemberColumns(): TableColumn<User>[] {
+interface CreateMemberColumnsParams {
+  onEdit?: () => void;
+}
+
+export function createMemberColumns({ onEdit }: CreateMemberColumnsParams = {}): TableColumn<User>[] {
   return [
     { key: 'nim', label: 'NIM', width: 120 },
     {
@@ -20,5 +26,10 @@ export function createMemberColumns(): TableColumn<User>[] {
       render: (_value, row) => ROLE_LABELS[row.role] ?? row.role,
     },
     { key: 'status', label: 'Status', width: 150 },
+    {
+      key: 'action' as keyof User & string,
+      label: 'Action',
+      render: (_value, row) => <MemberEditCell member={row} onSuccess={onEdit} />,
+    },
   ];
 }

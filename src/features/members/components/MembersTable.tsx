@@ -13,8 +13,8 @@ interface MembersTableProps {
 }
 
 export default function MembersTable({ filterRole, filterSubriset, filterStatus }: MembersTableProps) {
-  const { users, loading, error } = useMembersTable({ filterRole, filterSubriset, filterStatus });
-  const columns = useMemo(() => createMemberColumns(), []);
+  const { users, loading, error, refetch } = useMembersTable({ filterRole, filterSubriset, filterStatus });
+  const columns = useMemo(() => createMemberColumns({ onEdit: refetch }), [refetch]);
 
   if (error) {
     return <div className="text-destructive p-4">{error.message}</div>;
