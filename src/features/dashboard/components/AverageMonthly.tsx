@@ -1,34 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { getKPIRankings } from '@/services/kpi/kpiService'
+import React from 'react'
 import Link from 'next/link'
 import CardField from '@/components/custom-ui/CardField'
 import { ArrowTrendingUpIcon } from '@heroicons/react/24/solid'
+import { useAverageMonthlyCard } from '@/features/dashboard/hooks'
 
 const AverageMonthly = () => {
-  const [average, setAverage] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAverage = async () => {
-      try {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1;
-        const data = await getKPIRankings(year, month);
-        if (Array.isArray(data) && data.length > 0) {
-          const total = data.reduce((sum, user) => sum + (user.totalPoints || 0), 0);
-          setAverage(Math.round(total / data.length));
-        } else {
-          setAverage(0);
-        }
-      } catch {
-        setAverage(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAverage();
-  }, []);
+  const { average, loading } = useAverageMonthlyCard();
 
   let statusLabel = 'Note Safe';
   let statusClass = 'text-warning';

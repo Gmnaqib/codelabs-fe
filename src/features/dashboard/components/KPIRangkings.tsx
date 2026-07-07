@@ -1,38 +1,12 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import SelectField from "@/components/custom-ui/SelectField"
 import { DataSelectRangkingsKPI } from "@/config/dashboard"
-import { getKPIRankings } from "@/services/kpi/kpiService"
 import { resolveImageUrl } from "@/lib/utils"
-
-interface KPIRankingUser {
-  name: string;
-  totalPoints: number;
-  year: number;
-  month: number;
-  image?: string | null;
-}
+import { useKpiRankingsCard } from "@/features/dashboard/hooks"
 
 const KPIRangkings = () => {
   const [filter, setFilter] = useState("highest")
-  const [users, setUsers] = useState<KPIRankingUser[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchRankings = async () => {
-      try {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1;
-        const res = await getKPIRankings(year, month);
-        setUsers(res);
-      } catch (error) {
-        console.error("Failed to fetch KPI rankings:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRankings();
-  }, []);
+  const { users, loading } = useKpiRankingsCard();
 
   const sortedUsers = [...users].sort((a, b) => {
     return filter === "highest"
@@ -52,7 +26,7 @@ const KPIRangkings = () => {
           options={DataSelectRangkingsKPI}
           value={filter}
           onChange={(value) => setFilter(value)}
-          
+
         />
       </div>
 

@@ -1,28 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import CardField from '@/components/custom-ui/CardField'
-import { getMeResearchRecords } from '@/services/research/researchService';
 import { ClockIcon } from '@heroicons/react/24/solid';
+import { useInProgressCard } from '@/features/dashboard/hooks';
 
 const InProgressCard = () => {
-  const [total, setTotal] = useState(0);
-  const [active, setActive] = useState(0);
-  const [completed, setCompleted] = useState(0);
-
-  useEffect(()=>{
-    const fetchData = async () => {
-      try {
-        const records = await getMeResearchRecords();
-
-        type ResearchRecord = { progress: string };
-        setTotal(records.length);
-        setActive(records.filter((item: ResearchRecord) => item.progress === "unfinished").length);
-        setCompleted(records.filter((item: ResearchRecord) => item.progress === "finished").length);
-      } catch (error) {
-        console.error("Error fetching research data:", error);
-      }
-    };
-     fetchData();
-  },[])
+  const { total, active, completed } = useInProgressCard();
 
   return (
     <CardField title="In Progress" icon={<ClockIcon />} bg>

@@ -2,27 +2,11 @@ import React from 'react'
 import CardField from '@/components/custom-ui/CardField'
 import { Progress } from '@/components/ui/progress'
 import { ChartBarSquareIcon } from '@heroicons/react/24/solid'
-import { getKPIMeRankings } from '@/services/kpi/kpiService'
+import { useMonthlyProgressCard } from '@/features/dashboard/hooks'
 
 const MonthlyProgressCard = () => {
-  const [totalPoints, setTotalPoints] = React.useState<number>(0);
-  const [rank, setRank] = React.useState<number | null>(null);
-  React.useEffect(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const fetchKPI = async () => {
-      try {
-        const data = await getKPIMeRankings(year, month);
-        setTotalPoints(data.totalPoints);
-        setRank(data.rank ?? null);
-      } catch {
-        setTotalPoints(0);
-        setRank(null);
-      }
-    };
-    fetchKPI();
-  }, []);
+  const { totalPoints, rank } = useMonthlyProgressCard();
+
   let statusLabel = 'Note Safe';
   let statusClass = 'text-warning';
   if (totalPoints !== null) {

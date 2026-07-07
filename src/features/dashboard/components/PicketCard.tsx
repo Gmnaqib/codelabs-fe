@@ -1,39 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { GLTFLoader } from 'three-stdlib';
 import CardField from "@/components/custom-ui/CardField";
-import { getTodayPicketSchedule } from "@/services/picket/picketService";
 import { Label } from "@/components/ui/label";
-import { PicketPerson } from "@/types/PicketPersonProps";
 import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
 import { PicketCardProps } from "@/types/PicketCardProps";
+import { usePicketCard } from "@/features/dashboard/hooks";
 
 const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
-  const [picketData, setPicketData] = useState<PicketPerson[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        type AssignedUser = { _id: string; name: string };
-        type Schedule = { assignedUsers?: AssignedUser[] };
-        const data: Schedule[] = await getTodayPicketSchedule();
-        const withUsers = data.filter((d) => d.assignedUsers && d.assignedUsers.length > 0);
-        const users: AssignedUser[] = withUsers.length > 0 ? withUsers[0].assignedUsers! : [];
-        const names: PicketPerson[] = users.map((u) => ({
-          name: u.name,
-          userId: u._id,
-        }));
-        setPicketData(names);
-      } catch (err) {
-        console.error(err);
-        setPicketData([]);
-      }
-    };
-    fetchData();
-  }, []);
-
+  const { picketData } = usePicketCard();
 
   const groups = [
     { title: "Vacuum Cleaner", data: picketData.slice(0, 3) },

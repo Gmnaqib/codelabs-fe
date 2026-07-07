@@ -1,91 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import CardField from '@/components/custom-ui/CardField'
 import { MegaphoneIcon } from '@heroicons/react/24/solid'
 import DialogField from '@/components/custom-ui/DialogField';
 import { ArrowUpRightIcon } from '@heroicons/react/24/outline';
+import { useAttendanceSummaryCard } from '@/features/dashboard/hooks';
 
 const OperationalTotalAttendanceCard = () => {
-
-  const [lateTodayCount, setLateTodayCount] = useState(0);
-  // const [lateTodayNames, setLateTodayNames] = useState<string[]>([]);
-  const [lateTodayList, setLateTodayList] = useState<{ name: string, reason: string }[]>([]);
-  const [absentCount, setAbsentCount] = useState(0);
-  const [absentNames, setAbsentNames] = useState<string[]>([]);
-  const [leaveExceededCount, setLeaveExceededCount] = useState(0);
-  const [sickExceededCount, setSickExceededCount] = useState(0);
-  const [leaveExceededList, setLeaveExceededList] = useState<{ name: string, count: number, reason?: string }[]>([]);
-  const [sickExceededList, setSickExceededList] = useState<{ name: string, count: number, reason?: string }[]>([]);
-
-  useEffect(() => {
-    async function fetchAttendanceAndUsers() {
-      try {
-        const [attendanceService, userService] = await Promise.all([
-          import('@/services/attendance/attendanceService'),
-          import('@/services/users/userService'),
-        ]);
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth() + 1;
-        const [attendanceData, allUsers, attendanceSummary] = await Promise.all([
-          attendanceService.getAttendanceToday(),
-          userService.getAllUsers(),
-          attendanceService.getAttendanceSummary(year, month),
-        ]);
-
-        // let lateNames: string[] = [];
-        let lateCount = 0;
-        let lateList: { name: string, reason: string }[] = [];
-        if (Array.isArray(attendanceData) && Array.isArray(allUsers)) {
-          const lateEntries = attendanceData.filter((item) => item.reason && item.checkIn !== null && item.reason.trim() !== '');
-          lateCount = lateEntries.length;
-          type User = { _id: string; name: string };
-          const userMap = new Map((allUsers as User[]).map((u) => [u._id, u.name]));
-          // lateNames = lateEntries.map((item) => userMap.get(item.userId) || '-');
-          lateList = lateEntries.map((item) => ({ name: userMap.get(item.userId) || '-', reason: item.reason }));
-        }
-        setLateTodayCount(lateCount);
-        setLateTodayList(lateList);
-
-        const activeUsers = Array.isArray(allUsers)
-          ? allUsers.filter((user) => user.status === 'active')
-          : [];
-        const attendanceUserIds = Array.isArray(attendanceData)
-          ? attendanceData.map((item) => item.userId)
-          : [];
-        const absentUsers = activeUsers.filter((user) => !attendanceUserIds.includes(user._id));
-        setAbsentCount(absentUsers.length);
-        setAbsentNames(absentUsers.map((user) => user.name || '-'));
-
-        const leaveExceeded = Array.isArray(attendanceSummary)
-          ? attendanceSummary.filter((item) => item.counts && item.counts.permit && item.counts.permit > 2)
-          : [];
-        setLeaveExceededCount(leaveExceeded.length);
-        setLeaveExceededList(leaveExceeded.map((item) => ({ name: item.userName || '-', count: item.counts.permit, reason: item.reason })));
-
-        const sickExceeded = Array.isArray(attendanceSummary)
-          ? attendanceSummary.filter((item) => item.counts && item.counts.sick && item.counts.sick > 4)
-          : [];
-        setSickExceededCount(sickExceeded.length);
-        setSickExceededList(sickExceeded.map((item) => {
-          let reason = '';
-          if (Array.isArray(attendanceData)) {
-            // Cari semua data attendance user ini yang punya reason (bukan reasonCheckOut)
-            const userAttendances = attendanceData.filter((a) => a.userId === item.userId && a.reason && a.reason.trim() !== '');
-            if (userAttendances.length > 0) {
-              reason = userAttendances[0].reason;
-            }
-          }
-          return { name: item.userName || '-', count: item.counts.sick, reason };
-        }));
-      } catch {
-        setLateTodayCount(0);
-        setAbsentCount(0);
-        setLeaveExceededCount(0);
-        setSickExceededCount(0);
-      }
-    }
-    fetchAttendanceAndUsers();
-  }, []);
+  const {
+    lateTodayCount,
+    lateTodayList,
+    absentCount,
+    absentNames,
+    leaveExceededCount,
+    sickExceededCount,
+    leaveExceededList,
+    sickExceededList,
+  } = useAttendanceSummaryCard();
 
   const menu = [
     {
