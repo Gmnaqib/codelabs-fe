@@ -9,9 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { TableRow as TRow, TableSortConfig } from '@/types/domain';
+import type { TableSortConfig } from '@/types/domain';
 
-export interface TableColumn<T extends TRow> {
+interface RowWithId {
+  _id: string;
+}
+
+export interface TableColumn<T extends RowWithId> {
   key: keyof T & string;
   label: string;
   width?: string | number;
@@ -20,7 +24,7 @@ export interface TableColumn<T extends TRow> {
   className?: string;
 }
 
-interface BaseTableProps<T extends TRow> {
+interface BaseTableProps<T extends RowWithId> {
   data: T[];
   columns: TableColumn<T>[];
   onRowClick?: (row: T) => void;
@@ -31,7 +35,7 @@ interface BaseTableProps<T extends TRow> {
   rowClassName?: (row: T) => string;
 }
 
-function BaseTableInner<T extends TRow>({
+function BaseTableInner<T extends RowWithId>({
   data,
   columns,
   onRowClick,
@@ -115,6 +119,6 @@ function BaseTableInner<T extends TRow>({
 
 BaseTableInner.displayName = 'BaseTable';
 
-export const BaseTable = BaseTableInner as <T extends TRow>(
+export const BaseTable = BaseTableInner as <T extends RowWithId>(
   props: BaseTableProps<T>
 ) => React.ReactElement;
