@@ -5,7 +5,7 @@ import DialogField from "@/components/custom-ui/DialogField";
 import { DropdownField } from "@/components/custom-ui/DropdownField";
 import InputField from "@/components/custom-ui/InputField";
 import { TableField } from "@/components/custom-ui/TableField";
-import ProtectedRoute from "@/features/login/components/ProtectedRoute";
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { getAllUsers, createUser, multipleRegisterUsers } from "@/services/users/userService";
 import { UserApiResponse, UserType } from "@/types/user";
 import { Card } from "@/components/ui/card";
@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import MotionWrapper from "@/components/custom-ui/MotionWrapper";
+import { useTableStore } from "@/shared/state";
 
 const Members = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const [users, setUsers] = useState<UserType[]>([]);
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("All Role");
@@ -148,7 +150,7 @@ const Members = () => {
   })();
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'president', 'vice president']}>
       <MotionWrapper>
         <div className="w-full flex flex-col">
 
@@ -158,7 +160,10 @@ const Members = () => {
                 type="text"
                 placeholder="Search by Name"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setGlobalSearchQuery(e.target.value);
+                }}
               />
 
               <DropdownField
