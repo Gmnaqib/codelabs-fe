@@ -1,33 +1,15 @@
 import { axiosClient } from "@/lib/axiosClient";
-import { saveToken } from "@/lib/token";
-import { LoginResponse } from "@/types/user";
-import { AxiosError } from "axios";
-
-interface LoginPayload {
-  nim: string;
-  password: string;
-  device_id?: string;
-}
-
-interface ErrorResponse {
-  message: string;
-}
-
-function getDeviceId(): string {
-  let deviceId = localStorage.getItem("device_id");
-
-  if (!deviceId) {
-    deviceId = crypto.randomUUID();
-    localStorage.setItem("device_id", deviceId);
-  }
-
-  return deviceId;
-}
+import { AppError } from "@/shared/services";
+import { API_ENDPOINTS } from "@/shared/constants";
+import { getDeviceId, setStoredToken } from "@/shared/utils";
+import { useAuthStore } from "@/shared/state";
+import type { LoginPayload, LoginResponseData } from "@/types/domain";
+import type { ApiResponse } from "@/types";
 
 export async function loginUser(
   nim: string,
   password: string
-): Promise<LoginResponse> {
+): Promise<ApiResponse<LoginResponseData>> {
 
   const existingDeviceId = localStorage.getItem("device_id");
 
@@ -38,22 +20,21 @@ export async function loginUser(
   };
 
   try {
-    const { data } = await axiosClient.post<LoginResponse>(
-      "/auth/login",
+    const { data } = await axiosClient.post<ApiResponse<LoginResponseData>>(
+      API_ENDPOINTS.auth.login,
       payload
     );
 
     if (data?.data?.token) {
-      saveToken(data.data.token);
+      setStoredToken(data.data.token);
+      useAuthStore.getState().hydrateFromToken();
     }
 
     return data;
 
   } catch (err) {
 
-    const error = err as AxiosError<ErrorResponse>;
-
-    if (error.response?.data?.message === "Device ID is required") {
+    if (err instanceof AppError && err.message === "Device ID is required") {
 
       const newDeviceId = getDeviceId();
 
@@ -63,13 +44,14 @@ export async function loginUser(
         device_id: newDeviceId,
       };
 
-      const { data } = await axiosClient.post<LoginResponse>(
-        "/auth/login",
+      const { data } = await axiosClient.post<ApiResponse<LoginResponseData>>(
+        API_ENDPOINTS.auth.login,
         retryPayload
       );
 
       if (data?.data?.token) {
-        saveToken(data.data.token);
+        setStoredToken(data.data.token);
+        useAuthStore.getState().hydrateFromToken();
       }
 
       return data;
