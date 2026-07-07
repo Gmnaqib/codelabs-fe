@@ -1,7 +1,7 @@
 "use client"
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect, ChangeEvent, Suspense } from 'react'
 import InputField from '@/components/custom-ui/InputField';
 import DialogField from '@/components/custom-ui/DialogField';
@@ -12,6 +12,7 @@ import { createKPIDetail, getKPIDetail, updateKPIDetail } from '@/services/kpi/k
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { useSearchParams } from 'next/navigation';
+import { useTableStore } from '@/shared/state';
 
 enum KPILabel {
   REQUIRED = "REQUIRED",
@@ -35,6 +36,7 @@ const PointsDetails = () => {
 };
 
 const PointsDetailsContent = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const searchParams = useSearchParams();
   const masterId = searchParams.get('id') ?? '';
 
@@ -124,14 +126,17 @@ const PointsDetailsContent = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'president', 'vice president']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setGlobalSearchQuery(e.target.value);
+            }}
           />
           <DialogField
             name="Add Detail"
