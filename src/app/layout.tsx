@@ -2,7 +2,7 @@ import { Poppins } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import LayoutWrapper from "@/components/layouts/LayoutWrapper";
-import { AuthProvider } from "../context/AuthContext";
+import AuthInitializer from "@/features/auth/components/AuthInitializer";
 import { Toaster } from "sonner";
 import AutoTitle from "@/components/custom-ui/CustomTitle";
 
@@ -40,13 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased bg-secondary`}>
-        <AuthProvider>
+        <AuthInitializer>
           <LayoutWrapper>
             <AutoTitle />
                 {children}
             <Toaster richColors />
           </LayoutWrapper>
-        </AuthProvider>
+        </AuthInitializer>
       </body>
     </html>
   );
