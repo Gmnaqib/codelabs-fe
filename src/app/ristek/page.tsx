@@ -5,10 +5,13 @@ import InputField from '@/components/custom-ui/InputField'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
+import { useTableStore } from '@/shared/state'
 
 const Ristek = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
+  const setGlobalDateRange = useTableStore((s) => s.setDateRange);
   const [activePage, setActivePage] = useState<string>("ristek");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSubResearch, setFilterSubResearch] = useState("All SubResearch");
@@ -17,7 +20,7 @@ const Ristek = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of research']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
           <div className="flex gap-4 flex-col lg:flex-row">
@@ -25,7 +28,10 @@ const Ristek = () => {
               placeholder='Search by name...'
               type='text'
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setGlobalSearchQuery(e.target.value);
+              }}
             />
             <DropdownField
               title={filterSubResearch}
@@ -43,6 +49,7 @@ const Ristek = () => {
               onChange={({ month, year }) => {
                 setSelectedMonth(month);
                 setSelectedYear(year);
+                setGlobalDateRange(month + 1, year);
               }}
               defaultMonth={selectedMonth}
               defaultYear={selectedYear}
