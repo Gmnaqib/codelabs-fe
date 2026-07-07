@@ -3,7 +3,7 @@ import DatePicker from '@/components/custom-ui/DatePicker';
 import DialogField from '@/components/custom-ui/DialogField';
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect } from 'react'
 import { MultiSelectDropdownField } from '@/components/custom-ui/MultiSelectDropdownField';
 import { getAllUsers } from '@/services/users/userService';
@@ -110,7 +110,7 @@ const Picket = () => {
   }, []);
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of operation']}>
       <MotionWrapper>
         <Card className='p-5'>
           <div className="flex justify-between flex-col gap-3 lg:flex-row lg:gap-0">
