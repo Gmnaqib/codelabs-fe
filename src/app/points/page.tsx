@@ -1,7 +1,7 @@
 "use client"
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import InputField from '@/components/custom-ui/InputField';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { getKPIMaster, updateKPIMaster } from '@/services/kpi/kpiService';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
+import { useTableStore } from '@/shared/state'
 
 type KPIMasterItem = {
   _id: string;
@@ -17,6 +18,7 @@ type KPIMasterItem = {
 };
 
 const Points = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const [activePage, setActivePage] = useState<string>("points");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [kpiMasterList, setKpiMasterList] = useState<KPIMasterItem[]>([]);
@@ -67,14 +69,17 @@ const Points = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'president', 'vice president']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setGlobalSearchQuery(e.target.value);
+            }}
           />
         </div>
         {kpiMasterList.reduce((sum, item) => sum + item.point, 0) < 100 && (
