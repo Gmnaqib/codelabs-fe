@@ -4,11 +4,14 @@ import InputField from '@/components/custom-ui/InputField'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { TableField } from '@/components/custom-ui/TableField'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
+import { useTableStore } from '@/shared/state'
 
 
 const Branding = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
+  const setGlobalDateRange = useTableStore((s) => s.setDateRange);
   const [activePage, setActivePage] = useState<string>("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -17,7 +20,7 @@ const Branding = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of branding']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10">
           <div className="flex gap-5 w-fit">
@@ -25,7 +28,10 @@ const Branding = () => {
               placeholder="Search by name..."
               type="text"
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setGlobalSearchQuery(e.target.value);
+              }}
             />
           </div>
           <div className="z-40">
@@ -33,6 +39,7 @@ const Branding = () => {
               onChange={({ month, year }) => {
                 setSelectedMonth(month + 1);
                 setSelectedYear(year);
+                setGlobalDateRange(month + 1, year);
               }}
             />
           </div>
