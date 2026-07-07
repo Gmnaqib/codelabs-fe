@@ -1,7 +1,7 @@
 "use client"
 import { TableField } from '@/components/custom-ui/TableField';
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute';
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute';
 import React, { useState, useEffect } from 'react'
 import { getKPIMeRankings } from '@/services/kpi/kpiService';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
@@ -49,7 +49,18 @@ const KPIScoring = () => {
     }
   }
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      roles={[
+        'admin',
+        'minister of research',
+        'minister of competition',
+        'minister of branding',
+        'minister of operation',
+        'president',
+        'vice president',
+        'user',
+      ]}
+    >
       <MotionWrapper>
         <Card>
           <div className="flex flex-col lg:flex-row lg:justify-between px-5 pt-5">
