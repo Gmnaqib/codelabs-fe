@@ -8,13 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import React, { useState } from "react";
 import { createResearchRecord } from "@/services/research/researchService";
 import { getKPIItemsByKementerian } from "@/services/kpi/kpiService";
-import ProtectedRoute from "@/features/login/components/ProtectedRoute";
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/toastHelper";
 import { CalendarMonthYearPicker } from "@/components/custom-ui/CalendarMonthYearPicker";
 import MotionWrapper from "@/components/custom-ui/MotionWrapper";
+import { useTableStore } from "@/shared/state";
 
 const WeeklyReport = () => {
+  const setGlobalDateRange = useTableStore((s) => s.setDateRange);
   const [activePage, setActivePage] = useState<string>("report");
   const [title, setTitle] = useState("");
   const [week, setWeek] = useState("");
@@ -83,14 +85,26 @@ const WeeklyReport = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      roles={[
+        'admin',
+        'minister of research',
+        'minister of competition',
+        'minister of branding',
+        'minister of operation',
+        'president',
+        'vice president',
+        'user',
+      ]}
+    >
       <MotionWrapper>
         <div className="flex flex-col w-full justify-between mb-10 md:flex-row gap-5">
           <div className="flex flex-col gap-3 md:gap-5 md:flex-row">
-            <CalendarMonthYearPicker 
+            <CalendarMonthYearPicker
               onChange={({ month, year }) => {
-                setSelectedMonth(month + 1); 
+                setSelectedMonth(month + 1);
                 setSelectedYear(year);
+                setGlobalDateRange(month + 1, year);
               }}
             />
 
