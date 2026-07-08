@@ -2,7 +2,7 @@
 import { CalendarMonthYearPicker } from '@/components/custom-ui/CalendarMonthYearPicker'
 import InputField from '@/components/custom-ui/InputField'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
-import { TableField } from '@/components/custom-ui/TableField'
+import CompetitionTable from '@/features/competition/components/CompetitionTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
@@ -12,9 +12,6 @@ import { useTableStore } from '@/shared/state'
 const Competiton = () => {
   const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const setGlobalDateRange = useTableStore((s) => s.setDateRange);
-  const [activePage, setActivePage] = useState<string>("");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -33,22 +30,13 @@ const Competiton = () => {
           <div className="z-40">
             <CalendarMonthYearPicker
               onChange={({ month, year }) => {
-                setSelectedMonth(month + 1);
-                setSelectedYear(year);
                 setGlobalDateRange(month + 1, year);
               }}
             />
           </div>
         </div>
         <Card className="p-5">
-          <TableField
-            activePage={activePage}
-            onPageChange={setActivePage}
-            showMenu={false}
-            month={selectedMonth}
-            year={selectedYear}
-            searchQuery={searchQuery}
-          />
+          <CompetitionTable />
         </Card>
       </MotionWrapper>
     </ProtectedRoute>

@@ -1,6 +1,6 @@
 "use client";
 import InputField from '@/components/custom-ui/InputField';
-import { TableField } from '@/components/custom-ui/TableField'
+import ProductsTable from '@/features/products/components/ProductsTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
@@ -10,7 +10,6 @@ import ProductForm from '@/features/products/components/ProductForm';
 
 const Product = () => {
   const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
-  const [activePage, setActivePage] = useState<string>("products");
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -31,13 +30,7 @@ const Product = () => {
         </div>
         <Card className='p-5'>
           <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              searchQuery={searchQuery}
-              fetchTrigger={fetchTrigger}
-            />
+            <ProductsTable fetchTrigger={fetchTrigger} />
           </div>
         </Card>
       </MotionWrapper>

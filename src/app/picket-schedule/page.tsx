@@ -1,7 +1,7 @@
 "use client";
 import DatePicker from '@/components/custom-ui/DatePicker';
 import DialogField from '@/components/custom-ui/DialogField';
-import { TableField } from '@/components/custom-ui/TableField'
+import PicketScheduleTable from '@/features/picket/components/PicketScheduleTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect } from 'react'
@@ -16,7 +16,6 @@ import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 const Picket = () => {
 
-  const [activePage, setActivePage] = useState<string>("picketschedule");
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [userNames, setUserNames] = useState<string[]>([]);
@@ -247,12 +246,7 @@ const Picket = () => {
             </div>
           </div>
           <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              fetchTrigger={fetchTrigger}
-            />
+            <PicketScheduleTable fetchTrigger={fetchTrigger} />
           </div>
         </Card>
       </MotionWrapper>

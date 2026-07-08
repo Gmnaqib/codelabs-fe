@@ -2,7 +2,7 @@
 import { CalendarMonthYearPicker } from '@/components/custom-ui/CalendarMonthYearPicker'
 import CardField from '@/components/custom-ui/CardField'
 import InputField from '@/components/custom-ui/InputField'
-import { TableField } from '@/components/custom-ui/TableField'
+import AssessmentsTable from '@/features/assessments/components/AssessmentsTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useEffect, useState } from 'react'
@@ -133,14 +133,7 @@ const Assessments = () => {
                                 <p className="font-semibold text-3xl text-center">{countDanger}</p>
                             </CardField>
                         </div>
-                        <TableField
-                            activePage="assessments"
-                            onPageChange={() => { }}
-                            showMenu={false}
-                            month={selectedMonth}
-                            year={selectedYear}
-                            searchQuery={searchQuery}
-                        />
+                        <AssessmentsTable />
                     </div>
                 </Card>
             </MotionWrapper>

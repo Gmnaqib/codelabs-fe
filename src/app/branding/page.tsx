@@ -2,7 +2,7 @@
 import { CalendarMonthYearPicker } from '@/components/custom-ui/CalendarMonthYearPicker'
 import InputField from '@/components/custom-ui/InputField'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
-import { TableField } from '@/components/custom-ui/TableField'
+import BrandingTable from '@/features/branding/components/BrandingTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
@@ -12,9 +12,6 @@ import { useTableStore } from '@/shared/state'
 const Branding = () => {
   const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const setGlobalDateRange = useTableStore((s) => s.setDateRange);
-  const [activePage, setActivePage] = useState<string>("");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [filterWeek] = useState<string>("All");
   const [filterContentType] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -37,8 +34,6 @@ const Branding = () => {
           <div className="z-40">
             <CalendarMonthYearPicker
               onChange={({ month, year }) => {
-                setSelectedMonth(month + 1);
-                setSelectedYear(year);
                 setGlobalDateRange(month + 1, year);
               }}
             />
@@ -46,15 +41,9 @@ const Branding = () => {
         </div>
 
         <Card className="p-5">
-          <TableField
-            activePage={activePage}
-            onPageChange={setActivePage}
-            showMenu={false}
-            month={selectedMonth}
-            year={selectedYear}
+          <BrandingTable
             filterWeek={filterWeek}
             filterContentType={filterContentType}
-            searchQuery={searchQuery}
           />
         </Card>
       </MotionWrapper>

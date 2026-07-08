@@ -1,5 +1,5 @@
 "use client"
-import { TableField } from '@/components/custom-ui/TableField';
+import ScoringTable from '@/features/scoring/components/ScoringTable';
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute';
 import React, { useState, useEffect } from 'react'
@@ -8,7 +8,6 @@ import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 
 const KPIScoring = () => {
-  const [activePage, setActivePage] = useState<string>("Research");
   const [myPoint, setMyPoint] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
@@ -87,13 +86,7 @@ const KPIScoring = () => {
           <div className="px-5">
             <hr />
           </div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              year={filterYear}
-              month={filterMonth + 1}
-            />
+            <ScoringTable showMenu={true} />
         </Card>
       </MotionWrapper>
     </ProtectedRoute>

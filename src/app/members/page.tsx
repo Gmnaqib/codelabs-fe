@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import DialogField from "@/components/custom-ui/DialogField";
 import { DropdownField } from "@/components/custom-ui/DropdownField";
 import InputField from "@/components/custom-ui/InputField";
-import { TableField } from "@/components/custom-ui/TableField";
+import MembersTable from "@/features/members/components/MembersTable";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
-import { getAllUsers, createUser, multipleRegisterUsers } from "@/services/users/userService";
-import { UserApiResponse, UserType } from "@/types/user";
+import { createUser, multipleRegisterUsers } from "@/services/users/userService";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,13 +16,13 @@ import { useTableStore } from "@/shared/state";
 
 const Members = () => {
   const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
-  const [users, setUsers] = useState<UserType[]>([]);
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("All Role");
   const [filterSubriset, setFilterSubriset] = useState("All SubRiset");
   const [filterStatus, setFilterStatus] = useState("All Status");
   const [mode, setMode] = useState<'Register' | 'Multiple Register'>('Register');
   const [multipleEmails, setMultipleEmails] = useState("");
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
   const [form, setForm] = useState({
     nim: "",
@@ -38,48 +37,6 @@ const Members = () => {
   const updateForm = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
-
-  const fetchData = async () => {
-    try {
-      const data = await getAllUsers();
-
-      const mapped: UserType[] = (data as UserApiResponse[]).map((u) => ({
-        _id: u._id || "",
-        nim: u.nim || "",
-        name: u.name || "",
-        email: u.email || "",
-        role: u.role ? u.role : "Other",
-        status: u.status || "Unknown",
-        subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(u.research?.toLowerCase() || "")
-          ? u.research || "Other"
-          : "Other",
-        change_mac_address: u.change_mac_address,
-        product_id: u.product_id,
-      }));
-
-      setUsers(mapped);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const filteredUsers = users
-    .filter((u) =>
-      u.name.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((u) =>
-      filterRole === "All Role" ? true : u.role === filterRole
-    )
-    .filter((u) =>
-      filterSubriset === "All SubRiset" ? true : u.subriset === filterSubriset
-    )
-    .filter((u) =>
-      filterStatus === "All Status" ? true : u.status === filterStatus
-    );
 
   const handleCreateMember = async () => {
     try {
@@ -96,7 +53,7 @@ const Members = () => {
 
       await createUser(payload);
 
-      await fetchData();
+      setFetchTrigger(Date.now());
       toast.success("User created successfully!");
 
       setForm({
@@ -126,7 +83,7 @@ const Members = () => {
         return;
       }
       await multipleRegisterUsers({ emails });
-      await fetchData();
+      setFetchTrigger(Date.now());
       toast.success("Multiple users registered successfully!");
       setMultipleEmails("");
     } catch (err) {
@@ -311,14 +268,11 @@ const Members = () => {
           </div>
 
           <Card className="p-5">
-            <TableField
-              activePage="members"
-              onPageChange={() => {}}
-              showMenu={false}
-              data={filteredUsers}
+            <MembersTable
               filterRole={filterRole}
               filterSubriset={filterSubriset}
               filterStatus={filterStatus}
+              fetchTrigger={fetchTrigger}
             />
           </Card>
         </div>

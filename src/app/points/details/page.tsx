@@ -1,5 +1,5 @@
 "use client"
-import { TableField } from '@/components/custom-ui/TableField'
+import PointsDetailTable from '@/features/points/components/PointsDetailTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect, ChangeEvent, Suspense } from 'react'
@@ -40,7 +40,6 @@ const PointsDetailsContent = () => {
   const searchParams = useSearchParams();
   const masterId = searchParams.get('id') ?? '';
 
-  const [activePage, setActivePage] = useState<string>("pointsdetail");
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -179,13 +178,9 @@ const PointsDetailsContent = () => {
         </div>
         <Card className='p-5'>
           <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              searchQuery={searchQuery}
+            <PointsDetailTable
               fetchTrigger={fetchTrigger}
-              onEditItem={handleEditClick}
+              onEdit={handleEditClick}
             />
           </div>
         </Card>

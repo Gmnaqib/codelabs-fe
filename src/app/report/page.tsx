@@ -1,6 +1,6 @@
 "use client";
 import { DropdownField } from "@/components/custom-ui/DropdownField";
-import { TableField } from "@/components/custom-ui/TableField";
+import ReportTable from "@/features/report/components/ReportTable";
 import { Card } from "@/components/ui/card";
 import React, { useState } from "react";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
@@ -11,11 +11,8 @@ import ReportForm from "@/features/report/components/ReportForm";
 
 const WeeklyReport = () => {
   const setGlobalDateRange = useTableStore((s) => s.setDateRange);
-  const [activePage, setActivePage] = useState<string>("report");
   const [filterWeek, setFilterWeek] = useState("All");
   const [filterProgress, setFilterProgress] = useState("All");
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [fetchTrigger, setFetchTrigger] = useState(0);
 
   return (
@@ -36,8 +33,6 @@ const WeeklyReport = () => {
           <div className="flex flex-col gap-3 md:gap-5 md:flex-row">
             <CalendarMonthYearPicker
               onChange={({ month, year }) => {
-                setSelectedMonth(month + 1);
-                setSelectedYear(year);
                 setGlobalDateRange(month + 1, year);
               }}
             />
@@ -63,14 +58,9 @@ const WeeklyReport = () => {
         </div>
         <Card>
           <div className="p-5">
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={false}
+            <ReportTable
               filterWeek={filterWeek}
               filterProgress={filterProgress}
-              month={selectedMonth}
-              year={selectedYear}
               fetchTrigger={fetchTrigger}
             />
           </div>

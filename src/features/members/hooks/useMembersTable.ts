@@ -9,19 +9,21 @@ interface UseMembersTableOptions {
   filterRole?: string;
   filterSubriset?: string;
   filterStatus?: string;
+  fetchTrigger?: number;
 }
 
 export function useMembersTable({
   filterRole = 'All Role',
   filterSubriset = 'All SubRiset',
   filterStatus = 'All Status',
+  fetchTrigger,
 }: UseMembersTableOptions = {}) {
   const searchQuery = useTableStore((s) => s.searchQuery);
   const { user } = useAuth();
 
   const { data, loading, error, refetch } = useTableData<User>(
     () => getAllUsers() as Promise<User[]>,
-    []
+    [fetchTrigger]
   );
 
   const users = useMemo(() => {

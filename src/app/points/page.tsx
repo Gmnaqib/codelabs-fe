@@ -1,5 +1,5 @@
 "use client"
-import { TableField } from '@/components/custom-ui/TableField'
+import PointsTable from '@/features/points/components/PointsTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect } from 'react'
@@ -18,7 +18,6 @@ type KPIMasterItem = {
 
 const Points = () => {
   const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
-  const [activePage, setActivePage] = useState<string>("points");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [kpiMasterList, setKpiMasterList] = useState<KPIMasterItem[]>([]);
   const [editItem, setEditItem] = useState<KPIMasterItem | null>(null);
@@ -63,13 +62,9 @@ const Points = () => {
           </p>
         )}
         <Card className='p-5'>
-          <TableField
-            activePage={activePage}
-            onPageChange={setActivePage}
-            showMenu={true}
-            searchQuery={searchQuery}
+          <PointsTable
             fetchTrigger={fetchTrigger}
-            onEditItem={handleEditClick}
+            onEdit={handleEditClick}
           />
         </Card>
 
