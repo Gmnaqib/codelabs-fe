@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { postCheckIn, postCheckOut, checkNetwork, getMyStatusToday } from '@/services/attendance/attendanceService';
 import { getTimeSettingByCode, TimeSetting } from '@/services/timeSetting/timeSettingService';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks';
 import { Button } from '@/components/ui/button';
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
