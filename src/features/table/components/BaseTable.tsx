@@ -35,6 +35,46 @@ interface BaseTableProps<T extends RowWithId> {
   rowClassName?: (row: T) => string;
 }
 
+interface BaseTableRowProps<T extends RowWithId> {
+  row: T;
+  index: number;
+  columns: TableColumn<T>[];
+  onRowClick?: (row: T) => void;
+  rowClassName?: (row: T) => string;
+}
+
+function BaseTableRowInner<T extends RowWithId>({
+  row,
+  index,
+  columns,
+  onRowClick,
+  rowClassName,
+}: BaseTableRowProps<T>) {
+  return (
+    <TableRow
+      onClick={() => onRowClick?.(row)}
+      className={[onRowClick ? 'cursor-pointer' : '', rowClassName?.(row) ?? '']
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {columns.map((column) => {
+        const value = row[column.key];
+        return (
+          <TableCell key={column.key} className={column.className}>
+            {column.render ? column.render(value, row, index) : String(value ?? '-')}
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+}
+
+BaseTableRowInner.displayName = 'BaseTableRow';
+
+const BaseTableRow = React.memo(BaseTableRowInner) as <T extends RowWithId>(
+  props: BaseTableRowProps<T>
+) => React.ReactElement;
+
 function BaseTableInner<T extends RowWithId>({
   data,
   columns,
@@ -95,22 +135,14 @@ function BaseTableInner<T extends RowWithId>({
       </TableHeader>
       <TableBody>
         {data.map((row, i) => (
-          <TableRow
+          <BaseTableRow
             key={row._id}
-            onClick={() => onRowClick?.(row)}
-            className={[onRowClick ? 'cursor-pointer' : '', rowClassName?.(row) ?? '']
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {columns.map((column) => {
-              const value = row[column.key];
-              return (
-                <TableCell key={column.key} className={column.className}>
-                  {column.render ? column.render(value, row, i) : String(value ?? '-')}
-                </TableCell>
-              );
-            })}
-          </TableRow>
+            row={row}
+            index={i}
+            columns={columns}
+            onRowClick={onRowClick}
+            rowClassName={rowClassName}
+          />
         ))}
       </TableBody>
     </Table>

@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
-import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { GLTFLoader } from 'three-stdlib';
+import dynamic from "next/dynamic";
 import CardField from "@/components/custom-ui/CardField";
 import { Label } from "@/components/ui/label";
 import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
 import { PicketCardProps } from "@/types/PicketCardProps";
 import { usePicketCard } from "@/features/dashboard/hooks";
+
+const PicketMapCanvas = dynamic(() => import("./PicketMapCanvas"), { ssr: false });
 
 const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
   const { picketData } = usePicketCard();
@@ -16,12 +16,6 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
     { title: "Vacuum Cleaner", data: picketData.slice(0, 3) },
     { title: "Table & Research Tool Cleaner", data: picketData.slice(3, 6) },
   ];
-
-
-  function Model() {
-    const gltf = useLoader(GLTFLoader, "/3d/DenahCodeLabs.glb");
-    return <primitive object={gltf.scene} scale={1.5} />;
-  }
 
   return (
     <CardField title="Picket Schedule Today" icon={<ClipboardDocumentCheckIcon />} bg>
@@ -58,12 +52,7 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
             </button>
             <div className="w-screen h-screen flex flex-col">
               <div className="flex-1">
-                <Canvas camera={{ position: [-30, 20, 0], fov: 50 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
-                  <ambientLight intensity={0.7} />
-                  <directionalLight position={[10, 10, 5]} intensity={1} />
-                  <Model />
-                  <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
-                </Canvas>
+                <PicketMapCanvas />
               </div>
             </div>
           </div>
