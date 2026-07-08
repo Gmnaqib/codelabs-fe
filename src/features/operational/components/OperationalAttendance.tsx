@@ -355,13 +355,13 @@ const OperationalAttendance  = () => {
                                                     if (["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
                                                     try {
                                                         const compressedFile = await imageCompression(file, {
-                                                        maxSizeMB: 0.5, 
+                                                        maxSizeMB: 0.5,
                                                         maxWidthOrHeight: 1280,
                                                         useWebWorker: true
                                                         });
                                                         setLeaveAttachment(compressedFile);
                                                     } catch {
-                                                        setLeaveAttachment(file); 
+                                                        setLeaveAttachment(file);
                                                     }
                                                     } else {
                                                     setLeaveAttachment(file);
@@ -383,4 +383,4 @@ const OperationalAttendance  = () => {
     )
 }
 
-export default OperationalAttendance 
+export default OperationalAttendance

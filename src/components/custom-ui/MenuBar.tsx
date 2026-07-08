@@ -11,7 +11,7 @@ import InputField from "./InputField"
 import { CalendarMonthYearPicker } from "./CalendarMonthYearPicker"
 
 import { useState } from "react"
-import OperationalAttendance from "@/features/operational/components/OperationalAttendance "
+import OperationalAttendance from "@/features/operational/components/OperationalAttendance"
 import { Button } from "@/components/ui/button"
 import { RiFileExcel2Line } from "react-icons/ri"
 
