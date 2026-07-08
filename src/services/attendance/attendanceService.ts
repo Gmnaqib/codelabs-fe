@@ -1,4 +1,5 @@
 import { axiosClient } from "@/lib/axiosClient";
+import { handleError } from "@/shared/services";
 
 export async function postLeaveRequest({ type, reason, attachment, start_date, end_date }: {
   type: 'sick' | 'permit';
@@ -6,7 +7,7 @@ export async function postLeaveRequest({ type, reason, attachment, start_date, e
   attachment: File | Blob;
   start_date: string;
   end_date: string;
-}) {
+}): Promise<unknown> {
   try {
     const formData = new FormData();
     formData.append('type', type);
@@ -22,8 +23,7 @@ export async function postLeaveRequest({ type, reason, attachment, start_date, e
     });
     return data;
   } catch (error) {
-    console.error('Error posting leave request:', error);
-    throw error;
+    throw handleError(error);
   }
 }
 
@@ -34,7 +34,7 @@ export async function postLeaveRequestByOperational({ userId, type, reason, atta
   attachment: File | Blob;
   start_date: string;
   end_date: string;
-}) {
+}): Promise<unknown> {
   try {
     const formData = new FormData();
     formData.append('userId', userId);
@@ -51,12 +51,23 @@ export async function postLeaveRequestByOperational({ userId, type, reason, atta
     });
     return data;
   } catch (error) {
-    console.error('Error posting operational leave request:', error);
-    throw error;
+    throw handleError(error);
   }
 }
 
-export async function getAttendanceSummaryByUserId(userId: string, year?: number, month?: number) {
+export interface RawAttendanceUserSummary {
+  statusSummary?: {
+    status: string;
+    records?: { date: string; reason?: string; approvalStatus?: string }[];
+  }[];
+  [key: string]: unknown;
+}
+
+export async function getAttendanceSummaryByUserId(
+  userId: string,
+  year?: number,
+  month?: number
+): Promise<RawAttendanceUserSummary> {
   try {
     let query = "";
     if (year && month) {
@@ -65,8 +76,7 @@ export async function getAttendanceSummaryByUserId(userId: string, year?: number
     const { data } = await axiosClient.get(`/attendance/summary/${userId}${query}`);
     return data.data;
   } catch (error) {
-    console.error("Error fetching attendance summary by userId:", error);
-    throw error;
+    throw handleError(error);
   }
 }
 
@@ -82,73 +92,143 @@ export const checkNetwork = async (): Promise<boolean> => {
   }
 };
 
-export const postCheckIn = async (reason: string = '') => {
-  const res = await axiosClient.post('/attendance/checkin', { reason });
-  return res.data;
+export const postCheckIn = async (reason: string = ''): Promise<unknown> => {
+  try {
+    const res = await axiosClient.post('/attendance/checkin', { reason });
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const postCheckOut = async () => {
-  const res = await axiosClient.patch('/attendance/checkout');
-  return res.data;
+export const postCheckOut = async (): Promise<unknown> => {
+  try {
+    const res = await axiosClient.patch('/attendance/checkout');
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const postCheckOutByOperational = async (userId: string, reasonCheckOut: string) => {
-  const res = await axiosClient.patch('/attendance/checkout-by-operational', {
-    userId,
-    reasonCheckOut,
-  });
-  return res.data;
+export const postCheckOutByOperational = async (userId: string, reasonCheckOut: string): Promise<unknown> => {
+  try {
+    const res = await axiosClient.patch('/attendance/checkout-by-operational', {
+      userId,
+      reasonCheckOut,
+    });
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const postCheckOutAllByOperational = async (reasonCheckOut: string) => {
-  const res = await axiosClient.patch('/attendance/checkout-all-by-operational', { reasonCheckOut });
-  return res.data;
+export interface CheckoutAllResult {
+  data?: { checkedOut?: number };
+  [key: string]: unknown;
+}
+
+export const postCheckOutAllByOperational = async (reasonCheckOut: string): Promise<CheckoutAllResult> => {
+  try {
+    const res = await axiosClient.patch('/attendance/checkout-all-by-operational', { reasonCheckOut });
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const getAttendance = async (year: number, month: number) => {
-  const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}`);
-  return res.data.data;
+export interface RawAttendanceRecord {
+  _id?: string;
+  userId: string;
+  checkIn?: string;
+  checkOut?: string;
+  reason?: string;
+  date?: string;
+  [key: string]: unknown;
+}
+
+export const getAttendance = async (year: number, month: number): Promise<RawAttendanceRecord[]> => {
+  try {
+    const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}`);
+    return res.data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const getAttendanceToday = async () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1;
-  const day = today.getDate();
-  const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}&day=${day}`);
-  return res.data.data;
+export const getAttendanceToday = async (): Promise<RawAttendanceRecord[]> => {
+  try {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}&day=${day}`);
+    return res.data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const getAttendanceMe = async () => {
-  const res = await axiosClient.get("/attendance/summary/me");
-  return res.data.data;
+export interface RawAttendanceMeSummary {
+  statusSummary?: { status: string; count: number }[];
+  [key: string]: unknown;
+}
+
+export const getAttendanceMe = async (): Promise<RawAttendanceMeSummary> => {
+  try {
+    const res = await axiosClient.get("/attendance/summary/me");
+    return res.data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
 export const getMyStatusToday = async (): Promise<{ checkedIn: boolean; checkedOut: boolean }> => {
-  const res = await axiosClient.get("/attendance/me/today");
-  return res.data.data;
+  try {
+    const res = await axiosClient.get("/attendance/me/today");
+    return res.data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export async function getAllLeaveRequests(year: number, month: number) {
-  type LeaveRequest = { start_date?: string; startDate?: string };
-  const { data } = await axiosClient.get(`/attendance/leave-requests`);
-  const list: LeaveRequest[] = data.data;
-
-  const filtered = list.filter((item: LeaveRequest) => {
-    const d = new Date(item.start_date || item.startDate || "");
-    return d.getFullYear() === year && d.getMonth() + 1 === month;
-  });
-
-  return filtered;
+export interface RawLeaveRequestItem {
+  _id: string;
+  userId: string;
+  start_date?: string;
+  startDate?: string;
+  end_date?: string;
+  endDate?: string;
+  approval_status?: string;
+  approvalStatus?: string;
+  status?: string;
+  type?: string;
+  reason?: string;
+  attachment_url?: string;
+  [key: string]: unknown;
 }
 
-export async function getTodayLeaveRequests() {
+export async function getAllLeaveRequests(year: number, month: number): Promise<RawLeaveRequestItem[]> {
+  try {
+    const { data } = await axiosClient.get(`/attendance/leave-requests`);
+    const list: RawLeaveRequestItem[] = data.data;
+
+    const filtered = list.filter((item) => {
+      const d = new Date(item.start_date || item.startDate || "");
+      return d.getFullYear() === year && d.getMonth() + 1 === month;
+    });
+
+    return filtered;
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+export async function getTodayLeaveRequests(): Promise<RawLeaveRequestItem[]> {
   try {
     const { data } = await axiosClient.get("/attendance/leave-requests");
-    const list = data.data;
+    const list: RawLeaveRequestItem[] = data.data;
     const today = new Date();
-    type LeaveRequest = { start_date?: string; startDate?: string };
-    const filtered = (list as LeaveRequest[]).filter((item) => {
+    const filtered = list.filter((item) => {
       const d = new Date(item.start_date || item.startDate || "");
       return (
         d.getFullYear() === today.getFullYear() &&
@@ -158,39 +238,57 @@ export async function getTodayLeaveRequests() {
     });
     return filtered;
   } catch (error) {
-    console.error("Error fetching leave requests:", error);
-    throw error;
+    throw handleError(error);
   }
 }
 
-export async function getAttendanceSummary(year?: number, month?: number) {
-  const query = year && month ? `?year=${year}&month=${month}` : "";
-  const { data } = await axiosClient.get(`/attendance/summary${query}`);
-  return data.data;
+export interface RawAttendanceSummaryItem {
+  userId: string;
+  userName?: string;
+  counts?: {
+    present?: number;
+    permit?: number;
+    sick?: number;
+    late?: number;
+    absent?: number;
+  };
+  [key: string]: unknown;
 }
 
-export async function getLeaveRequestById(id: string) {
+export async function getAttendanceSummary(year?: number, month?: number): Promise<RawAttendanceSummaryItem[]> {
+  try {
+    const query = year && month ? `?year=${year}&month=${month}` : "";
+    const { data } = await axiosClient.get(`/attendance/summary${query}`);
+    return data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
+}
+
+export async function getLeaveRequestById(id: string): Promise<RawLeaveRequestItem> {
   try {
     const { data } = await axiosClient.get(`/attendance/leave-requests/${id}`);
     return data.data;
   } catch (error) {
-    console.error("Error fetching leave request by id:", error);
-    throw error;
+    throw handleError(error);
   }
 }
 
-export const postCheckinByAdmin = async (userId: string) => {
-  const res = await axiosClient.post('/attendance/checkin-by-admin', { userId });
-  return res.data;
+export const postCheckinByAdmin = async (userId: string): Promise<unknown> => {
+  try {
+    const res = await axiosClient.post('/attendance/checkin-by-admin', { userId });
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export async function reviewLeaveRequest(id: string, status: string) {
+export async function reviewLeaveRequest(id: string, status: string): Promise<void> {
   try {
     await axiosClient.patch(`/attendance/leave-requests/review/${id}`, {
       approvalStatus: status,
     });
   } catch (error) {
-    console.error("Error fetching leave request by id:", error);
-    throw error;
+    throw handleError(error);
   }
 }

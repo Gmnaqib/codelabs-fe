@@ -1,4 +1,5 @@
 import { axiosClient } from "@/lib/axiosClient";
+import { handleError } from "@/shared/services";
 
 export interface TimeSetting {
   _id: string;
@@ -11,20 +12,31 @@ export interface TimeSetting {
 }
 
 export const getAllTimeSettings = async (): Promise<TimeSetting[]> => {
-  const { data } = await axiosClient.get("/time-setting");
-  return data.data ?? [];
+  try {
+    const { data } = await axiosClient.get("/time-setting");
+    return data.data ?? [];
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const updateTimeSetting = async (id: string, payload: Partial<Omit<TimeSetting, "_id" | "code">>): Promise<TimeSetting> => {
-  const { data } = await axiosClient.patch(`/time-setting/${id}`, payload);
-  return data.data;
+export const updateTimeSetting = async (
+  id: string,
+  payload: Partial<Omit<TimeSetting, "_id" | "code">>
+): Promise<TimeSetting> => {
+  try {
+    const { data } = await axiosClient.patch(`/time-setting/${id}`, payload);
+    return data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
 export const getTimeSettingByCode = async (code: string): Promise<TimeSetting | null> => {
   try {
     const { data } = await axiosClient.get(`/time-setting/code/${code}`);
     return data.data ?? null;
-  } catch {
-    return null;
+  } catch (error) {
+    throw handleError(error);
   }
 };
