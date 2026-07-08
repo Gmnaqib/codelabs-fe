@@ -18,6 +18,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const isLg = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
+    if (isNoLayout) {
+      setLoading(false);
+      return;
+    }
     const fetchMe = async () => {
       setLoading(true);
       try {
@@ -30,7 +34,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       }
     };
     fetchMe();
-  }, [pathname]);
+  }, [pathname, isNoLayout]);
 
   useEffect(() => {
     setIsActive(isXl);

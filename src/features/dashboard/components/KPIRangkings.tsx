@@ -14,10 +14,6 @@ const KPIRangkings = () => {
       : a.totalPoints - b.totalPoints
   });
 
-  if (loading) {
-    return <p>Loading...</p>
-  }
-
   return (
     <>
       <div className="flex justify-between items-center">
@@ -30,8 +26,9 @@ const KPIRangkings = () => {
         />
       </div>
 
-      <div className="h-screen overflow-y-auto flex flex-col gap-4 scrollbar-none ">
-        {sortedUsers.map((user, index) => (
+      <div className="max-h-80 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
+        {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
+        {!loading && sortedUsers.map((user, index) => (
           <div key={user.name + '-' + user.totalPoints + '-' + index} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}

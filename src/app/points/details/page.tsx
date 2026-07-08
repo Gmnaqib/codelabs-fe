@@ -2,13 +2,13 @@
 import PointsDetailTable from '@/features/points/components/PointsDetailTable'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
-import React, { useState, useEffect, ChangeEvent, Suspense } from 'react'
+import React, { useState, ChangeEvent, Suspense } from 'react'
 import InputField from '@/components/custom-ui/InputField';
 import DialogField from '@/components/custom-ui/DialogField';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { createKPIDetail, getKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
+import { createKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { useSearchParams } from 'next/navigation';
