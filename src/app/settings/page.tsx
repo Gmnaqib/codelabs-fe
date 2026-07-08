@@ -9,6 +9,10 @@ const SettingsPage = () => {
   const { settings, loading, saveSetting } = useTimeSettings();
 
   return (
+    // TODO(security-audit STEP 57): src/config/menu.ts's "/settings" entry lists
+    // ['admin', 'minister of operation'], but this guard is 'admin' only, so a
+    // 'minister of operation' user sees the sidebar link but gets bounced to '/'.
+    // Confirm intended roles before widening this guard.
     <ProtectedRoute roles={['admin']}>
       <MotionWrapper>
         <div className="flex flex-col gap-6">

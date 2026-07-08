@@ -16,7 +16,6 @@ const KPIScoring = () => {
   const [filterMonth] = useState(currentMonth);
 
   useEffect(() => {
-    console.log('Filter Year:', filterYear, 'Filter Month:', filterMonth + 1);
     const fetchMe = async () => {
       try {
         const res = await getKPIMeRankings(filterYear, filterMonth + 1);

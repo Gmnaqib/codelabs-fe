@@ -128,7 +128,6 @@ const Members = () => {
                 menu={["All Role", "admin", "lecturer", "president", "vice president", "minister of research", "minister of competition", "minister of branding", "minister of operation", "user"]}
                 onSelect={(v) => {
                   setFilterRole(v);
-                  console.log('Filter Role selected:', v);
                 }}
               />
 
@@ -146,7 +145,6 @@ const Members = () => {
                 ]}
                 onSelect={(v) => {
                   setFilterSubriset(v);
-                  console.log('Filter Subriset selected:', v);
                 }}
               />
 
@@ -155,7 +153,6 @@ const Members = () => {
                 menu={["All Status", "active", "inactive", "graduated"]}
                 onSelect={(v) => {
                   setFilterStatus(v);
-                  console.log('Filter Status selected:', v);
                 }}
               />
             </div>
