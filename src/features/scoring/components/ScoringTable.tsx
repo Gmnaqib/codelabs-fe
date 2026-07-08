@@ -132,6 +132,7 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
             columns={competitionColumns}
             loading={loadingCompetition}
             emptyMessage="No data found"
+            paginate
           />
         )}
         {activeTab === 'Branding' && (
@@ -140,6 +141,7 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
             columns={brandingColumns}
             loading={loadingBranding}
             emptyMessage="Tidak ada data untuk halaman ini."
+            paginate
           />
         )}
       </div>

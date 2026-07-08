@@ -26,6 +26,7 @@ export default function ReportTable({ filterWeek, filterProgress, fetchTrigger }
       columns={columns}
       loading={loading}
       emptyMessage="Tidak ada data research"
+      paginate
     />
   );
 }

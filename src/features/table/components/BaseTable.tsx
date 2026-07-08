@@ -9,6 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { usePagination } from '@/features/table/hooks/usePagination';
 import type { TableSortConfig } from '@/types/domain';
 
 interface RowWithId {
@@ -33,6 +42,7 @@ interface BaseTableProps<T extends RowWithId> {
   emptyMessage?: string;
   sortConfig?: TableSortConfig | null;
   rowClassName?: (row: T) => string;
+  paginate?: boolean;
 }
 
 interface BaseTableRowProps<T extends RowWithId> {
@@ -84,7 +94,10 @@ function BaseTableInner<T extends RowWithId>({
   emptyMessage = 'Tidak ada data',
   sortConfig,
   rowClassName,
+  paginate = false,
 }: BaseTableProps<T>) {
+  const { page, setPage, pageSize } = usePagination();
+
   const handleHeaderClick = (column: TableColumn<T>) => {
     if (!column.sortable || !onSort) return;
     const isSameColumn = sortConfig?.column === column.key;
@@ -109,43 +122,90 @@ function BaseTableInner<T extends RowWithId>({
     );
   }
 
+  const totalPages = paginate ? Math.max(1, Math.ceil(data.length / pageSize)) : 1;
+  const currentPage = paginate ? Math.min(page, totalPages) : 1;
+  const rows = paginate ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize) : data;
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {columns.map((column) => {
-            const isSorted = sortConfig?.column === column.key;
-            return (
-              <TableHead
-                key={column.key}
-                style={{ width: column.width }}
-                className={column.sortable ? 'cursor-pointer select-none' : undefined}
-                onClick={() => handleHeaderClick(column)}
-              >
-                {column.label}
-                {column.sortable && isSorted && (
-                  <span className="ml-1">
-                    {sortConfig?.direction === 'asc' ? '▲' : '▼'}
-                  </span>
-                )}
-              </TableHead>
-            );
-          })}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((row, i) => (
-          <BaseTableRow
-            key={row._id}
-            row={row}
-            index={i}
-            columns={columns}
-            onRowClick={onRowClick}
-            rowClassName={rowClassName}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {columns.map((column) => {
+              const isSorted = sortConfig?.column === column.key;
+              return (
+                <TableHead
+                  key={column.key}
+                  style={{ width: column.width }}
+                  className={column.sortable ? 'cursor-pointer select-none' : undefined}
+                  onClick={() => handleHeaderClick(column)}
+                >
+                  {column.label}
+                  {column.sortable && isSorted && (
+                    <span className="ml-1">
+                      {sortConfig?.direction === 'asc' ? '▲' : '▼'}
+                    </span>
+                  )}
+                </TableHead>
+              );
+            })}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row, i) => (
+            <BaseTableRow
+              key={row._id}
+              row={row}
+              index={i}
+              columns={columns}
+              onRowClick={onRowClick}
+              rowClassName={rowClassName}
+            />
+          ))}
+        </TableBody>
+      </Table>
+
+      {paginate && totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage(Math.max(1, currentPage - 1));
+                }}
+              />
+            </PaginationItem>
+
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href="#"
+                  isActive={i + 1 === currentPage}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(i + 1);
+                  }}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage(Math.min(totalPages, currentPage + 1));
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+    </>
   );
 }
 

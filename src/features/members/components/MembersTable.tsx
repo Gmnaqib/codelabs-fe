@@ -27,6 +27,7 @@ export default function MembersTable({ filterRole, filterSubriset, filterStatus,
       columns={columns}
       loading={loading}
       emptyMessage="No data available"
+      paginate
     />
   );
 }
