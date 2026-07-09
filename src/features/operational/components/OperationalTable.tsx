@@ -1,10 +1,13 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Menubar } from '@/components/custom-ui/MenuBar';
 import { useOperationalStore, type OperationalTab } from '@/features/operational/state';
 import { useOperationalTable } from '@/features/operational/hooks';
+import { useTableStore } from '@/shared/state';
+import { exportOperationalExcel } from '@/features/operational/utils/exportExcel';
 import AbsenceTab from './tabs/AbsenceTab';
 import PicketTab from './tabs/PicketTab';
 import ThematicTab from './tabs/ThematicTab';
@@ -20,14 +23,32 @@ interface OperationalTableProps {
 
 const TABS: { key: OperationalTab; label: string }[] = [
   { key: 'absence', label: 'Absence' },
-  { key: 'picket', label: 'Picket' },
   { key: 'thematic', label: 'Thematic' },
+  { key: 'picket', label: 'Picket' },
 ];
 
-export default function OperationalTable({ showMenu, searchQuery = '' }: OperationalTableProps) {
+export default function OperationalTable({ showMenu }: OperationalTableProps) {
   const activeTab = useOperationalStore((s) => s.activeTab);
   const setActiveTab = useOperationalStore((s) => s.setActiveTab);
   const { users, loading, error } = useOperationalTable();
+  const month = useTableStore((s) => s.month);
+  const year = useTableStore((s) => s.year);
+  const searchQuery = useTableStore((s) => s.searchQuery);
+  const setSearchQuery = useTableStore((s) => s.setSearchQuery);
+  const setDateRange = useTableStore((s) => s.setDateRange);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportExcel = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      await exportOperationalExcel(year, month);
+    } catch {
+      toast.error('Failed to export Excel');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   if (error) {
     return (
@@ -38,20 +59,30 @@ export default function OperationalTable({ showMenu, searchQuery = '' }: Operati
   }
 
   const tabProps = { users, loading, searchQuery, showMenu };
+  const activeLabel = TABS.find((tab) => tab.key === activeTab)?.label ?? TABS[0].label;
+
+  const handleTabChange = (label: string) => {
+    const found = TABS.find((tab) => tab.label === label);
+    if (found) setActiveTab(found.key);
+  };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-2">
-        {TABS.map((tab) => (
-          <Button
-            key={tab.key}
-            variant={activeTab === tab.key ? 'default' : 'outline'}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            {tab.label}
-          </Button>
-        ))}
-      </div>
+      <Menubar
+        menus={TABS.map((tab) => tab.label)}
+        activeMenu={activeLabel}
+        onChange={handleTabChange}
+        filter
+        operational
+        searchQuery={searchQuery}
+        onSearch={setSearchQuery}
+        onExportExcel={handleExportExcel}
+        filterProps={{
+          onChange: ({ month: m, year: y }) => setDateRange(m + 1, y),
+          defaultMonth: month - 1,
+          defaultYear: year,
+        }}
+      />
 
       {activeTab === 'absence' && <AbsenceTab {...tabProps} />}
       {activeTab === 'picket' && <PicketTab {...tabProps} />}

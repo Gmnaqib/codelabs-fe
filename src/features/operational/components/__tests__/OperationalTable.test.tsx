@@ -4,12 +4,18 @@ import userEvent from '@testing-library/user-event';
 import OperationalTable from '@/features/operational/components/OperationalTable';
 import { useOperationalStore } from '@/features/operational/state';
 
-const { useOperationalTableMock } = vi.hoisted(() => ({
+const { useOperationalTableMock, useAbsenceStatusMock, useThematicStatusMock, usePicketStatusMock } = vi.hoisted(() => ({
   useOperationalTableMock: vi.fn(),
+  useAbsenceStatusMock: vi.fn(),
+  useThematicStatusMock: vi.fn(),
+  usePicketStatusMock: vi.fn(),
 }));
 
 vi.mock('@/features/operational/hooks', () => ({
   useOperationalTable: useOperationalTableMock,
+  useAbsenceStatus: useAbsenceStatusMock,
+  useThematicStatus: useThematicStatusMock,
+  usePicketStatus: usePicketStatusMock,
 }));
 
 describe('OperationalTable', () => {
@@ -22,14 +28,27 @@ describe('OperationalTable', () => {
       handleToggle: vi.fn(),
       isChecked: vi.fn(),
     });
+    useAbsenceStatusMock.mockReturnValue({
+      getStatus: vi.fn(),
+      loading: false,
+      error: null,
+    });
+    useThematicStatusMock.mockReturnValue({
+      getStatus: vi.fn(),
+      loading: false,
+    });
+    usePicketStatusMock.mockReturnValue({
+      getStatus: vi.fn(),
+      loading: false,
+    });
   });
 
   it('renders all three tabs', () => {
     render(<OperationalTable />);
 
-    expect(screen.getByRole('button', { name: 'Absence' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Picket' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Thematic' })).toBeInTheDocument();
+    expect(screen.getByText('Absence')).toBeInTheDocument();
+    expect(screen.getByText('Picket')).toBeInTheDocument();
+    expect(screen.getByText('Thematic')).toBeInTheDocument();
   });
 
   it('shows the absence tab content by default', () => {
@@ -42,7 +61,7 @@ describe('OperationalTable', () => {
     const user = userEvent.setup();
     render(<OperationalTable />);
 
-    await user.click(screen.getByRole('button', { name: 'Picket' }));
+    await user.click(screen.getByText('Picket'));
 
     expect(screen.getByText('Tidak ada data piket')).toBeInTheDocument();
     expect(screen.queryByText('Tidak ada data absensi')).not.toBeInTheDocument();
@@ -52,7 +71,7 @@ describe('OperationalTable', () => {
     const user = userEvent.setup();
     render(<OperationalTable />);
 
-    await user.click(screen.getByRole('button', { name: 'Thematic' }));
+    await user.click(screen.getByText('Thematic'));
 
     expect(screen.getByText('Tidak ada data tematik')).toBeInTheDocument();
     expect(screen.queryByText('Tidak ada data absensi')).not.toBeInTheDocument();

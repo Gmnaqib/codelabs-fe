@@ -18,8 +18,8 @@ import { RiFileExcel2Line } from "react-icons/ri"
 export function Menubar({ menus, onChange, activeMenu, sort = false, filter, operational = false, search = true, filterProps, searchQuery = "", onSearch, onExportExcel }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
-    <div className="flex flex-col items-center lg:items-baseline lg:justify-between mt-1 lg:w-full lg:flex-row">
-      <MenubarRoot className="grid grid-cols-2 sm:grid-cols-4 lg:gap-0">
+    <div className="flex flex-col items-center gap-3 lg:items-baseline lg:justify-between lg:gap-0 mt-1 lg:w-full lg:flex-row">
+      <MenubarRoot className="flex-wrap justify-center gap-x-1 gap-y-2 lg:flex-nowrap lg:justify-start lg:gap-0">
         {menus.map((menu) => {
           const isActive = activeMenu === menu;
           return (
@@ -38,22 +38,24 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter, ope
         })}
       </MenubarRoot>
 
-      <div className="flex gap-5 items-center">
+      <div className="flex flex-wrap items-center justify-center gap-3 lg:flex-nowrap lg:justify-end lg:gap-5">
         {filter && (
-          <div className="flex gap-5 z-25">
+          <div className="flex flex-wrap items-center justify-center gap-3 z-25 lg:flex-nowrap lg:gap-5">
             {search && (
-              <InputField
-                type="text"
-                placeholder="Search"
-                value={internalSearch}
-                onChange={(e) => {
-                  setInternalSearch(e.target.value);
-                  onSearch?.(e.target.value);
-                }}
-                size="sm"
-              />
+              <div className="w-40 shrink-0 sm:w-48">
+                <InputField
+                  type="text"
+                  placeholder="Search"
+                  value={internalSearch}
+                  onChange={(e) => {
+                    setInternalSearch(e.target.value);
+                    onSearch?.(e.target.value);
+                  }}
+                  size="sm"
+                />
+              </div>
             )}
-            <div className="z-40 mt-5 lg:mt-0">
+            <div className="z-40 shrink-0">
               <CalendarMonthYearPicker
                 {...filterProps}
               />
@@ -65,8 +67,8 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter, ope
           <OperationalAttendance />
         )}
         {onExportExcel && (
-          <Button size="sm" onClick={onExportExcel} className="flex items-center gap-2 bg-green-600 hover:border-green-600">
-            <RiFileExcel2Line className="text-white text-lg hover:text-green-600" />
+          <Button size="sm" onClick={onExportExcel} className="group flex items-center gap-2 bg-green-600 hover:border-green-600">
+            <RiFileExcel2Line className="text-lg text-white group-hover:text-green-600" />
           </Button>
         )}
       </div>

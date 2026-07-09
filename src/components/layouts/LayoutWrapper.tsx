@@ -51,9 +51,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     <div className="flex h-screen overflow-y-scroll scrollbar-hide overscroll-none z-50">
       {(role !== 'user' || (role === 'user' && isLg)) && <Sidebar isActive={isActive} setIsActive={setIsActive} />}
       {(role === 'user' && !isLg) && <BottomNavbar />}
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <Navbar isActive={isActive} setIsActive={setIsActive} />
-        <div className={`p-5 my-20 transition-all duration-300 ease-in-out ${isActive ? 'ml-[60px] lg:ml-[270px]' : (role === 'user' ? 'pb-20 lg:ml-[60px]' : 'ml-[60px]')}`}>{children}</div>
+        <div className={`min-w-0 p-5 my-20 transition-all duration-300 ease-in-out ${isActive ? 'ml-[60px] lg:ml-[270px]' : (role === 'user' ? 'pb-20 lg:ml-[60px]' : 'ml-[60px]')}`}>{children}</div>
       </div>
     </div>
   );

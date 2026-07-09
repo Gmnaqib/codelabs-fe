@@ -1,5 +1,6 @@
 import { axiosClient } from "@/lib/axiosClient";
 import { handleError } from "@/shared/services";
+import { toWIB, wibNow } from "@/shared/utils";
 
 export async function postLeaveRequest({ type, reason, attachment, start_date, end_date }: {
   type: 'sick' | 'permit';
@@ -143,6 +144,7 @@ export interface RawAttendanceRecord {
   checkOut?: string;
   reason?: string;
   date?: string;
+  createdAt?: string;
   [key: string]: unknown;
 }
 
@@ -157,12 +159,21 @@ export const getAttendance = async (year: number, month: number): Promise<RawAtt
 
 export const getAttendanceToday = async (): Promise<RawAttendanceRecord[]> => {
   try {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}&day=${day}`);
-    return res.data.data;
+    const today = wibNow();
+    const year = today.getUTCFullYear();
+    const month = today.getUTCMonth() + 1;
+    const day = today.getUTCDate();
+    const records = await getAttendance(year, month);
+    return records.filter((record) => {
+      const raw = record.date ?? record.checkIn ?? record.createdAt;
+      if (typeof raw !== 'string') return false;
+      const d = toWIB(new Date(raw));
+      return (
+        d.getUTCFullYear() === year &&
+        d.getUTCMonth() + 1 === month &&
+        d.getUTCDate() === day
+      );
+    });
   } catch (error) {
     throw handleError(error);
   }
@@ -227,13 +238,13 @@ export async function getTodayLeaveRequests(): Promise<RawLeaveRequestItem[]> {
   try {
     const { data } = await axiosClient.get("/attendance/leave-requests");
     const list: RawLeaveRequestItem[] = data.data;
-    const today = new Date();
+    const today = wibNow();
     const filtered = list.filter((item) => {
-      const d = new Date(item.start_date || item.startDate || "");
+      const d = toWIB(new Date(item.start_date || item.startDate || ""));
       return (
-        d.getFullYear() === today.getFullYear() &&
-        d.getMonth() === today.getMonth() &&
-        d.getDate() === today.getDate()
+        d.getUTCFullYear() === today.getUTCFullYear() &&
+        d.getUTCMonth() === today.getUTCMonth() &&
+        d.getUTCDate() === today.getUTCDate()
       );
     });
     return filtered;
