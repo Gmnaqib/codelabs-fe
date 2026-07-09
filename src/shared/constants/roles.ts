@@ -12,6 +12,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   'minister of competition': 'Minister of Competition',
   'minister of branding': 'Minister of Branding',
   'minister of operation': 'Minister of Operation',
+  'minister of research and operation': 'Minister of Research and Operation',
+  'minister of research and competition': 'Minister of Research and Competition',
 };
 
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
@@ -22,6 +24,8 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   'minister of research': 70,
   'minister of competition': 70,
   'minister of branding': 70,
+  'minister of research and operation': 70,
+  'minister of research and competition': 70,
   lecturer: 60,
   user: 10,
 };

@@ -15,6 +15,7 @@ const SUB_RISET_TITLES: Record<string, string> = {
   game: 'Game',
   'ui/ux': 'UI/UX',
   data: 'Data',
+  IoT: 'IoT',
   other: 'Other',
 };
 
@@ -25,10 +26,18 @@ const SUB_RISET_OPTIONS: SelectOption[] = SUBRISET_OPTIONS.map((value) => ({
 
 // The full role name is shown in the dropdown list; the closed cell only
 // shows the last word ("Minister of Branding" -> "Branding") so the column
-// stays narrow. "Vice President" is special-cased to "Vice" so it isn't
-// mistaken for the plain "President" role, which shares the same last word.
+// stays narrow. A few roles are special-cased because their last word
+// collides with another role's short label ("Vice President" vs "President",
+// "...Research and Operation" vs "Minister of Operation", etc).
+const ROLE_SHORT_LABEL_OVERRIDES: Partial<Record<UserRole, string>> = {
+  'vice president': 'Vice',
+  'minister of research and operation': 'Research+Ops',
+  'minister of research and competition': 'Research+Comp',
+};
+
 function getShortRoleLabel(role: string): string {
-  if (role === 'vice president') return 'Vice';
+  const override = ROLE_SHORT_LABEL_OVERRIDES[role as UserRole];
+  if (override) return override;
   const label = ROLE_LABELS[role as UserRole] ?? role;
   const words = label.trim().split(/\s+/);
   return words[words.length - 1];

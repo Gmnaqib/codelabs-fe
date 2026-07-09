@@ -11,15 +11,17 @@ interface CreatePointsColumnsParams {
 
 export function createPointsColumns({ onEdit }: CreatePointsColumnsParams): TableColumn<PointsRow>[] {
   return [
-    { key: 'kementerian', label: 'Ministry' },
+    { key: 'kementerian', label: 'Ministry', className: 'text-center' },
     {
       key: 'point',
       label: 'Weight',
+      className: 'text-center',
       render: (_v, row) => `${row.point}%`,
     },
     {
       key: 'utilized' as keyof PointsRow & string,
       label: 'Utilized',
+      className: 'text-center',
       render: (_v, row) => {
         const utilized = row.utilized ?? 0;
         const isFull = utilized >= row.point;
@@ -36,6 +38,7 @@ export function createPointsColumns({ onEdit }: CreatePointsColumnsParams): Tabl
     {
       key: 'action' as keyof PointsRow & string,
       label: 'Action',
+      className: 'text-center',
       render: (_v, row) => <PointsActionsCell row={row} onEdit={onEdit} />,
     },
   ];

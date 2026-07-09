@@ -11,17 +11,19 @@ interface CreatePointsDetailColumnsParams {
 
 export function createPointsDetailColumns({ onEdit }: CreatePointsDetailColumnsParams): TableColumn<PointsDetailRow>[] {
   return [
-    { key: 'kpi_item', label: 'Name' },
+    { key: 'kpi_item', label: 'Name', className: 'text-center' },
     {
       key: 'point',
       label: 'Weight',
+      className: 'text-center',
       render: (_v, row) => `${row.point}%`,
     },
-    { key: 'max_activity', label: 'Activity Limit' },
-    { key: 'label', label: 'Requirement' },
+    { key: 'max_activity', label: 'Activity Limit', className: 'text-center' },
+    { key: 'label', label: 'Requirement', className: 'text-center' },
     {
       key: 'action' as keyof PointsDetailRow & string,
       label: 'Action',
+      className: 'text-center',
       render: (_v, row) =>
         onEdit ? (
           <Button variant="outline" size="sm" onClick={() => onEdit(row)}>

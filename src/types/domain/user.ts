@@ -1,3 +1,4 @@
+// Matches the enum in my-codelabs-api-v2's user.schema.ts exactly.
 export const USER_ROLES = [
   'admin',
   'lecturer',
@@ -8,14 +9,17 @@ export const USER_ROLES = [
   'minister of competition',
   'minister of branding',
   'minister of operation',
+  'minister of research and operation',
+  'minister of research and competition',
 ] as const;
 
 export type UserRole = typeof USER_ROLES[number];
 
 export type UserStatus = 'active' | 'inactive' | 'graduated';
 
-// Real values are lowercase (confirmed via API response: research: "website").
-export const SUBRISET_OPTIONS = ['website', 'mobile', 'game', 'ui/ux', 'data', 'other'] as const;
+// Matches the `research` enum in my-codelabs-api-v2's user.schema.ts exactly
+// (values are lowercase except "IoT", which the backend stores capitalized).
+export const SUBRISET_OPTIONS = ['website', 'mobile', 'game', 'ui/ux', 'data', 'IoT', 'other'] as const;
 
 export interface User {
   _id: string;

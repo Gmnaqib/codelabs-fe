@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { createKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
+import { handleError } from '@/shared/services';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { useSearchParams } from 'next/navigation';
@@ -89,11 +90,9 @@ const PointsDetailsContent = () => {
       setMaxActivity("");
       setLabel("");
       setFetchTrigger(Date.now());
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to create KPI detail.";
-      toast.error(message);
+    } catch (err) {
+      const appError = handleError(err);
+      toast.error(appError.message || "Failed to create KPI detail.");
     } finally {
       setLoading(false);
     }
@@ -114,11 +113,9 @@ const PointsDetailsContent = () => {
       setIsEditOpen(false);
       setEditItem(null);
       setFetchTrigger(Date.now());
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to update KPI detail.";
-      toast.error(message);
+    } catch (err) {
+      const appError = handleError(err);
+      toast.error(appError.message || "Failed to update KPI detail.");
     } finally {
       setLoading(false);
     }
