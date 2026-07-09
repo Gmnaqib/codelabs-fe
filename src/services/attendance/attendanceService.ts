@@ -1,6 +1,6 @@
 import { axiosClient } from "@/lib/axiosClient";
 import { handleError } from "@/shared/services";
-import { toWIB, wibNow } from "@/shared/utils";
+import { toWIB, wibDayOf, wibNow, truncateToWIBDay } from "@/shared/utils";
 
 export async function postLeaveRequest({ type, reason, attachment, start_date, end_date }: {
   type: 'sick' | 'permit';
@@ -215,6 +215,7 @@ export interface RawLeaveRequestItem {
   type?: string;
   reason?: string;
   attachment_url?: string;
+  createdAt?: string;
   [key: string]: unknown;
 }
 
@@ -238,15 +239,25 @@ export async function getTodayLeaveRequests(): Promise<RawLeaveRequestItem[]> {
   try {
     const { data } = await axiosClient.get("/attendance/leave-requests");
     const list: RawLeaveRequestItem[] = data.data;
-    const today = wibNow();
+    const todayStart = truncateToWIBDay(wibNow());
+
     const filtered = list.filter((item) => {
-      const d = toWIB(new Date(item.start_date || item.startDate || ""));
-      return (
-        d.getUTCFullYear() === today.getUTCFullYear() &&
-        d.getUTCMonth() === today.getUTCMonth() &&
-        d.getUTCDate() === today.getUTCDate()
-      );
+      // Submitted today, regardless of when the leave itself is scheduled for.
+      if (item.createdAt && wibDayOf(new Date(item.createdAt)) === todayStart) {
+        return true;
+      }
+
+      // Or the leave's date range is active today (covers the start day,
+      // the end day, and every day in between for multi-day leave).
+      const startRaw = item.start_date || item.startDate;
+      if (!startRaw) return false;
+      const endRaw = item.end_date || item.endDate || startRaw;
+
+      const start = wibDayOf(new Date(startRaw));
+      const end = wibDayOf(new Date(endRaw));
+      return todayStart >= start && todayStart <= end;
     });
+
     return filtered;
   } catch (error) {
     throw handleError(error);

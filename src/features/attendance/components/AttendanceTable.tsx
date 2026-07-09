@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useMemo } from 'react';
-import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import {
   Pagination,
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/pagination';
 import { Menubar } from '@/components/custom-ui/MenuBar';
 import CardField from '@/components/custom-ui/CardField';
+import EmptyState from '@/components/custom-ui/EmptyState';
 import {
   ClockIcon,
   DocumentTextIcon,
@@ -161,19 +161,7 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
               </Card>
             ) : (
               <Card className="py-12">
-                <div className="text-center">
-                  <Image
-                    src="/icon/no-data.png"
-                    alt="No Data"
-                    width={200}
-                    height={200}
-                    className="mx-auto mb-4"
-                  />
-                  <p className="font-medium text-lg">All Clear</p>
-                  <p className="text-base text-neutral">
-                    No one submitted sick leave, permission, or absence today.
-                  </p>
-                </div>
+                <EmptyState message="No one submitted sick leave, permission, or absence today." />
               </Card>
             ))}
         </>
@@ -182,7 +170,11 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
       <Card>
         {activeTab === 'Permissions' && <p className="font-medium text-xl px-5">All Report</p>}
 
-        {activeTab === 'Permissions' ? (
+        {paginatedData.length === 0 ? (
+          <div className="py-12">
+            <EmptyState message="No reports found for the selected period." />
+          </div>
+        ) : activeTab === 'Permissions' ? (
           <BaseTable<LeaveRequestRow>
             data={paginatedData as LeaveRequestRow[]}
             columns={leaveColumns}
@@ -192,6 +184,7 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
           <BaseTable<AttendanceRow>
             data={paginatedData as AttendanceRow[]}
             columns={attendanceColumns}
+            tableClassName="table-fixed"
             emptyMessage="Tidak ada data"
           />
         )}

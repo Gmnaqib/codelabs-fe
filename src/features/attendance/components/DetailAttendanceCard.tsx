@@ -62,11 +62,24 @@ const STATUS_LABELS: Record<string, { label: string; color: string; borderActive
 	},
 };
 
-const DetailAttendanceCard: React.FC<DetailAttendanceCardProps> = ({ statusSummary }) => {
-	const [selected, setSelected] = useState<string>("permit");
+function getDefaultSelected(
+	menu: [string, (typeof STATUS_LABELS)[string]][],
+	statusSummary: StatusSummary[]
+): string {
+	// Auto-activate the first status (in menu/priority order) that actually
+	// has records, so opening the dialog doesn't land on an empty tab.
+	const firstWithData = menu.find(([key]) => {
+		const summary = statusSummary.find((s) => s.status === key);
+		return (summary?.records.length ?? 0) > 0;
+	});
+	return firstWithData?.[0] ?? menu[0]?.[0] ?? "permit";
+}
 
+const DetailAttendanceCard: React.FC<DetailAttendanceCardProps> = ({ statusSummary }) => {
 	const availableStatus = statusSummary.map((s) => s.status);
 	const menu = Object.entries(STATUS_LABELS).filter(([key]) => availableStatus.includes(key));
+	const [selected, setSelected] = useState<string>(() => getDefaultSelected(menu, statusSummary));
+
 	const selectedSummary = statusSummary.find((s) => s.status === selected);
 
 	return (

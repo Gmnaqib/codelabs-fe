@@ -6,6 +6,7 @@ import type { TableColumn } from '@/features/table/components';
 import DialogField from '@/components/custom-ui/DialogField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { getStatusColor } from '@/utils/statusColor';
+import { fixAttachmentUrl } from '@/shared/utils';
 import DetailAttendanceCard, {
   type StatusSummary,
 } from '@/features/attendance/components/DetailAttendanceCard';
@@ -50,26 +51,31 @@ export function createLeaveRequestColumns({
     {
       key: 'userName',
       label: 'Name',
+      className: 'text-center',
       render: (_v, row) => row.userName?.split(' ')[0] ?? '-',
     },
     {
       key: 'type',
       label: 'Status',
+      className: 'text-center',
       render: (_v, row) => <span className="uppercase">{row.type}</span>,
     },
     {
       key: 'startDate',
       label: 'Date',
+      className: 'text-center',
       render: (_v, row) => formatLongDate(row.startDate),
     },
     {
       key: 'reviewed' as keyof LeaveRequestRow & string,
       label: 'Reviewed',
+      className: 'text-center',
       render: (_v, row) => getReviewerByDate(row.startDate),
     },
     {
       key: 'approvalStatus',
       label: 'Permission',
+      className: 'text-center',
       render: (_v, row) => (
         <span
           className={`px-7 py-1 rounded-full text-base uppercase ${getStatusColor(row.approvalStatus)}`}
@@ -81,6 +87,7 @@ export function createLeaveRequestColumns({
     {
       key: 'action' as keyof LeaveRequestRow & string,
       label: 'Detail',
+      className: 'text-center',
       render: (_v, row) => (
         <DialogField
           name="Review"
@@ -128,7 +135,7 @@ export function createLeaveRequestColumns({
                 <p className="font-semibold">Evidancea</p>
                 {selectedLeave.attachment_url ? (
                   <Image
-                    src={selectedLeave.attachment_url}
+                    src={fixAttachmentUrl(selectedLeave.attachment_url)}
                     alt="Attachment"
                     width={300}
                     height={300}
@@ -143,10 +150,10 @@ export function createLeaveRequestColumns({
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       const link = document.createElement('a');
-                      link.href = selectedLeave.attachment_url!;
+                      link.href = fixAttachmentUrl(selectedLeave.attachment_url!);
                       link.target = '_blank';
                       link.rel = 'noopener noreferrer';
-                      link.innerText = selectedLeave.attachment_url!;
+                      link.innerText = fixAttachmentUrl(selectedLeave.attachment_url!);
                       target.parentElement?.appendChild(link);
                     }}
                   />
@@ -183,40 +190,47 @@ export function createAttendanceColumns({
   detailLoading,
 }: CreateAttendanceColumnsParams): TableColumn<AttendanceRow>[] {
   return [
-    { key: 'userName', label: 'Name', render: (_v, row) => row.userName },
+    { key: 'userName', label: 'Name', className: 'text-center whitespace-normal', render: (_v, row) => row.userName },
     {
       key: 'present' as keyof AttendanceRow & string,
       label: 'Present',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => row.counts?.present ?? 0,
     },
     {
       key: 'permit' as keyof AttendanceRow & string,
       label: 'Permit',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => row.counts?.permit ?? 0,
     },
     {
       key: 'sick' as keyof AttendanceRow & string,
       label: 'Sick',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => row.counts?.sick ?? 0,
     },
     {
       key: 'late' as keyof AttendanceRow & string,
       label: 'Late Arrivals',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => row.counts?.late ?? 0,
     },
     {
       key: 'absent' as keyof AttendanceRow & string,
       label: 'No Report',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => row.counts?.absent ?? 0,
     },
     {
       key: 'score' as keyof AttendanceRow & string,
       label: 'SP',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => computeScore(row.counts?.absent ?? 0),
     },
     {
       key: 'action' as keyof AttendanceRow & string,
       label: 'Action',
+      className: 'text-center whitespace-normal',
       render: (_v, row) => (
         <DialogField
           name="Detail"

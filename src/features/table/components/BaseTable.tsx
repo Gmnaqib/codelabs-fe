@@ -43,6 +43,7 @@ interface BaseTableProps<T extends RowWithId> {
   sortConfig?: TableSortConfig | null;
   rowClassName?: (row: T) => string;
   paginate?: boolean;
+  tableClassName?: string;
 }
 
 interface BaseTableRowProps<T extends RowWithId> {
@@ -95,6 +96,7 @@ function BaseTableInner<T extends RowWithId>({
   sortConfig,
   rowClassName,
   paginate = false,
+  tableClassName,
 }: BaseTableProps<T>) {
   const { page, setPage, pageSize } = usePagination();
 
@@ -128,7 +130,7 @@ function BaseTableInner<T extends RowWithId>({
 
   return (
     <>
-      <Table>
+      <Table className={tableClassName}>
         <TableHeader>
           <TableRow>
             {columns.map((column) => {
@@ -137,7 +139,9 @@ function BaseTableInner<T extends RowWithId>({
                 <TableHead
                   key={column.key}
                   style={{ width: column.width }}
-                  className={column.sortable ? 'cursor-pointer select-none' : undefined}
+                  className={[column.sortable ? 'cursor-pointer select-none' : '', column.className ?? '']
+                    .filter(Boolean)
+                    .join(' ') || undefined}
                   onClick={() => handleHeaderClick(column)}
                 >
                   {column.label}
