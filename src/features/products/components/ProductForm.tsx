@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { Button } from '@/components/ui/button';
 import { postProduct, editProduct } from '@/services/product/productsService';
 import { handleError } from '@/shared/services';
 import { productSchema, type ProductForm as ProductFormValues } from '@/features/products/config/schemas';
@@ -81,6 +80,8 @@ export default function ProductForm({ mode = 'create', product, onSuccess }: Pro
       title={mode === 'edit' ? 'Edit Product' : 'Add Product'}
       open={isDialogOpen}
       onOpenChange={setIsDialogOpen}
+      onSubmit={() => handleSubmit(onSubmit)()}
+      submitDisabled={!isValid || isSubmitting}
     >
       <form className="flex flex-col gap-3 min-w-56" onSubmit={handleSubmit(onSubmit)}>
         <Controller
@@ -129,12 +130,6 @@ export default function ProductForm({ mode = 'create', product, onSuccess }: Pro
         />
 
         {success && <p className="text-green-600 text-sm">Berhasil ditambahkan!</p>}
-
-        <div className="flex justify-center mt-2">
-          <Button type="submit" disabled={!isValid || isSubmitting}>
-            Submit
-          </Button>
-        </div>
       </form>
     </DialogField>
   );
