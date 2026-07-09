@@ -108,29 +108,29 @@ const Assessments = () => {
                                 }}/>
                             </div>
                         </div>
-                        <div className="grid grid-cols-3 lg:grid-cols-6 gap-4">
-                            <div className="col-span-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+                            <div className="sm:col-span-2">
                                 <CardField title="Average Points" icon={<BsFillPeopleFill size={22} />}>
-                                    <div className="flex gap-8 items-center justify-center">
-                                        <p className="font-semibold text-3xl text-orange-400">
+                                    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
+                                        <p className="text-2xl font-semibold text-orange-400 sm:text-3xl">
                                             {average !== null ? `${average.toFixed(2)}` : '-'}
                                         </p>
-                                        <div className="bg-slate-400 w-0.5 h-10"></div>
-                                        <p className={`font-semibold text-3xl ${statusClass}`}>{statusLabel}</p>
+                                        <div className="hidden h-10 w-0.5 bg-slate-400 sm:block"></div>
+                                        <p className={`text-2xl font-semibold sm:text-3xl ${statusClass}`}>{statusLabel}</p>
                                     </div>
                                 </CardField>
                             </div>
                             <CardField title="Total Excellent">
-                                <p className="font-semibold text-3xl text-center">{countExcellent}</p>
+                                <p className="text-center text-2xl font-semibold sm:text-3xl">{countExcellent}</p>
                             </CardField>
                             <CardField title="Total safe">
-                                <p className="font-semibold text-3xl text-center">{countSafe}</p>
+                                <p className="text-center text-2xl font-semibold sm:text-3xl">{countSafe}</p>
                             </CardField>
                             <CardField title="Total Warning">
-                                <p className="font-semibold text-3xl text-center">{countWarning}</p>
+                                <p className="text-center text-2xl font-semibold sm:text-3xl">{countWarning}</p>
                             </CardField>
                             <CardField title="Total Danger">
-                                <p className="font-semibold text-3xl text-center">{countDanger}</p>
+                                <p className="text-center text-2xl font-semibold sm:text-3xl">{countDanger}</p>
                             </CardField>
                         </div>
                         <AssessmentsTable />
