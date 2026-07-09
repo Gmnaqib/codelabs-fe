@@ -20,6 +20,7 @@ interface DropdownFieldProps {
   onSelect?: (val: string) => void;
   blue?: boolean,
   white?: boolean,
+  className?: string;
 }
 
 export function DropdownField({
@@ -32,6 +33,7 @@ export function DropdownField({
   disabled,
   blue = false,
   white = false,
+  className = "",
 }: DropdownFieldProps) {
   const [selected, setSelected] = React.useState(value || title);
 
@@ -59,6 +61,7 @@ export function DropdownField({
                 : white
                   ? "border-white text-white bg-transparent"
                   : "border-muted-foreground text-black bg-white text-base"}
+              ${className}
             `}
             disabled={disabled}
           >

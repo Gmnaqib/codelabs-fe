@@ -8,14 +8,13 @@ export interface RawUserRecord {
   email: string;
   role: string;
   status: string;
-  subriset: string;
   mac_address?: string;
   change_mac_address?: boolean;
   image?: string;
   image_updated_at?: string;
   research?: string;
   product_id?: string;
-  change_device_id?: string;
+  change_device_id?: boolean;
   [key: string]: unknown;
 }
 
@@ -81,7 +80,7 @@ export async function getUserById(id: string): Promise<RawUserRecord> {
   }
 }
 
-export async function updateUser(id: string, payload: UserPayload): Promise<RawUserRecord> {
+export async function updateUser(id: string, payload: Partial<UserPayload>): Promise<RawUserRecord> {
   try {
     const { data } = await axiosClient.patch(`/users/${id}`, payload);
     return data;

@@ -6,7 +6,7 @@ export type UserType = {
   email: string;
   role: string;
   status: string;
-  subriset: string;
+  subriset?: string;
   mac_address?: string;
   change_mac_address?: boolean;
   image?: string;
