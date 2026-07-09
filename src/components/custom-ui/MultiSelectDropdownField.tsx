@@ -31,7 +31,7 @@ export function MultiSelectDropdownField({
   const [selected, setSelected] = React.useState<string[]>(value);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [open, setOpen] = React.useState(false);
-  const searchTimeout = React.useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     setSelected(value);
@@ -40,6 +40,15 @@ export function MultiSelectDropdownField({
   // Reset searchTerm when dropdown closed
   React.useEffect(() => {
     if (!open) setSearchTerm("");
+  }, [open]);
+
+  // Focus the search input once the dropdown finishes opening. Radix moves
+  // focus onto the first menu item on mount, so this runs a frame later to
+  // win that race.
+  React.useEffect(() => {
+    if (!open) return;
+    const id = requestAnimationFrame(() => searchInputRef.current?.focus());
+    return () => cancelAnimationFrame(id);
   }, [open]);
 
   const handleSelect = (item: string) => {
@@ -51,20 +60,6 @@ export function MultiSelectDropdownField({
     }
     setSelected(newSelected);
     onChange?.(newSelected);
-  };
-
-  // Handle keydown for search
-  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      setSearchTerm(prev => prev + e.key);
-      if (searchTimeout.current) clearTimeout(searchTimeout.current);
-      searchTimeout.current = setTimeout(() => setSearchTerm("") , 1000);
-    }
-    if (e.key === "Backspace") {
-      setSearchTerm(prev => prev.slice(0, -1));
-      if (searchTimeout.current) clearTimeout(searchTimeout.current);
-      searchTimeout.current = setTimeout(() => setSearchTerm("") , 1000);
-    }
   };
 
   const filteredMenu = searchTerm
@@ -81,8 +76,6 @@ export function MultiSelectDropdownField({
             variant="outline"
             className="group flex items-center justify-between text-base font-light py-5 gap-3"
             disabled={disabled}
-            tabIndex={0}
-            onKeyDown={handleTriggerKeyDown}
           >
             <span>
               {displayValue && displayValue.length > 0
@@ -94,7 +87,23 @@ export function MultiSelectDropdownField({
             <IoIosArrowDown className="ml-2" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-auto max-h-60 overflow-y-scroll">
+        <DropdownMenuContent
+          align="start"
+          className="w-auto max-h-72 overflow-y-auto"
+        >
+          <div className="sticky top-0 z-10 bg-popover pb-2">
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Escape") e.stopPropagation();
+              }}
+              placeholder="Search member..."
+              className="w-full rounded-md border px-3 py-1.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+            />
+          </div>
           {filteredMenu.length === 0 && (
             <div className="px-4 py-2 text-muted-foreground">No results</div>
           )}

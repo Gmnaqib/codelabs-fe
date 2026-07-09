@@ -12,6 +12,15 @@ interface PicketSwapCellProps {
   onSwap: (userId: string, targetScheduleId: string, targetUserId: string) => void;
 }
 
+function formatSwapDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString('en-US', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export default function PicketSwapCell({ row, rangeSchedules, onSwap }: PicketSwapCellProps) {
   const [searchName, setSearchName] = useState('');
 
@@ -36,28 +45,46 @@ export default function PicketSwapCell({ row, rangeSchedules, onSwap }: PicketSw
 
   return (
     <DialogField variant="outline" name="Swapping" title="Swapping" size="sm">
-      <InputField
-        type="text"
-        placeholder="Search by Name"
-        value={searchName}
-        onChange={(e) => setSearchName(e.target.value)}
-      />
-      <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
-        {uniquePairs.map(({ schedule, assigned }, idx) => (
-          <div
-            key={schedule._id + '-' + assigned._id + '-' + idx}
-            className="grid grid-cols-3 border-b pb-2 mb-2 last:border-b-0 last:pb-0 last:mb-0"
-          >
-            <p>{assigned.name.split(' ')[0]}</p>
-            <p>{schedule.date ? new Date(schedule.date).toISOString().slice(0, 10) : ''}</p>
-            <Button
-              className="text-sm px-0 py-1"
-              onClick={() => onSwap(row._id, schedule._id, assigned._id)}
-            >
-              Swapping
-            </Button>
-          </div>
-        ))}
+      <div className="flex flex-col gap-4">
+        <InputField
+          type="text"
+          placeholder="Search by Name"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+          size="sm"
+        />
+
+        <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
+          {uniquePairs.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No available schedules found.
+            </p>
+          ) : (
+            uniquePairs.map(({ schedule, assigned }, idx) => (
+              <div
+                key={schedule._id + '-' + assigned._id + '-' + idx}
+                className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-primary/40 hover:bg-secondary/50"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                    {assigned.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{assigned.name.split(' ')[0]}</p>
+                    <p className="text-xs text-muted-foreground">{formatSwapDate(schedule.date)}</p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => onSwap(row._id, schedule._id, assigned._id)}
+                >
+                  Swap
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </DialogField>
   );

@@ -23,11 +23,13 @@ export function createPicketScheduleColumns({
     {
       key: 'name',
       label: 'Name',
+      className: 'text-center',
       render: (_v, row) => row.name.split(' ')[0],
     },
     {
       key: 'status' as keyof PicketRow & string,
       label: 'Status',
+      className: 'text-center',
       render: (_v, row) => (
         <Checkbox
           checked={!!checkedUsers[row._id]}
@@ -38,6 +40,7 @@ export function createPicketScheduleColumns({
     {
       key: 'swap' as keyof PicketRow & string,
       label: 'Swap',
+      className: 'text-center',
       render: (_v, row) => (
         <PicketSwapCell row={row} rangeSchedules={rangeSchedules} onSwap={onSwap} />
       ),
