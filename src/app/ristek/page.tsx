@@ -3,21 +3,22 @@ import { CalendarMonthYearPicker } from '@/components/custom-ui/CalendarMonthYea
 import { DropdownField } from '@/components/custom-ui/DropdownField'
 import InputField from '@/components/custom-ui/InputField'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
-import { TableField } from '@/components/custom-ui/TableField'
+import RistekTable from '@/features/ristek/components/RistekTable'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState } from 'react'
+import { useTableStore } from '@/shared/state'
 
 const Ristek = () => {
-  const [activePage, setActivePage] = useState<string>("ristek");
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
+  const setGlobalDateRange = useTableStore((s) => s.setDateRange);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterSubResearch, setFilterSubResearch] = useState("All SubResearch");
   const [filterWeek, setFilterWeek] = useState("All Week");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of research']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
           <div className="flex gap-4 flex-col lg:flex-row">
@@ -25,12 +26,10 @@ const Ristek = () => {
               placeholder='Search by name...'
               type='text'
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-            <DropdownField
-              title={filterSubResearch}
-              menu={["All SubResearch", "Web", "Mobile", "Game", "Data", "IoT", "UI/UX"]}
-              onChange={setFilterSubResearch}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setGlobalSearchQuery(e.target.value);
+              }}
             />
             <DropdownField
               title={filterWeek}
@@ -43,6 +42,7 @@ const Ristek = () => {
               onChange={({ month, year }) => {
                 setSelectedMonth(month);
                 setSelectedYear(year);
+                setGlobalDateRange(month + 1, year);
               }}
               defaultMonth={selectedMonth}
               defaultYear={selectedYear}
@@ -50,15 +50,8 @@ const Ristek = () => {
           </div>
         </div>
         <Card className='p-5'>
-          <TableField
-            activePage={activePage}
-            onPageChange={setActivePage}
-            showMenu={false}
-            searchQuery={searchQuery}
-            filterContentType={filterSubResearch}
+          <RistekTable
             filterWeek={filterWeek}
-            month={selectedMonth + 1}
-            year={selectedYear}
           />
         </Card>
       </MotionWrapper>

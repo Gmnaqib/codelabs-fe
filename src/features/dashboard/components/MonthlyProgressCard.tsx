@@ -2,40 +2,24 @@ import React from 'react'
 import CardField from '@/components/custom-ui/CardField'
 import { Progress } from '@/components/ui/progress'
 import { ChartBarSquareIcon } from '@heroicons/react/24/solid'
-import { getKPIMeRankings } from '@/services/kpi/kpiService'
+import { useMonthlyProgressCard } from '@/features/dashboard/hooks'
 
 const MonthlyProgressCard = () => {
-  const [totalPoints, setTotalPoints] = React.useState<number>(0);
-  const [rank, setRank] = React.useState<number | null>(null);
-  React.useEffect(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const fetchKPI = async () => {
-      try {
-        const data = await getKPIMeRankings(year, month);
-        setTotalPoints(data.totalPoints);
-        setRank(data.rank ?? null);
-      } catch {
-        setTotalPoints(0);
-        setRank(null);
-      }
-    };
-    fetchKPI();
-  }, []);
+  const { totalPoints, rank } = useMonthlyProgressCard();
+
   let statusLabel = 'Note Safe';
   let statusClass = 'text-warning';
   if (totalPoints !== null) {
-    if (totalPoints <= 150) {
+    if (totalPoints < 25) {
       statusLabel = 'Danger';
       statusClass = 'text-destructive';
-    } else if (totalPoints <= 250) {
+    } else if (totalPoints < 50) {
       statusLabel = 'Warning';
       statusClass = 'text-warning';
-    } else if (totalPoints <= 400) {
+    } else if (totalPoints < 100) {
       statusLabel = 'Safe';
       statusClass = 'text-success';
-    } else if (totalPoints > 400) {
+    } else {
       statusLabel = 'Excellent';
       statusClass = 'text-primary';
     }
@@ -53,7 +37,7 @@ const MonthlyProgressCard = () => {
         </div>
         <div className="flex flex-col gap-2">
           <p className='font-normal text-md'>Your KPI Progress</p>
-          <Progress value={Math.floor(totalPoints / 4)} />
+          <Progress value={Math.floor(totalPoints)} />
           <p className={`text-center ${statusClass}`}>{statusLabel}</p>
         </div>
       </div>

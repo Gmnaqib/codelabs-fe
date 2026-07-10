@@ -1,17 +1,19 @@
 "use client"
-import { TableField } from '@/components/custom-ui/TableField'
+import PointsDetailTable from '@/features/points/components/PointsDetailTable'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
-import React, { useState, useEffect, ChangeEvent, Suspense } from 'react'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
+import React, { useState, ChangeEvent, Suspense } from 'react'
 import InputField from '@/components/custom-ui/InputField';
 import DialogField from '@/components/custom-ui/DialogField';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { createKPIDetail, getKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
+import { createKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
+import { handleError } from '@/shared/services';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
 import { useSearchParams } from 'next/navigation';
+import { useTableStore } from '@/shared/state';
 
 enum KPILabel {
   REQUIRED = "REQUIRED",
@@ -35,10 +37,10 @@ const PointsDetails = () => {
 };
 
 const PointsDetailsContent = () => {
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const searchParams = useSearchParams();
   const masterId = searchParams.get('id') ?? '';
 
-  const [activePage, setActivePage] = useState<string>("pointsdetail");
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,11 +90,9 @@ const PointsDetailsContent = () => {
       setMaxActivity("");
       setLabel("");
       setFetchTrigger(Date.now());
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to create KPI detail.";
-      toast.error(message);
+    } catch (err) {
+      const appError = handleError(err);
+      toast.error(appError.message || "Failed to create KPI detail.");
     } finally {
       setLoading(false);
     }
@@ -113,25 +113,26 @@ const PointsDetailsContent = () => {
       setIsEditOpen(false);
       setEditItem(null);
       setFetchTrigger(Date.now());
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        "Failed to update KPI detail.";
-      toast.error(message);
+    } catch (err) {
+      const appError = handleError(err);
+      toast.error(appError.message || "Failed to update KPI detail.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'president', 'vice president']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setGlobalSearchQuery(e.target.value);
+            }}
           />
           <DialogField
             name="Add Detail"
@@ -174,13 +175,9 @@ const PointsDetailsContent = () => {
         </div>
         <Card className='p-5'>
           <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              searchQuery={searchQuery}
+            <PointsDetailTable
               fetchTrigger={fetchTrigger}
-              onEditItem={handleEditClick}
+              onEdit={handleEditClick}
             />
           </div>
         </Card>

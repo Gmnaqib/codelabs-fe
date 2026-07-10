@@ -62,7 +62,7 @@ const CardField = (props: CardFieldProps) => {
             </CardTitle>
           </CardHeader>
 
-          <CardContent className='z-10'>
+          <CardContent className='z-10 flex-1 flex flex-col'>
             {typeof children === 'function'
               ? (children as (year: string) => ReactNode)(selectedYear)
               : children}

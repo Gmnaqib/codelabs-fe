@@ -1,48 +1,18 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import SelectField from "@/components/custom-ui/SelectField"
 import { DataSelectRangkingsKPI } from "@/config/dashboard"
-import { getKPIRankings } from "@/services/kpi/kpiService"
 import { resolveImageUrl } from "@/lib/utils"
-
-interface KPIRankingUser {
-  name: string;
-  totalPoints: number;
-  year: number;
-  month: number;
-  image?: string | null;
-}
+import { useKpiRankingsCard } from "@/features/dashboard/hooks"
 
 const KPIRangkings = () => {
   const [filter, setFilter] = useState("highest")
-  const [users, setUsers] = useState<KPIRankingUser[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchRankings = async () => {
-      try {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1;
-        const res = await getKPIRankings(year, month);
-        setUsers(res);
-      } catch (error) {
-        console.error("Failed to fetch KPI rankings:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRankings();
-  }, []);
+  const { users, loading } = useKpiRankingsCard();
 
   const sortedUsers = [...users].sort((a, b) => {
     return filter === "highest"
       ? b.totalPoints - a.totalPoints
       : a.totalPoints - b.totalPoints
   });
-
-  if (loading) {
-    return <p>Loading...</p>
-  }
 
   return (
     <>
@@ -52,12 +22,13 @@ const KPIRangkings = () => {
           options={DataSelectRangkingsKPI}
           value={filter}
           onChange={(value) => setFilter(value)}
-          
+
         />
       </div>
 
-      <div className="h-screen overflow-y-auto flex flex-col gap-4 scrollbar-none ">
-        {sortedUsers.map((user, index) => (
+      <div className="max-h-80 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
+        {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
+        {!loading && sortedUsers.map((user, index) => (
           <div key={user.name + '-' + user.totalPoints + '-' + index} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}

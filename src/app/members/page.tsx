@@ -4,24 +4,34 @@ import { useEffect, useState } from "react";
 import DialogField from "@/components/custom-ui/DialogField";
 import { DropdownField } from "@/components/custom-ui/DropdownField";
 import InputField from "@/components/custom-ui/InputField";
-import { TableField } from "@/components/custom-ui/TableField";
-import ProtectedRoute from "@/features/login/components/ProtectedRoute";
-import { getAllUsers, createUser, multipleRegisterUsers } from "@/services/users/userService";
-import { UserApiResponse, UserType } from "@/types/user";
+import MembersTable from "@/features/members/components/MembersTable";
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
+import { createUser, multipleRegisterUsers } from "@/services/users/userService";
+import { getProducts, type RawProductRecord } from "@/services/product/productsService";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import MotionWrapper from "@/components/custom-ui/MotionWrapper";
+import { useTableStore } from "@/shared/state";
 
 const Members = () => {
-  const [users, setUsers] = useState<UserType[]>([]);
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const [search, setSearch] = useState("");
   const [filterRole, setFilterRole] = useState("All Role");
   const [filterSubriset, setFilterSubriset] = useState("All SubRiset");
   const [filterStatus, setFilterStatus] = useState("All Status");
+  const [filterProduct, setFilterProduct] = useState("All Product");
+  const [products, setProducts] = useState<RawProductRecord[]>([]);
   const [mode, setMode] = useState<'Register' | 'Multiple Register'>('Register');
   const [multipleEmails, setMultipleEmails] = useState("");
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  useEffect(() => {
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]));
+  }, []);
 
   const [form, setForm] = useState({
     nim: "",
@@ -36,48 +46,6 @@ const Members = () => {
   const updateForm = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
-
-  const fetchData = async () => {
-    try {
-      const data = await getAllUsers();
-
-      const mapped: UserType[] = (data as UserApiResponse[]).map((u) => ({
-        _id: u._id || "",
-        nim: u.nim || "",
-        name: u.name || "",
-        email: u.email || "",
-        role: u.role ? u.role : "Other",
-        status: u.status || "Unknown",
-        subriset: ["ui/ux", "mobile", "iot", "website", "game", "data"].includes(u.research?.toLowerCase() || "")
-          ? u.research || "Other"
-          : "Other",
-        change_mac_address: u.change_mac_address,
-        product_id: u.product_id,
-      }));
-
-      setUsers(mapped);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const filteredUsers = users
-    .filter((u) =>
-      u.name.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((u) =>
-      filterRole === "All Role" ? true : u.role === filterRole
-    )
-    .filter((u) =>
-      filterSubriset === "All SubRiset" ? true : u.subriset === filterSubriset
-    )
-    .filter((u) =>
-      filterStatus === "All Status" ? true : u.status === filterStatus
-    );
 
   const handleCreateMember = async () => {
     try {
@@ -94,7 +62,7 @@ const Members = () => {
 
       await createUser(payload);
 
-      await fetchData();
+      setFetchTrigger(Date.now());
       toast.success("User created successfully!");
 
       setForm({
@@ -124,7 +92,7 @@ const Members = () => {
         return;
       }
       await multipleRegisterUsers({ emails });
-      await fetchData();
+      setFetchTrigger(Date.now());
       toast.success("Multiple users registered successfully!");
       setMultipleEmails("");
     } catch (err) {
@@ -148,54 +116,76 @@ const Members = () => {
   })();
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'president', 'vice president']}>
       <MotionWrapper>
         <div className="w-full flex flex-col">
 
-          <div className="flex w-full justify-between mb-4 gap-4">
-            <div className="flex gap-4">
-              <InputField
-                type="text"
-                placeholder="Search by Name"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          <div className="flex w-full flex-col gap-4 mb-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-3">
+              <div className="w-full sm:w-auto">
+                <InputField
+                  type="text"
+                  placeholder="Search by Name"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setGlobalSearchQuery(e.target.value);
+                  }}
+                />
+              </div>
 
-              <DropdownField
-                title={filterRole}
-                menu={["All Role", "admin", "lecturer", "president", "vice president", "minister of research", "minister of competition", "minister of branding", "minister of operation", "user"]}
-                onSelect={(v) => {
-                  setFilterRole(v);
-                  console.log('Filter Role selected:', v);
-                }}
-              />
+              <div className="w-full sm:w-auto">
+                <DropdownField
+                  title={filterRole}
+                  menu={["All Role", "admin", "lecturer", "president", "vice president", "minister of research", "minister of competition", "minister of branding", "minister of operation", "user"]}
+                  onSelect={(v) => {
+                    setFilterRole(v);
+                  }}
+                  className="w-full sm:w-auto"
+                />
+              </div>
 
-              <DropdownField
-                title={filterSubriset}
-                menu={[
-                  "All SubRiset",
-                  "ui/ux",
-                  "mobile",
-                  "iot",
-                  "website",
-                  "game",
-                  "data",
-                  "other",
-                ]}
-                onSelect={(v) => {
-                  setFilterSubriset(v);
-                  console.log('Filter Subriset selected:', v);
-                }}
-              />
+              <div className="w-full sm:w-auto">
+                <DropdownField
+                  title={filterSubriset}
+                  menu={[
+                    "All SubRiset",
+                    "ui/ux",
+                    "mobile",
+                    "iot",
+                    "website",
+                    "game",
+                    "data",
+                    "other",
+                  ]}
+                  onSelect={(v) => {
+                    setFilterSubriset(v);
+                  }}
+                  className="w-full sm:w-auto"
+                />
+              </div>
 
-              <DropdownField
-                title={filterStatus}
-                menu={["All Status", "active", "inactive", "graduated"]}
-                onSelect={(v) => {
-                  setFilterStatus(v);
-                  console.log('Filter Status selected:', v);
-                }}
-              />
+              <div className="w-full sm:w-auto">
+                <DropdownField
+                  title={filterStatus}
+                  menu={["All Status", "active", "inactive", "graduated"]}
+                  onSelect={(v) => {
+                    setFilterStatus(v);
+                  }}
+                  className="w-full sm:w-auto"
+                />
+              </div>
+
+              <div className="w-full sm:w-auto">
+                <DropdownField
+                  title={filterProduct}
+                  menu={["All Product", ...products.map((p) => p.name)]}
+                  onSelect={(v) => {
+                    setFilterProduct(v);
+                  }}
+                  className="w-full sm:w-auto"
+                />
+              </div>
             </div>
 
             <DialogField
@@ -306,14 +296,13 @@ const Members = () => {
           </div>
 
           <Card className="p-5">
-            <TableField
-              activePage="members"
-              onPageChange={() => {}}
-              showMenu={false}
-              data={filteredUsers}
+            <MembersTable
               filterRole={filterRole}
               filterSubriset={filterSubriset}
               filterStatus={filterStatus}
+              filterProduct={filterProduct}
+              products={products}
+              fetchTrigger={fetchTrigger}
             />
           </Card>
         </div>

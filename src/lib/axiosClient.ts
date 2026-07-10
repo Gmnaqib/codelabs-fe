@@ -1,4 +1,6 @@
 import axios from "axios";
+import { handleError } from "@/shared/services";
+import { getStoredToken, clearStoredToken } from "@/shared/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -10,12 +12,10 @@ export const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
+  const token = getStoredToken();
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;
@@ -24,11 +24,13 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-
-    if (error.response?.status === 401) {
-      console.warn("Unauthorized - token sudah kadaluarsa");
+    if (error?.response?.status === 401) {
+      clearStoredToken();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(handleError(error));
   }
 );

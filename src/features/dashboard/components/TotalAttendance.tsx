@@ -1,54 +1,45 @@
-import React from 'react'
+import React, { useState } from 'react'
 import CardField from '@/components/custom-ui/CardField'
-import { MegaphoneIcon } from '@heroicons/react/24/solid'
-import { getAttendanceMe } from '@/services/attendance/attendanceService'
+import { MegaphoneIcon, ArrowUpRightIcon } from '@heroicons/react/24/solid'
+import DialogField from '@/components/custom-ui/DialogField'
+import { useTotalAttendanceCard } from '@/features/dashboard/hooks'
+import { useAuth } from '@/features/auth/hooks'
+import { getAttendanceSummaryByUserId } from '@/services/attendance/attendanceService'
+import DetailAttendanceCard, { type StatusSummary } from '@/features/attendance/components/DetailAttendanceCard'
+
+function getLimitColor(value: number, limit: number): string {
+  if (value >= limit) return ' text-destructive';
+  if (value === limit - 1) return ' text-warning';
+  return '';
+}
 
 const TotalAttendance = () => {
-  const [summary, setSummary] = React.useState<Record<string, number>>({});
-  const [spCount, setSpCount] = React.useState<number>(0);
-  React.useEffect(() => {
-    interface StatusSummaryItem {
-      status: string;
-      count: number;
+  const { summary, spCount } = useTotalAttendanceCard();
+  const { user } = useAuth();
+  const [detailData, setDetailData] = useState<StatusSummary[] | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const sick = summary.sick || 0;
+  const permit = summary.permit || 0;
+  const late = summary.late || 0;
+  const absent = summary.absent || 0;
+
+  const handleOpenDetail = async () => {
+    if (!user?.id) return;
+    setDetailLoading(true);
+    try {
+      const res = await getAttendanceSummaryByUserId(user.id);
+      setDetailData((res.statusSummary ?? []).map((s) => ({ status: s.status, records: s.records ?? [] })));
+    } catch {
+      setDetailData(null);
+    } finally {
+      setDetailLoading(false);
     }
-    const fetchSummary = async () => {
-      try {
-        const data = await getAttendanceMe();
-        const map: Record<string, number> = {};
-        if (data && Array.isArray(data.statusSummary)) {
-          (data.statusSummary as StatusSummaryItem[]).forEach((item) => {
-            map[item.status] = item.count;
-          });
-        }
-        const sick = map.sick || 0;
-        const permit = map.permit || 0;
-        const late = map.late || 0;
-        let absent = map.absent || 0;
-        const sickExcess = sick > 4 ? sick - 4 : 0;
-        const permitExcess = permit > 2 ? permit - 2 : 0;
-        const lateExcess = late > 4 ? late - 4 : 0;
-        absent += sickExcess + permitExcess + lateExcess;
-        let sp = 0;
-        if (absent >= 12) {
-          sp = 3;
-        } else if (absent >= 8) {
-          sp = 2;
-        } else if (absent >= 4) {
-          sp = 1;
-        }
-        setSummary({ ...map, absent });
-        setSpCount(sp);
-      } catch {
-        setSummary({});
-        setSpCount(0);
-      }
-    };
-    fetchSummary();
-  }, []);
+  };
 
   return (
     <CardField title="Total Attendance" icon={<MegaphoneIcon />} bg>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 flex-1 justify-between">
         <div className="flex flex-col text-center gap-5">
           <div className="flex flex-col gap-2">
             <div className="grid grid-cols-12">
@@ -59,22 +50,22 @@ const TotalAttendance = () => {
             <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>Sick</p>
               <p className='col-span-1'>:</p>
-              <p className={`col-span-1 font-semibold${(summary.sick || 0) > 4 ? ' text-destructive' : ''}`}>{summary.sick || 0}</p>
+              <p className={`col-span-1 font-semibold${getLimitColor(sick, 4)}`}>{Math.min(sick, 4)}</p>
             </div>
             <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>Permit</p>
               <p className='col-span-1'>:</p>
-              <p className={`col-span-1 font-semibold${(summary.permit || 0) > 2 ? ' text-destructive' : ''}`}>{summary.permit || 0}</p>
+              <p className={`col-span-1 font-semibold${getLimitColor(permit, 2)}`}>{Math.min(permit, 2)}</p>
             </div>
             <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>Late Arrivals</p>
               <p className='col-span-1'>:</p>
-              <p className={`col-span-1 font-semibold${(summary.late || 0) > 4 ? ' text-destructive' : ''}`}>{summary.late || 0}</p>
+              <p className={`col-span-1 font-semibold${getLimitColor(late, 4)}`}>{Math.min(late, 4)}</p>
             </div>
             <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>No Report</p>
               <p className='col-span-1'>:</p>
-              <p className='col-span-1 font-semibold'>{summary.absent || 0}</p>
+              <p className={`col-span-1 font-semibold${getLimitColor(absent, 5)}`}>{absent}</p>
             </div>
             <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>SP</p>
@@ -82,6 +73,25 @@ const TotalAttendance = () => {
               <p className='col-span-1 font-semibold'>{spCount}</p>
             </div>
           </div>
+        </div>
+        <div className="flex items-center justify-center gap-2 cursor-pointer">
+          <DialogField
+            name="Detail"
+            title="Attendance Detail"
+            variant="link"
+            noPaddingX
+            noPadding
+            onTriggerClick={handleOpenDetail}
+          >
+            {detailLoading ? (
+              <p className="text-center text-sm text-gray-500">Loading...</p>
+            ) : detailData ? (
+              <DetailAttendanceCard statusSummary={detailData} />
+            ) : (
+              <p className="text-center text-sm text-gray-500">No detail data available.</p>
+            )}
+          </DialogField>
+          <ArrowUpRightIcon className="text-primary text-base font-normal size-4" />
         </div>
       </div>
     </CardField>

@@ -1,4 +1,6 @@
 import { axiosClient } from "@/lib/axiosClient";
+import { handleError } from "@/shared/services";
+import type { OperationalRecord } from "@/types/domain";
 
 export interface OperationalRecordPayload {
   userId: string;
@@ -6,26 +8,21 @@ export interface OperationalRecordPayload {
   date: string;
 }
 
-export const createOperationalRecord = async (payload: OperationalRecordPayload) => {
+export interface CreateOperationalRecordResponse {
+  code: number;
+  status: string;
+  message: string;
+  data: OperationalRecord;
+}
+
+export const createOperationalRecord = async (
+  payload: OperationalRecordPayload
+): Promise<CreateOperationalRecordResponse> => {
   try {
     const res = await axiosClient.post("/operational-records", payload);
     return res.data;
-  } catch (error: unknown) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "response" in error &&
-      typeof (error as { response?: { data?: unknown }; message?: unknown }).response === "object"
-    ) {
-      const errObj = error as { response?: { data?: unknown }; message?: unknown };
-      console.error(
-        "❌ Gagal membuat operational record:",
-        errObj.response?.data || errObj.message
-      );
-    } else {
-      console.error("❌ Gagal membuat operational record:", error);
-    }
-    throw error;
+  } catch (error) {
+    throw handleError(error);
   }
 };
 
@@ -34,7 +31,7 @@ export const getOperationalRecords = async (
   userId?: string,
   year?: number,
   month?: number
-) => {
+): Promise<OperationalRecord[]> => {
   try {
     const params: Record<string, string> = {};
 
@@ -48,22 +45,41 @@ export const getOperationalRecords = async (
     const res = await axiosClient.get("/operational-records", { params });
     return res.data?.data || [];
   } catch (error) {
-    console.error("❌ Error fetching operational records:", error);
-    return [];
+    throw handleError(error);
   }
 };
 
-export const deleteOperationalRecord = async (id: string) => {
-  const res = await axiosClient.delete(`/operational-records/${id}`);
-  return res.data;
+export const deleteOperationalRecord = async (id: string): Promise<unknown> => {
+  try {
+    const res = await axiosClient.delete(`/operational-records/${id}`);
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const getSchedulesPicket = async () => {
-  const res = await axiosClient.get(`/schedules?type=picket`);
-  return res.data;
+export const getSchedulesPicket = async (): Promise<unknown> => {
+  try {
+    const res = await axiosClient.get(`/schedules?type=picket`);
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };
 
-export const getProducts = async () => {
+export interface RawProductRecord {
+  _id: string;
+  name: string;
+  description: string;
+  status: string;
+  [key: string]: unknown;
+}
+
+export const getProducts = async (): Promise<RawProductRecord[]> => {
+  try {
     const res = await axiosClient.get('/products/');
     return res.data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
 };

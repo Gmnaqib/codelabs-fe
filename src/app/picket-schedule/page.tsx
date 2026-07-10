@@ -1,22 +1,21 @@
 "use client";
 import DatePicker from '@/components/custom-ui/DatePicker';
 import DialogField from '@/components/custom-ui/DialogField';
-import { TableField } from '@/components/custom-ui/TableField'
+import PicketScheduleTable from '@/features/picket/components/PicketScheduleTable'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect } from 'react'
 import { MultiSelectDropdownField } from '@/components/custom-ui/MultiSelectDropdownField';
 import { getAllUsers } from '@/services/users/userService';
 import { postSchedulePicket, getAllSchedules2, deleteSchedulePicket } from '@/services/picket/picketService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
+import EmptyState from '@/components/custom-ui/EmptyState';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 
 const Picket = () => {
 
-  const [activePage, setActivePage] = useState<string>("picketschedule");
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [userNames, setUserNames] = useState<string[]>([]);
@@ -110,7 +109,7 @@ const Picket = () => {
   }, []);
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of operation']}>
       <MotionWrapper>
         <Card className='p-5'>
           <div className="flex justify-between flex-col gap-3 lg:flex-row lg:gap-0">
@@ -155,79 +154,93 @@ const Picket = () => {
                   }
                 }}
               >
-                <div className="space-y-4">
-                  <div className="grid grid-cols-3 items-center gap-2">
-                    <p>Start Date</p>
-                    <div className="col-span-2">
-                      <DatePicker value={startDate} onChange={handleStartDateChange} disabled={dateDisabled} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 items-center gap-2">
-                    <p>End Date</p>
-                    <div className="col-span-2">
-                      <DatePicker value={endDate} onChange={handleEndDateChange} minDate={startDate || undefined} disabled={!startDate || dateDisabled} />
-                    </div>
-                  </div>
-                  <p className='font-semibold mt-10'>Schedules Picket</p>
-                  {days.map(day => (
-                    <div className="grid grid-cols-1 gap-1 lg:gap-0 lg:grid-cols-3" key={day}>
-                      <p>{day}</p>
-                      <div className="col-span-2">
-                        <MultiSelectDropdownField
-                          menu={userNames.filter(name => {
-                            const selectedIdsOtherDays = Object.entries(assignedUsers)
-                              .filter(([d]) => d !== day)
-                              .flatMap(([, ids]) => ids);
-                            const id = userMap[name];
-                            const isSelectedInThisDay = (assignedUsers[day] || []).includes(id);
-                            if (isSelectedInThisDay) return true;
-                            return !selectedIdsOtherDays.includes(id);
-                          })}
-                          title='Select Member'
-                          value={(assignedUsers[day] || []).map(id => {
-                            const name = Object.keys(userMap).find(key => userMap[key] === id);
-                            return name || '';
-                          }).filter(Boolean)}
-                          displayValue={(() => {
-                            const names = (assignedUsers[day] || []).map(id => {
-                              const name = Object.keys(userMap).find(key => userMap[key] === id);
-                              return name || '';
-                            }).filter(Boolean);
-                            if (names.length > maxNames) {
-                              return [...names.slice(0, maxNames), '...'];
-                            }
-                            return names;
-                          })()}
-                          onChange={(selectedNames: string[]) => {
-                            setAssignedUsers(prev => ({
-                              ...prev,
-                              [day]: selectedNames.map(name => userMap[name]).filter(Boolean)
-                            }));
-                          }}
-                        />
+                <div className="space-y-6">
+                  <div className="rounded-xl border bg-secondary/30 p-4">
+                    <p className="mb-3 text-sm font-semibold text-secondary-foreground">Schedule Period</p>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-3 items-center gap-2">
+                        <p className="text-sm">Start Date</p>
+                        <div className="col-span-2">
+                          <DatePicker value={startDate} onChange={handleStartDateChange} disabled={dateDisabled} />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 items-center gap-2">
+                        <p className="text-sm">End Date</p>
+                        <div className="col-span-2">
+                          <DatePicker value={endDate} onChange={handleEndDateChange} minDate={startDate || undefined} disabled={!startDate || dateDisabled} />
+                        </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
 
+                  <div>
+                    <p className="mb-3 font-semibold">Schedules Picket</p>
+                    <div className="space-y-2">
+                      {days.map(day => (
+                        <div className="flex flex-col gap-2 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:gap-4" key={day}>
+                          <p className="shrink-0 text-sm font-medium sm:w-28">{day}</p>
+                          <div className="min-w-0 flex-1">
+                            <MultiSelectDropdownField
+                              menu={userNames.filter(name => {
+                                const selectedIdsOtherDays = Object.entries(assignedUsers)
+                                  .filter(([d]) => d !== day)
+                                  .flatMap(([, ids]) => ids);
+                                const id = userMap[name];
+                                const isSelectedInThisDay = (assignedUsers[day] || []).includes(id);
+                                if (isSelectedInThisDay) return true;
+                                return !selectedIdsOtherDays.includes(id);
+                              })}
+                              title='Select Member'
+                              value={(assignedUsers[day] || []).map(id => {
+                                const name = Object.keys(userMap).find(key => userMap[key] === id);
+                                return name || '';
+                              }).filter(Boolean)}
+                              displayValue={(() => {
+                                const names = (assignedUsers[day] || []).map(id => {
+                                  const name = Object.keys(userMap).find(key => userMap[key] === id);
+                                  return name || '';
+                                }).filter(Boolean);
+                                if (names.length > maxNames) {
+                                  return [...names.slice(0, maxNames), '...'];
+                                }
+                                return names;
+                              })()}
+                              onChange={(selectedNames: string[]) => {
+                                setAssignedUsers(prev => ({
+                                  ...prev,
+                                  [day]: selectedNames.map(name => userMap[name]).filter(Boolean)
+                                }));
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </DialogField>
               <DialogField title='Delete Picket Schedule' name='Delete Picket Schedule' variant='destructive'>
                 <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-none">
-                  {futureSchedules.length === 0 && 
-                  <div className="">
-                    <Image src='/icon/no-data.png' alt='No schedules' width={200} height={200} className='mx-auto mt-10' />
-                    <p className="text-center text-muted-foreground mt">No future picket schedules.</p>
-                  </div> 
-                  }
+                  {futureSchedules.length === 0 && (
+                    <EmptyState message="No future picket schedules." className="py-8" />
+                  )}
                   {futureSchedules.map(sch => {
                     const dateObj = new Date(sch.date);
                     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-                    const dateStr = dateObj.toISOString().slice(0, 10);
+                    const dateStr = dateObj.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
                     return (
-                      <div className="grid grid-cols-2 items-center" key={sch._id}>
-                        <p >{dayName} ({dateStr})</p>
+                      <div
+                        key={sch._id}
+                        className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-destructive/40 hover:bg-destructive/5"
+                      >
+                        <div>
+                          <p className="text-sm font-medium">{dayName}</p>
+                          <p className="text-xs text-muted-foreground">{dateStr}</p>
+                        </div>
                         <Button
                           variant='destructive'
+                          size='sm'
+                          className="shrink-0"
                           onClick={async () => {
                             try {
                               await deleteSchedulePicket(sch._id);
@@ -247,12 +260,7 @@ const Picket = () => {
             </div>
           </div>
           <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              fetchTrigger={fetchTrigger}
-            />
+            <PicketScheduleTable fetchTrigger={fetchTrigger} />
           </div>
         </Card>
       </MotionWrapper>

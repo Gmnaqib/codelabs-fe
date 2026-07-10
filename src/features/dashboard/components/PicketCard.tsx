@@ -1,66 +1,39 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { GLTFLoader } from 'three-stdlib';
+import React from "react";
+import dynamic from "next/dynamic";
 import CardField from "@/components/custom-ui/CardField";
-import { getTodayPicketSchedule } from "@/services/picket/picketService";
 import { Label } from "@/components/ui/label";
-import { PicketPerson } from "@/types/PicketPersonProps";
 import { ArrowUpRightIcon, ClipboardDocumentCheckIcon } from "@heroicons/react/24/solid";
 import { PicketCardProps } from "@/types/PicketCardProps";
+import { usePicketCard } from "@/features/dashboard/hooks";
+
+const PicketMapCanvas = dynamic(() => import("./PicketMapCanvas"), { ssr: false });
 
 const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
-  const [picketData, setPicketData] = useState<PicketPerson[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        type AssignedUser = { _id: string; name: string };
-        type Schedule = { assignedUsers?: AssignedUser[] };
-        const data: Schedule[] = await getTodayPicketSchedule();
-        const withUsers = data.filter((d) => d.assignedUsers && d.assignedUsers.length > 0);
-        const users: AssignedUser[] = withUsers.length > 0 ? withUsers[0].assignedUsers! : [];
-        const names: PicketPerson[] = users.map((u) => ({
-          name: u.name,
-          userId: u._id,
-        }));
-        setPicketData(names);
-      } catch (err) {
-        console.error(err);
-        setPicketData([]);
-      }
-    };
-    fetchData();
-  }, []);
-
+  const { picketData } = usePicketCard();
 
   const groups = [
     { title: "Vacuum Cleaner", data: picketData.slice(0, 3) },
     { title: "Table & Research Tool Cleaner", data: picketData.slice(3, 6) },
   ];
 
-
-  function Model() {
-    const gltf = useLoader(GLTFLoader, "/3d/DenahCodeLabs.glb");
-    return <primitive object={gltf.scene} scale={1.5} />;
-  }
-
   return (
     <CardField title="Picket Schedule Today" icon={<ClipboardDocumentCheckIcon />} bg>
-      <div className="flex flex-col gap-5">
-        {groups.map((group, groupIndex) => (
-          <div key={groupIndex}>
-            <p className="font-medium text-sm text-center mb-2">{group.title}</p>
-            <div className="flex flex-col gap-1">
-              {group.data.map((person, index) => (
-                <div key={index}  className="w-full flex justify-center">
-                  <Label htmlFor={`${groupIndex}-${index}`} className="font-base text-sm text-muted text-center">{`${index + 1}. ${person.name.split(" ")[0]}`}</Label>
-                </div>
-              ))}
+      <div className="flex flex-col gap-5 flex-1 justify-between">
+        <div className="flex flex-col gap-5">
+          {groups.map((group, groupIndex) => (
+            <div key={groupIndex}>
+              <p className="font-medium text-sm text-center mb-2">{group.title}</p>
+              <div className="flex flex-col gap-1">
+                {group.data.map((person, index) => (
+                  <div key={index}  className="w-full flex justify-center">
+                    <Label htmlFor={`${groupIndex}-${index}`} className="font-base text-sm text-muted text-center">{`${index + 1}. ${person.name.split(" ")[0]}`}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
         <button
           type="button"
@@ -81,12 +54,7 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
             </button>
             <div className="w-screen h-screen flex flex-col">
               <div className="flex-1">
-                <Canvas camera={{ position: [-30, 20, 0], fov: 50 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
-                  <ambientLight intensity={0.7} />
-                  <directionalLight position={[10, 10, 5]} intensity={1} />
-                  <Model />
-                  <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
-                </Canvas>
+                <PicketMapCanvas />
               </div>
             </div>
           </div>

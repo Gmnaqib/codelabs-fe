@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import CardField from '@/components/custom-ui/CardField';
 import { BanknotesIcon } from '@heroicons/react/24/solid';
-import { fetchCashBillsData } from '@/utils/fetchCashBills';
+import { useOperationalCashCard } from '@/features/dashboard/hooks';
 
 const OperationalCash = () => {
-  const [totalKas, setTotalKas] = useState('-');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchTotalKas() {
-      try {
-        const data = await fetchCashBillsData();
-        const summaryRow = data[data.length - 1];
-        setTotalKas(summaryRow?.["Total KAS"] || summaryRow?.["TOTAL"] || summaryRow?.["Total"] || '-');
-      } catch {
-        setTotalKas('-');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchTotalKas();
-  }, []);
+  const { totalKas, loading } = useOperationalCashCard();
 
   function formatKas(kas: string) {
     if (!kas || kas === '-') return '-';

@@ -3,22 +3,16 @@ import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { postCheckIn, postLeaveRequest, postCheckOut, checkNetwork, getMyStatusToday } from '@/services/attendance/attendanceService';
+import { postCheckIn, postCheckOut, checkNetwork, getMyStatusToday } from '@/services/attendance/attendanceService';
 import { getTimeSettingByCode, TimeSetting } from '@/services/timeSetting/timeSettingService';
-import { useRef } from 'react';
 
-
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks';
 import { Button } from '@/components/ui/button';
 import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
-import DateRangePicker from '@/components/custom-ui/DateRangePicker';
-import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowUpRightIcon } from 'lucide-react';
+import LeaveRequestForm from '@/features/attendance/components/LeaveRequestForm';
 
 import { toast } from 'sonner';
-import CameraCapture from '@/components/custom-ui/CameraCapture';
 
 const toMin = (hhmm: string) => {
   const [h, m] = hhmm.split(":").map(Number);
@@ -34,13 +28,6 @@ const getDayCode = (): "WEEKDAY" | "SATURDAY" | "SUNDAY" => {
 
 const AttendanceCard = () => {
   const { user } = useAuth();
-  const [showDateModal, setShowDateModal] = useState(false);
-  const [leaveType, setLeaveType] = useState<'sick' | 'permit'>('sick');
-  const [leaveReason, setLeaveReason] = useState('');
-  const [leaveStartDate, setLeaveStartDate] = useState('');
-  const [leaveEndDate, setLeaveEndDate] = useState('');
-  const [leaveAttachment, setLeaveAttachment] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isOnNetwork, setIsOnNetwork] = useState<boolean | null>(null);
   const [isCheckedIn, setIsCheckedIn] = useState<boolean | null>(null);
   const [isCheckedOut, setIsCheckedOut] = useState<boolean | null>(null);
@@ -78,43 +65,6 @@ const AttendanceCard = () => {
   const isPastCheckout = timeSetting
     ? nowMin > toMin(timeSetting.checkoutlate)
     : false;
-
-  const handlePermissionSubmit = async () => {
-    if (!leaveType || !leaveReason || !leaveStartDate || !leaveAttachment) {
-      toast.error('All fields are required!');
-      return;
-    }
-    const finalEndDate = leaveEndDate || leaveStartDate;
-    try {
-      await postLeaveRequest({
-        type: leaveType,
-        reason: leaveReason,
-        attachment: leaveAttachment,
-        start_date: leaveStartDate,
-        end_date: finalEndDate,
-      });
-      toast.success('Leave request submitted successfully!');
-      const day = new Date().getDay();
-      let telegramUsername = 'HakimMajid123';
-      if (day === 3 || day === 6) telegramUsername = 'iammmth';
-      else if (day === 4 || day === 5) telegramUsername = 'Aldzikra';
-      const reasonText = encodeURIComponent(`Saya izin tidak masuk karena ${leaveReason} dari tanggal ${leaveStartDate} hingga ${finalEndDate}`);
-      window.location.href = `https://t.me/${telegramUsername}?text=${reasonText}`;
-      setLeaveReason('');
-      setLeaveStartDate('');
-      setLeaveEndDate('');
-      setLeaveAttachment(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    } catch (error: unknown) {
-      let errMsg = 'Gagal mengirim izin!';
-      if (error && typeof error === 'object') {
-        errMsg = (error as { response?: { data?: { message?: string } }, message?: string })?.response?.data?.message
-          || (error as { message?: string })?.message
-          || errMsg;
-      }
-      toast.error(errMsg);
-    }
-  };
 
   useEffect(() => {
     checkNetwork().then(setIsOnNetwork).catch(() => setIsOnNetwork(false));
@@ -343,80 +293,7 @@ const AttendanceCard = () => {
             )}
           </>
         )}
-        {canCheckIn && !isCheckedIn && (
-          <div className="flex items-center gap-2 mt-3 cursor-pointer">
-            <DialogField name='Add Permission' title='Permission' variant='link' size='noPadding'
-              onSubmit={handlePermissionSubmit}
-            >
-              <div>
-                <p className='mb-1'>Select Permission</p>
-                <DropdownField
-                  title={leaveType === 'sick' ? 'Sick' : 'Permit'}
-                  menu={["Sick", "Permit"]}
-                  onSelect={v => setLeaveType(v === 'Sick' ? 'sick' : 'permit')}
-                />
-              </div>
-              <div className="flex flex-col gap-4">
-                <Textarea
-                  label="Reason"
-                  placeholder="Enter reason..."
-                  value={leaveReason}
-                  onChange={e => setLeaveReason(e.target.value)}
-                />
-                <div>
-                  <label className="block mb-1">Leave Date</label>
-                  <Button
-                    type='button'
-                    className='rounded-full px-2 py-4 w-full text-base bg-white text-black border border-muted-foreground font-light hover:bg-primary hover:text-white'
-                    onClick={() => { if (!showDateModal) setShowDateModal(true); }}
-                  >
-                    {leaveStartDate && leaveEndDate && leaveStartDate !== leaveEndDate
-                      ? `${leaveStartDate} s/d ${leaveEndDate}`
-                      : leaveStartDate
-                      ? leaveStartDate
-                      : 'Select Leave Date'}
-                  </Button>
-                  {showDateModal && (
-                    <div
-                      className="fixed inset-0 z-50 flex items-center justify-center"
-                      style={{ background: 'transparent' }}
-                      onClick={() => setShowDateModal(false)}
-                    >
-                      <div
-                        className="bg-white rounded shadow-lg p-4"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <DateRangePicker
-                          startDate={leaveStartDate || null}
-                          endDate={leaveEndDate || null}
-                          minDate={new Date().toISOString().split('T')[0]}
-                          onChange={(start, end) => {
-                            setLeaveStartDate(start || '');
-                            setLeaveEndDate(end || '');
-                          }}
-                        />
-                        <div className="flex gap-2 mt-4 justify-end">
-                          <Button type="button" onClick={() => { if (leaveStartDate) setShowDateModal(false); }}>
-                            Pilih
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {!leaveAttachment ? (
-                  <div>
-                    <label className="block text-base font-light mb-1">Choose Picture</label>
-                    <CameraCapture onCapture={file => setLeaveAttachment(file)} />
-                  </div>
-                ) : (
-                  <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>
-                )}
-              </div>
-            </DialogField>
-            <ArrowUpRightIcon className="size-5 text-primary" />
-          </div>
-        )}
+        {canCheckIn && !isCheckedIn && <LeaveRequestForm />}
       </div>
     </CardField>
   );

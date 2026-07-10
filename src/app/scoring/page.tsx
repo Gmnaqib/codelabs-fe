@@ -1,15 +1,15 @@
 "use client"
-import { TableField } from '@/components/custom-ui/TableField';
+import ScoringTable from '@/features/scoring/components/ScoringTable';
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute';
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute';
 import React, { useState, useEffect } from 'react'
 import { getKPIMeRankings } from '@/services/kpi/kpiService';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 
 const KPIScoring = () => {
-  const [activePage, setActivePage] = useState<string>("Research");
   const [myPoint, setMyPoint] = useState<number | null>(null);
+  const [myRank, setMyRank] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
@@ -17,13 +17,14 @@ const KPIScoring = () => {
   const [filterMonth] = useState(currentMonth);
 
   useEffect(() => {
-    console.log('Filter Year:', filterYear, 'Filter Month:', filterMonth + 1);
     const fetchMe = async () => {
       try {
         const res = await getKPIMeRankings(filterYear, filterMonth + 1);
-        setMyPoint(res?.totalPoint ?? 0);
+        setMyPoint(res?.totalPoints ?? 0);
+        setMyRank(res?.rank ?? null);
       } catch {
         setMyPoint(0);
+        setMyRank(null);
       } finally {
         setLoading(false);
       }
@@ -34,22 +35,33 @@ const KPIScoring = () => {
   let statusLabel = 'Note Safe';
   let statusClass = 'text-warning';
   if (!loading && myPoint !== null) {
-    if (myPoint <= 150) {
+    if (myPoint < 25) {
       statusLabel = 'Danger';
       statusClass = 'text-destructive';
-    } else if (myPoint <= 250) {
+    } else if (myPoint < 50) {
       statusLabel = 'Warning';
       statusClass = 'text-warning';
-    } else if (myPoint <= 400) {
+    } else if (myPoint < 100) {
       statusLabel = 'Safe';
       statusClass = 'text-success';
-    } else if (myPoint > 400) {
+    } else {
       statusLabel = 'Excellent';
       statusClass = 'text-primary';
     }
   }
   return (
-    <ProtectedRoute>
+    <ProtectedRoute
+      roles={[
+        'admin',
+        'minister of research',
+        'minister of competition',
+        'minister of branding',
+        'minister of operation',
+        'president',
+        'vice president',
+        'user',
+      ]}
+    >
       <MotionWrapper>
         <Card>
           <div className="flex flex-col lg:flex-row lg:justify-between px-5 pt-5">
@@ -59,7 +71,7 @@ const KPIScoring = () => {
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="text-center ">
                 <p className='text-sm text-secondary-foreground'>Current Rank</p>
-                <p className='font-medium text-xl'>4</p>
+                <p className='font-medium text-xl'>{loading ? '-' : myRank ?? '-'}</p>
               </div>
               <div className="w-0.5 h-12 bg-muted opacity-20 hidden lg:flex"></div>
               <div className="text-center">
@@ -76,13 +88,7 @@ const KPIScoring = () => {
           <div className="px-5">
             <hr />
           </div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              year={filterYear}
-              month={filterMonth + 1}
-            />
+            <ScoringTable showMenu={true} />
         </Card>
       </MotionWrapper>
     </ProtectedRoute>

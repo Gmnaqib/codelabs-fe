@@ -1,101 +1,36 @@
 "use client";
-import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
-import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { TableField } from '@/components/custom-ui/TableField'
+import ProductsTable from '@/features/products/components/ProductsTable'
 import { Card } from '@/components/ui/card'
-import ProtectedRoute from '@/features/login/components/ProtectedRoute'
-import React, { useState, ChangeEvent } from 'react'
-import { postProduct } from '@/services/product/productsService';
-import { toast } from 'sonner';
+import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
+import React, { useState } from 'react'
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
+import { useTableStore } from '@/shared/state';
+import ProductForm from '@/features/products/components/ProductForm';
 
 const Product = () => {
-  const [activePage, setActivePage] = useState<string>("products");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("active");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const isFormIncomplete = !name || !description || !status;
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      await postProduct({ name, description, status });
-      setSuccess(true);
-      setIsDialogOpen(false);
-      setName("");
-      setDescription("");
-      setStatus("active");
-      setFetchTrigger(Date.now());
-      toast.success("Product added successfully!");
-    } catch {
-      toast.error("Failed to add product.");
-    } finally {
-      setLoading(false);
-      setTimeout(() => setSuccess(false), 1200);
-    }
-  };
-
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of research']}>
       <MotionWrapper>
         <div className="flex justify-between mb-10 flex-col lg:flex-row gap-4 lg:gap-0">
           <InputField
             placeholder="Search by name..."
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={e => {
+              setSearchQuery(e.target.value);
+              setGlobalSearchQuery(e.target.value);
+            }}
           />
-          <DialogField
-            name="Add Product"
-            title="Add Product"
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onSubmit={handleSubmit}
-            submitDisabled={isFormIncomplete || loading}
-          >
-            <form className="flex flex-col gap-3 min-w-56" onSubmit={e => e.preventDefault()}>
-              <InputField
-                type="string"
-                placeholder="Ex: Product Name"
-                label="Product Name"
-                value={name}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-              />
-              <InputField
-                type="string"
-                placeholder="Ex: Product Description"
-                label="Product Description"
-                value={description}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}
-              />
-              <DropdownField
-                key="status-input"
-                title="Choose Status"
-                menu={["active", "inactive"]}
-                label="Status"
-                value={status}
-                onChange={(value: string) => setStatus(value)}
-              />
-              {success && <p className="text-green-600 text-sm">Berhasil ditambahkan!</p>}
-            </form>
-          </DialogField>
+          <ProductForm onSuccess={() => setFetchTrigger(Date.now())} />
         </div>
         <Card className='p-5'>
           <div>
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-              showMenu={true}
-              searchQuery={searchQuery}
-              fetchTrigger={fetchTrigger}
-            />
+            <ProductsTable fetchTrigger={fetchTrigger} />
           </div>
         </Card>
       </MotionWrapper>

@@ -1,22 +1,17 @@
 "use client";
 import { Card } from "@/components/ui/card";
-import React, { useState } from "react";
-import TableField from "@/components/custom-ui/TableField/TableField";
-import ProtectedRoute from "@/features/login/components/ProtectedRoute";
+import React from "react";
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import MotionWrapper from "@/components/custom-ui/MotionWrapper";
+import OperationalTable from "@/features/operational/components/OperationalTable";
 
 const Operasional = () => {
-  const [activePage, setActivePage] = useState("Absensce");
-
   return (
-    <ProtectedRoute>
+    <ProtectedRoute roles={['admin', 'minister of operation']}>
       <MotionWrapper>
         <Card>
           <div className="p-5">
-            <TableField
-              activePage={activePage}
-              onPageChange={setActivePage}
-            />
+            <OperationalTable />
           </div>
         </Card>
       </MotionWrapper>
