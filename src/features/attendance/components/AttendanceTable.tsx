@@ -118,7 +118,7 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
         />
       )}
 
-      <div className="grid grid-cols-5 gap-5 mt-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mt-3">
         <CardField title="Total Report" icon={<DocumentTextIcon />} noGap>
           <p className="text-primary font-medium text-center text-2xl mt-4">{totals.overall}</p>
         </CardField>

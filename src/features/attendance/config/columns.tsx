@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import type { TableColumn } from '@/features/table/components';
 import DialogField from '@/components/custom-ui/DialogField';
@@ -36,6 +36,40 @@ function formatLongDate(value: string | Date): string {
   });
 }
 
+function EvidenceViewer({ attachmentUrl }: { attachmentUrl?: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!attachmentUrl) {
+    return <span className="text-sm">No attachment</span>;
+  }
+
+  const fixedUrl = fixAttachmentUrl(attachmentUrl);
+
+  if (failed) {
+    return (
+      <a
+        href={fixedUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-blue-600 underline break-all"
+      >
+        {fixedUrl}
+      </a>
+    );
+  }
+
+  return (
+    <Image
+      src={fixedUrl}
+      alt="Attachment"
+      width={300}
+      height={300}
+      className="mt-2 rounded-lg object-contain max-w-full h-auto"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 interface CreateLeaveRequestColumnsParams {
   selectedLeave: LeaveRequestRow | null;
   onOpenDialog: (id: string) => void;
@@ -57,25 +91,25 @@ export function createLeaveRequestColumns({
     {
       key: 'type',
       label: 'Status',
-      className: 'text-center',
+      className: 'text-center hidden sm:table-cell',
       render: (_v, row) => <span className="uppercase">{row.type}</span>,
     },
     {
       key: 'startDate',
       label: 'Date',
-      className: 'text-center',
+      className: 'text-center hidden lg:table-cell',
       render: (_v, row) => formatLongDate(row.startDate),
     },
     {
       key: 'reviewed' as keyof LeaveRequestRow & string,
       label: 'Reviewed',
-      className: 'text-center',
+      className: 'text-center hidden lg:table-cell',
       render: (_v, row) => getReviewerByDate(row.startDate),
     },
     {
       key: 'approvalStatus',
       label: 'Permission',
-      className: 'text-center',
+      className: 'text-center hidden md:table-cell',
       render: (_v, row) => (
         <span
           className={`px-7 py-1 rounded-full text-base uppercase ${getStatusColor(row.approvalStatus)}`}
@@ -99,13 +133,13 @@ export function createLeaveRequestColumns({
           {!selectedLeave ? (
             <p>Loading ...</p>
           ) : (
-            <div className="flex flex-col gap-7">
+            <div className="flex flex-col gap-7 w-full min-w-0">
               <div>
                 <p className="font-semibold">Name</p>
                 <p>{selectedLeave.userName}</p>
               </div>
 
-              <div className="flex gap-12 items-center">
+              <div className="flex flex-col gap-4 lg:flex-row lg:gap-12 lg:items-center">
                 <div>
                   <p className="font-semibold">Status</p>
                   <p>{selectedLeave?.type?.toUpperCase() || '-'}</p>
@@ -116,13 +150,14 @@ export function createLeaveRequestColumns({
                   <p>{formatLongDate(selectedLeave.startDate)}</p>
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 w-full lg:w-auto">
                   <p className="font-semibold">Permission</p>
                   <DropdownField
                     key={selectedLeave._id}
                     title={selectedLeave.approvalStatus}
                     menu={['Approved', 'Rejected']}
                     onSelect={(value) => onReview(value)}
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -131,35 +166,9 @@ export function createLeaveRequestColumns({
                 <p className="font-semibold">Reason</p>
                 <p>{selectedLeave.reason}</p>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="font-semibold">Evidancea</p>
-                {selectedLeave.attachment_url ? (
-                  <Image
-                    src={fixAttachmentUrl(selectedLeave.attachment_url)}
-                    alt="Attachment"
-                    width={300}
-                    height={300}
-                    style={{
-                      objectFit: 'contain',
-                      borderRadius: '8px',
-                      marginTop: '8px',
-                      maxWidth: '300px',
-                      maxHeight: '300px',
-                    }}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const link = document.createElement('a');
-                      link.href = fixAttachmentUrl(selectedLeave.attachment_url!);
-                      link.target = '_blank';
-                      link.rel = 'noopener noreferrer';
-                      link.innerText = fixAttachmentUrl(selectedLeave.attachment_url!);
-                      target.parentElement?.appendChild(link);
-                    }}
-                  />
-                ) : (
-                  <span className="text-sm">No attachment</span>
-                )}
+                <EvidenceViewer attachmentUrl={selectedLeave.attachment_url} />
               </div>
             </div>
           )}
