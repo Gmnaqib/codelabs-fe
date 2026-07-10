@@ -19,19 +19,21 @@ const PicketCard = ({ showMap, setShowMap }: PicketCardProps) => {
 
   return (
     <CardField title="Picket Schedule Today" icon={<ClipboardDocumentCheckIcon />} bg>
-      <div className="flex flex-col gap-5">
-        {groups.map((group, groupIndex) => (
-          <div key={groupIndex}>
-            <p className="font-medium text-sm text-center mb-2">{group.title}</p>
-            <div className="flex flex-col gap-1">
-              {group.data.map((person, index) => (
-                <div key={index}  className="w-full flex justify-center">
-                  <Label htmlFor={`${groupIndex}-${index}`} className="font-base text-sm text-muted text-center">{`${index + 1}. ${person.name.split(" ")[0]}`}</Label>
-                </div>
-              ))}
+      <div className="flex flex-col gap-5 flex-1 justify-between">
+        <div className="flex flex-col gap-5">
+          {groups.map((group, groupIndex) => (
+            <div key={groupIndex}>
+              <p className="font-medium text-sm text-center mb-2">{group.title}</p>
+              <div className="flex flex-col gap-1">
+                {group.data.map((person, index) => (
+                  <div key={index}  className="w-full flex justify-center">
+                    <Label htmlFor={`${groupIndex}-${index}`} className="font-base text-sm text-muted text-center">{`${index + 1}. ${person.name.split(" ")[0]}`}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
         <button
           type="button"

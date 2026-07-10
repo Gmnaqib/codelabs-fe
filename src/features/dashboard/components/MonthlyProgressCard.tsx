@@ -37,7 +37,7 @@ const MonthlyProgressCard = () => {
         </div>
         <div className="flex flex-col gap-2">
           <p className='font-normal text-md'>Your KPI Progress</p>
-          <Progress value={Math.floor(totalPoints / 4)} />
+          <Progress value={Math.floor(totalPoints)} />
           <p className={`text-center ${statusClass}`}>{statusLabel}</p>
         </div>
       </div>
