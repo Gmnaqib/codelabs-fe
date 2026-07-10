@@ -6,7 +6,10 @@ export interface RawResearchRecord {
   title?: string;
   week?: number | string;
   progress?: string;
-  status?: string;
+  // The backend stores a 0-5 review rating (null until reviewed), not an
+  // approval-workflow string — see RESEARCH_STATUS_LABELS in the backend's
+  // research.interface.ts (0=Tidak Sesuai ... 5=Luar Biasa).
+  status?: number | null;
   link?: string;
   challenge?: string;
   createdAt?: string;
@@ -74,11 +77,9 @@ export async function updateResearchRecord(
   }
 }
 
-export const updateResearchStatus = async (id: string, status: string): Promise<RawResearchRecord> => {
+export const updateResearchStatus = async (id: string, status: number): Promise<RawResearchRecord> => {
   try {
-    const res = await axiosClient.patch(`/research/${id}`, {
-      status: status.toLowerCase(),
-    });
+    const res = await axiosClient.patch(`/research/${id}`, { status });
     return res.data.data;
   } catch (error) {
     throw handleError(error);

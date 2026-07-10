@@ -37,5 +37,5 @@ export function useReportTable({
     });
   }, [data, month, year, filterWeek, filterProgress]);
 
-  return { data: filteredData, loading, error, refetch };
+  return { data: filteredData, loading, error, refetch, isBackendEmpty: data.length === 0 };
 }

@@ -13,7 +13,6 @@ const Ristek = () => {
   const setGlobalSearchQuery = useTableStore((s) => s.setSearchQuery);
   const setGlobalDateRange = useTableStore((s) => s.setDateRange);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterSubResearch, setFilterSubResearch] = useState("All SubResearch");
   const [filterWeek, setFilterWeek] = useState("All Week");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -31,11 +30,6 @@ const Ristek = () => {
                 setSearchQuery(e.target.value);
                 setGlobalSearchQuery(e.target.value);
               }}
-            />
-            <DropdownField
-              title={filterSubResearch}
-              menu={["All SubResearch", "Web", "Mobile", "Game", "Data", "IoT", "UI/UX"]}
-              onChange={setFilterSubResearch}
             />
             <DropdownField
               title={filterWeek}
@@ -57,7 +51,6 @@ const Ristek = () => {
         </div>
         <Card className='p-5'>
           <RistekTable
-            filterContentType={filterSubResearch}
             filterWeek={filterWeek}
           />
         </Card>

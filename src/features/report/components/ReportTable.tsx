@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { BaseTable } from '@/features/table/components';
+import EmptyState from '@/components/custom-ui/EmptyState';
 import { createReportColumns } from '@/features/report/config/columns';
 import { useReportTable } from '@/features/report/hooks/useReportTable';
 
@@ -13,7 +14,7 @@ interface ReportTableProps {
 }
 
 export default function ReportTable({ filterWeek, filterProgress, fetchTrigger }: ReportTableProps) {
-  const { data, loading, error } = useReportTable({ filterWeek, filterProgress, fetchTrigger });
+  const { data, loading, error, isBackendEmpty } = useReportTable({ filterWeek, filterProgress, fetchTrigger });
   const columns = useMemo(() => createReportColumns(), []);
 
   if (error) {
@@ -25,7 +26,13 @@ export default function ReportTable({ filterWeek, filterProgress, fetchTrigger }
       data={data}
       columns={columns}
       loading={loading}
-      emptyMessage="Tidak ada data research"
+      emptyMessage={
+        isBackendEmpty ? (
+          <EmptyState message="Tidak ada data research" />
+        ) : (
+          'Tidak ada data research'
+        )
+      }
       paginate
     />
   );

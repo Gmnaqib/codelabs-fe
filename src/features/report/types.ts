@@ -3,7 +3,7 @@ export interface ReportRow {
   title?: string;
   week?: number | string;
   progress?: string;
-  status?: string;
+  status?: number | null;
   link?: string;
   challenge?: string;
   createdAt?: string;

@@ -2,9 +2,21 @@
 
 import React from 'react';
 import type { TableColumn } from '@/features/table/components';
-import { getStatusColor } from '@/utils/statusColor';
 import ReportDetailCell from '@/features/report/components/ReportDetailCell';
 import type { ReportRow } from '@/features/report/types';
+
+// Report shows the student's own submission status as a simple
+// Rejected/Accepted/Pending verdict, unlike Ristek's reviewer-facing
+// 0-5 rating label (see getResearchStatusDisplay in @/shared/constants).
+function getReportStatusDisplay(status?: number | null): { label: string; className: string } {
+  if (status === null || status === undefined) {
+    return { label: 'Pending', className: 'bg-yellow-100 text-yellow-700' };
+  }
+  if (status === 0) {
+    return { label: 'Rejected', className: 'bg-red-100 text-red-700' };
+  }
+  return { label: 'Accepted', className: 'bg-green-100 text-green-700' };
+}
 
 function wrapTitle(title?: string): React.ReactNode {
   if (typeof title !== 'string') return '-';
@@ -36,30 +48,38 @@ export function createReportColumns(): TableColumn<ReportRow>[] {
     {
       key: 'title',
       label: 'Research Plan',
+      className: 'text-center',
       render: (_v, row) => wrapTitle(row.title),
     },
     {
       key: 'week',
       label: 'Week',
+      className: 'text-center',
       render: (_v, row) => `Week ${row.week ?? '-'}`,
     },
     {
       key: 'progress',
       label: 'Progress',
+      className: 'text-center',
       render: (_v, row) => row.progress ?? '-',
     },
     {
       key: 'status',
       label: 'Status',
-      render: (_v, row) => (
-        <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(row.status ?? '')}`}>
-          {row.status ? row.status.toUpperCase() : '-'}
-        </span>
-      ),
+      className: 'text-center',
+      render: (_v, row) => {
+        const { label, className } = getReportStatusDisplay(row.status);
+        return (
+          <span className={`px-2 py-1 rounded-md text-sm font-medium ${className}`}>
+            {label}
+          </span>
+        );
+      },
     },
     {
       key: 'action' as keyof ReportRow & string,
       label: 'Action',
+      className: 'text-center',
       render: (_v, row) => <ReportDetailCell row={row} />,
     },
   ];

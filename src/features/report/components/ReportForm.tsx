@@ -8,7 +8,6 @@ import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { createResearchRecord, updateResearchRecord } from '@/services/research/researchService';
 import { getKPIItemsByKementerian } from '@/services/kpi/kpiService';
 import { handleError } from '@/shared/services';
@@ -107,6 +106,8 @@ export default function ReportForm({ mode = 'create', record, onSuccess }: Repor
       size="full"
       open={isDialogOpen}
       onOpenChange={setIsDialogOpen}
+      onSubmit={() => handleSubmit(onSubmit)()}
+      submitDisabled={!isValid || isSubmitting}
     >
       <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
         <Controller
@@ -201,12 +202,6 @@ export default function ReportForm({ mode = 'create', record, onSuccess }: Repor
           )}
         />
         {errors.challenge && <span className="text-sm text-red-500">{errors.challenge.message}</span>}
-
-        <div className="flex justify-center mt-2">
-          <Button type="submit" disabled={!isValid || isSubmitting}>
-            Submit
-          </Button>
-        </div>
       </form>
     </DialogField>
   );

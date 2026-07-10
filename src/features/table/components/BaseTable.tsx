@@ -39,7 +39,7 @@ interface BaseTableProps<T extends RowWithId> {
   onRowClick?: (row: T) => void;
   onSort?: (col: string, dir: 'asc' | 'desc') => void;
   loading?: boolean;
-  emptyMessage?: string;
+  emptyMessage?: React.ReactNode;
   sortConfig?: TableSortConfig | null;
   rowClassName?: (row: T) => string;
   paginate?: boolean;
