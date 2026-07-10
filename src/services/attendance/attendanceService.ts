@@ -202,6 +202,21 @@ export const getMyStatusToday = async (): Promise<{ checkedIn: boolean; checkedO
   }
 };
 
+export interface MyLeaveRequestToday {
+  type: string;
+  status: string;
+  reason?: string;
+}
+
+export const getMyLeaveRequestToday = async (): Promise<MyLeaveRequestToday | null> => {
+  try {
+    const res = await axiosClient.get("/attendance/leave-requests/me/today");
+    return res.data.data;
+  } catch (error) {
+    throw handleError(error);
+  }
+};
+
 export interface RawLeaveRequestItem {
   _id: string;
   userId: string;

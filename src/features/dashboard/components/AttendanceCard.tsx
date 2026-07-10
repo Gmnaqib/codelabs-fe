@@ -2,8 +2,9 @@
 import CardField from '@/components/custom-ui/CardField';
 import Image from 'next/image';
 import { CalendarDaysIcon } from '@heroicons/react/24/solid';
+import { CheckIcon, ClockIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
-import { postCheckIn, postCheckOut, checkNetwork, getMyStatusToday } from '@/services/attendance/attendanceService';
+import { postCheckIn, postCheckOut, checkNetwork, getMyStatusToday, getMyLeaveRequestToday } from '@/services/attendance/attendanceService';
 import { getTimeSettingByCode, TimeSetting } from '@/services/timeSetting/timeSettingService';
 
 import { useAuth } from '@/features/auth/hooks';
@@ -36,6 +37,7 @@ const AttendanceCard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [timeSetting, setTimeSetting] = useState<TimeSetting | null>(null);
+  const [leaveToday, setLeaveToday] = useState<{ type: string; status: string } | null>(null);
   const [nowMin, setNowMin] = useState(() => {
     const n = new Date();
     return (n.getUTCHours() * 60 + n.getUTCMinutes() + 7 * 60) % (24 * 60);
@@ -89,6 +91,19 @@ const AttendanceCard = () => {
       setLoading(false);
     };
     fetchAttendance();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchLeaveToday = async () => {
+      if (!user) return;
+      try {
+        const res = await getMyLeaveRequestToday();
+        setLeaveToday(res ? { type: res.type, status: res.status || 'pending' } : null);
+      } catch {
+        setLeaveToday(null);
+      }
+    };
+    fetchLeaveToday();
   }, [user]);
 
   const handleCheckin = async () => {
@@ -163,6 +178,46 @@ const AttendanceCard = () => {
     </Button>
   );
 
+  const LEAVE_STATUS_STYLES: Record<string, { gradient: string; icon: typeof CheckIcon; label: string; message: string }> = {
+    approved: {
+      gradient: 'linear-gradient(225deg, #16A34A 0%, #A7F3D0 100%)',
+      icon: CheckIcon,
+      label: 'ACCEPTED',
+      message: 'Your leave request for today has been approved.',
+    },
+    rejected: {
+      gradient: 'linear-gradient(225deg, #DC2626 0%, #FCA5A5 100%)',
+      icon: XMarkIcon,
+      label: 'REJECTED',
+      message: 'Your leave request for today was rejected.',
+    },
+    pending: {
+      gradient: 'linear-gradient(225deg, #D97706 0%, #FDE68A 100%)',
+      icon: ClockIcon,
+      label: 'PENDING',
+      message: 'Your leave request for today is waiting for approval.',
+    },
+  };
+
+  const renderLeaveStatus = (type: string, status: string) => {
+    const style = LEAVE_STATUS_STYLES[status] ?? LEAVE_STATUS_STYLES.pending;
+    const StatusIcon = style.icon;
+    return (
+      <>
+        <div
+          className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
+          style={{ background: style.gradient }}
+        >
+          <StatusIcon className="w-12 h-12 text-white" strokeWidth={3} />
+          <p className="text-white text-sm mt-2">{style.label}</p>
+        </div>
+        <p className="text-center text-sm mt-8 capitalize">
+          {type} request &mdash; {style.message}
+        </p>
+      </>
+    );
+  };
+
   return (
     <CardField title="Attendance" icon={<CalendarDaysIcon />} bg>
       <div className="flex flex-col items-center">
@@ -176,6 +231,8 @@ const AttendanceCard = () => {
             </Button>
             <p className="text-center text-sm mt-32">Attendance is not available on Sunday.</p>
           </>
+        ) : leaveToday ? (
+          renderLeaveStatus(leaveToday.type, leaveToday.status)
         ) : loading || !timeSetting ? (
           <p className="text-center text-sm mt-5">Loading...</p>
         ) : isCheckedIn ? (
