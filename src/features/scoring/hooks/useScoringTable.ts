@@ -36,17 +36,41 @@ export function useScoringTable() {
   const [competitionData, setCompetitionData] = useState<CompetitionRow[]>([]);
   const [loadingCompetition, setLoadingCompetition] = useState(false);
   const [competitionCategories, setCompetitionCategories] = useState<string[]>([]);
+  const [competitionHasAnyData, setCompetitionHasAnyData] = useState(true);
 
   const [brandingData, setBrandingData] = useState<BrandingRow[]>([]);
   const [loadingBranding, setLoadingBranding] = useState(false);
   const [brandingCategories, setBrandingCategories] = useState<string[]>([]);
+  const [brandingHasAnyData, setBrandingHasAnyData] = useState(true);
 
-  const refetchCompetition = useCallback(() => {
-    return getMeCompetition(year, month).then((res) => setCompetitionData(res || []));
+  const refetchCompetition = useCallback(async () => {
+    const rows = (await getMeCompetition(year, month)) || [];
+    setCompetitionData(rows);
+    if (rows.length > 0) {
+      setCompetitionHasAnyData(true);
+      return;
+    }
+    try {
+      const all = await getMeCompetition();
+      setCompetitionHasAnyData((all?.length ?? 0) > 0);
+    } catch {
+      setCompetitionHasAnyData(true);
+    }
   }, [year, month]);
 
-  const refetchBranding = useCallback(() => {
-    return getMyBranding(year, month).then((res) => setBrandingData(res || []));
+  const refetchBranding = useCallback(async () => {
+    const rows = (await getMyBranding(year, month)) || [];
+    setBrandingData(rows);
+    if (rows.length > 0) {
+      setBrandingHasAnyData(true);
+      return;
+    }
+    try {
+      const all = await getMyBranding();
+      setBrandingHasAnyData((all?.length ?? 0) > 0);
+    } catch {
+      setBrandingHasAnyData(true);
+    }
   }, [year, month]);
 
   useEffect(() => {
@@ -120,9 +144,11 @@ export function useScoringTable() {
     competitionData,
     loadingCompetition,
     competitionCategories,
+    competitionHasAnyData,
     brandingData,
     loadingBranding,
     brandingCategories,
+    brandingHasAnyData,
     addCompetitionEntry,
     addBrandingEntry,
     editCompetitionEntry,

@@ -5,6 +5,7 @@ import DialogField from '@/components/custom-ui/DialogField';
 import InputField from '@/components/custom-ui/InputField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { getBrandingById } from '@/services/branding/brandingService';
+import { getBrandingStatusDisplay } from '@/shared/constants';
 import type { BrandingRow } from '@/features/scoring/types';
 
 function brandingStatusLabel(status?: number | string | null): string {
@@ -28,6 +29,7 @@ interface BrandingActionsCellProps {
 }
 
 export default function BrandingActionsCell({ row, categories, onEdit }: BrandingActionsCellProps) {
+  const isApproved = getBrandingStatusDisplay(row.status).label === 'APPROVED';
   const [openEditId, setOpenEditId] = useState<string | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [editName, setEditName] = useState('');
@@ -91,65 +93,67 @@ export default function BrandingActionsCell({ row, categories, onEdit }: Brandin
 
   return (
     <div className="gap-2 flex flex-col items-center text-center justify-center font-semibold text-primary lg:flex-row">
-      <DialogField
-        name="Edit"
-        title="Edit Branding"
-        variant="outline"
-        noPadding
-        open={openEditId === row._id}
-        onOpenChange={(isOpen) => setOpenEditId(isOpen ? row._id : null)}
-        onTriggerClick={() => handleOpenEdit(row._id)}
-        onSubmit={handleEditSubmit}
-        submitDisabled={loadingEdit || !editName || !editDescription || !editLink}
-      >
-        {loadingEdit ? (
-          <p className="text-center text-sm text-gray-500">Loading...</p>
-        ) : (
-          <div className="flex flex-col gap-5">
-            <InputField
-              type="string"
-              placeholder="Ex: Branding Name"
-              label="Title"
-              value={editName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
-            />
-            <InputField
-              type="string"
-              placeholder="Ex: Branding Description"
-              label="Description"
-              value={editDescription}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
-            />
-            <InputField
-              type="string"
-              placeholder="Ex: https://branding.com"
-              label="Link"
-              value={editLink}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
-            />
-            <DropdownField
-              key="research-branding-input"
-              title="research"
-              menu={categories}
-              label="research"
-              value={editResearch}
-              onChange={(value) => setEditResearch(value)}
-            />
-            <DropdownField
-              key="level-branding-input"
-              title="Level"
-              menu={['beginner', 'intermediate', 'advanced']}
-              label="Level"
-              value={editLevel}
-              onChange={(value) => setEditLevel(value)}
-            />
-          </div>
-        )}
-      </DialogField>
+      {!isApproved && (
+        <DialogField
+          name="Edit"
+          title="Edit Branding"
+          variant="outline"
+          noPadding
+          open={openEditId === row._id}
+          onOpenChange={(isOpen) => setOpenEditId(isOpen ? row._id : null)}
+          onTriggerClick={() => handleOpenEdit(row._id)}
+          onSubmit={handleEditSubmit}
+          submitDisabled={loadingEdit || !editName || !editDescription || !editLink}
+        >
+          {loadingEdit ? (
+            <p className="text-center text-sm text-gray-500">Loading...</p>
+          ) : (
+            <div className="flex flex-col gap-5">
+              <InputField
+                type="string"
+                placeholder="Ex: Branding Name"
+                label="Title"
+                value={editName}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
+              />
+              <InputField
+                type="string"
+                placeholder="Ex: Branding Description"
+                label="Description"
+                value={editDescription}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
+              />
+              <InputField
+                type="string"
+                placeholder="Ex: https://branding.com"
+                label="Link"
+                value={editLink}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
+              />
+              <DropdownField
+                key="research-branding-input"
+                title="research"
+                menu={categories}
+                label="research"
+                value={editResearch}
+                onChange={(value) => setEditResearch(value)}
+              />
+              <DropdownField
+                key="level-branding-input"
+                title="Level"
+                menu={['beginner', 'intermediate', 'advanced']}
+                label="Level"
+                value={editLevel}
+                onChange={(value) => setEditLevel(value)}
+              />
+            </div>
+          )}
+        </DialogField>
+      )}
 
       <DialogField
         name="Detail"
-        title="Detail Branding"
+        title="Detail"
         variant="outline"
         noPadding
         open={openDetailId === row._id}
@@ -159,21 +163,21 @@ export default function BrandingActionsCell({ row, categories, onEdit }: Brandin
         {loadingDetail ? (
           <p className="text-center text-sm text-gray-500">Loading...</p>
         ) : selectedBranding ? (
-          <div className="flex flex-col gap-5 text-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg">
             <div>
               <p className="font-semibold">Title</p>
               <p>{selectedBranding.name}</p>
+            </div>
+            <div>
+              <p className="font-semibold">Level Type</p>
+              <p>{selectedBranding.level}</p>
             </div>
             <div>
               <p className="font-semibold">Description</p>
               <p>{selectedBranding.description}</p>
             </div>
             <div>
-              <p className="font-semibold">Type</p>
-              <p>{selectedBranding.research}</p>
-            </div>
-            <div>
-              <p className="font-semibold">Link</p>
+              <p className="font-semibold">Content Link</p>
               <a
                 href={selectedBranding.link?.startsWith('http') ? selectedBranding.link : `https://${selectedBranding.link}`}
                 target="_blank"
@@ -184,12 +188,12 @@ export default function BrandingActionsCell({ row, categories, onEdit }: Brandin
               </a>
             </div>
             <div>
-              <p className="font-semibold">Status</p>
-              <p>{brandingStatusLabel(selectedBranding.status)}</p>
+              <p className="font-semibold">Research Category</p>
+              <p>{selectedBranding.research}</p>
             </div>
             <div>
-              <p className="font-semibold">Level</p>
-              <p>{selectedBranding.level}</p>
+              <p className="font-semibold">Status</p>
+              <p>{brandingStatusLabel(selectedBranding.status)}</p>
             </div>
           </div>
         ) : (
@@ -199,5 +203,3 @@ export default function BrandingActionsCell({ row, categories, onEdit }: Brandin
     </div>
   );
 }
-
-export { brandingStatusLabel };

@@ -22,6 +22,8 @@ export default function AddCompetitionDialog({ open, onOpenChange, categories, o
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isLinkValid = /^https:\/\/.+/i.test(link);
+
   const reset = () => {
     setName('');
     setDescription('');
@@ -50,7 +52,7 @@ export default function AddCompetitionDialog({ open, onOpenChange, categories, o
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
-      submitDisabled={loading || !name || !description || !deadline || !link || !type || !category}
+      submitDisabled={loading || !name || !description || !deadline || !link || !isLinkValid || !type || !category}
     >
       {loading ? (
         <p className="text-center text-sm text-gray-500">Loading...</p>
@@ -84,6 +86,9 @@ export default function AddCompetitionDialog({ open, onOpenChange, categories, o
             value={link}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
           />
+          {link !== '' && !isLinkValid && (
+            <span className="text-xs text-red-500">Link harus diawali dengan &apos;https://&apos;</span>
+          )}
           <DropdownField
             key="type-input"
             title="Type"

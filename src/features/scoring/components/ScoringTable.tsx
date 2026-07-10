@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Menubar } from '@/components/custom-ui/MenuBar';
 import { BaseTable } from '@/features/table/components';
+import EmptyState from '@/components/custom-ui/EmptyState';
 import { useTableStore } from '@/shared/state';
 import { useScoringTable } from '@/features/scoring/hooks/useScoringTable';
 import {
@@ -35,9 +36,11 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
     competitionData,
     loadingCompetition,
     competitionCategories,
+    competitionHasAnyData,
     brandingData,
     loadingBranding,
     brandingCategories,
+    brandingHasAnyData,
     addCompetitionEntry,
     addBrandingEntry,
     editCompetitionEntry,
@@ -60,9 +63,9 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
 
   const operationalRows: SummaryRow[] = useMemo(
     () => [
-      { _id: 'daily', label: 'Daily Attendance', total: myOperational?.totalAttendance ?? 0, point: myOperational?.totalAttendance ?? 0 },
-      { _id: 'thematic', label: 'Thematic Attendance', total: myOperational?.totalTematik ?? 0, point: myOperational?.totalTematik ?? 0 },
-      { _id: 'picket', label: 'Picket Attendance', total: myOperational?.totalPicket ?? 0, point: myOperational?.totalPicket ?? 0 },
+      { _id: 'daily', label: 'Daily Attendance', total: myOperational?.totalAttendance ?? 0, point: myOperational?.pointAttendance ?? 0 },
+      { _id: 'thematic', label: 'Thematic Attendance', total: myOperational?.totalTematik ?? 0, point: myOperational?.pointTematik ?? 0 },
+      { _id: 'picket', label: 'Picket Attendance', total: myOperational?.totalPicket ?? 0, point: myOperational?.pointPicket ?? 0 },
     ],
     [myOperational]
   );
@@ -131,7 +134,13 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
             data={competitionData}
             columns={competitionColumns}
             loading={loadingCompetition}
-            emptyMessage="No data found"
+            emptyMessage={
+              competitionHasAnyData ? (
+                'No data available for this page.'
+              ) : (
+                <EmptyState message="No data available for this page." />
+              )
+            }
             paginate
           />
         )}
@@ -140,7 +149,13 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
             data={brandingData}
             columns={brandingColumns}
             loading={loadingBranding}
-            emptyMessage="Tidak ada data untuk halaman ini."
+            emptyMessage={
+              brandingHasAnyData ? (
+                'No data available for this page.'
+              ) : (
+                <EmptyState message="No data available for this page." />
+              )
+            }
             paginate
           />
         )}

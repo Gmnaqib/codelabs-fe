@@ -13,6 +13,7 @@ interface CompetitionActionsCellProps {
 }
 
 export default function CompetitionActionsCell({ row, onEdit }: CompetitionActionsCellProps) {
+  const isApproved = (row.status ?? '').toLowerCase() === 'approved';
   const [openEditId, setOpenEditId] = useState<string | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [editName, setEditName] = useState('');
@@ -73,60 +74,62 @@ export default function CompetitionActionsCell({ row, onEdit }: CompetitionActio
 
   return (
     <div className="gap-2 flex flex-col items-center text-center justify-center font-semibold text-primary lg:flex-row">
-      <DialogField
-        name="Edit"
-        title="Edit Competition"
-        variant="outline"
-        noPadding
-        open={openEditId === row._id}
-        onOpenChange={(isOpen) => setOpenEditId(isOpen ? row._id : null)}
-        onTriggerClick={() => handleOpenEdit(row._id)}
-        onSubmit={handleEditSubmit}
-        submitDisabled={loadingEdit || !editName || !editDescription || !editDeadline || !editLink || !editType}
-      >
-        {loadingEdit ? (
-          <p className="text-center text-sm text-gray-500">Loading...</p>
-        ) : (
-          <div className="flex flex-col gap-5">
-            <InputField
-              type="string"
-              placeholder="Ex: Competition Name"
-              label="Title"
-              value={editName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
-            />
-            <InputField
-              type="string"
-              placeholder="Ex: Competition Description"
-              label="Description"
-              value={editDescription}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
-            />
-            <InputField
-              placeholder="Ex: Competition Deadline"
-              type="datetime-local"
-              label="Deadline"
-              value={editDeadline}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
-            />
-            <InputField
-              type="string"
-              placeholder="Ex: https://competition.com"
-              label="Link"
-              value={editLink}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
-            />
-            <DropdownField
-              key="type-input"
-              title="Type"
-              menu={['international', 'national']}
-              label="Type"
-              value={editType}
-              onChange={(value) => setEditType(value)}
-            />
-          </div>
-        )}
-      </DialogField>
+      {!isApproved && (
+        <DialogField
+          name="Edit"
+          title="Edit Competition"
+          variant="outline"
+          noPadding
+          open={openEditId === row._id}
+          onOpenChange={(isOpen) => setOpenEditId(isOpen ? row._id : null)}
+          onTriggerClick={() => handleOpenEdit(row._id)}
+          onSubmit={handleEditSubmit}
+          submitDisabled={loadingEdit || !editName || !editDescription || !editDeadline || !editLink || !editType}
+        >
+          {loadingEdit ? (
+            <p className="text-center text-sm text-gray-500">Loading...</p>
+          ) : (
+            <div className="flex flex-col gap-5">
+              <InputField
+                type="string"
+                placeholder="Ex: Competition Name"
+                label="Title"
+                value={editName}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
+              />
+              <InputField
+                type="string"
+                placeholder="Ex: Competition Description"
+                label="Description"
+                value={editDescription}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDescription(e.target.value)}
+              />
+              <InputField
+                placeholder="Ex: Competition Deadline"
+                type="datetime-local"
+                label="Deadline"
+                value={editDeadline}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDeadline(e.target.value)}
+              />
+              <InputField
+                type="string"
+                placeholder="Ex: https://competition.com"
+                label="Link"
+                value={editLink}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditLink(e.target.value)}
+              />
+              <DropdownField
+                key="type-input"
+                title="Type"
+                menu={['international', 'national']}
+                label="Type"
+                value={editType}
+                onChange={(value) => setEditType(value)}
+              />
+            </div>
+          )}
+        </DialogField>
+      )}
 
       <DialogField
         name="Detail"
@@ -140,18 +143,18 @@ export default function CompetitionActionsCell({ row, onEdit }: CompetitionActio
         {loadingDetail ? (
           <p className="text-center text-sm text-gray-500">Loading...</p>
         ) : selectedCompetition ? (
-          <div className="flex flex-col gap-5 text-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-lg">
             <div>
               <p className="font-semibold">Title</p>
               <p>{selectedCompetition.name}</p>
             </div>
             <div>
-              <p className="font-semibold">Description</p>
-              <p>{selectedCompetition.description}</p>
+              <p className="font-semibold">Type</p>
+              <p>{selectedCompetition.type}</p>
             </div>
             <div>
-              <p className="font-semibold">Deadline</p>
-              <p>{selectedCompetition.deadline ? new Date(selectedCompetition.deadline).toLocaleString() : '-'}</p>
+              <p className="font-semibold">Description</p>
+              <p>{selectedCompetition.description}</p>
             </div>
             <div>
               <p className="font-semibold">Link</p>
@@ -165,12 +168,12 @@ export default function CompetitionActionsCell({ row, onEdit }: CompetitionActio
               </a>
             </div>
             <div>
-              <p className="font-semibold">Status</p>
-              <p>{selectedCompetition.status}</p>
+              <p className="font-semibold">Deadline</p>
+              <p>{selectedCompetition.deadline ? new Date(selectedCompetition.deadline).toLocaleString() : '-'}</p>
             </div>
             <div>
-              <p className="font-semibold">Type</p>
-              <p>{selectedCompetition.type}</p>
+              <p className="font-semibold">Status</p>
+              <p>{selectedCompetition.status}</p>
             </div>
           </div>
         ) : (

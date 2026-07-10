@@ -9,6 +9,9 @@ export interface OperationalSummary {
   totalAttendance?: number;
   totalTematik?: number;
   totalPicket?: number;
+  pointAttendance?: number;
+  pointTematik?: number;
+  pointPicket?: number;
   totalPoint?: number;
 }
 

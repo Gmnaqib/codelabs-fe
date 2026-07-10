@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { BaseTable } from '@/features/table/components';
+import EmptyState from '@/components/custom-ui/EmptyState';
 import { createBrandingColumns } from '@/features/branding/config/columns';
 import { useBrandingTable } from '@/features/branding/hooks/useBrandingTable';
 
@@ -12,7 +13,7 @@ interface BrandingTableProps {
 }
 
 export default function BrandingTable({ filterWeek, filterContentType }: BrandingTableProps) {
-  const { data, loading, error, handleReview } = useBrandingTable({ filterWeek, filterContentType });
+  const { data, loading, error, handleReview, isBackendEmpty } = useBrandingTable({ filterWeek, filterContentType });
   const columns = useMemo(() => createBrandingColumns({ onReview: handleReview }), [handleReview]);
 
   if (error) {
@@ -24,7 +25,13 @@ export default function BrandingTable({ filterWeek, filterContentType }: Brandin
       data={data}
       columns={columns}
       loading={loading}
-      emptyMessage="Tidak ada data branding"
+      emptyMessage={
+        isBackendEmpty ? (
+          <EmptyState message="No branding data available." />
+        ) : (
+          'No branding data available.'
+        )
+      }
     />
   );
 }

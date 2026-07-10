@@ -21,8 +21,8 @@ export default function RistekReviewCell({ row, onReview }: RistekReviewCellProp
       ? 'Not Reviewed'
       : `${row.status} - ${RESEARCH_STATUS_LABELS[row.status] ?? row.status}`;
   return (
-    <DialogField name="Review" title="Detail Plan" variant="outline" noPadding>
-      <div className="grid grid-cols-2 gap-4">
+    <DialogField name="Review" title="Detail" variant="outline" noPadding>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p className="font-semibold mt-2">Title</p>
           <p>{row.title}</p>

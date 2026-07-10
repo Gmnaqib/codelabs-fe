@@ -21,7 +21,7 @@ export function createRistekColumns({ onReview }: CreateRistekColumnsParams): Ta
     {
       key: 'status',
       label: 'Label',
-      className: 'text-center',
+      className: 'text-center hidden md:table-cell',
       render: (_v, row) => {
         const { label, className } = getResearchStatusDisplay(row.status);
         return (

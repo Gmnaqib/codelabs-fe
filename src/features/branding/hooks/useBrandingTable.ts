@@ -64,5 +64,5 @@ export function useBrandingTable({
     [refetch]
   );
 
-  return { data: filteredData, loading, error, handleReview };
+  return { data: filteredData, loading, error, handleReview, isBackendEmpty: data.length === 0 };
 }

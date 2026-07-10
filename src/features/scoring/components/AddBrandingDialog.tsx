@@ -20,6 +20,8 @@ export default function AddBrandingDialog({ open, onOpenChange, categories, onSu
   const [level, setLevel] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isLinkValid = /^https:\/\/.+/i.test(link);
+
   const reset = () => {
     setName('');
     setDescription('');
@@ -47,7 +49,7 @@ export default function AddBrandingDialog({ open, onOpenChange, categories, onSu
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
-      submitDisabled={loading || !name || !description || !link || !research || !level}
+      submitDisabled={loading || !name || !description || !link || !isLinkValid || !research || !level}
     >
       {loading ? (
         <p className="text-center text-sm text-gray-500">Loading...</p>
@@ -74,6 +76,9 @@ export default function AddBrandingDialog({ open, onOpenChange, categories, onSu
             value={link}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
           />
+          {link !== '' && !isLinkValid && (
+            <span className="text-xs text-red-500">Link harus diawali dengan &apos;https://&apos;</span>
+          )}
           <DropdownField
             key="research-branding-input"
             title="research"

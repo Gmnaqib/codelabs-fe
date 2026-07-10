@@ -105,6 +105,9 @@ export interface RawOperationalSummary {
   totalAttendance?: number;
   totalTematik?: number;
   totalPicket?: number;
+  pointAttendance?: number;
+  pointTematik?: number;
+  pointPicket?: number;
   totalPoint?: number;
   [key: string]: unknown;
 }
@@ -120,10 +123,6 @@ export const getKPIMeOperational = async (year: number, month: number): Promise<
 
 export interface RawKPIMeRanking {
   totalPoints: number;
-  // NOTE: some legacy callers (src/app/scoring/page.tsx) read `totalPoint` (singular),
-  // a pre-existing mismatch with the real `totalPoints` field. Kept as an explicit
-  // optional field (not fixed) to preserve current behavior without any type errors.
-  totalPoint?: number;
   rank?: number;
   [key: string]: unknown;
 }

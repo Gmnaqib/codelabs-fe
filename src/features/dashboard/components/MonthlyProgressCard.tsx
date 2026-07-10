@@ -10,16 +10,16 @@ const MonthlyProgressCard = () => {
   let statusLabel = 'Note Safe';
   let statusClass = 'text-warning';
   if (totalPoints !== null) {
-    if (totalPoints <= 150) {
+    if (totalPoints < 25) {
       statusLabel = 'Danger';
       statusClass = 'text-destructive';
-    } else if (totalPoints <= 250) {
+    } else if (totalPoints < 50) {
       statusLabel = 'Warning';
       statusClass = 'text-warning';
-    } else if (totalPoints <= 400) {
+    } else if (totalPoints < 100) {
       statusLabel = 'Safe';
       statusClass = 'text-success';
-    } else if (totalPoints > 400) {
+    } else {
       statusLabel = 'Excellent';
       statusClass = 'text-primary';
     }

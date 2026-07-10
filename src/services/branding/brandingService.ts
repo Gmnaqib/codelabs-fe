@@ -57,9 +57,12 @@ export const getAllBranding = async (params?: BrandingFilterParams): Promise<Raw
   }
 };
 
-export const getMyBranding = async (year: number, month: number): Promise<RawBrandingRecord[]> => {
+export const getMyBranding = async (year?: number, month?: number): Promise<RawBrandingRecord[]> => {
   try {
-    const res = await axiosClient.get(`/branding/me?year=${year}&month=${month}`);
+    const params: Record<string, number> = {};
+    if (year !== undefined) params.year = year;
+    if (month !== undefined) params.month = month;
+    const res = await axiosClient.get(`/branding/me`, { params });
     return res.data.data;
   } catch (error) {
     throw handleError(error);
