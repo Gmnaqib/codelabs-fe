@@ -144,6 +144,11 @@ const AttendanceCard = () => {
   };
 
   const handleCheckout = async () => {
+    if (!isOnNetwork) {
+      toast.error('You must be connected to the Codelabs network to check out.');
+      setDialogOpen(false);
+      return;
+    }
     setCheckinLoading(true);
     try {
       await postCheckOut();
@@ -177,6 +182,23 @@ const AttendanceCard = () => {
       </div>
     </Button>
   );
+
+  const renderCheckoutButton = () => (
+    <Button
+      onClick={handleCheckout}
+      className='h-28 cursor-pointer'
+      disabled={checkinLoading || !isOnNetwork}
+      variant="link"
+    >
+      <div
+        className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
+        style={{ background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)' }}
+      >
+        <Image src="/icon/attendance-hand.png" alt="Icon Check-Out" width={40} height={40} />
+        <p className="text-white text-sm mt-2">CHECK OUT</p>
+      </div>
+    </Button>
+  )
 
   const LEAVE_STATUS_STYLES: Record<string, { gradient: string; icon: typeof CheckIcon; label: string; message: string }> = {
     approved: {
@@ -246,23 +268,12 @@ const AttendanceCard = () => {
               </>
             ) : canCheckOut ? (
               <>
-                <Button
-                  onClick={handleCheckout}
-                  className='h-28 cursor-pointer'
-                  disabled={checkinLoading}
-                  variant="link"
-                >
-                  <div
-                    className="w-32 h-32 rounded-full flex flex-col items-center justify-center shadow-sm animate-glow"
-                    style={{ background: 'linear-gradient(225deg, #2080D9 0%, #A1CDF6 100%)' }}
-                  >
-                    <Image src="/icon/attendance-hand.png" alt="Icon Check-Out" width={40} height={40} />
-                    <p className="text-white text-sm mt-2">CHECK OUT</p>
-                  </div>
-                </Button>
-                <p className="text-center text-sm mt-8">
-                  You have successfully checked in today. Don&apos;t forget to check out before leaving.
-                </p>
+                {renderCheckoutButton()}
+                  <p className="text-center text-sm mt-8">
+                    {isOnNetwork === false
+                      ? "You must be connected to the Codelabs network to check out."
+                      : "You have successfully checked in today. Don&apos;t forget to check out before leaving."}
+                  </p>
               </>
             ) : isPastCheckout ? (
               <>
