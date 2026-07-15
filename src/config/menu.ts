@@ -146,7 +146,7 @@ export const menuItems = [
     iconSolid: FingerPrintSolid,
     iconOutline: FingerPrintOutline,
     route: "/check-in",
-    roles: ["admin"],
+    roles: ["admin", "minister of operation"],
   },
   {
     title: "Log Out",
