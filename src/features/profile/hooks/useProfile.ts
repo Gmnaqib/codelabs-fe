@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getMe, updateMe, updateUser, registerMacAddress } from '@/services/users/userService';
+import { getMe, updateMe, registerMacAddress } from '@/services/users/userService';
 import { handleError } from '@/shared/services';
 import type { UserType } from '@/types/user';
 
@@ -34,9 +34,12 @@ export function useProfile() {
   const updatePassword = useCallback(
     async (password: string) => {
       if (!user) return;
-      await updateUser(user._id, { name: user.name, email: user.email ?? '', password });
+      const formData = new FormData();
+      formData.append('password', password);
+      await updateMe(formData);
+      await fetchUser();
     },
-    [user]
+    [fetchUser, user]
   );
 
   const resetMacAddress = useCallback(async () => {
