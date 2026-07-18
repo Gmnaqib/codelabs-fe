@@ -20,10 +20,10 @@ const toMin = (hhmm: string) => {
   return h * 60 + (m ?? 0);
 };
 
-const getDayCode = (): "WEEKDAY" | "SATURDAY" | "SUNDAY" => {
+const getDayCode = (): "WEEKDAY" | "WEEKEND" | "SUNDAY" => {
   const day = new Date().getDay();
   if (day === 0) return "SUNDAY";
-  if (day === 6) return "SATURDAY";
+  if (day === 6) return "WEEKEND";
   return "WEEKDAY";
 };
 

@@ -7,10 +7,10 @@ import { truncateToWIBDay, wibDayStart, wibNow } from '@/shared/utils';
 
 export type ThematicStatus = 'thematic' | 'no-thematic' | 'not-yet' | 'future';
 
-function getDayCode(wib: Date): 'WEEKDAY' | 'SATURDAY' | 'SUNDAY' {
+function getDayCode(wib: Date): 'WEEKDAY' | 'WEEKEND' | 'SUNDAY' {
   const day = wib.getUTCDay();
   if (day === 0) return 'SUNDAY';
-  if (day === 6) return 'SATURDAY';
+  if (day === 6) return 'WEEKEND';
   return 'WEEKDAY';
 }
 

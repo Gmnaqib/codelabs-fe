@@ -26,8 +26,7 @@ const TIME_LABELS: Record<keyof TimeSettingFormValues, string> = {
 
 const DAY_LABEL: Record<string, string> = {
   WEEKDAY: 'Weekday (Mon – Fri)',
-  SATURDAY: 'Saturday (Sat)',
-  WEEKEND: 'Weekend (Sun)',
+  WEEKEND: 'Weekend (Sat)',
 };
 
 const normalizeTime = (t: string): string => {
