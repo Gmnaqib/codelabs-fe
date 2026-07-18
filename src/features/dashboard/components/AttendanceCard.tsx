@@ -272,7 +272,7 @@ const AttendanceCard = () => {
                   <p className="text-center text-sm mt-8">
                     {isOnNetwork === false
                       ? "You must be connected to the Codelabs network to check out."
-                      : "You have successfully checked in today. Don&apos;t forget to check out before leaving."}
+                      : "You have successfully checked in today. Don't forget to check out before leaving."}
                   </p>
               </>
             ) : isPastCheckout ? (
