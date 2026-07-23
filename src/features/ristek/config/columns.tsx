@@ -16,12 +16,15 @@ export function createRistekColumns({ onReview }: CreateRistekColumnsParams): Ta
       key: 'userId' as keyof RistekRow & string,
       label: 'Name',
       className: 'text-center',
+      sortable: true,
+      sortValue: (row) => row.userId?.name ?? '',
       render: (_v, row) => row.userId?.name ?? '-',
     },
     {
       key: 'status',
       label: 'Label',
       className: 'text-center hidden md:table-cell',
+      sortable: true,
       render: (_v, row) => {
         const { label, className } = getResearchStatusDisplay(row.status);
         return (

@@ -69,6 +69,53 @@ interface OrganizationTableProps {
   searchQuery?: string;
 }
 
+type SortDirection = "asc" | "desc";
+interface OrganizationSortConfig {
+  column: string;
+  direction: SortDirection;
+}
+
+function getKpiSortValue(column: string, item: KPIAttendance | KPIResearch): string | number {
+  switch (column) {
+    case "Name":
+      return (item.userName ?? "").toLowerCase();
+    case "Attendance":
+      return (item as KPIAttendance).operationalDetail?.attendance?.count ?? 0;
+    case "Thematic":
+      return (item as KPIAttendance).operationalDetail?.thematic?.count ?? 0;
+    case "Picket":
+      return (item as KPIAttendance).operationalDetail?.picket?.count ?? 0;
+    case "Personal":
+      return (item as KPIResearch).byCategory?.personal?.count ?? 0;
+    case "Product":
+      return (item as KPIResearch).byCategory?.product?.count ?? 0;
+    case "Workshop":
+      return (item as KPIResearch).byCategory?.workshop?.count ?? 0;
+    case "Points":
+      return item.totalPoints ?? 0;
+    default:
+      return 0;
+  }
+}
+
+function sortByColumn<T>(
+  list: T[],
+  sortConfig: OrganizationSortConfig | null,
+  getValue: (item: T) => string | number
+): T[] {
+  if (!sortConfig) return list;
+  if (sortConfig.column === "No") {
+    return sortConfig.direction === "asc" ? list : [...list].reverse();
+  }
+  const dir = sortConfig.direction === "asc" ? 1 : -1;
+  return [...list].sort((a, b) => {
+    const va = getValue(a);
+    const vb = getValue(b);
+    if (typeof va === "number" && typeof vb === "number") return (va - vb) * dir;
+    return String(va).localeCompare(String(vb)) * dir;
+  });
+}
+
 const OrganizationSummaryTable = ({
   activePage,
   onPageChange,
@@ -83,6 +130,19 @@ const OrganizationSummaryTable = ({
     month: new Date().getMonth(),
   });
   const [search, setSearch] = useState(searchQuery ?? "");
+  const [sortConfig, setSortConfig] = useState<OrganizationSortConfig | null>(null);
+
+  const handleHeaderClick = (header: string) => {
+    setSortConfig((prev) => {
+      const isSameColumn = prev?.column === header;
+      const nextDirection: SortDirection = isSameColumn && prev?.direction === "asc" ? "desc" : "asc";
+      return { column: header, direction: nextDirection };
+    });
+  };
+
+  useEffect(() => {
+    setSortConfig(null);
+  }, [activePage]);
 
   const filteredKpiData = Array.isArray(kpiData)
     ? kpiData
@@ -91,6 +151,17 @@ const OrganizationSummaryTable = ({
         )
         .sort((a: KPIAttendance | KPIResearch, b: KPIAttendance | KPIResearch) => b.totalPoints - a.totalPoints)
     : [];
+
+  const sortedKpiData = sortByColumn(filteredKpiData, sortConfig, (item) =>
+    getKpiSortValue(sortConfig?.column ?? "", item)
+  );
+
+  const sortedUsers = sortByColumn(
+    users.filter((user: OrganizationUser) => user.userName?.toLowerCase().includes(search.trim().toLowerCase())),
+    sortConfig,
+    (user) => (user.userName ?? "").toLowerCase()
+  );
+
   useEffect(() => {
     if (activePage === "Attendance") {
       const fetchKPI = async () => {
@@ -165,8 +236,9 @@ const OrganizationSummaryTable = ({
         <TableHeader>
           <TableRow>
             {organizationHeaders.map((header: string, i: number) => (
-              <TableHead key={i} className="text-center sticky top-0 bg-white z-10"
+              <TableHead key={i} className="text-center sticky top-0 bg-white z-10 cursor-pointer select-none"
                   style={{ position: 'sticky', top: 0, background: 'white', zIndex: 10 }}
+                  onClick={() => handleHeaderClick(header)}
               >
                 {header}
               </TableHead>
@@ -176,7 +248,7 @@ const OrganizationSummaryTable = ({
 
         <TableBody className="overflow-y-auto">
           {activePage === "Attendance"
-            ? filteredKpiData
+            ? sortedKpiData
                 .filter((item): item is KPIAttendance => (item as KPIAttendance).operationalDetail !== undefined)
                 .map((item, i: number) => (
                   <TableRow key={item.userName + i}>
@@ -189,7 +261,7 @@ const OrganizationSummaryTable = ({
                   </TableRow>
                 ))
             : activePage === "Research Points"
-            ? filteredKpiData
+            ? sortedKpiData
                 .filter((item): item is KPIResearch => (item as KPIResearch).byCategory !== undefined)
                 .map((item, i: number) => (
                   <TableRow key={item.userName + i}>
@@ -201,20 +273,16 @@ const OrganizationSummaryTable = ({
                     <TableCell className="text-center">{item.totalPoints}</TableCell>
                   </TableRow>
                 ))
-            : users
-                .filter((user: OrganizationUser) =>
-                  user.userName?.toLowerCase().includes(search.trim().toLowerCase())
-                )
-                .map((user: OrganizationUser, i: number) => (
-                  <TableRow key={user._id}>
-                    <TableCell className="text-center">{i + 1}</TableCell>
-                    <TableCell className="text-center">{user.userName}</TableCell>
-                    <TableCell className="text-center">-</TableCell>
-                    <TableCell className="text-center">-</TableCell>
-                    <TableCell className="text-center">-</TableCell>
-                    <TableCell className="text-center">-</TableCell>
-                  </TableRow>
-                ))}
+            : sortedUsers.map((user: OrganizationUser, i: number) => (
+                <TableRow key={user._id}>
+                  <TableCell className="text-center">{i + 1}</TableCell>
+                  <TableCell className="text-center">{user.userName}</TableCell>
+                  <TableCell className="text-center">-</TableCell>
+                  <TableCell className="text-center">-</TableCell>
+                  <TableCell className="text-center">-</TableCell>
+                  <TableCell className="text-center">-</TableCell>
+                </TableRow>
+              ))}
         </TableBody>
       </Table>
       </div>

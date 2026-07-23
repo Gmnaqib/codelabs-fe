@@ -33,23 +33,27 @@ interface CreateAssessmentsColumnsParams {
 
 export function createAssessmentsColumns({ year, month }: CreateAssessmentsColumnsParams): TableColumn<AssessmentRow>[] {
   return [
-    { key: 'rank', label: 'Rank', className: 'text-center' },
+    { key: 'rank', label: 'Rank', className: 'text-center', sortable: true },
     {
       key: 'name',
       label: 'Name',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => row.name?.split(' ')[0] ?? '-',
     },
     {
       key: 'totalPoints',
       label: 'Monthly Points',
       className: 'hidden text-center sm:table-cell',
+      sortable: true,
       render: (_v, row) => row.totalPoints ?? '-',
     },
     {
       key: 'status' as keyof AssessmentRow & string,
       label: 'Status',
       className: 'hidden text-center sm:table-cell',
+      sortable: true,
+      sortValue: (row) => getStatus(row.totalPoints).label,
       render: (_v, row) => {
         const { label, className } = getStatus(row.totalPoints);
         return <span className={`font-semibold ${className}`}>{label}</span>;

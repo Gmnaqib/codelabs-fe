@@ -11,12 +11,13 @@ import type { BrandingRow, CompetitionRow, SummaryRow } from '@/features/scoring
 
 export function createResearchColumns(): TableColumn<SummaryRow>[] {
   return [
-    { key: 'label', label: 'Ristek & Education Point', className: 'text-center' },
-    { key: 'total', label: 'Total', className: 'text-center' },
+    { key: 'label', label: 'Ristek & Education Point', className: 'text-center', sortable: true },
+    { key: 'total', label: 'Total', className: 'text-center', sortable: true },
     {
       key: 'point',
       label: 'Point',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => <span className="font-semibold text-primary">{row.point}</span>,
     },
   ];
@@ -24,12 +25,13 @@ export function createResearchColumns(): TableColumn<SummaryRow>[] {
 
 export function createOperationalColumns(): TableColumn<SummaryRow>[] {
   return [
-    { key: 'label', label: 'Type of Absence', className: 'text-center' },
-    { key: 'total', label: 'Total', className: 'text-center' },
+    { key: 'label', label: 'Type of Absence', className: 'text-center', sortable: true },
+    { key: 'total', label: 'Total', className: 'text-center', sortable: true },
     {
       key: 'point',
       label: 'Point',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => <span className="font-semibold text-primary">{row.point}</span>,
     },
   ];
@@ -41,11 +43,12 @@ interface CreateCompetitionColumnsParams {
 
 export function createCompetitionColumns({ onEdit }: CreateCompetitionColumnsParams): TableColumn<CompetitionRow>[] {
   return [
-    { key: 'name', label: 'Competition Name', className: 'text-center' },
+    { key: 'name', label: 'Competition Name', className: 'text-center', sortable: true },
     {
       key: 'status',
       label: 'Status',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => (
         <span className={`text-base px-7 py-1 rounded-full uppercase text-center w-fit ${getStatusColor(row.status ?? '')}`}>
           {(row.status ?? '').toUpperCase()}
@@ -68,12 +71,14 @@ interface CreateBrandingColumnsParams {
 
 export function createBrandingColumns({ categories, onEdit }: CreateBrandingColumnsParams): TableColumn<BrandingRow>[] {
   return [
-    { key: 'name', label: 'Content Name', className: 'text-center' },
-    { key: 'research', label: 'Type', className: 'text-center' },
+    { key: 'name', label: 'Content Name', className: 'text-center', sortable: true },
+    { key: 'research', label: 'Type', className: 'text-center', sortable: true },
     {
       key: 'status',
       label: 'Status',
       className: 'text-center',
+      sortable: true,
+      sortValue: (row) => getBrandingStatusDisplay(row.status).label,
       render: (_v, row) => {
         const { label, className } = getBrandingStatusDisplay(row.status);
         return (

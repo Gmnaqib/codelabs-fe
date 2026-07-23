@@ -24,6 +24,7 @@ export function createPicketScheduleColumns({
       key: 'name',
       label: 'Name',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => row.name.split(' ')[0],
     },
     {

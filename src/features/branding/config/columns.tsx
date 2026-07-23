@@ -12,11 +12,13 @@ interface CreateBrandingColumnsParams {
 
 export function createBrandingColumns({ onReview }: CreateBrandingColumnsParams): TableColumn<BrandingRow>[] {
   return [
-    { key: 'name', label: 'Name', className: 'text-center', render: (_v, row) => row.name },
+    { key: 'name', label: 'Name', className: 'text-center', sortable: true, render: (_v, row) => row.name },
     {
       key: 'status',
       label: 'Label',
       className: 'text-center hidden md:table-cell',
+      sortable: true,
+      sortValue: (row) => getBrandingStatusDisplay(row.status).label,
       render: (_v, row) => {
         const { label, className } = getBrandingStatusDisplay(row.status);
         return (

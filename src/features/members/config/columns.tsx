@@ -65,20 +65,23 @@ interface CreateMemberColumnsParams {
 
 export function createMemberColumns({ roleOptions, productOptions, onSaved }: CreateMemberColumnsParams): TableColumn<User>[] {
   return [
-    { key: 'nim', label: 'NIM', width: 120, className: 'text-center' },
+    { key: 'nim', label: 'NIM', width: 120, className: 'text-center', sortable: true },
     {
       key: 'name',
       label: 'Name',
       width: 180,
       className: 'text-center',
+      sortable: true,
       render: (_value, row) => row.name?.split(' ')[0] ?? '-',
     },
-    { key: 'email', label: 'Email', width: 220, className: 'hidden text-center md:table-cell' },
+    { key: 'email', label: 'Email', width: 220, className: 'hidden text-center md:table-cell', sortable: true },
     {
       key: 'research',
       label: 'Sub Riset',
       width: 150,
       className: 'hidden text-center md:table-cell',
+      sortable: true,
+      sortValue: (row) => SUB_RISET_TITLES[row.research ?? ''] ?? row.research ?? '',
       render: (_value, row) => (
         <MemberInlineSelect
           userId={row._id}
@@ -94,6 +97,7 @@ export function createMemberColumns({ roleOptions, productOptions, onSaved }: Cr
       label: 'Product',
       width: 160,
       className: 'hidden text-center md:table-cell',
+      sortable: true,
       render: (_value, row) => (
         <MemberInlineSelect
           userId={row._id}
@@ -109,6 +113,8 @@ export function createMemberColumns({ roleOptions, productOptions, onSaved }: Cr
       label: 'Role',
       width: 200,
       className: 'hidden text-center md:table-cell',
+      sortable: true,
+      sortValue: (row) => getShortRoleLabel(row.role),
       render: (_value, row) => (
         <MemberInlineSelect
           userId={row._id}
@@ -125,6 +131,7 @@ export function createMemberColumns({ roleOptions, productOptions, onSaved }: Cr
       label: 'Device Id',
       width: 140,
       className: 'text-center',
+      sortable: true,
       render: (_value, row) => (
         <MemberInlineSelect
           userId={row._id}
@@ -141,6 +148,7 @@ export function createMemberColumns({ roleOptions, productOptions, onSaved }: Cr
       label: 'Status',
       width: 150,
       className: 'hidden text-center md:table-cell',
+      sortable: true,
       render: (_value, row) => (
         <MemberInlineSelect
           userId={row._id}

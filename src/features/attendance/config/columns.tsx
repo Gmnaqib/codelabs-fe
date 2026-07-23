@@ -86,30 +86,37 @@ export function createLeaveRequestColumns({
       key: 'userName',
       label: 'Name',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => row.userName?.split(' ')[0] ?? '-',
     },
     {
       key: 'type',
       label: 'Status',
       className: 'text-center hidden sm:table-cell',
+      sortable: true,
       render: (_v, row) => <span className="uppercase">{row.type}</span>,
     },
     {
       key: 'startDate',
       label: 'Date',
       className: 'text-center hidden lg:table-cell',
+      sortable: true,
+      sortValue: (row) => new Date(row.startDate).getTime(),
       render: (_v, row) => formatLongDate(row.startDate),
     },
     {
       key: 'reviewed' as keyof LeaveRequestRow & string,
       label: 'Reviewed',
       className: 'text-center hidden lg:table-cell',
+      sortable: true,
+      sortValue: (row) => getReviewerByDate(row.startDate),
       render: (_v, row) => getReviewerByDate(row.startDate),
     },
     {
       key: 'approvalStatus',
       label: 'Permission',
       className: 'text-center hidden md:table-cell',
+      sortable: true,
       render: (_v, row) => (
         <span
           className={`px-7 py-1 rounded-full text-base uppercase ${getStatusColor(row.approvalStatus)}`}
@@ -199,41 +206,59 @@ export function createAttendanceColumns({
   detailLoading,
 }: CreateAttendanceColumnsParams): TableColumn<AttendanceRow>[] {
   return [
-    { key: 'userName', label: 'Name', className: 'text-center whitespace-normal', render: (_v, row) => row.userName },
+    {
+      key: 'userName',
+      label: 'Name',
+      className: 'text-center whitespace-normal',
+      sortable: true,
+      render: (_v, row) => row.userName,
+    },
     {
       key: 'present' as keyof AttendanceRow & string,
       label: 'Present',
       className: 'text-center whitespace-normal',
+      sortable: true,
+      sortValue: (row) => row.counts?.present ?? 0,
       render: (_v, row) => row.counts?.present ?? 0,
     },
     {
       key: 'permit' as keyof AttendanceRow & string,
       label: 'Permit',
       className: 'text-center whitespace-normal',
+      sortable: true,
+      sortValue: (row) => row.counts?.permit ?? 0,
       render: (_v, row) => row.counts?.permit ?? 0,
     },
     {
       key: 'sick' as keyof AttendanceRow & string,
       label: 'Sick',
       className: 'text-center whitespace-normal',
+      sortable: true,
+      sortValue: (row) => row.counts?.sick ?? 0,
       render: (_v, row) => row.counts?.sick ?? 0,
     },
     {
       key: 'late' as keyof AttendanceRow & string,
       label: 'Late Arrivals',
       className: 'text-center whitespace-normal',
+      sortable: true,
+      sortValue: (row) => row.counts?.late ?? 0,
       render: (_v, row) => row.counts?.late ?? 0,
     },
     {
       key: 'absent' as keyof AttendanceRow & string,
       label: 'No Report',
       className: 'text-center whitespace-normal',
+      sortable: true,
+      sortValue: (row) => row.counts?.absent ?? 0,
       render: (_v, row) => row.counts?.absent ?? 0,
     },
     {
       key: 'score' as keyof AttendanceRow & string,
       label: 'SP',
       className: 'text-center whitespace-normal',
+      sortable: true,
+      sortValue: (row) => computeScore(row.counts?.absent ?? 0),
       render: (_v, row) => computeScore(row.counts?.absent ?? 0),
     },
     {

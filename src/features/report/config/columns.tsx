@@ -49,24 +49,28 @@ export function createReportColumns(): TableColumn<ReportRow>[] {
       key: 'title',
       label: 'Research Plan',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => wrapTitle(row.title),
     },
     {
       key: 'week',
       label: 'Week',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => `Week ${row.week ?? '-'}`,
     },
     {
       key: 'progress',
       label: 'Progress',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => row.progress ?? '-',
     },
     {
       key: 'status',
       label: 'Status',
       className: 'text-center',
+      sortable: true,
       render: (_v, row) => {
         const { label, className } = getReportStatusDisplay(row.status);
         return (

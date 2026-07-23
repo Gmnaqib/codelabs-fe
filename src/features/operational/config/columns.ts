@@ -13,8 +13,8 @@ import type { ThematicStatus } from '@/features/operational/hooks/useThematicSta
 import type { PicketStatus } from '@/features/operational/hooks/usePicketStatus';
 
 const baseColumns = (): TableColumn<User>[] => [
-  { key: 'nim', label: 'NIM', width: 100 },
-  { key: 'name', label: 'Name', width: 100 },
+  { key: 'nim', label: 'NIM', width: 100, sortable: true },
+  { key: 'name', label: 'Name', width: 100, sortable: true },
 ];
 
 const ABSENCE_STATUS_ICON: Record<AbsenceStatus, React.ReactNode> = {
@@ -106,6 +106,8 @@ export function createPicketColumns(
     key: `week-${week}` as keyof User & string,
     label: `Week ${week}`,
     width: 150,
+    sortable: true,
+    sortValue: (row) => getStatus(row._id, week),
     render: (_value, row) => {
       const status = getStatus(row._id, week);
       return statusBadge(PICKET_STATUS_LABEL[status], PICKET_STATUS_VARIANT[status]);
@@ -113,6 +115,28 @@ export function createPicketColumns(
   }));
 
   return { left: baseColumns(), scroll: weekColumns, right: [] };
+}
+
+function countThematicDays(
+  getStatus: (userId: string, day: number) => ThematicStatus,
+  userId: string
+): number {
+  let count = 0;
+  for (let day = 1; day <= 31; day++) {
+    if (getStatus(userId, day) === 'thematic') count++;
+  }
+  return count;
+}
+
+function countCheckedDays(
+  getStatus: (userId: string, day: number) => AbsenceStatus,
+  userId: string
+): number {
+  let count = 0;
+  for (let day = 1; day <= 31; day++) {
+    if (getStatus(userId, day) === 'checked') count++;
+  }
+  return count;
 }
 
 export function createThematicColumns(
@@ -123,6 +147,8 @@ export function createThematicColumns(
       key: `day-${day}` as keyof User & string,
       label: String(day),
       width: 150,
+      sortable: true,
+      sortValue: (row) => getStatus(row._id, day),
       render: (_value, row) => {
         const status = getStatus(row._id, day);
         return statusBadge(THEMATIC_STATUS_LABEL[status], THEMATIC_STATUS_VARIANT[status]);
@@ -134,13 +160,9 @@ export function createThematicColumns(
     key: 'total' as keyof User & string,
     label: 'Total',
     width: 80,
-    render: (_value, row) => {
-      let count = 0;
-      for (let day = 1; day <= 31; day++) {
-        if (getStatus(row._id, day) === 'thematic') count++;
-      }
-      return count;
-    },
+    sortable: true,
+    sortValue: (row) => countThematicDays(getStatus, row._id),
+    render: (_value, row) => countThematicDays(getStatus, row._id),
   };
 
   return { left: baseColumns(), scroll: dayColumns, right: [totalColumn] };
@@ -154,6 +176,8 @@ export function createAbsenceColumns(
       key: `day-${day}` as keyof User & string,
       label: String(day),
       width: 80,
+      sortable: true,
+      sortValue: (row) => getStatus(row._id, day),
       render: (_value, row) => ABSENCE_STATUS_ICON[getStatus(row._id, day)],
     })
   );
@@ -162,13 +186,9 @@ export function createAbsenceColumns(
     key: 'total' as keyof User & string,
     label: 'Total',
     width: 80,
-    render: (_value, row) => {
-      let count = 0;
-      for (let day = 1; day <= 31; day++) {
-        if (getStatus(row._id, day) === 'checked') count++;
-      }
-      return count;
-    },
+    sortable: true,
+    sortValue: (row) => countCheckedDays(getStatus, row._id),
+    render: (_value, row) => countCheckedDays(getStatus, row._id),
   };
 
   return { left: baseColumns(), scroll: dayColumns, right: [totalColumn] };

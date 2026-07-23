@@ -24,11 +24,12 @@ interface CreateCompetitionColumnsParams {
 
 export function createCompetitionColumns({ onReview }: CreateCompetitionColumnsParams): TableColumn<CompetitionRow>[] {
   return [
-    { key: 'name', label: 'Name', className: 'text-center', render: (_v, row) => row.name ?? '-' },
+    { key: 'name', label: 'Name', className: 'text-center', sortable: true, render: (_v, row) => row.name ?? '-' },
     {
       key: 'status',
       label: 'Label',
       className: 'text-center hidden md:table-cell',
+      sortable: true,
       render: (_v, row) => (
         <span className={`px-2 py-1 rounded-md text-sm font-medium ${getStatusClass(row.status)}`}>
           {row.status}

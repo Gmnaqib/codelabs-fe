@@ -10,9 +10,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { TableColumn } from '@/features/table/components';
+import type { TableSortConfig } from '@/types/domain';
 
 interface RowWithId {
   _id: string;
+}
+
+function compareSortValues(a: unknown, b: unknown, direction: 'asc' | 'desc'): number {
+  const dir = direction === 'asc' ? 1 : -1;
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  if (typeof a === 'number' && typeof b === 'number') return (a - b) * dir;
+  return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' }) * dir;
 }
 
 interface ScheduleTableProps<T extends RowWithId> {
@@ -51,6 +61,29 @@ function ScheduleTableInner<T extends RowWithId>({
   loading = false,
   emptyMessage = 'Tidak ada data',
 }: ScheduleTableProps<T>) {
+  const [sortConfig, setSortConfig] = React.useState<TableSortConfig | null>(null);
+
+  const allColumns = React.useMemo(
+    () => [...leftColumns, ...scrollColumns, ...rightColumns],
+    [leftColumns, scrollColumns, rightColumns]
+  );
+
+  const sortedData = React.useMemo(() => {
+    if (!sortConfig) return data;
+    const column = allColumns.find((c) => c.key === sortConfig.column);
+    if (!column) return data;
+    const getValue = (row: T): unknown => (column.sortValue ? column.sortValue(row) : row[column.key]);
+    return [...data].sort((a, b) => compareSortValues(getValue(a), getValue(b), sortConfig.direction));
+  }, [data, allColumns, sortConfig]);
+
+  const handleHeaderClick = (column: TableColumn<T>) => {
+    if (!column.sortable) return;
+    const isSameColumn = sortConfig?.column === column.key;
+    const nextDirection: 'asc' | 'desc' =
+      isSameColumn && sortConfig?.direction === 'asc' ? 'desc' : 'asc';
+    setSortConfig({ column: column.key, direction: nextDirection });
+  };
+
   if (loading) {
     return (
       <div className="flex w-full items-center justify-center py-10">
@@ -93,8 +126,9 @@ function ScheduleTableInner<T extends RowWithId>({
             {leftColumns.map((column, idx) => (
               <TableHead
                 key={column.key}
-                className="z-20 sticky bg-secondary"
+                className={`z-20 sticky bg-secondary ${column.sortable ? 'cursor-pointer select-none' : ''}`}
                 style={{ width: column.width, left: leftOffsets[idx] }}
+                onClick={() => handleHeaderClick(column)}
               >
                 {column.label}
               </TableHead>
@@ -102,8 +136,9 @@ function ScheduleTableInner<T extends RowWithId>({
             {scrollColumns.map((column) => (
               <TableHead
                 key={column.key}
-                className="z-10 hidden text-center sm:table-cell"
+                className={`z-10 hidden text-center sm:table-cell ${column.sortable ? 'cursor-pointer select-none' : ''}`}
                 style={{ width: column.width }}
+                onClick={() => handleHeaderClick(column)}
               >
                 {column.label}
               </TableHead>
@@ -111,8 +146,9 @@ function ScheduleTableInner<T extends RowWithId>({
             {rightColumns.map((column) => (
               <TableHead
                 key={column.key}
-                className="z-20 sticky right-0 bg-secondary text-center"
+                className={`z-20 sticky right-0 bg-secondary text-center ${column.sortable ? 'cursor-pointer select-none' : ''}`}
                 style={{ width: column.width }}
+                onClick={() => handleHeaderClick(column)}
               >
                 {column.label}
               </TableHead>
@@ -120,7 +156,7 @@ function ScheduleTableInner<T extends RowWithId>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row, i) => (
+          {sortedData.map((row, i) => (
             <TableRow key={row._id} className="h-12">
               {leftColumns.map((column, idx) => (
                 <TableCell

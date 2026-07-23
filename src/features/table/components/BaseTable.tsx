@@ -29,8 +29,18 @@ export interface TableColumn<T extends RowWithId> {
   label: string;
   width?: string | number;
   sortable?: boolean;
+  sortValue?: (row: T) => string | number | null | undefined;
   render?: (value: unknown, row: T, i: number) => React.ReactNode;
   className?: string;
+}
+
+function compareSortValues(a: unknown, b: unknown, direction: 'asc' | 'desc'): number {
+  const dir = direction === 'asc' ? 1 : -1;
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  if (typeof a === 'number' && typeof b === 'number') return (a - b) * dir;
+  return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' }) * dir;
 }
 
 interface BaseTableProps<T extends RowWithId> {
@@ -99,13 +109,27 @@ function BaseTableInner<T extends RowWithId>({
   tableClassName,
 }: BaseTableProps<T>) {
   const { page, setPage, pageSize } = usePagination();
+  const [internalSortConfig, setInternalSortConfig] = React.useState<TableSortConfig | null>(null);
+  const activeSortConfig = sortConfig !== undefined ? sortConfig : internalSortConfig;
+
+  const sortedData = React.useMemo(() => {
+    if (!activeSortConfig) return data;
+    const column = columns.find((c) => c.key === activeSortConfig.column);
+    if (!column) return data;
+    const getValue = (row: T): unknown => (column.sortValue ? column.sortValue(row) : row[column.key]);
+    return [...data].sort((a, b) => compareSortValues(getValue(a), getValue(b), activeSortConfig.direction));
+  }, [data, columns, activeSortConfig]);
 
   const handleHeaderClick = (column: TableColumn<T>) => {
-    if (!column.sortable || !onSort) return;
-    const isSameColumn = sortConfig?.column === column.key;
+    if (!column.sortable) return;
+    const isSameColumn = activeSortConfig?.column === column.key;
     const nextDirection: 'asc' | 'desc' =
-      isSameColumn && sortConfig?.direction === 'asc' ? 'desc' : 'asc';
-    onSort(column.key, nextDirection);
+      isSameColumn && activeSortConfig?.direction === 'asc' ? 'desc' : 'asc';
+    if (onSort) {
+      onSort(column.key, nextDirection);
+    } else {
+      setInternalSortConfig({ column: column.key, direction: nextDirection });
+    }
   };
 
   if (loading) {
@@ -126,33 +150,27 @@ function BaseTableInner<T extends RowWithId>({
 
   const totalPages = paginate ? Math.max(1, Math.ceil(data.length / pageSize)) : 1;
   const currentPage = paginate ? Math.min(page, totalPages) : 1;
-  const rows = paginate ? data.slice((currentPage - 1) * pageSize, currentPage * pageSize) : data;
+  const rows = paginate
+    ? sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : sortedData;
 
   return (
     <>
       <Table className={tableClassName}>
         <TableHeader>
           <TableRow>
-            {columns.map((column) => {
-              const isSorted = sortConfig?.column === column.key;
-              return (
-                <TableHead
-                  key={column.key}
-                  style={{ width: column.width }}
-                  className={[column.sortable ? 'cursor-pointer select-none' : '', column.className ?? '']
-                    .filter(Boolean)
-                    .join(' ') || undefined}
-                  onClick={() => handleHeaderClick(column)}
-                >
-                  {column.label}
-                  {column.sortable && isSorted && (
-                    <span className="ml-1">
-                      {sortConfig?.direction === 'asc' ? '▲' : '▼'}
-                    </span>
-                  )}
-                </TableHead>
-              );
-            })}
+            {columns.map((column) => (
+              <TableHead
+                key={column.key}
+                style={{ width: column.width }}
+                className={[column.sortable ? 'cursor-pointer select-none' : '', column.className ?? '']
+                  .filter(Boolean)
+                  .join(' ') || undefined}
+                onClick={() => handleHeaderClick(column)}
+              >
+                {column.label}
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>

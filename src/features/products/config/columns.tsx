@@ -7,7 +7,7 @@ import type { ProductRow } from '@/features/products/types';
 
 export function createProductColumns(): TableColumn<ProductRow>[] {
   return [
-    { key: 'name', label: 'Product', className: 'text-center' },
+    { key: 'name', label: 'Product', className: 'text-center', sortable: true },
     {
       key: 'action' as keyof ProductRow & string,
       label: 'Action',
