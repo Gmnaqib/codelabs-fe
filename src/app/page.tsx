@@ -89,6 +89,7 @@ const Dashboard = () => {
               <div className="z-1">
                 <InProgressCard />
               </div>
+              <TotalAttendance />
             </>
           ) : (
             <>

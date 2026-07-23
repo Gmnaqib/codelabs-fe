@@ -192,6 +192,24 @@ function computeScore(absent: number): number {
   return 0;
 }
 
+// Mirrors the cap shown on the dashboard's Total Attendance card: sick tops
+// out at 4 and permit at 2. Anything past the cap doesn't just disappear —
+// it gets folded into "No Report" so it still counts against the user.
+const SICK_LIMIT = 4;
+const PERMIT_LIMIT = 2;
+
+function getLimitColor(value: number, limit: number): string {
+  if (value >= limit) return ' text-destructive';
+  if (value === limit - 1) return ' text-warning';
+  return '';
+}
+
+function getAdjustedAbsent(row: AttendanceRow): number {
+  const sickOverflow = Math.max((row.counts?.sick ?? 0) - SICK_LIMIT, 0);
+  const permitOverflow = Math.max((row.counts?.permit ?? 0) - PERMIT_LIMIT, 0);
+  return (row.counts?.absent ?? 0) + sickOverflow + permitOverflow;
+}
+
 interface CreateAttendanceColumnsParams {
   onOpenDetail: (userId: string) => void;
   detailDialogUserId: string | null;
@@ -226,16 +244,30 @@ export function createAttendanceColumns({
       label: 'Permit',
       className: 'text-center whitespace-normal',
       sortable: true,
-      sortValue: (row) => row.counts?.permit ?? 0,
-      render: (_v, row) => row.counts?.permit ?? 0,
+      sortValue: (row) => Math.min(row.counts?.permit ?? 0, PERMIT_LIMIT),
+      render: (_v, row) => {
+        const permit = row.counts?.permit ?? 0;
+        return (
+          <span className={getLimitColor(permit, PERMIT_LIMIT)}>
+            {Math.min(permit, PERMIT_LIMIT)}
+          </span>
+        );
+      },
     },
     {
       key: 'sick' as keyof AttendanceRow & string,
       label: 'Sick',
       className: 'text-center whitespace-normal',
       sortable: true,
-      sortValue: (row) => row.counts?.sick ?? 0,
-      render: (_v, row) => row.counts?.sick ?? 0,
+      sortValue: (row) => Math.min(row.counts?.sick ?? 0, SICK_LIMIT),
+      render: (_v, row) => {
+        const sick = row.counts?.sick ?? 0;
+        return (
+          <span className={getLimitColor(sick, SICK_LIMIT)}>
+            {Math.min(sick, SICK_LIMIT)}
+          </span>
+        );
+      },
     },
     {
       key: 'late' as keyof AttendanceRow & string,
@@ -250,16 +282,16 @@ export function createAttendanceColumns({
       label: 'No Report',
       className: 'text-center whitespace-normal',
       sortable: true,
-      sortValue: (row) => row.counts?.absent ?? 0,
-      render: (_v, row) => row.counts?.absent ?? 0,
+      sortValue: (row) => getAdjustedAbsent(row),
+      render: (_v, row) => getAdjustedAbsent(row),
     },
     {
       key: 'score' as keyof AttendanceRow & string,
       label: 'SP',
       className: 'text-center whitespace-normal',
       sortable: true,
-      sortValue: (row) => computeScore(row.counts?.absent ?? 0),
-      render: (_v, row) => computeScore(row.counts?.absent ?? 0),
+      sortValue: (row) => computeScore(getAdjustedAbsent(row)),
+      render: (_v, row) => computeScore(getAdjustedAbsent(row)),
     },
     {
       key: 'action' as keyof AttendanceRow & string,
