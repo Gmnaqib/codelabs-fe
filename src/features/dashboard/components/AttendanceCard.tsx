@@ -93,17 +93,19 @@ const AttendanceCard = () => {
     fetchAttendance();
   }, [user]);
 
+  const fetchLeaveToday = async () => {
+    if (!user) return;
+    try {
+      const res = await getMyLeaveRequestToday();
+      setLeaveToday(res ? { type: res.type, status: res.status || 'pending' } : null);
+    } catch {
+      setLeaveToday(null);
+    }
+  };
+
   useEffect(() => {
-    const fetchLeaveToday = async () => {
-      if (!user) return;
-      try {
-        const res = await getMyLeaveRequestToday();
-        setLeaveToday(res ? { type: res.type, status: res.status || 'pending' } : null);
-      } catch {
-        setLeaveToday(null);
-      }
-    };
     fetchLeaveToday();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleCheckin = async () => {
@@ -361,7 +363,7 @@ const AttendanceCard = () => {
             )}
           </>
         )}
-        {canCheckIn && !isCheckedIn && <LeaveRequestForm />}
+        {canCheckIn && !isCheckedIn && !leaveToday && <LeaveRequestForm onSuccess={fetchLeaveToday} />}
       </div>
     </CardField>
   );
