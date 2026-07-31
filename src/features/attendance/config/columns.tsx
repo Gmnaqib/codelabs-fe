@@ -300,7 +300,10 @@ export function createAttendanceColumns({
       className: 'text-center whitespace-normal',
       sortable: true,
       sortValue: (row) => computeScore(getAdjustedAbsent(row)),
-      render: (_v, row) => computeScore(getAdjustedAbsent(row)),
+      render: (_v, row) => {
+        const score = computeScore(getAdjustedAbsent(row));
+        return <span className={score >= 1 ? 'text-destructive' : ''}>{score}</span>;
+      },
     },
     {
       key: 'action' as keyof AttendanceRow & string,
