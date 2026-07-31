@@ -192,11 +192,12 @@ function computeScore(absent: number): number {
   return 0;
 }
 
-// Mirrors the cap shown on the dashboard's Total Attendance card: sick tops
-// out at 4 and permit at 2. Anything past the cap doesn't just disappear —
-// it gets folded into "No Report" so it still counts against the user.
+// Mirrors the cap shown on the dashboard's Total Attendance card: sick and
+// late top out at 4, permit at 2. Anything past the cap doesn't just
+// disappear — it gets folded into "No Report" so it still counts against the user.
 const SICK_LIMIT = 4;
 const PERMIT_LIMIT = 2;
+const LATE_LIMIT = 4;
 
 function getLimitColor(value: number, limit: number): string {
   if (value >= limit) return ' text-destructive';
@@ -207,7 +208,8 @@ function getLimitColor(value: number, limit: number): string {
 function getAdjustedAbsent(row: AttendanceRow): number {
   const sickOverflow = Math.max((row.counts?.sick ?? 0) - SICK_LIMIT, 0);
   const permitOverflow = Math.max((row.counts?.permit ?? 0) - PERMIT_LIMIT, 0);
-  return (row.counts?.absent ?? 0) + sickOverflow + permitOverflow;
+  const lateOverflow = Math.max((row.counts?.late ?? 0) - LATE_LIMIT, 0);
+  return (row.counts?.absent ?? 0) + sickOverflow + permitOverflow + lateOverflow;
 }
 
 interface CreateAttendanceColumnsParams {
@@ -274,8 +276,15 @@ export function createAttendanceColumns({
       label: 'Late Arrivals',
       className: 'text-center whitespace-normal',
       sortable: true,
-      sortValue: (row) => row.counts?.late ?? 0,
-      render: (_v, row) => row.counts?.late ?? 0,
+      sortValue: (row) => Math.min(row.counts?.late ?? 0, LATE_LIMIT),
+      render: (_v, row) => {
+        const late = row.counts?.late ?? 0;
+        return (
+          <span className={getLimitColor(late, LATE_LIMIT)}>
+            {Math.min(late, LATE_LIMIT)}
+          </span>
+        );
+      },
     },
     {
       key: 'absent' as keyof AttendanceRow & string,
