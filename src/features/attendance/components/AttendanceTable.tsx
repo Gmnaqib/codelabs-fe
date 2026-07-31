@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import {
   Pagination,
@@ -21,11 +21,12 @@ import {
   HandRaisedIcon,
   HeartIcon,
 } from '@heroicons/react/24/solid';
-import { BaseTable } from '@/features/table/components';
+import { BaseTable, type TableColumn } from '@/features/table/components';
 import { useTableStore } from '@/shared/state';
 import { useAttendanceTable } from '@/features/attendance/hooks/useAttendanceTable';
 import { createAttendanceColumns, createLeaveRequestColumns } from '@/features/attendance/config/columns';
 import type { AttendanceRow, LeaveRequestRow } from '@/features/attendance/types';
+import type { TableSortConfig } from '@/types/domain';
 
 interface AttendanceTableProps {
   showMenu?: boolean;
@@ -33,6 +34,27 @@ interface AttendanceTableProps {
 }
 
 const ATTENDANCE_MENUS = ['Permissions', 'Total Attendance'];
+
+function compareSortValues(a: unknown, b: unknown, direction: 'asc' | 'desc'): number {
+  const dir = direction === 'asc' ? 1 : -1;
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  if (typeof a === 'number' && typeof b === 'number') return (a - b) * dir;
+  return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' }) * dir;
+}
+
+function sortRows<T extends { _id: string }>(
+  data: T[],
+  columns: TableColumn<T>[],
+  sortConfig: TableSortConfig | null
+): T[] {
+  if (!sortConfig) return data;
+  const column = columns.find((c) => c.key === sortConfig.column);
+  if (!column) return data;
+  const getValue = (row: T): unknown => (column.sortValue ? column.sortValue(row) : row[column.key]);
+  return [...data].sort((a, b) => compareSortValues(getValue(a), getValue(b), sortConfig.direction));
+}
 
 export default function AttendanceTable({ showMenu = true }: AttendanceTableProps) {
   const year = useTableStore((s) => s.year);
@@ -52,7 +74,8 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
     currentPage,
     setCurrentPage,
     totalPages,
-    paginatedData,
+    filteredData,
+    itemsPerPage,
     selectedLeave,
     handleOpenDialog,
     handleReview,
@@ -78,6 +101,29 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
       }),
     [handleOpenDetail, detailDialogUserId, detailData, detailLoading]
   );
+
+  const [leaveSortConfig, setLeaveSortConfig] = useState<TableSortConfig | null>(null);
+  const [attendanceSortConfig, setAttendanceSortConfig] = useState<TableSortConfig | null>(null);
+
+  const handleLeaveSort = (col: string, dir: 'asc' | 'desc') => {
+    setLeaveSortConfig({ column: col, direction: dir });
+    setCurrentPage(1);
+  };
+
+  const handleAttendanceSort = (col: string, dir: 'asc' | 'desc') => {
+    setAttendanceSortConfig({ column: col, direction: dir });
+    setCurrentPage(1);
+  };
+
+  // Sort across the FULL filtered dataset before slicing to a page, so a
+  // header click reorders every row, not just the ones visible on this page.
+  const sortedPageData = useMemo(() => {
+    const sorted =
+      activeTab === 'Permissions'
+        ? sortRows(filteredData as LeaveRequestRow[], leaveColumns, leaveSortConfig)
+        : sortRows(filteredData as AttendanceRow[], attendanceColumns, attendanceSortConfig);
+    return sorted.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [activeTab, filteredData, leaveColumns, attendanceColumns, leaveSortConfig, attendanceSortConfig, currentPage, itemsPerPage]);
 
   const totals = useMemo(() => {
     const acc = { present: 0, permit: 0, sick: 0, late: 0, absent: 0 };
@@ -170,20 +216,24 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
       <Card>
         {activeTab === 'Permissions' && <p className="font-medium text-xl px-5">All Report</p>}
 
-        {paginatedData.length === 0 ? (
+        {filteredData.length === 0 ? (
           <div className="py-12">
             <EmptyState message="No reports found for the selected period." />
           </div>
         ) : activeTab === 'Permissions' ? (
           <BaseTable<LeaveRequestRow>
-            data={paginatedData as LeaveRequestRow[]}
+            data={sortedPageData as LeaveRequestRow[]}
             columns={leaveColumns}
+            sortConfig={leaveSortConfig}
+            onSort={handleLeaveSort}
             emptyMessage="Tidak ada data"
           />
         ) : (
           <BaseTable<AttendanceRow>
-            data={paginatedData as AttendanceRow[]}
+            data={sortedPageData as AttendanceRow[]}
             columns={attendanceColumns}
+            sortConfig={attendanceSortConfig}
+            onSort={handleAttendanceSort}
             tableClassName="table-fixed"
             emptyMessage="Tidak ada data"
           />
