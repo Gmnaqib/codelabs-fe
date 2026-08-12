@@ -67,11 +67,11 @@ const TotalAttendance = () => {
               <p className='col-span-1'>:</p>
               <p className={`col-span-1 font-semibold${getLimitColor(absent, 5)}`}>{absent}</p>
             </div>
-            <div className="grid grid-cols-12">
+            {/* <div className="grid grid-cols-12">
               <p className='col-span-5 text-left'>SP</p>
               <p className='col-span-1'>:</p>
               <p className='col-span-1 font-semibold'>{spCount}</p>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="flex items-center justify-center gap-2 cursor-pointer">
