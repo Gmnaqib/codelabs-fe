@@ -83,7 +83,7 @@ const Assessments = () => {
     }, [selectedYear, selectedMonth]);
 
     return (
-        <ProtectedRoute roles={['admin', 'lecturer']}>
+        <ProtectedRoute roles={['admin', 'lecturer', 'minister of operation']}>
             <MotionWrapper>
                 <Card>
                     <div className="flex flex-col gap-10 p-5">
