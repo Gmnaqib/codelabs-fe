@@ -185,13 +185,6 @@ export function createLeaveRequestColumns({
   ];
 }
 
-function computeScore(absent: number): number {
-  if (absent >= 12) return 3;
-  if (absent >= 8) return 2;
-  if (absent >= 4) return 1;
-  return 0;
-}
-
 // Mirrors the cap shown on the dashboard's Total Attendance card: sick and
 // late top out at 4, permit at 2. Anything past the cap doesn't just
 // disappear — it gets folded into "No Report" so it still counts against the user.
@@ -299,10 +292,12 @@ export function createAttendanceColumns({
       label: 'SP',
       className: 'text-center whitespace-normal',
       sortable: true,
-      sortValue: (row) => computeScore(getAdjustedAbsent(row)),
+      // Resolved server-side against the dynamic SP setting thresholds
+      // (grand_total vs. the configured points) — not computed here.
+      sortValue: (row) => row.counts?.sp ?? '',
       render: (_v, row) => {
-        const score = computeScore(getAdjustedAbsent(row));
-        return <span className={score >= 1 ? 'text-destructive' : ''}>{score}</span>;
+        const sp = row.counts?.sp;
+        return <span className={sp ? 'text-destructive' : ''}>{sp ?? '-'}</span>;
       },
     },
     {

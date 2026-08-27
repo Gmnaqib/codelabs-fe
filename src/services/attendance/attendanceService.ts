@@ -288,6 +288,7 @@ export interface RawAttendanceSummaryItem {
     sick?: number;
     late?: number;
     absent?: number;
+    sp?: string | null;
   };
   [key: string]: unknown;
 }

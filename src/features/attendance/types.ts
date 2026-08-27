@@ -16,6 +16,9 @@ export interface AttendanceSummaryCounts {
   sick: number;
   late: number;
   absent: number;
+  // Resolved server-side against the dynamic SP setting thresholds (see
+  // spSetting.service.ts on the backend) — null when nothing matched.
+  sp?: string | null;
 }
 
 export interface AttendanceRow {
