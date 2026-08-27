@@ -90,7 +90,7 @@ export const menuItems = [
     iconSolid: CheckSolid,
     iconOutline: CheckOutline,
     route: "/assessments",
-    roles: ["admin", "lecturer"],
+    roles: ["admin", "lecturer", "minister of operation"],
   },
   {
     title: "Members",
