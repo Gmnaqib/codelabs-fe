@@ -16,6 +16,9 @@ export interface AttendanceSummaryCounts {
   sick: number;
   late: number;
   absent: number;
+  // Overall KPI grand_total for the same month, computed server-side —
+  // what the SP tier below is resolved against.
+  point?: number | null;
   // Resolved server-side against the dynamic SP setting thresholds (see
   // spSetting.service.ts on the backend) — null when nothing matched.
   sp?: string | null;

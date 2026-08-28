@@ -288,6 +288,16 @@ export function createAttendanceColumns({
       render: (_v, row) => getAdjustedAbsent(row),
     },
     {
+      key: 'point' as keyof AttendanceRow & string,
+      label: 'Point',
+      className: 'text-center whitespace-normal',
+      sortable: true,
+      // Overall KPI grand_total for the month — what the SP column to the
+      // right is resolved against.
+      sortValue: (row) => row.counts?.point ?? 0,
+      render: (_v, row) => row.counts?.point ?? '-',
+    },
+    {
       key: 'score' as keyof AttendanceRow & string,
       label: 'SP',
       className: 'text-center whitespace-normal',
@@ -297,7 +307,9 @@ export function createAttendanceColumns({
       sortValue: (row) => row.counts?.sp ?? '',
       render: (_v, row) => {
         const sp = row.counts?.sp;
-        return <span className={sp ? 'text-destructive' : ''}>{sp ?? '-'}</span>;
+        return (
+          <span className={sp ? 'text-destructive' : 'text-success'}>{sp ?? 'Safe'}</span>
+        );
       },
     },
     {
