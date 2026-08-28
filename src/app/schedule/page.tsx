@@ -118,7 +118,7 @@ const Schedule = () => {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const users: User[] = await getAllUsers();
+        const users: User[] = await getAllUsers({ activeOnly: true });
         setUserNames(users.map((u: User) => u.name));
         const map: Record<string, string> = {};
         users.forEach((u: User) => { map[u.name] = u._id; });

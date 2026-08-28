@@ -31,7 +31,7 @@ export function useCheckIn(enabled: boolean) {
     setLoading(true);
     try {
       const [allUsers, todayRecords] = await Promise.all([
-        getAllUsers() as Promise<RawUser[]>,
+        getAllUsers({ activeOnly: true }) as Promise<RawUser[]>,
         getAttendanceToday() as Promise<RawAttendanceRecord[]>,
       ]);
 

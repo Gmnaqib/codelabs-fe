@@ -107,6 +107,9 @@ export function useAttendanceTable() {
         const [todayRaw, allRaw, users] = await Promise.all([
           getTodayLeaveRequests(),
           getAllLeaveRequests(year, month),
+          // Not activeOnly here — this just resolves userId -> name for
+          // EXISTING leave requests, which should still show the submitter's
+          // name even if they've since gone inactive/graduated.
           getAllUsers(),
         ]);
 
@@ -119,7 +122,7 @@ export function useAttendanceTable() {
       } else {
         const [summaryRaw, users] = await Promise.all([
           getAttendanceSummary(year, month),
-          getAllUsers(),
+          getAllUsers({ activeOnly: true }),
         ]);
 
         const summaryByUserId: Record<string, RawSummaryItem> = {};

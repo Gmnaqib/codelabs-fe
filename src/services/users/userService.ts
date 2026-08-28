@@ -18,9 +18,11 @@ export interface RawUserRecord {
   [key: string]: unknown;
 }
 
-export async function getAllUsers(): Promise<RawUserRecord[]> {
+export async function getAllUsers(options?: { activeOnly?: boolean }): Promise<RawUserRecord[]> {
   try {
-    const { data } = await axiosClient.get("/users");
+    const { data } = await axiosClient.get("/users", {
+      params: options?.activeOnly ? { activeOnly: true } : undefined,
+    });
     const users = [...data.data] as RawUserRecord[];
     users.forEach((user) => {
       if (user && typeof user.name === 'string' && user.name.length > 0) {

@@ -53,7 +53,7 @@ export function useAttendanceSummaryCard() {
         const month = today.getMonth() + 1;
         const [attendanceData, allUsers, attendanceSummary] = await Promise.all([
           attendanceService.getAttendanceToday() as Promise<AttendanceTodayItem[]>,
-          userService.getAllUsers() as Promise<UserItem[]>,
+          userService.getAllUsers({ activeOnly: true }) as Promise<UserItem[]>,
           attendanceService.getAttendanceSummary(year, month) as Promise<AttendanceSummaryItem[]>,
         ]);
 

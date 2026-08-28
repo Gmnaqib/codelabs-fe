@@ -35,7 +35,7 @@ const OperationalAttendance  = () => {
     const [checkoutAllReason, setCheckoutAllReason] = useState('');
     const [checkoutAllLoading, setCheckoutAllLoading] = useState(false);
 
-    type User = { _id: string; name: string; status: string };
+    type User = { _id: string; name: string; status: string; role?: string };
     type Attendance = { checkIn?: string; checkOut?: string; userId: string };
     useEffect(() => {
         const fetchData = async () => {
@@ -49,14 +49,17 @@ const OperationalAttendance  = () => {
                 const userIds = filtered.map((item) => item.userId);
                 setCheckoutUserIds(userIds);
 
+                // Not activeOnly here — userMap resolves userId -> name for
+                // whoever already checked in today, regardless of their
+                // current status/role.
                 const users: User[] = await getAllUsers();
                 const map: Record<string, string> = {};
                 users.forEach((user) => {
                     map[user._id] = user.name;
                 });
                 setUserMap(map);
-                // Save active users
-                const active = users.filter((user) => user.status === 'active');
+                // Save active, non-lecturer users
+                const active = users.filter((user) => user.status === 'active' && user.role !== 'lecturer');
                 // setActiveUsers(active); // Not used
 
                 // For permit: users who are active and have NO attendance record today at all

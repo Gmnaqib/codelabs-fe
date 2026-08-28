@@ -80,7 +80,7 @@ function downloadWorkbook(buffer: ArrayBuffer, fileName: string): void {
 export async function exportOperationalExcel(year: number, month: number): Promise<void> {
   const [users, attendance, leaves, thematicRecords, picketRecords, timeSettings, schedules] =
     await Promise.all([
-      getAllUsers() as Promise<User[]>,
+      getAllUsers({ activeOnly: true }) as Promise<User[]>,
       getAttendance(year, month),
       getAllLeaveRequests(year, month),
       getOperationalRecords('thematic', undefined, year, month),

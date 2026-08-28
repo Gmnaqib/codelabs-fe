@@ -20,7 +20,7 @@ export function useResearchPercentageCard(selectedMonth: number, selectedYear: n
     const fetchData = async () => {
       try {
         const [users, research] = await Promise.all([
-          getAllUsers() as Promise<unknown[]>,
+          getAllUsers({ activeOnly: true }) as Promise<unknown[]>,
           getAllResearchRecords(selectedYear, selectedMonth) as Promise<ResearchRecord[]>,
         ]);
 

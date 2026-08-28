@@ -17,12 +17,11 @@ export function useTotalMembersCard() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const users = (await getAllUsers()) as User[];
-        const filtered = users.filter((u) => {
-          const status = (u.status || '').toLowerCase();
-          const role = (u.role || '').toLowerCase();
-          return status === 'active' && !['admin', 'lecturer'].includes(role);
-        });
+        const users = (await getAllUsers({ activeOnly: true })) as User[];
+        // activeOnly already excludes inactive/graduated/lecturer server-side;
+        // admin still needs excluding here since "Total Members" shouldn't
+        // count staff accounts either.
+        const filtered = users.filter((u) => (u.role || '').toLowerCase() !== 'admin');
         setTotalUsers(filtered.length);
       } catch (err) {
         setError(handleError(err));

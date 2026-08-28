@@ -202,7 +202,7 @@ const OrganizationSummaryTable = ({
     } else {
       const fetchUsers = async () => {
         try {
-          const result = await getAllUsers();
+          const result = await getAllUsers({ activeOnly: true });
           setUsers(Array.isArray(result) ? result : []);
         } catch (error) {
           console.error("Error fetching users:", error);

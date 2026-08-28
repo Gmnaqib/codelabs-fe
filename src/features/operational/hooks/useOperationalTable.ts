@@ -41,7 +41,7 @@ export function useOperationalTable() {
     try {
       const type = activeTab === 'absence' ? undefined : activeTab;
 
-      const fetchedUsers = (await getAllUsers()) as User[];
+      const fetchedUsers = (await getAllUsers({ activeOnly: true })) as User[];
 
       let records: OperationalRecord[] = [];
       if (type) {
