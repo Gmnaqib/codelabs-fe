@@ -20,9 +20,11 @@ interface RawOperationalRecord {
 
 interface UsePicketScheduleTableOptions {
   fetchTrigger?: number;
+  // ISO date (yyyy-MM-dd) to view instead of today's schedule.
+  date?: string;
 }
 
-export function usePicketScheduleTable({ fetchTrigger }: UsePicketScheduleTableOptions = {}) {
+export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketScheduleTableOptions = {}) {
   const [picketData, setPicketData] = useState<PicketRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedUsers, setCheckedUsers] = useState<Record<string, boolean>>({});
@@ -33,7 +35,7 @@ export function usePicketScheduleTable({ fetchTrigger }: UsePicketScheduleTableO
   const fetchSchedules = useCallback(async () => {
     setLoading(true);
     try {
-      const data = (await getTodayPicketSchedule()) as PicketSwapSchedule[];
+      const data = (await getTodayPicketSchedule(date)) as PicketSwapSchedule[];
       const operationalRecords = (await getOperationalRecords()) as RawOperationalRecord[];
 
       const withUsers = data.filter((d) => d.assignedUsers && d.assignedUsers.length > 0);
@@ -67,7 +69,7 @@ export function usePicketScheduleTable({ fetchTrigger }: UsePicketScheduleTableO
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [date]);
 
   useEffect(() => {
     fetchSchedules();

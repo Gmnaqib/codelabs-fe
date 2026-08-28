@@ -55,7 +55,7 @@ export default function OperationalPicketCard({
                     {value}/{max}
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-16">
-                    <Link href="/picket-schedule" className="text-primary">See All Member</Link>
+                    <Link href="/schedule" className="text-primary">See All Member</Link>
                     <ArrowUpRightIcon className="text-primary text-base font-normal size-4" />
                 </div>
             </div>

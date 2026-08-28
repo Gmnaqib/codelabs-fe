@@ -9,6 +9,7 @@ export type TablePage =
   | 'members'
   | 'operational'
   | 'picket-schedule'
+  | 'thematic-schedule'
   | 'products'
   | 'points'
   | 'points-detail'

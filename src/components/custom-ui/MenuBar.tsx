@@ -14,8 +14,32 @@ import { useState } from "react"
 import OperationalAttendance from "@/features/operational/components/OperationalAttendance"
 import { Button } from "@/components/ui/button"
 import { RiFileExcel2Line } from "react-icons/ri"
+import DatePicker from "./DatePicker"
 
-export function Menubar({ menus, onChange, activeMenu, sort = false, filter, operational = false, search = true, filterProps, searchQuery = "", onSearch, onExportExcel }: MenuBarProps & { filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>, searchQuery?: string, onSearch?: (query: string) => void }) {
+export function Menubar({
+  menus,
+  onChange,
+  activeMenu,
+  sort = false,
+  filter,
+  operational = false,
+  search = true,
+  filterProps,
+  dateFilterMode = "month",
+  dayFilterProps,
+  searchQuery = "",
+  onSearch,
+  onExportExcel,
+}: MenuBarProps & {
+  filterProps?: React.ComponentProps<typeof CalendarMonthYearPicker>,
+  // "month" (default) keeps the existing month/year picker used elsewhere
+  // (Attendance, Scoring, ...); "day" swaps in a full date picker for pages
+  // that need day-level granularity (e.g. Schedule), in this same slot.
+  dateFilterMode?: "month" | "day",
+  dayFilterProps?: React.ComponentProps<typeof DatePicker>,
+  searchQuery?: string,
+  onSearch?: (query: string) => void,
+}) {
   const [internalSearch, setInternalSearch] = useState(searchQuery ?? "");
   return (
     <div className="flex flex-col items-center gap-3 lg:items-baseline lg:justify-between lg:gap-0 mt-1 lg:w-full lg:flex-row">
@@ -56,9 +80,17 @@ export function Menubar({ menus, onChange, activeMenu, sort = false, filter, ope
               </div>
             )}
             <div className="z-40 shrink-0">
-              <CalendarMonthYearPicker
-                {...filterProps}
-              />
+              {dateFilterMode === "day" ? (
+                <DatePicker
+                  value={null}
+                  onChange={() => {}}
+                  {...dayFilterProps}
+                />
+              ) : (
+                <CalendarMonthYearPicker
+                  {...filterProps}
+                />
+              )}
             </div>
           </div>
         )}

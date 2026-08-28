@@ -7,12 +7,14 @@ import { usePicketScheduleTable } from '@/features/picket/hooks/usePicketSchedul
 
 interface PicketScheduleTableProps {
   fetchTrigger?: number;
+  // ISO date (yyyy-MM-dd) to view instead of today's schedule.
+  date?: string;
   [key: string]: unknown;
 }
 
-export default function PicketScheduleTable({ fetchTrigger }: PicketScheduleTableProps) {
+export default function PicketScheduleTable({ fetchTrigger, date }: PicketScheduleTableProps) {
   const { picketData, loading, checkedUsers, rangeSchedules, handleToggle, handleSwap } =
-    usePicketScheduleTable({ fetchTrigger });
+    usePicketScheduleTable({ fetchTrigger, date });
 
   const columns = useMemo(
     () => createPicketScheduleColumns({ checkedUsers, rangeSchedules, onToggle: handleToggle, onSwap: handleSwap }),
@@ -24,7 +26,7 @@ export default function PicketScheduleTable({ fetchTrigger }: PicketScheduleTabl
       data={picketData}
       columns={columns}
       loading={loading}
-      emptyMessage="There is no picket data today"
+      emptyMessage="There is no picket data for this day"
     />
   );
 }

@@ -30,6 +30,7 @@ const TABLE_COMPONENTS: Record<
   ristek: lazyTable(() => import('@/features/ristek/components/RistekTable')),
   operational: lazyTable(() => import('@/features/operational/components/OperationalTable')),
   'picket-schedule': lazyTable(() => import('@/features/picket/components/PicketScheduleTable')),
+  'thematic-schedule': lazyTable(() => import('@/features/thematic/components/ThematicScheduleTable')),
   'points-detail': lazyTable(() => import('@/features/points/components/PointsDetailTable')),
   points: lazyTable(() => import('@/features/points/components/PointsTable')),
   products: lazyTable(() => import('@/features/products/components/ProductsTable')),

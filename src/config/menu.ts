@@ -81,10 +81,10 @@ export const menuItems = [
     roles: ["admin", "minister of operation", "lecturer"],
   },
   {
-    title: "Picket Schedule",
+    title: "Schedule",
     iconSolid: UserGroupSolid,
     iconOutline: UserGroupOutline,
-    route: "/picket-schedule",
+    route: "/schedule",
     roles: ["admin", "minister of operation"],
   },
   {
@@ -177,7 +177,7 @@ export const menuNavbar = [
   { path: '/attendance', title: 'Attendance' },
   { path: '/operasional/picketSchedule', title: 'Picket Schedule' },
   { path: '/profile', title: 'Profile' },
-  { path: '/picket-schedule', title: 'Picket Schedule' },
+  { path: '/schedule', title: 'Schedule' },
   { path: '/assessments', title: 'Assessments' },
   { path: '/members', title: 'Members' },
   { path: '/products', title: 'Products' },

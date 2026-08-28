@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 
 interface DatePickerProps {
   value: string | null;
@@ -11,6 +10,7 @@ interface DatePickerProps {
   minDate?: string;
   disabled?: boolean;
   disabledDaysOfWeek?: number[]; // 0=Sunday, 6=Saturday
+  disabledDates?: string[]; // yyyy-MM-dd, e.g. dates already picked elsewhere in the same form
 }
 
 function parseDate(str: string | null): Date | undefined {
@@ -31,7 +31,7 @@ function formatDisplay(date: Date | undefined) {
   return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, minDate, disabled, disabledDaysOfWeek }) => {
+const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, minDate, disabled, disabledDaysOfWeek, disabledDates }) => {
   const [open, setOpen] = useState(false);
   const selected = parseDate(value);
   // minDate default: hari ini
@@ -43,18 +43,14 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, minDate, disab
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full justify-between px-4 py-2 border rounded-md text-left font-normal bg-white"
-          disabled={!!(typeof disabled !== 'undefined' && disabled)}
-        >
-          <span>{selected ? formatDisplay(selected) : 'Pilih tanggal'}</span>
-          <CalendarIcon className="w-5 h-5 text-muted-foreground ml-2" />
-        </Button>
+      <PopoverTrigger
+        disabled={!!(typeof disabled !== 'undefined' && disabled)}
+        className="flex h-fit w-full items-center justify-between gap-5 rounded-full border border-muted-foreground bg-white px-6 py-2 text-foreground disabled:pointer-events-none disabled:opacity-50"
+      >
+        <span>{selected ? formatDisplay(selected) : 'Pilih tanggal'}</span>
+        <CalendarDaysIcon className="size-5" />
       </PopoverTrigger>
-      <PopoverContent align="start" className="p-0 w-auto bg-white">
+      <PopoverContent align="start" className="w-auto rounded-lg bg-popover p-0 shadow-sm">
         <Calendar
           mode="single"
           selected={selected}
@@ -65,6 +61,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, minDate, disab
           disabled={date => {
             if (min && date < min) return true;
             if (Array.isArray(disabledDaysOfWeek) && disabledDaysOfWeek.includes(date.getDay())) return true;
+            if (Array.isArray(disabledDates) && disabledDates.includes(formatDate(date))) return true;
             return false;
           }}
         />

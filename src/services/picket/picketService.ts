@@ -93,9 +93,9 @@ export const getAllSchedules2 = async (): Promise<RawPicketSchedule[]> => {
 	}
 };
 
-export const getTodayPicketSchedule = async (): Promise<RawPicketSchedule[]> => {
+export const getTodayPicketSchedule = async (date?: string): Promise<RawPicketSchedule[]> => {
 	try {
-		const res = await axiosClient.get('/schedules/today');
+		const res = await axiosClient.get('/schedules/today', { params: date ? { date } : undefined });
 		return res.data.data;
 	} catch (error) {
 		throw handleError(error);
