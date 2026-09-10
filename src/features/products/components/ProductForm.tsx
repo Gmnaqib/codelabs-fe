@@ -129,7 +129,7 @@ export default function ProductForm({ mode = 'create', product, onSuccess }: Pro
           )}
         />
 
-        {success && <p className="text-green-600 text-sm">Berhasil ditambahkan!</p>}
+        {success && <p className="text-green-600 text-sm">Added successfully!</p>}
       </form>
     </DialogField>
   );

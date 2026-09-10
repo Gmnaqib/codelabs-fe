@@ -50,25 +50,25 @@ export function handleError(error: unknown): AppError {
     return new AppError('API_ERROR', status, message, error);
   }
 
-  const message = error instanceof Error ? error.message : 'Terjadi kesalahan tidak terduga.';
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred.';
   return new AppError('UNKNOWN_ERROR', 500, message, error);
 }
 
 export function showAppErrorToast(error: AppError): void {
   if (error.isAuthError()) {
-    showErrorToast('Sesi berakhir, silakan login lagi.');
+    showErrorToast('Session expired, please log in again.');
     return;
   }
   if (error.isForbidden()) {
-    showErrorToast('Kamu tidak punya akses untuk aksi ini.');
+    showErrorToast('You do not have permission to perform this action.');
     return;
   }
   if (error.isValidationError()) {
-    showErrorToast('Periksa kembali input kamu.');
+    showErrorToast('Please check your input again.');
     return;
   }
   if (error.isNetworkError()) {
-    showErrorToast('Server bermasalah, coba lagi nanti.');
+    showErrorToast('Server issue, please try again later.');
     return;
   }
   showErrorToast(error.message);

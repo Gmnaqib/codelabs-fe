@@ -26,7 +26,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
       setStream(mediaStream);
     } catch (err) {
       console.error('Camera error:', err);
-      setError('Tidak dapat mengakses kamera. Pastikan izin kamera sudah diberikan dan tidak ada aplikasi lain yang sedang menggunakan kamera.');
+      setError('Unable to access the camera. Make sure camera permission has been granted and no other app is currently using the camera.');
     }
   };
 

@@ -49,7 +49,7 @@ export function useCheckIn(enabled: boolean) {
       setUsersWithoutAttendance(without);
     } catch (err) {
       handleError(err);
-      toast.error('Gagal memuat data');
+      toast.error('Failed to load data');
     }
     setLoading(false);
   }, []);
@@ -64,11 +64,11 @@ export function useCheckIn(enabled: boolean) {
       setCheckingIn(userId);
       try {
         await postCheckinByAdmin(userId);
-        toast.success('Berhasil check in!');
+        toast.success('Checked in successfully!');
         await fetchData();
       } catch (err) {
         const appError = handleError(err);
-        toast.error(appError.message || 'Gagal check in user');
+        toast.error(appError.message || 'Failed to check in user');
       }
       setCheckingIn(null);
     },

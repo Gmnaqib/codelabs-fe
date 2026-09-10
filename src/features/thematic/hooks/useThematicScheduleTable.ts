@@ -56,10 +56,10 @@ export function useThematicScheduleTable({ fetchTrigger, date, enabled = true }:
       try {
         await swapThematicGroups({ schedule1Id: scheduleId, schedule2Id: targetScheduleId });
         await fetchSchedules();
-        toast.success('Berhasil mengganti tim tematik!');
+        toast.success('Thematic team swapped successfully!');
       } catch (err) {
         console.error('Swap failed', err);
-        toast.error('Gagal mengganti tim tematik!');
+        toast.error('Failed to swap thematic team!');
       }
     },
     [scheduleId, fetchSchedules]

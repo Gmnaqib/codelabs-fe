@@ -86,10 +86,10 @@ export default function RistekForm({ mode = 'create', record, onSuccess }: Riste
     try {
       if (mode === 'edit' && record) {
         await updateResearchRecord(record._id, payload);
-        toast.success('Data berhasil diperbarui!');
+        toast.success('Data updated successfully!');
       } else {
         await createResearchRecord(payload);
-        toast.success('Data Berhasil Ditambahkan');
+        toast.success('Data added successfully!');
       }
       closeDialog();
       onSuccess?.();
@@ -192,7 +192,7 @@ export default function RistekForm({ mode = 'create', record, onSuccess }: Riste
           render={({ field }) => (
             <Textarea
               label="Challenge"
-              placeholder="Ex: Ada kendala pada fitur upload gambar..."
+              placeholder="Ex: Issue with the image upload feature..."
               value={field.value}
               onChange={(e) => field.onChange(e.target.value)}
             />

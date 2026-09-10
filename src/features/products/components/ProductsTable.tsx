@@ -23,7 +23,7 @@ export default function ProductsTable({ fetchTrigger }: ProductsTableProps) {
       data={data}
       columns={columns}
       loading={loading}
-      emptyMessage="Tidak ada data produk"
+      emptyMessage="No product data available"
     />
   );
 }

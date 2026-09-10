@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 export const profileSchema = z
   .object({
-    newPassword: z.string().min(6, 'Password minimal 6 karakter!'),
-    confirmPassword: z.string().min(6, 'Password minimal 6 karakter!'),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters!'),
+    confirmPassword: z.string().min(6, 'Password must be at least 6 characters!'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Password tidak sama!',
+    message: 'Passwords do not match!',
     path: ['confirmPassword'],
   });
 

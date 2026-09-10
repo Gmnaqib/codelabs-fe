@@ -79,7 +79,7 @@ export default function ProfileForm() {
     const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
     const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-    return `${days} hari ${hours} jam ${minutes} menit`;
+    return `${days} days ${hours} hours ${minutes} minutes`;
   };
 
   if (loading) return null;
@@ -98,20 +98,20 @@ export default function ProfileForm() {
   const handleRegisterMac = async () => {
     try {
       await resetMacAddress();
-      toast.success("MAC address berhasil diregistrasi!");
+      toast.success("MAC address registered successfully!");
     } catch (err) {
       const appError = handleError(err);
-      showErrorToast(appError.message || "Gagal registrasi MAC address.", { duration: 5000 });
+      showErrorToast(appError.message || "Failed to register MAC address.", { duration: 5000 });
     }
   };
 
   const onSubmitPassword = async (values: ProfileFormValues) => {
     try {
       await updatePassword(values.newPassword);
-      toast.success("Password Berhasil Diupdate");
+      toast.success("Password updated successfully!");
       reset({ newPassword: "", confirmPassword: "" });
     } catch {
-      showErrorToast("Gagal Edit Password.", { duration: 5000 });
+      showErrorToast("Failed to edit password.", { duration: 5000 });
     }
   };
 
@@ -136,7 +136,7 @@ export default function ProfileForm() {
     try {
       const croppedBlob = await getCroppedImg(cropSrc, croppedAreaPixels);
       if (croppedBlob.size > MAX_SIZE_BYTES) {
-        showErrorToast("Ukuran foto terlalu besar. Maksimal 500KB.", { duration: 5000 });
+        showErrorToast("Photo size is too large. Maximum 500KB.", { duration: 5000 });
         setUploadingPhoto(false);
         return;
       }
@@ -144,11 +144,11 @@ export default function ProfileForm() {
       const formData = new FormData();
       formData.append("image", file);
       await uploadPhoto(formData);
-      toast.success("Foto profil berhasil diupdate!");
+      toast.success("Profile photo updated successfully!");
       window.dispatchEvent(new CustomEvent("user-photo-updated"));
     } catch (err) {
       const appError = handleError(err);
-      showErrorToast(appError.message || "Gagal upload foto.", { duration: 5000 });
+      showErrorToast(appError.message || "Failed to upload photo.", { duration: 5000 });
     }
     setUploadingPhoto(false);
     setCropSrc(null);
@@ -184,8 +184,8 @@ export default function ProfileForm() {
             </button>
             {showPhotoTooltip && !canUpdatePhoto() && (
               <div className="absolute bottom-10 right-0 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 w-52 z-10 shadow-lg">
-                <p className="font-semibold mb-0.5">Foto belum bisa diubah</p>
-                <p className="text-gray-300">Sisa waktu: {getRemainingPhotoTime()}</p>
+                <p className="font-semibold mb-0.5">Photo cannot be changed yet</p>
+                <p className="text-gray-300">Time remaining: {getRemainingPhotoTime()}</p>
               </div>
             )}
           </div>
@@ -205,7 +205,7 @@ export default function ProfileForm() {
       <Dialog open={showCropDialog} onOpenChange={(open) => { if (!open) { setShowCropDialog(false); setCropSrc(null); } }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Crop Foto Profil</DialogTitle>
+            <DialogTitle>Crop Profile Photo</DialogTitle>
           </DialogHeader>
           <div className="relative w-full h-72 bg-black rounded-lg overflow-hidden">
             {cropSrc && (
@@ -229,13 +229,13 @@ export default function ProfileForm() {
             onChange={(e) => setZoom(Number(e.target.value))}
             className="w-full accent-primary"
           />
-          <p className="text-xs text-muted-foreground text-center">Geser dan zoom untuk menyesuaikan</p>
+          <p className="text-xs text-muted-foreground text-center">Drag and zoom to adjust</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowCropDialog(false); setCropSrc(null); }}>
-              Batal
+              Cancel
             </Button>
             <Button onClick={handleCropConfirm}>
-              Konfirmasi
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>

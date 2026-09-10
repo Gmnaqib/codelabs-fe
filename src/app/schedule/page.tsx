@@ -98,11 +98,11 @@ const Schedule = () => {
   }, []);
 
   const dayLabels: Record<string, string> = {
-    Monday: 'Team Senin',
-    Tuesday: 'Team Selasa',
-    Wednesday: 'Team Rabu',
-    Thursday: 'Team Kamis',
-    Friday: 'Team Jumat',
+    Monday: 'Team Monday',
+    Tuesday: 'Team Tuesday',
+    Wednesday: 'Team Wednesday',
+    Thursday: 'Team Thursday',
+    Friday: 'Team Friday',
   };
   const dayNumbers: Record<string, number> = {
     Monday: 1,

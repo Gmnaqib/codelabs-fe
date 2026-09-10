@@ -255,7 +255,7 @@ const Members = () => {
                     )}
                     {isNimEmailMismatch && (
                       <div className="text-xs text-red-500 mt-1">
-                        NIM pada email dan NIM input tidak sama
+                        NIM in email and input NIM do not match
                       </div>
                     )}
                   </div>

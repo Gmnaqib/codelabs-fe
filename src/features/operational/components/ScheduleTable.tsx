@@ -59,7 +59,7 @@ function ScheduleTableInner<T extends RowWithId>({
   scrollColumns,
   rightColumns = [],
   loading = false,
-  emptyMessage = 'Tidak ada data',
+  emptyMessage = 'No data available',
 }: ScheduleTableProps<T>) {
   const [sortConfig, setSortConfig] = React.useState<TableSortConfig | null>(null);
 

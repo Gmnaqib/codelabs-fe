@@ -25,7 +25,7 @@ export default function PointsDetailTable({ fetchTrigger, onEdit }: PointsDetail
       data={data}
       columns={columns}
       loading={loading}
-      emptyMessage="Tidak ada data"
+      emptyMessage="No data available"
     />
   );
 }

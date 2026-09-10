@@ -25,7 +25,7 @@ export default function SPSettingTable({ fetchTrigger, onEdit }: SPSettingTableP
       data={data}
       columns={columns}
       loading={loading}
-      emptyMessage="Tidak ada data"
+      emptyMessage="No data available"
     />
   );
 }

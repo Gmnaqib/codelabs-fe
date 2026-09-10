@@ -87,7 +87,7 @@ export default function AddCompetitionDialog({ open, onOpenChange, categories, o
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLink(e.target.value)}
           />
           {link !== '' && !isLinkValid && (
-            <span className="text-xs text-red-500">Link harus diawali dengan &apos;https://&apos;</span>
+            <span className="text-xs text-red-500">Link must start with &apos;https://&apos;</span>
           )}
           <DropdownField
             key="type-input"

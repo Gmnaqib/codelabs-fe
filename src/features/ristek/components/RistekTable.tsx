@@ -28,9 +28,9 @@ export default function RistekTable({ filterWeek }: RistekTableProps) {
       loading={loading}
       emptyMessage={
         isBackendEmpty ? (
-          <EmptyState message="Tidak ada data research" />
+          <EmptyState message="No research data available" />
         ) : (
-          'Tidak ada data research'
+          'No research data available'
         )
       }
     />

@@ -54,7 +54,7 @@ describe('OperationalTable', () => {
   it('shows the absence tab content by default', () => {
     render(<OperationalTable />);
 
-    expect(screen.getByText('Tidak ada data absensi')).toBeInTheDocument();
+    expect(screen.getByText('No attendance data available')).toBeInTheDocument();
   });
 
   it('switches content when clicking the Picket tab', async () => {
@@ -63,8 +63,8 @@ describe('OperationalTable', () => {
 
     await user.click(screen.getByText('Picket'));
 
-    expect(screen.getByText('Tidak ada data piket')).toBeInTheDocument();
-    expect(screen.queryByText('Tidak ada data absensi')).not.toBeInTheDocument();
+    expect(screen.getByText('No picket data available')).toBeInTheDocument();
+    expect(screen.queryByText('No attendance data available')).not.toBeInTheDocument();
   });
 
   it('switches content when clicking the Thematic tab', async () => {
@@ -73,7 +73,7 @@ describe('OperationalTable', () => {
 
     await user.click(screen.getByText('Thematic'));
 
-    expect(screen.getByText('Tidak ada data tematik')).toBeInTheDocument();
-    expect(screen.queryByText('Tidak ada data absensi')).not.toBeInTheDocument();
+    expect(screen.getByText('No thematic data available')).toBeInTheDocument();
+    expect(screen.queryByText('No attendance data available')).not.toBeInTheDocument();
   });
 });

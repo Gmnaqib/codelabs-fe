@@ -19,14 +19,14 @@ const LoginForm = () => {
     e.preventDefault()
 
     if (!nim || !password) {
-      toast.error("NIM dan Password tidak boleh kosong!")
+      toast.error("NIM and Password cannot be empty!")
       return
     }
 
     setLoading(true)
     try {
       await loginUser(nim, password)
-      toast.success("Login berhasil")
+      toast.success("Login successful")
       router.push("/")
     } catch {
       showErrorToast("Oops! Please check again your NIM and password", {

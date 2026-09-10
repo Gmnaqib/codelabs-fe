@@ -28,9 +28,9 @@ export default function ReportTable({ filterWeek, filterProgress, fetchTrigger }
       loading={loading}
       emptyMessage={
         isBackendEmpty ? (
-          <EmptyState message="Tidak ada data research" />
+          <EmptyState message="No research data available" />
         ) : (
-          'Tidak ada data research'
+          'No research data available'
         )
       }
       paginate

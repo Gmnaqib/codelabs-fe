@@ -36,7 +36,7 @@ export default function PicketTab({ users, loading, searchQuery }: OperationalTa
       scrollColumns={scroll}
       rightColumns={right}
       loading={loading || statusLoading}
-      emptyMessage="Tidak ada data piket"
+      emptyMessage="No picket data available"
     />
   );
 }

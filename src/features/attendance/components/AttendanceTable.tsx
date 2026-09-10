@@ -202,7 +202,7 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
                 <BaseTable<LeaveRequestRow>
                   data={todayData}
                   columns={leaveColumns}
-                  emptyMessage="Tidak ada data"
+                  emptyMessage="No data available"
                 />
               </Card>
             ) : (
@@ -226,7 +226,7 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
             columns={leaveColumns}
             sortConfig={leaveSortConfig}
             onSort={handleLeaveSort}
-            emptyMessage="Tidak ada data"
+            emptyMessage="No data available"
           />
         ) : (
           <BaseTable<AttendanceRow>
@@ -235,7 +235,7 @@ export default function AttendanceTable({ showMenu = true }: AttendanceTableProp
             sortConfig={attendanceSortConfig}
             onSort={handleAttendanceSort}
             tableClassName="table-fixed"
-            emptyMessage="Tidak ada data"
+            emptyMessage="No data available"
           />
         )}
 

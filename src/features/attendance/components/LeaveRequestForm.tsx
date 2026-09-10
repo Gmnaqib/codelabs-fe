@@ -61,7 +61,7 @@ export default function LeaveRequestForm({ onSuccess }: LeaveRequestFormProps) {
       if (day === 3 || day === 6) telegramUsername = 'iammmth';
       else if (day === 4 || day === 5) telegramUsername = 'Aldzikra';
       const reasonText = encodeURIComponent(
-        `Saya izin tidak masuk karena ${values.reason} dari tanggal ${values.startDate} hingga ${finalEndDate}`
+        `I am requesting leave due to ${values.reason} from ${values.startDate} to ${finalEndDate}`
       );
       window.location.href = `https://t.me/${telegramUsername}?text=${reasonText}`;
 
@@ -140,7 +140,7 @@ export default function LeaveRequestForm({ onSuccess }: LeaveRequestFormProps) {
                   />
                   <div className="flex gap-2 mt-4 justify-end">
                     <Button type="button" onClick={() => { if (startDate) setShowDateModal(false); }}>
-                      Pilih
+                      Select
                     </Button>
                   </div>
                 </div>
@@ -155,7 +155,7 @@ export default function LeaveRequestForm({ onSuccess }: LeaveRequestFormProps) {
               <CameraCapture onCapture={(file) => setValue('attachment', file, { shouldValidate: true })} />
             </div>
           ) : (
-            <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>
+            <span className="text-base text-center mt-1 text-primary">Photo already taken</span>
           )}
           {errors.attachment && <span className="text-xs text-red-500">{errors.attachment.message}</span>}
         </div>

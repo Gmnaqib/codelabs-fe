@@ -77,7 +77,7 @@ export default function KpiItemForm({ item, open, onOpenChange, onSuccess }: Kpi
           />
           <div className="flex justify-center gap-4 mt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Batal
+              Cancel
             </Button>
             <Button type="submit" disabled={!isValid || isSubmitting}>
               Submit

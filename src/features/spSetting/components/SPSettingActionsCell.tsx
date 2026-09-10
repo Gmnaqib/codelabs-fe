@@ -15,7 +15,7 @@ interface SPSettingActionsCellProps {
 
 export default function SPSettingActionsCell({ row, onEdit, onDeleted }: SPSettingActionsCellProps) {
   const handleDelete = async () => {
-    if (!window.confirm(`Hapus SP setting "${row.name}"?`)) return;
+    if (!window.confirm(`Delete SP setting "${row.name}"?`)) return;
     try {
       await deleteSPSetting(row._id);
       toast.success('SP setting deleted successfully!');

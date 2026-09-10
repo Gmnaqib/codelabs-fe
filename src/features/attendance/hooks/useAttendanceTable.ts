@@ -193,11 +193,11 @@ export function useAttendanceTable() {
       try {
         const payloadStatus = status.toLowerCase();
         await reviewLeaveRequest(selectedLeave._id, payloadStatus);
-        toast.success('Update Data berhasil!');
+        toast.success('Data updated successfully!');
         setSelectedLeave((prev) => (prev ? { ...prev, approvalStatus: payloadStatus } : prev));
         await fetchTableData();
       } catch {
-        showErrorToast('Gagal memperbarui data.', { duration: 5000 });
+        showErrorToast('Failed to update data.', { duration: 5000 });
       }
     },
     [selectedLeave, fetchTableData]

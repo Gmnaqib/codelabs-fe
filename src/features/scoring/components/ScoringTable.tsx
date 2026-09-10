@@ -124,10 +124,10 @@ export default function ScoringTable({ showMenu = true }: ScoringTableProps) {
 
       <div className="overflow-x-auto w-full">
         {activeTab === 'Research' && (
-          <BaseTable data={researchRows} columns={researchColumns} emptyMessage="Tidak ada data untuk halaman ini." />
+          <BaseTable data={researchRows} columns={researchColumns} emptyMessage="No data available for this page." />
         )}
         {activeTab === 'Operational' && (
-          <BaseTable data={operationalRows} columns={operationalColumns} emptyMessage="Tidak ada data untuk halaman ini." />
+          <BaseTable data={operationalRows} columns={operationalColumns} emptyMessage="No data available for this page." />
         )}
         {activeTab === 'Competition' && (
           <BaseTable

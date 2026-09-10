@@ -9,7 +9,7 @@ export const reportSchema = z.object({
     .string()
     .min(1)
     .refine((v) => /^https:\/\/.+/i.test(v), {
-      message: "Link harus diawali dengan 'https://'",
+      message: "Link must start with 'https://'",
     }),
   challenge: z.string().min(1),
 });

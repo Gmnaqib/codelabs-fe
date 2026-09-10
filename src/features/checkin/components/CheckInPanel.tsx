@@ -49,7 +49,7 @@ function formatRemaining(ms: number): string {
   const totalMinutes = Math.max(Math.ceil(ms / 60000), 1);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  return hours > 0 ? `${hours} jam ${minutes} menit` : `${minutes} menit`;
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 }
 
 export default function CheckInPanel() {
@@ -97,11 +97,11 @@ export default function CheckInPanel() {
       setLockedUntil(until);
       setNow(Date.now());
       setPasswordError(
-        `Terlalu banyak percobaan salah. Coba lagi dalam ${formatRemaining(LOCK_DURATION_MS)}.`
+        `Too many failed attempts. Try again in ${formatRemaining(LOCK_DURATION_MS)}.`
       );
     } else {
       writeLockState({ attempts, lockedUntil: null });
-      setPasswordError('Password salah.');
+      setPasswordError('Incorrect password.');
     }
   };
 
@@ -111,7 +111,7 @@ export default function CheckInPanel() {
       u.nim.includes(search)
   );
 
-  const today = new Date().toLocaleDateString('id-ID', {
+  const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -123,7 +123,7 @@ export default function CheckInPanel() {
       {!isUnlocked && (
         <div className="absolute inset-0 z-40 flex items-center justify-center">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[calc(100%-2rem)] max-w-sm">
-            <h2 className="text-lg font-semibold mb-4">Masukkan Password</h2>
+            <h2 className="text-lg font-semibold mb-4">Enter Password</h2>
             <div className="flex flex-col gap-3">
               <Input
                 type="password"
@@ -141,13 +141,13 @@ export default function CheckInPanel() {
               />
               {isLocked ? (
                 <p className="text-sm text-red-500">
-                  Terlalu banyak percobaan salah. Coba lagi dalam {formatRemaining(lockedUntil! - now)}.
+                  Too many failed attempts. Try again in {formatRemaining(lockedUntil! - now)}.
                 </p>
               ) : (
                 passwordError && <p className="text-sm text-red-500">{passwordError}</p>
               )}
               <Button onClick={handleUnlock} className="w-full" disabled={isLocked}>
-                Masuk
+                Log In
               </Button>
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function CheckInPanel() {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <UserGroupIcon className="w-4 h-4" />
-                  <span>{usersWithoutAttendance.length} belum hadir</span>
+                  <span>{usersWithoutAttendance.length} not present yet</span>
                 </div>
                 <Button variant="outline" size="icon" onClick={refetch} disabled={loading}>
                   <ArrowPathIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -175,7 +175,7 @@ export default function CheckInPanel() {
 
             <InputField
               type="text"
-              placeholder="Cari nama atau NIM..."
+              placeholder="Search name or NIM..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -185,7 +185,7 @@ export default function CheckInPanel() {
                 <p className="text-center py-8 text-sm text-muted-foreground">Loading...</p>
               ) : filtered.length === 0 ? (
                 <p className="text-center py-8 text-sm text-muted-foreground">
-                  {search ? 'Tidak ada anggota yang cocok.' : 'Semua anggota sudah hadir hari ini!'}
+                  {search ? 'No matching members found.' : 'Everyone has checked in today!'}
                 </p>
               ) : (
                 <div className="flex flex-col">

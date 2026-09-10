@@ -30,7 +30,7 @@ export default function ThematicTab({ users, loading, searchQuery }: Operational
       scrollColumns={scroll}
       rightColumns={right}
       loading={loading || statusLoading}
-      emptyMessage="Tidak ada data tematik"
+      emptyMessage="No thematic data available"
     />
   );
 }

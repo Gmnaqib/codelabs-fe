@@ -144,10 +144,10 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
         }
 
         await fetchSchedules();
-        toast.success('Berhasil mengganti piket!');
+        toast.success('Picket swapped successfully!');
       } catch (err) {
         console.error('Swap failed', err);
-        toast.error('Gagal mengganti piket!');
+        toast.error('Failed to swap picket!');
       }
     },
     [scheduleId, fetchSchedules]

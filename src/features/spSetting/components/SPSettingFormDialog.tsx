@@ -101,7 +101,7 @@ export default function SPSettingFormDialog({ item, open, onOpenChange, onSucces
 
           <div className="flex justify-center gap-4 mt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Batal
+              Cancel
             </Button>
             <Button type="submit" disabled={!isValid || isSubmitting}>
               Submit

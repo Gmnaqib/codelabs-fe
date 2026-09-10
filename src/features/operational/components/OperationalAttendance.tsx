@@ -338,7 +338,7 @@ const OperationalAttendance  = () => {
                                                                 setShowDateModal(false);
                                                             }
                                                         }}>
-                                                            Pilih
+                                                            Select
                                                         </Button>
                                                     </div>
                                                 </div>
@@ -374,7 +374,7 @@ const OperationalAttendance  = () => {
                                             />
                                         </div>
                                     ) : (
-                                        <span className="text-base text-center mt-1 text-primary">Foto sudah diambil</span>
+                                        <span className="text-base text-center mt-1 text-primary">Photo already taken</span>
                                     )}
                                 </div>
                             </DialogField>

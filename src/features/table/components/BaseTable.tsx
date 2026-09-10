@@ -102,7 +102,7 @@ function BaseTableInner<T extends RowWithId>({
   onRowClick,
   onSort,
   loading = false,
-  emptyMessage = 'Tidak ada data',
+  emptyMessage = 'No data available',
   sortConfig,
   rowClassName,
   paginate = false,

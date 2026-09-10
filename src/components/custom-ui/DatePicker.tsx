@@ -28,7 +28,7 @@ function formatDate(date: Date): string {
 
 function formatDisplay(date: Date | undefined) {
   if (!date) return '';
-  return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  return date.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, minDate, disabled, disabledDaysOfWeek, disabledDates }) => {
@@ -47,7 +47,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, minDate, disab
         disabled={!!(typeof disabled !== 'undefined' && disabled)}
         className="flex h-fit w-full items-center justify-between gap-5 rounded-full border border-muted-foreground bg-white px-6 py-2 text-foreground disabled:pointer-events-none disabled:opacity-50"
       >
-        <span>{selected ? formatDisplay(selected) : 'Pilih tanggal'}</span>
+        <span>{selected ? formatDisplay(selected) : 'Select date'}</span>
         <CalendarDaysIcon className="size-5" />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto rounded-lg bg-popover p-0 shadow-sm">

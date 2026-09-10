@@ -216,7 +216,7 @@ const PointsDetailsContent = () => {
                 onChange={setEditLabel}
               />
               <div className="flex justify-center gap-4 mt-2">
-                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Batal</Button>
+                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
                 <Button onClick={handleEdit} disabled={isEditIncomplete || loading}>Submit</Button>
               </div>
             </form>

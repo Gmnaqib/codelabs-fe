@@ -65,7 +65,7 @@ export default function AbsenceTab({ users, loading, searchQuery }: OperationalT
         scrollColumns={scroll}
         rightColumns={right}
         loading={loading || statusLoading}
-        emptyMessage="Tidak ada data absensi"
+        emptyMessage="No attendance data available"
       />
     </div>
   );

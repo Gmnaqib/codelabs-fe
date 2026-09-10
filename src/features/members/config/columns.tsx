@@ -77,7 +77,7 @@ export function createMemberColumns({ roleOptions, productOptions, onSaved }: Cr
     { key: 'email', label: 'Email', width: 220, className: 'hidden text-center md:table-cell', sortable: true },
     {
       key: 'research',
-      label: 'Sub Riset',
+      label: 'Sub Research',
       width: 150,
       className: 'hidden text-center md:table-cell',
       sortable: true,

@@ -22,7 +22,7 @@ export default function CompetitionTable(_props: CompetitionTableProps) {
       data={data}
       columns={columns}
       loading={loading}
-      emptyMessage="Tidak ada data lomba"
+      emptyMessage="No competition data available"
     />
   );
 }
