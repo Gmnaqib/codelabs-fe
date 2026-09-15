@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { Calendar } from "@/components/ui/calendar"
-import { AttendanceCard, MonthlyProgressCard, CashBillsCard, PicketCard, InProgressCard, TotalMembers, AverageMonthly, OperationalCash, OrganizationStatistic, OrganizationSummary, KPIRangkings, ResearchPercentage } from "@/features/dashboard/components"
+import { AttendanceCard, MonthlyProgressCard, CashBillsCard, PicketCard, InProgressCard, TotalMembers, AverageMonthly, OperationalCash, OrganizationStatistic, OrganizationSummary, KPIRangkings, ResearchPercentage, ThematicCard } from "@/features/dashboard/components"
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute"
 import { Button } from '@/components/ui/button'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
@@ -47,6 +47,9 @@ const Dashboard = () => {
                 <OperationalPicketCard />
               </div>
               <div className="z-1">
+                <ThematicCard />
+              </div>
+              <div className="z-1">
                 <InProgressCard />
               </div>
               <div className="z-1">
@@ -87,6 +90,9 @@ const Dashboard = () => {
                 <OperationalPicketCard />
               </div>
               <div className="z-1">
+                <ThematicCard />
+              </div>
+              <div className="z-1">
                 <InProgressCard />
               </div>
               <TotalAttendance />
@@ -100,6 +106,7 @@ const Dashboard = () => {
               <div className={showMap ? "lg:z-42" : "lg:z-10"}>
                 <PicketCard showMap={showMap} setShowMap={setShowMap} />
               </div>
+              <ThematicCard />
               <InProgressCard />
             </>
           )}

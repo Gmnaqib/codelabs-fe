@@ -10,3 +10,4 @@ export { usePicketCard } from './usePicketCard';
 export { useResearchPercentageCard } from './useResearchPercentageCard';
 export { useTotalAttendanceCard } from './useTotalAttendanceCard';
 export { useTotalMembersCard } from './useTotalMembersCard';
+export { useThematicCard } from './useThematicCard';
