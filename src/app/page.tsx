@@ -89,6 +89,9 @@ const Dashboard = () => {
               <div className="z-1">
                 <OperationalPicketCard />
               </div>
+              <div className={showMap ? "lg:z-42" : "lg:z-10"}>
+                <PicketCard showMap={showMap} setShowMap={setShowMap} />
+              </div>
               <div className="z-1">
                 <ThematicCard />
               </div>
