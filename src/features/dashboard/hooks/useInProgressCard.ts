@@ -13,9 +13,12 @@ export function useInProgressCard() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
     const fetchData = async () => {
       try {
-        const records = (await getMeResearchRecords()) as ResearchRecord[];
+        const records = (await getMeResearchRecords(year, month)) as ResearchRecord[];
         setTotal(records.length);
         setActive(records.filter((item) => item.progress === 'unfinished').length);
         setCompleted(records.filter((item) => item.progress === 'finished').length);
