@@ -13,8 +13,8 @@ import { MultiSelectDropdownField } from '@/components/custom-ui/MultiSelectDrop
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { THEMATIC_CATEGORIES } from '@/features/thematic/config/categories';
 import { getAllUsers } from '@/services/users/userService';
-import { postSchedulePicket, getAllSchedules2, deleteSchedulePicket } from '@/services/picket/picketService';
-import { postScheduleThematicBatch, getAllSchedulesThematic, deleteScheduleThematic } from '@/services/thematic/thematicService';
+import { postSchedulePicket, getUpcomingPicketSchedules, deleteSchedulePicket } from '@/services/picket/picketService';
+import { postScheduleThematicBatch, getUpcomingThematicSchedules, deleteScheduleThematic } from '@/services/thematic/thematicService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/custom-ui/EmptyState';
@@ -145,15 +145,8 @@ const Schedule = () => {
   useEffect(() => {
     async function fetchSchedules() {
       try {
-        const all = activeTab === 'Picket' ? await getAllSchedules2() : await getAllSchedulesThematic();
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const filtered = (all || []).filter((item: Schedule) => {
-          const d = new Date(item.date);
-          d.setHours(0, 0, 0, 0);
-          return d >= today;
-        });
-        setFutureSchedules(filtered.map((item: Schedule) => ({
+        const all = activeTab === 'Picket' ? await getUpcomingPicketSchedules() : await getUpcomingThematicSchedules();
+        setFutureSchedules((all || []).map((item: Schedule) => ({
           _id: item._id,
           date: item.date,
           description: item.description

@@ -1,6 +1,6 @@
 import { axiosClient } from "@/lib/axiosClient";
 import { handleError } from "@/shared/services";
-import { toWIB, wibNow } from "@/shared/utils";
+import { wibNow, wibTodayDateString } from "@/shared/utils";
 
 export async function postLeaveRequest({ type, reason, attachment, start_date, end_date }: {
   type: 'sick' | 'permit';
@@ -148,9 +148,11 @@ export interface RawAttendanceRecord {
   [key: string]: unknown;
 }
 
-export const getAttendance = async (year: number, month: number): Promise<RawAttendanceRecord[]> => {
+export const getAttendance = async (year: number, month: number, day?: number): Promise<RawAttendanceRecord[]> => {
   try {
-    const res = await axiosClient.get(`/attendance/?year=${year}&month=${month}`);
+    const params: Record<string, number> = { year, month };
+    if (day !== undefined) params.day = day;
+    const res = await axiosClient.get('/attendance/', { params });
     return res.data.data;
   } catch (error) {
     throw handleError(error);
@@ -160,20 +162,7 @@ export const getAttendance = async (year: number, month: number): Promise<RawAtt
 export const getAttendanceToday = async (): Promise<RawAttendanceRecord[]> => {
   try {
     const today = wibNow();
-    const year = today.getUTCFullYear();
-    const month = today.getUTCMonth() + 1;
-    const day = today.getUTCDate();
-    const records = await getAttendance(year, month);
-    return records.filter((record) => {
-      const raw = record.date ?? record.checkIn ?? record.createdAt;
-      if (typeof raw !== 'string') return false;
-      const d = toWIB(new Date(raw));
-      return (
-        d.getUTCFullYear() === year &&
-        d.getUTCMonth() + 1 === month &&
-        d.getUTCDate() === day
-      );
-    });
+    return await getAttendance(today.getUTCFullYear(), today.getUTCMonth() + 1, today.getUTCDate());
   } catch (error) {
     throw handleError(error);
   }
@@ -248,9 +237,7 @@ export async function getTodayLeaveRequests(): Promise<RawLeaveRequestItem[]> {
   try {
     // "Active on" today (WIB): submitted today, or a multi-day leave whose
     // range still covers today — computed server-side now.
-    const now = wibNow();
-    const activeOn = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
-    const { data } = await axiosClient.get("/attendance/leave-requests", { params: { activeOn } });
+    const { data } = await axiosClient.get("/attendance/leave-requests", { params: { activeOn: wibTodayDateString() } });
     return data.data;
   } catch (error) {
     throw handleError(error);

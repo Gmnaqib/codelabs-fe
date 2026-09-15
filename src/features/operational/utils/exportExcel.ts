@@ -3,7 +3,7 @@ import { getAllUsers } from '@/services/users/userService';
 import { getAttendance, getAllLeaveRequests } from '@/services/attendance/attendanceService';
 import { getOperationalRecords } from '@/services/operational/operationalService';
 import { getAllTimeSettings } from '@/services/timeSetting/timeSettingService';
-import { getAllSchedules2 } from '@/services/picket/picketService';
+import { getPicketSchedulesForMonth } from '@/services/picket/picketService';
 import { getWeekOfMonth, getWeeksInMonth, toWIB } from '@/shared/utils';
 import {
   computeAbsenceStatus,
@@ -86,7 +86,7 @@ export async function exportOperationalExcel(year: number, month: number): Promi
       getOperationalRecords('thematic', undefined, year, month),
       getOperationalRecords('picket', undefined, year, month),
       getAllTimeSettings(),
-      getAllSchedules2(),
+      getPicketSchedulesForMonth(year, month),
     ]);
 
   const thematicChecked = new Set<string>();

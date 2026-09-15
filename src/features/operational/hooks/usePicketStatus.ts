@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTableStore } from '@/shared/state';
-import { getAllSchedules2 } from '@/services/picket/picketService';
+import { getPicketSchedulesForMonth } from '@/services/picket/picketService';
 import type { RawPicketSchedule } from '@/services/picket/picketService';
 import { wibDayOf, wibDayStart, getWeekRangeInMonth } from '@/shared/utils';
 
@@ -64,7 +64,8 @@ export function usePicketStatus() {
 
   useEffect(() => {
     let cancelled = false;
-    getAllSchedules2()
+    setLoading(true);
+    getPicketSchedulesForMonth(year, month)
       .then((res) => {
         if (!cancelled) setSchedules(res);
       })
@@ -74,7 +75,7 @@ export function usePicketStatus() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [year, month]);
 
   const getStatus = useCallback(
     (isChecked: boolean, userId: string, week: number): PicketStatus =>

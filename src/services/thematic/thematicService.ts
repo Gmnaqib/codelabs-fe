@@ -1,5 +1,6 @@
 import { axiosClient } from "@/lib/axiosClient";
 import { handleError } from "@/shared/services";
+import { wibTodayDateString } from "@/shared/utils";
 
 export const swapThematicGroups = async ({
 	schedule1Id,
@@ -26,9 +27,11 @@ export interface RawThematicSchedule {
 	assignedUsers?: { _id: string; name: string; nim?: string }[];
 }
 
-export const getAllSchedulesThematic = async (): Promise<RawThematicSchedule[]> => {
+// From today onward, no upper bound — for listing/deleting future schedules
+// without re-fetching the ever-growing history of past ones.
+export const getUpcomingThematicSchedules = async (): Promise<RawThematicSchedule[]> => {
 	try {
-		const res = await axiosClient.get('/schedules?type=thematic');
+		const res = await axiosClient.get('/schedules', { params: { type: 'thematic', startDate: wibTodayDateString() } });
 		return res.data.data;
 	} catch (error) {
 		throw handleError(error);

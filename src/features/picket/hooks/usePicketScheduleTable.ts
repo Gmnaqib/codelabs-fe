@@ -36,7 +36,6 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
     setLoading(true);
     try {
       const data = (await getTodayPicketSchedule(date)) as PicketSwapSchedule[];
-      const operationalRecords = (await getOperationalRecords()) as RawOperationalRecord[];
 
       const withUsers = data.filter((d) => d.assignedUsers && d.assignedUsers.length > 0);
       const users = withUsers.length > 0 ? withUsers[0].assignedUsers : [];
@@ -44,13 +43,15 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
       setScheduleId(scheduleIdValue);
       setPicketData(users);
 
+      const operationalRecords = scheduleIdValue
+        ? ((await getOperationalRecords({ scheduleId: scheduleIdValue })) as RawOperationalRecord[])
+        : [];
+
       const checked: Record<string, boolean> = {};
       const ids: Record<string, string> = {};
       operationalRecords.forEach((rec) => {
-        if (rec.scheduleId === scheduleIdValue) {
-          checked[rec.userId] = true;
-          ids[rec.userId] = rec._id;
-        }
+        checked[rec.userId] = true;
+        ids[rec.userId] = rec._id;
       });
       setCheckedUsers(checked);
       setRecordIds(ids);
@@ -77,14 +78,12 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
 
   const refreshOperationalRecords = useCallback(
     async (forScheduleId: string) => {
-      const operationalRecords = (await getOperationalRecords()) as RawOperationalRecord[];
+      const operationalRecords = (await getOperationalRecords({ scheduleId: forScheduleId })) as RawOperationalRecord[];
       const checked: Record<string, boolean> = {};
       const ids: Record<string, string> = {};
       operationalRecords.forEach((rec) => {
-        if (rec.scheduleId === forScheduleId) {
-          checked[rec.userId] = true;
-          ids[rec.userId] = rec._id;
-        }
+        checked[rec.userId] = true;
+        ids[rec.userId] = rec._id;
       });
       setCheckedUsers(checked);
       setRecordIds(ids);
@@ -129,18 +128,15 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
           schedule2UserId: targetUserId,
         });
 
-        const operationalRecords = (await getOperationalRecords()) as RawOperationalRecord[];
-        const targetRecord = operationalRecords.find(
-          (rec) => rec.scheduleId === targetScheduleId && rec.userId === targetUserId
-        );
-        if (targetRecord) {
-          await deleteOperationalRecord(targetRecord._id);
+        const [targetRecords, userRecords] = await Promise.all([
+          getOperationalRecords({ scheduleId: targetScheduleId, userId: targetUserId }) as Promise<RawOperationalRecord[]>,
+          getOperationalRecords({ scheduleId, userId }) as Promise<RawOperationalRecord[]>,
+        ]);
+        if (targetRecords[0]) {
+          await deleteOperationalRecord(targetRecords[0]._id);
         }
-        const userRecord = operationalRecords.find(
-          (rec) => rec.scheduleId === scheduleId && rec.userId === userId
-        );
-        if (userRecord) {
-          await deleteOperationalRecord(userRecord._id);
+        if (userRecords[0]) {
+          await deleteOperationalRecord(userRecords[0]._id);
         }
 
         await fetchSchedules();

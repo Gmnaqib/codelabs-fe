@@ -37,11 +37,15 @@ export const getResearchById = async (id: string): Promise<RawResearchRecord> =>
   }
 };
 
-export const getMeResearchRecords = async (): Promise<
-  RawResearchRecord[] | { data?: RawResearchRecord[] }
-> => {
+export const getMeResearchRecords = async (
+  year?: number,
+  month?: number
+): Promise<RawResearchRecord[] | { data?: RawResearchRecord[] }> => {
   try {
-    const res = await axiosClient.get("/research/me");
+    const params: Record<string, number> = {};
+    if (year !== undefined) params.year = year;
+    if (month !== undefined) params.month = month;
+    const res = await axiosClient.get("/research/me", { params });
     return res.data.data;
   } catch (error) {
     throw handleError(error);

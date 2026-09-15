@@ -1,5 +1,6 @@
 import { axiosClient } from "@/lib/axiosClient";
 import { handleError } from "@/shared/services";
+import { wibTodayDateString } from "@/shared/utils";
 import type { OperationalRecord } from "@/types/domain";
 import type { CreateOperationalRecordResponse } from "@/services/operational/operationalService";
 
@@ -50,28 +51,29 @@ export const postOperationalRecord = async (payload: {
 	}
 };
 
-export const getOperationalRecords = async (): Promise<OperationalRecord[]> => {
+export const getOperationalRecords = async (filters?: {
+	scheduleId?: string;
+	userId?: string;
+	year?: string | number;
+	month?: string | number;
+}): Promise<OperationalRecord[]> => {
 	try {
-		const res = await axiosClient.get('/operational-records?type=picket');
+		const params: Record<string, string> = { type: 'picket' };
+		if (filters?.scheduleId) params.scheduleId = filters.scheduleId;
+		if (filters?.userId) params.userId = filters.userId;
+		if (filters?.year !== undefined) params.year = String(filters.year);
+		if (filters?.month !== undefined) params.month = String(filters.month);
+		const res = await axiosClient.get('/operational-records', { params });
 		return res.data.data;
 	} catch (error) {
 		throw handleError(error);
 	}
 };
 
-export const getOperationalRecordsToday = async (
-	year: string | number,
-	month: string | number
-): Promise<OperationalRecord[]> => {
+export const getOperationalRecordsToday = async (): Promise<OperationalRecord[]> => {
 	try {
-		const res = await axiosClient.get(`/operational-records?type=picket&year=${year}&month=${month}`);
-		const today = new Date();
-		const todayStr = today.toISOString().slice(0, 10);
-		const filtered = (res.data.data || []).filter((item: OperationalRecord) => {
-			const dateStr = item.date ? item.date.slice(0, 10) : null;
-			return dateStr === todayStr;
-		});
-		return filtered;
+		const res = await axiosClient.get('/operational-records', { params: { type: 'picket', date: wibTodayDateString() } });
+		return res.data.data;
 	} catch (error) {
 		throw handleError(error);
 	}
@@ -84,9 +86,23 @@ export interface RawPicketSchedule {
 	assignedUsers?: { _id: string; name: string; nim?: string }[];
 }
 
-export const getAllSchedules2 = async (): Promise<RawPicketSchedule[]> => {
+export const getPicketSchedulesForMonth = async (year: number, month: number): Promise<RawPicketSchedule[]> => {
 	try {
-		const res = await axiosClient.get('/schedules?type=picket');
+		const lastDay = new Date(year, month, 0).getDate();
+		const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+		const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+		const res = await axiosClient.get('/schedules', { params: { type: 'picket', startDate, endDate } });
+		return res.data.data;
+	} catch (error) {
+		throw handleError(error);
+	}
+};
+
+// From today onward, no upper bound — for listing/deleting future schedules
+// without re-fetching the ever-growing history of past ones.
+export const getUpcomingPicketSchedules = async (): Promise<RawPicketSchedule[]> => {
+	try {
+		const res = await axiosClient.get('/schedules', { params: { type: 'picket', startDate: wibTodayDateString() } });
 		return res.data.data;
 	} catch (error) {
 		throw handleError(error);

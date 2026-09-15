@@ -19,23 +19,19 @@ export function useReportTable({
   const month = useTableStore((s) => s.month);
 
   const { data, loading, error, refetch } = useTableData<ReportRow>(
-    () => getMeResearchRecords() as Promise<ReportRow[]>,
-    [fetchTrigger]
+    () => getMeResearchRecords(year, month) as Promise<ReportRow[]>,
+    [fetchTrigger, year, month]
   );
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
-      if (!item.createdAt) return false;
-      const date = new Date(item.createdAt);
-      const matchMonth = date.getMonth() + 1 === month;
-      const matchYear = date.getFullYear() === year;
       const matchWeek = filterWeek === 'All' || `Week ${item.week}` === filterWeek;
       const matchProgress =
         filterProgress === 'All' ||
         (typeof item.progress === 'string' && item.progress.toLowerCase() === filterProgress.toLowerCase());
-      return matchMonth && matchYear && matchWeek && matchProgress;
+      return matchWeek && matchProgress;
     });
-  }, [data, month, year, filterWeek, filterProgress]);
+  }, [data, filterWeek, filterProgress]);
 
   return { data: filteredData, loading, error, refetch, isBackendEmpty: data.length === 0 };
 }

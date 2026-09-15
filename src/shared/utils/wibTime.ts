@@ -33,3 +33,9 @@ export function truncateToWIBDay(wibShiftedDate: Date): number {
 export function wibDayOf(rawDate: Date): number {
   return truncateToWIBDay(toWIB(rawDate));
 }
+
+/** "YYYY-MM-DD" for today's WIB calendar day — for query params expecting a calendar date. */
+export function wibTodayDateString(): string {
+  const now = wibNow();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+}
