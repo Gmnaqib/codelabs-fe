@@ -27,6 +27,18 @@ export interface RawThematicSchedule {
 	assignedUsers?: { _id: string; name: string; nim?: string }[];
 }
 
+export const getThematicSchedulesForMonth = async (year: number, month: number): Promise<RawThematicSchedule[]> => {
+	try {
+		const lastDay = new Date(year, month, 0).getDate();
+		const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+		const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+		const res = await axiosClient.get('/schedules', { params: { type: 'thematic', startDate, endDate } });
+		return res.data.data;
+	} catch (error) {
+		throw handleError(error);
+	}
+};
+
 // From today onward, no upper bound — for listing/deleting future schedules
 // without re-fetching the ever-growing history of past ones.
 export const getUpcomingThematicSchedules = async (): Promise<RawThematicSchedule[]> => {

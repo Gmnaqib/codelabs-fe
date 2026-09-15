@@ -3,9 +3,8 @@ import DatePicker from '@/components/custom-ui/DatePicker';
 import DialogField from '@/components/custom-ui/DialogField';
 import { Menubar } from '@/components/custom-ui/MenuBar';
 import PicketScheduleTable from '@/features/picket/components/PicketScheduleTable'
-import ThematicScheduleTable from '@/features/thematic/components/ThematicScheduleTable'
-import ThematicSwapCell from '@/features/thematic/components/ThematicSwapCell'
-import { useThematicScheduleTable } from '@/features/thematic/hooks/useThematicScheduleTable'
+import MonthlyThematicScheduleList from '@/features/thematic/components/MonthlyThematicScheduleList'
+import { useMonthlyThematicSchedule } from '@/features/thematic/hooks/useMonthlyThematicSchedule'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect } from 'react'
@@ -18,7 +17,6 @@ import { postScheduleThematicBatch, getUpcomingThematicSchedules, deleteSchedule
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/custom-ui/EmptyState';
-import { TagIcon } from '@heroicons/react/24/solid';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
 
 type ScheduleTab = 'Picket' | 'Thematic';
@@ -29,6 +27,10 @@ const todayIso = () => new Date().toISOString().slice(0, 10);
 const Schedule = () => {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('Picket');
   const [viewDate, setViewDate] = useState<string>(todayIso);
+  const now = new Date();
+  const [viewYear, setViewYear] = useState<number>(now.getFullYear());
+  // 0-indexed, matching CalendarMonthYearPicker's onChange contract.
+  const [viewMonth, setViewMonth] = useState<number>(now.getMonth());
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [userNames, setUserNames] = useState<string[]>([]);
@@ -40,16 +42,16 @@ const Schedule = () => {
   const [assignedUsers, setAssignedUsers] = useState<Record<string, string[]>>({});
   const [dateDisabled, setDateDisabled] = useState(false);
 
-  // Lifted up (rather than owned inside ThematicScheduleTable) so the "Swap
-  // Team" action can live in the page's button row, as one action for the
-  // whole day's team instead of a button per person in the table.
   const {
-    thematicData,
+    schedules: thematicSchedules,
     loading: thematicLoading,
-    category: thematicCategory,
-    rangeSchedules: thematicRangeSchedules,
     handleSwap: handleThematicSwap,
-  } = useThematicScheduleTable({ fetchTrigger, date: viewDate, enabled: activeTab === 'Thematic' });
+  } = useMonthlyThematicSchedule({
+    year: viewYear,
+    month: viewMonth + 1,
+    fetchTrigger,
+    enabled: activeTab === 'Thematic',
+  });
 
   // Thematic doesn't repeat weekly like picket — each entry is one specific
   // date with its own team and category.
@@ -166,26 +168,23 @@ const Schedule = () => {
             onChange={(menu) => setActiveTab(menu as ScheduleTab)}
             filter
             search={false}
-            dateFilterMode="day"
+            dateFilterMode={activeTab === 'Picket' ? 'day' : 'month'}
             dayFilterProps={{
               value: viewDate,
               onChange: (d) => d && setViewDate(d),
               minDate: todayIso(),
             }}
+            filterProps={{
+              onChange: (val) => {
+                setViewYear(val.year);
+                setViewMonth(val.month);
+              },
+              defaultYear: viewYear,
+              defaultMonth: viewMonth,
+            }}
           />
-          <div className="flex justify-between items-center gap-3 flex-col lg:flex-row lg:gap-2">
-            <div>
-              {activeTab === 'Thematic' && thematicCategory && (
-                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-5 text-sm font-semibold text-primary">
-                  <TagIcon className="size-4" />
-                  {thematicCategory}
-                </span>
-              )}
-            </div>
+          <div className="flex justify-end items-center gap-3 flex-col lg:flex-row lg:gap-2">
             <div className="flex gap-3 flex-col lg:flex-row lg:gap-2">
-              {activeTab === 'Thematic' && thematicData.length > 0 && (
-                <ThematicSwapCell rangeSchedules={thematicRangeSchedules} onSwap={handleThematicSwap} />
-              )}
               <DialogField
                 name="Add Schedule"
                 title={`Add ${activeTab} Schedule`}
@@ -409,7 +408,7 @@ const Schedule = () => {
             {activeTab === 'Picket' ? (
               <PicketScheduleTable fetchTrigger={fetchTrigger} date={viewDate} />
             ) : (
-              <ThematicScheduleTable data={thematicData} loading={thematicLoading} />
+              <MonthlyThematicScheduleList schedules={thematicSchedules} loading={thematicLoading} onSwap={handleThematicSwap} />
             )}
           </div>
         </Card>

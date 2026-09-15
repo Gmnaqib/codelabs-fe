@@ -39,7 +39,7 @@ export default function ThematicSwapCell({ rangeSchedules, onSwap }: ThematicSwa
   });
 
   return (
-    <DialogField variant="outline" name="Swap Team" title="Swap Team" open={open} onOpenChange={setOpen}>
+    <DialogField variant="outline" size="sm" name="Swap Team" title="Swap Team" open={open} onOpenChange={setOpen}>
       <div className="flex flex-col gap-4">
         <InputField
           type="text"
