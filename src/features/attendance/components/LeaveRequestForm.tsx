@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import CameraCapture from '@/components/custom-ui/CameraCapture';
 import { ArrowUpRightIcon } from 'lucide-react';
+import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { postLeaveRequest } from '@/services/attendance/attendanceService';
 import { handleError, showAppErrorToast } from '@/shared/services';
 import { leaveRequestSchema, type LeaveRequestForm as LeaveRequestFormValues } from '@/features/attendance/config/leaveSchemas';
@@ -26,6 +27,7 @@ export default function LeaveRequestForm({ onSuccess }: LeaveRequestFormProps) {
     control,
     handleSubmit,
     reset,
+    resetField,
     watch,
     setValue,
     formState: { errors, isSubmitting },
@@ -43,6 +45,17 @@ export default function LeaveRequestForm({ onSuccess }: LeaveRequestFormProps) {
   const endDate = watch('endDate');
   const attachment = watch('attachment');
   const typeValue = watch('type');
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!attachment) {
+      setAttachmentPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(attachment);
+    setAttachmentPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [attachment]);
 
   const submitValues = async (values: LeaveRequestFormValues, closeDialog: () => void) => {
     const finalEndDate = values.endDate || values.startDate;
@@ -155,7 +168,26 @@ export default function LeaveRequestForm({ onSuccess }: LeaveRequestFormProps) {
               <CameraCapture onCapture={(file) => setValue('attachment', file, { shouldValidate: true })} />
             </div>
           ) : (
-            <span className="text-base text-center mt-1 text-primary">Photo already taken</span>
+            <div className="flex justify-center">
+              <div className="relative h-40 w-40">
+                {attachmentPreview && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={attachmentPreview}
+                    alt="Captured attachment"
+                    className="h-full w-full rounded-lg border object-cover"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => resetField('attachment')}
+                  title="Retake Photo"
+                  className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-md hover:bg-primary/90"
+                >
+                  <ArrowPathIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           )}
           {errors.attachment && <span className="text-xs text-red-500">{errors.attachment.message}</span>}
         </div>

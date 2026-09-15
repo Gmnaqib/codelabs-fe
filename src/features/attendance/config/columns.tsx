@@ -174,7 +174,7 @@ export function createLeaveRequestColumns({
                 <p>{selectedLeave.reason}</p>
               </div>
               <div className="min-w-0">
-                <p className="font-semibold">Evidencea</p>
+                <p className="font-semibold">Evidence</p>
                 <EvidenceViewer attachmentUrl={selectedLeave.attachment_url} />
               </div>
             </div>

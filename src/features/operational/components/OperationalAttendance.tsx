@@ -1,7 +1,7 @@
 import DialogField from '@/components/custom-ui/DialogField';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { PencilSquareIcon } from '@heroicons/react/24/solid';
+import { PencilSquareIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import React, { useState, useEffect } from 'react'
 import { getAttendanceToday, postCheckOutByOperational, postCheckOutAllByOperational, postLeaveRequestByOperational } from '@/services/attendance/attendanceService';
 import { getAllUsers } from '@/services/users/userService';
@@ -30,6 +30,7 @@ const OperationalAttendance  = () => {
     const [leaveStartDate, setLeaveStartDate] = useState('');
     const [leaveEndDate, setLeaveEndDate] = useState('');
     const [leaveAttachment, setLeaveAttachment] = useState<File | Blob | null>(null);
+    const [leaveAttachmentPreview, setLeaveAttachmentPreview] = useState<string | null>(null);
     const [showDateModal, setShowDateModal] = useState(false);
     const [checkoutAllDialogOpen, setCheckoutAllDialogOpen] = useState(false);
     const [checkoutAllReason, setCheckoutAllReason] = useState('');
@@ -71,6 +72,16 @@ const OperationalAttendance  = () => {
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (!leaveAttachment) {
+            setLeaveAttachmentPreview(null);
+            return;
+        }
+        const url = URL.createObjectURL(leaveAttachment);
+        setLeaveAttachmentPreview(url);
+        return () => URL.revokeObjectURL(url);
+    }, [leaveAttachment]);
 
     const handleOpenDialog = (userId: string) => {
         setOpenDialogUserId(userId);
@@ -374,7 +385,26 @@ const OperationalAttendance  = () => {
                                             />
                                         </div>
                                     ) : (
-                                        <span className="text-base text-center mt-1 text-primary">Photo already taken</span>
+                                        <div className="flex justify-center">
+                                            <div className="relative h-40 w-40">
+                                                {leaveAttachmentPreview && (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={leaveAttachmentPreview}
+                                                        alt="Captured attachment"
+                                                        className="h-full w-full rounded-lg border object-cover"
+                                                    />
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setLeaveAttachment(null)}
+                                                    title="Retake Photo"
+                                                    className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-md hover:bg-primary/90"
+                                                >
+                                                    <ArrowPathIcon className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             </DialogField>
