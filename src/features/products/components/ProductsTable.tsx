@@ -11,8 +11,8 @@ interface ProductsTableProps {
 }
 
 export default function ProductsTable({ fetchTrigger }: ProductsTableProps) {
-  const { data, loading, error } = useProductsTable({ fetchTrigger });
-  const columns = useMemo(() => createProductColumns(), []);
+  const { data, loading, error, refetch } = useProductsTable({ fetchTrigger });
+  const columns = useMemo(() => createProductColumns(refetch), [refetch]);
 
   if (error) {
     return <div className="text-destructive p-4">{error.message}</div>;

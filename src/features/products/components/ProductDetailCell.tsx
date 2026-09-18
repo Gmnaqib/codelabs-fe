@@ -1,28 +1,14 @@
 "use client"
 
 import React from 'react';
-import DialogField from '@/components/custom-ui/DialogField';
+import ProductForm from '@/features/products/components/ProductForm';
 import type { ProductRow } from '@/features/products/types';
 
 interface ProductDetailCellProps {
   row: ProductRow;
+  onUpdated?: () => void;
 }
 
-export default function ProductDetailCell({ row }: ProductDetailCellProps) {
-  return (
-    <DialogField variant="outline" name="Detail" title="Detail Product" size="sm">
-      <div>
-        <p className="font-semibold">Produce Name</p>
-        <p>{row.name}</p>
-      </div>
-      <div>
-        <p className="font-semibold">Produce Description</p>
-        <p>{row.description}</p>
-      </div>
-      <div>
-        <p className="font-semibold">Produce Status</p>
-        <p>{row.status}</p>
-      </div>
-    </DialogField>
-  );
+export default function ProductDetailCell({ row, onUpdated }: ProductDetailCellProps) {
+  return <ProductForm mode="edit" product={row} onSuccess={onUpdated} />;
 }

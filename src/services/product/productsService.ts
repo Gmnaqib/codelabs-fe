@@ -11,7 +11,7 @@ export interface RawProductRecord {
 
 export const editProduct = async (
     id: string,
-    payload: { productManager: string; name: string; description: string; status: string }
+    payload: { name: string; description: string; status: string }
 ): Promise<unknown> => {
     try {
         const res = await axiosClient.patch(`/products/${id}`, payload);

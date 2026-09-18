@@ -57,7 +57,7 @@ export default function ProductForm({ mode = 'create', product, onSuccess }: Pro
   const onSubmit = async (values: ProductFormValues) => {
     try {
       if (mode === 'edit' && product) {
-        await editProduct(product._id, { productManager: product._id, ...values });
+        await editProduct(product._id, values);
         toast.success('Product updated successfully!');
       } else {
         await postProduct(values);
