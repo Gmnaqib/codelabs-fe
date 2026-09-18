@@ -18,29 +18,13 @@ function getReportStatusDisplay(status?: number | null): { label: string; classN
   return { label: 'Accepted', className: 'bg-green-100 text-green-700' };
 }
 
-function wrapTitle(title?: string): React.ReactNode {
-  if (typeof title !== 'string') return '-';
-  if (title.length <= 15) return title;
-
-  const words = title.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
-  for (const word of words) {
-    if ((currentLine + (currentLine ? ' ' : '') + word).length > 15) {
-      if (currentLine) lines.push(currentLine);
-      currentLine = word;
-    } else {
-      currentLine += (currentLine ? ' ' : '') + word;
-    }
-  }
-  if (currentLine) lines.push(currentLine);
-
-  return lines.map((line, idx) => (
-    <React.Fragment key={idx}>
-      {line}
-      {idx !== lines.length - 1 && <br />}
-    </React.Fragment>
-  ));
+function renderTitle(title?: string): React.ReactNode {
+  if (typeof title !== 'string' || !title) return '-';
+  return (
+    <p className="mx-auto line-clamp-2 max-w-55" title={title}>
+      {title}
+    </p>
+  );
 }
 
 export function createReportColumns(): TableColumn<ReportRow>[] {
@@ -50,7 +34,7 @@ export function createReportColumns(): TableColumn<ReportRow>[] {
       label: 'Research Plan',
       className: 'text-center',
       sortable: true,
-      render: (_v, row) => wrapTitle(row.title),
+      render: (_v, row) => renderTitle(row.title),
     },
     {
       key: 'week',
