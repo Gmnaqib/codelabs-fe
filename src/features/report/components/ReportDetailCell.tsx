@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import DialogField from '@/components/custom-ui/DialogField';
 import { getResearchById } from '@/services/research/researchService';
+import { handleError } from '@/shared/services';
 import type { ReportRow } from '@/features/report/types';
 
 interface ReportDetailCellProps {
@@ -13,15 +14,18 @@ export default function ReportDetailCell({ row }: ReportDetailCellProps) {
   const [openDetailId, setOpenDetailId] = useState<string | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [selectedResearch, setSelectedResearch] = useState<ReportRow | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleOpenDetail = async (id: string) => {
     setLoadingDetail(true);
     setOpenDetailId(id);
+    setErrorMessage(null);
     try {
       const research = (await getResearchById(id)) as ReportRow;
       setSelectedResearch(research);
-    } catch {
+    } catch (err) {
       setSelectedResearch(null);
+      setErrorMessage(handleError(err).message);
     } finally {
       setLoadingDetail(false);
     }
@@ -39,6 +43,8 @@ export default function ReportDetailCell({ row }: ReportDetailCellProps) {
     >
       {loadingDetail ? (
         <p className="text-center text-sm text-gray-500">Loading...</p>
+      ) : errorMessage ? (
+        <p className="text-sm text-red-500 text-center">{errorMessage}</p>
       ) : selectedResearch ? (
         <div className="flex flex-col gap-5 text-lg">
           <div>
