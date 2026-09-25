@@ -9,19 +9,27 @@ import {
 import { IoIosArrowDown } from "react-icons/io";
 import { Label } from "../ui/label";
 
+export interface MultiSelectOption {
+  label: string;
+  value: string;
+}
+
 interface MultiSelectDropdownFieldProps {
   label?: string;
-  menu?: string[];
+  // Each option carries its own identity (`value`, e.g. a user ID) separate
+  // from what's shown (`label`) — so two options with the same label (e.g.
+  // two members who share a name) never get confused with each other.
+  options?: MultiSelectOption[];
   title?: string;
-  value?: string[];
-  displayValue?: string[]; // untuk membatasi tampilan input
+  value?: string[]; // selected option values
+  displayValue?: string[]; // labels shown on the trigger, e.g. truncated with "..."
   disabled?: boolean;
   onChange?: (value: string[]) => void;
 }
 
 export function MultiSelectDropdownField({
   title = "Select...",
-  menu = [],
+  options = [],
   label,
   onChange,
   value = [],
@@ -51,20 +59,24 @@ export function MultiSelectDropdownField({
     return () => cancelAnimationFrame(id);
   }, [open]);
 
-  const handleSelect = (item: string) => {
+  const handleSelect = (optionValue: string) => {
     let newSelected: string[];
-    if (selected.includes(item)) {
-      newSelected = selected.filter((v) => v !== item);
+    if (selected.includes(optionValue)) {
+      newSelected = selected.filter((v) => v !== optionValue);
     } else {
-      newSelected = [...selected, item];
+      newSelected = [...selected, optionValue];
     }
     setSelected(newSelected);
     onChange?.(newSelected);
   };
 
-  const filteredMenu = searchTerm
-    ? menu.filter(item => item.toLowerCase().includes(searchTerm.toLowerCase()))
-    : menu;
+  const filteredOptions = searchTerm
+    ? options.filter((option) => option.label.toLowerCase().includes(searchTerm.toLowerCase()))
+    : options;
+
+  const selectedLabels = options
+    .filter((option) => selected.includes(option.value))
+    .map((option) => option.label);
 
   return (
     <div className="flex flex-col gap-2">
@@ -80,8 +92,8 @@ export function MultiSelectDropdownField({
             <span>
               {displayValue && displayValue.length > 0
                 ? displayValue.join(", ")
-                : selected.length > 0
-                  ? selected.join(", ")
+                : selectedLabels.length > 0
+                  ? selectedLabels.join(", ")
                   : title}
             </span>
             <IoIosArrowDown className="ml-2" />
@@ -104,27 +116,27 @@ export function MultiSelectDropdownField({
               className="w-full rounded-md border px-3 py-1.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             />
           </div>
-          {filteredMenu.length === 0 && (
+          {filteredOptions.length === 0 && (
             <div className="px-4 py-2 text-muted-foreground">No results</div>
           )}
-          {filteredMenu.length > 0 && (
+          {filteredOptions.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
-              {filteredMenu.map((item) => (
+              {filteredOptions.map((option) => (
                 <DropdownMenuItem
-                  key={item}
+                  key={option.value}
                   onClick={e => {
                     e.preventDefault();
-                    handleSelect(item);
+                    handleSelect(option.value);
                   }}
-                  className={selected.includes(item) ? "bg-primary text-white mt-1" : " mt-1"}
+                  className={selected.includes(option.value) ? "bg-primary text-white mt-1" : " mt-1"}
                 >
                   <input
                     type="checkbox"
-                    checked={selected.includes(item)}
+                    checked={selected.includes(option.value)}
                     readOnly
                     className="mr-2 mt-2"
                   />
-                  {item}
+                  {option.label}
                 </DropdownMenuItem>
               ))}
             </div>

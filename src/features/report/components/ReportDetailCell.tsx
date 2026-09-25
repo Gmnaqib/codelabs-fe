@@ -61,7 +61,7 @@ export default function ReportDetailCell({ row }: ReportDetailCellProps) {
           </div>
           <div>
             <p className="font-semibold">Output Link</p>
-            <a href={selectedResearch.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+            <a href={selectedResearch.link} target="_blank" rel="noopener noreferrer" className="break-all text-blue-600 underline">
               {selectedResearch.link ?? '-'}
             </a>
           </div>

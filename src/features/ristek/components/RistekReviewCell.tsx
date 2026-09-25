@@ -43,9 +43,9 @@ export default function RistekReviewCell({ row, onReview }: RistekReviewCellProp
           <p>{row.challenge}</p>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <p className="font-semibold mt-2">Output Link</p>
-          <a href={row.link} target="_blank" rel="noopener noreferrer">
+          <a href={row.link} target="_blank" rel="noopener noreferrer" className="break-all text-blue-600 underline">
             {row.link}
           </a>
         </div>

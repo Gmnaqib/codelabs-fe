@@ -4,7 +4,7 @@ import { getAttendance, getAllLeaveRequests } from '@/services/attendance/attend
 import { getOperationalRecords } from '@/services/operational/operationalService';
 import { getAllTimeSettings } from '@/services/timeSetting/timeSettingService';
 import { getPicketSchedulesForMonth } from '@/services/picket/picketService';
-import { getWeekOfMonth, getWeeksInMonth, toWIB } from '@/shared/utils';
+import { getWeekOfMonth, getWeeksInMonth, toWIB, downloadWorkbookBuffer } from '@/shared/utils';
 import {
   computeAbsenceStatus,
   computeThematicStatus,
@@ -61,20 +61,6 @@ function addStatusSheet(
   for (let i = 3; i <= columnLabels.length + 3; i++) {
     sheet.getColumn(i).width = 14;
   }
-}
-
-function downloadWorkbook(buffer: ArrayBuffer, fileName: string): void {
-  const blob = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }
 
 export async function exportOperationalExcel(year: number, month: number): Promise<void> {
@@ -173,5 +159,5 @@ export async function exportOperationalExcel(year: number, month: number): Promi
 
   const buffer = await workbook.xlsx.writeBuffer();
   const fileName = `operational-${year}-${String(month).padStart(2, '0')}.xlsx`;
-  downloadWorkbook(buffer as ArrayBuffer, fileName);
+  downloadWorkbookBuffer(buffer as ArrayBuffer, fileName);
 }

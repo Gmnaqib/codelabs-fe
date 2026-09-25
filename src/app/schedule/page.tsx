@@ -7,17 +7,19 @@ import MonthlyThematicScheduleList from '@/features/thematic/components/MonthlyT
 import { useMonthlyThematicSchedule } from '@/features/thematic/hooks/useMonthlyThematicSchedule'
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { MultiSelectDropdownField } from '@/components/custom-ui/MultiSelectDropdownField';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { THEMATIC_CATEGORIES } from '@/features/thematic/config/categories';
 import { getAllUsers } from '@/services/users/userService';
 import { postSchedulePicket, getUpcomingPicketSchedules, deleteSchedulePicket } from '@/services/picket/picketService';
+import { downloadPicketScheduleTemplate, parsePicketScheduleExcel } from '@/features/picket/utils/picketScheduleExcel';
 import { postScheduleThematicBatch, getUpcomingThematicSchedules, deleteScheduleThematic } from '@/services/thematic/thematicService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/custom-ui/EmptyState';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper';
+import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 
 type ScheduleTab = 'Picket' | 'Thematic';
 const SCHEDULE_MENUS: ScheduleTab[] = ['Picket', 'Thematic'];
@@ -33,14 +35,49 @@ const Schedule = () => {
   const [viewMonth, setViewMonth] = useState<number>(now.getMonth());
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
-  const [userNames, setUserNames] = useState<string[]>([]);
-  const [userMap, setUserMap] = useState<Record<string, string>>({});
+  type User = { _id: string; name: string; nim: string };
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [futureSchedules, setFutureSchedules] = useState<{ _id: string, date: string, description: string }[]>([]);
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const [maxNames, setMaxNames] = useState(5);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [assignedUsers, setAssignedUsers] = useState<Record<string, string[]>>({});
   const [dateDisabled, setDateDisabled] = useState(false);
+  const [isSubmittingSchedule, setIsSubmittingSchedule] = useState(false);
+  const [pickedFileName, setPickedFileName] = useState<string | null>(null);
+  const [unmatchedNames, setUnmatchedNames] = useState<string[]>([]);
+  const [ambiguousNames, setAmbiguousNames] = useState<string[]>([]);
+  const [duplicateDayNames, setDuplicateDayNames] = useState<string[]>([]);
+
+  // Dropdown options identify members by ID, not name — a name alone isn't
+  // unique, so two members sharing a name get a NIM suffix to tell them apart.
+  const userOptions = useMemo(() => {
+    const nameCounts: Record<string, number> = {};
+    allUsers.forEach((u) => {
+      const key = u.name.trim().toLowerCase();
+      nameCounts[key] = (nameCounts[key] ?? 0) + 1;
+    });
+    return allUsers.map((u) => ({
+      value: u._id,
+      label: (nameCounts[u.name.trim().toLowerCase()] ?? 0) > 1 ? `${u.name} (${u.nim})` : u.name,
+    }));
+  }, [allUsers]);
+
+  const getUserLabel = (id: string): string | undefined =>
+    userOptions.find((option) => option.value === id)?.label;
+
+  // Case-insensitive name -> matching user IDs, for the Excel import (which
+  // only has free-typed names to go on). More than one ID for a normalized
+  // name means two active members share that name — resolving it
+  // automatically there would silently pick the wrong person.
+  const nameLookup = useMemo(() => {
+    const lookup: Record<string, string[]> = {};
+    allUsers.forEach((u) => {
+      const key = u.name.trim().toLowerCase();
+      (lookup[key] ??= []).push(u._id);
+    });
+    return lookup;
+  }, [allUsers]);
 
   const {
     schedules: thematicSchedules,
@@ -81,6 +118,11 @@ const Schedule = () => {
     setEndDate(null);
     setAssignedUsers({});
     setDateDisabled(false);
+    setIsSubmittingSchedule(false);
+    setPickedFileName(null);
+    setUnmatchedNames([]);
+    setAmbiguousNames([]);
+    setDuplicateDayNames([]);
     setThematicEntries([{ date: null, assignedUsers: [], category: null }]);
   }, [activeTab]);
 
@@ -116,18 +158,13 @@ const Schedule = () => {
     Sunday: 0,
   };
 
-  type User = { _id: string; name: string };
   useEffect(() => {
     async function fetchUsers() {
       try {
         const users: User[] = await getAllUsers({ activeOnly: true });
-        setUserNames(users.map((u: User) => u.name));
-        const map: Record<string, string> = {};
-        users.forEach((u: User) => { map[u.name] = u._id; });
-        setUserMap(map);
+        setAllUsers(users);
       } catch {
-        setUserNames([]);
-        setUserMap({});
+        setAllUsers([]);
       }
     }
     fetchUsers();
@@ -141,6 +178,87 @@ const Schedule = () => {
   };
   const handleEndDateChange = (date: string | null) => {
     setEndDate(date);
+  };
+
+  const processPicketFile = async (file: File) => {
+    try {
+      const parsed = await parsePicketScheduleExcel(file);
+      const resolved: Record<string, string[]> = {};
+      const unmatched: string[] = [];
+      const ambiguous: string[] = [];
+
+      for (const day of Object.keys(parsed)) {
+        const ids: string[] = [];
+        for (const name of parsed[day]) {
+          const matches = nameLookup[name.trim().toLowerCase()] ?? [];
+          if (matches.length === 1) {
+            ids.push(matches[0]);
+          } else if (matches.length > 1) {
+            ambiguous.push(`${name} (${day})`);
+          } else {
+            unmatched.push(`${name} (${day})`);
+          }
+        }
+        resolved[day] = ids;
+      }
+
+      // Assigning the same person to more than one weekday is treated as a
+      // mistake (most likely a copy-paste slip) — we can't tell which day was
+      // intended, so exclude them from all of the affected days rather than
+      // guessing.
+      const daysByUserId: Record<string, string[]> = {};
+      for (const day of Object.keys(resolved)) {
+        for (const id of resolved[day]) {
+          (daysByUserId[id] ??= []).push(day);
+        }
+      }
+      const duplicateIds = new Set(
+        Object.entries(daysByUserId)
+          .filter(([, userDays]) => userDays.length > 1)
+          .map(([id]) => id)
+      );
+      const duplicateAcrossDays = Object.entries(daysByUserId)
+        .filter(([id]) => duplicateIds.has(id))
+        .map(([id, userDays]) => `${getUserLabel(id) ?? id} (${userDays.join(' & ')})`);
+
+      if (duplicateIds.size > 0) {
+        for (const day of Object.keys(resolved)) {
+          resolved[day] = resolved[day].filter((id) => !duplicateIds.has(id));
+        }
+      }
+
+      setAssignedUsers(resolved);
+      setUnmatchedNames(unmatched);
+      setAmbiguousNames(ambiguous);
+      setDuplicateDayNames(duplicateAcrossDays);
+      setPickedFileName(file.name);
+
+      if (unmatched.length > 0 || ambiguous.length > 0 || duplicateIds.size > 0) {
+        const parts: string[] = [];
+        if (unmatched.length > 0) parts.push(`${unmatched.length} not found`);
+        if (ambiguous.length > 0) parts.push(`${ambiguous.length} ambiguous (duplicate name)`);
+        if (duplicateIds.size > 0) parts.push(`${duplicateIds.size} assigned to multiple days`);
+        toast.error(`${parts.join(', ')} — skipped.`);
+      } else {
+        toast.success('Schedule file loaded successfully!');
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to read the file.');
+    }
+  };
+
+  const handlePicketFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    await processPicketFile(file);
+  };
+
+  const handlePicketFileDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await processPicketFile(file);
   };
 
   type Schedule = { _id: string; date: string; description: string };
@@ -185,10 +303,25 @@ const Schedule = () => {
           />
           <div className="flex justify-end items-center gap-3 flex-col lg:flex-row lg:gap-2">
             <div className="flex gap-3 flex-col lg:flex-row lg:gap-2">
+              {activeTab === 'Picket' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => downloadPicketScheduleTemplate().catch(() => toast.error('Failed to generate the template.'))}
+                >
+                  Template
+                </Button>
+              )}
               <DialogField
                 name="Add Schedule"
                 title={`Add ${activeTab} Schedule`}
+                submitDisabled={isSubmittingSchedule}
                 onSubmit={async (closeDialog?: () => void) => {
+                  // Guards against a double-click firing this twice while the
+                  // first submit is still in flight — submitDisabled covers
+                  // the button visually, this covers the race itself.
+                  if (isSubmittingSchedule) return;
+
                   if (activeTab === 'Picket') {
                     if (!startDate || !endDate) return toast.error('Fill in the date first.!');
                     const patterns = days
@@ -204,6 +337,7 @@ const Schedule = () => {
                       endDate: new Date(endDate + 'T23:59:59Z').toISOString(),
                       patterns,
                     };
+                    setIsSubmittingSchedule(true);
                     try {
                       await postSchedulePicket(payload);
                       setDateDisabled(true);
@@ -212,6 +346,8 @@ const Schedule = () => {
                       if (typeof closeDialog === 'function') closeDialog();
                     } catch {
                       toast.error('Failed to submit schedule!');
+                    } finally {
+                      setIsSubmittingSchedule(false);
                     }
                     return;
                   }
@@ -219,6 +355,7 @@ const Schedule = () => {
                   // Thematic: each entry needs its own date + team + category, no day-of-week pattern.
                   const validEntries = thematicEntries.filter(e => e.date && e.assignedUsers.length > 0 && e.category);
                   if (validEntries.length === 0) return toast.error('Fill in at least one date, team, and category first.!');
+                  setIsSubmittingSchedule(true);
                   try {
                     await postScheduleThematicBatch(
                       validEntries.map(e => ({
@@ -233,13 +370,15 @@ const Schedule = () => {
                     if (typeof closeDialog === 'function') closeDialog();
                   } catch {
                     toast.error('Failed to submit schedule!');
+                  } finally {
+                    setIsSubmittingSchedule(false);
                   }
                 }}
               >
                 {activeTab === 'Picket' ? (
                   <div className="space-y-6">
                     <div className="rounded-xl border bg-secondary/30 p-4">
-                      <p className="mb-3 text-sm font-semibold text-secondary-foreground">Schedule Period</p>
+                      <p className="mb-3 font-semibold">Schedule Period</p>
                       <div className="space-y-3">
                         <div className="grid grid-cols-3 items-center gap-2">
                           <p className="text-sm">Start Date</p>
@@ -258,47 +397,59 @@ const Schedule = () => {
 
                     <div>
                       <p className="mb-3 font-semibold">Schedules Picket</p>
-                      <div className="space-y-2">
-                        {days.map(day => (
-                          <div className="flex flex-col gap-2 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:gap-4" key={day}>
-                            <p className="shrink-0 text-sm font-medium sm:w-28">{day}</p>
-                            <div className="min-w-0 flex-1">
-                              <MultiSelectDropdownField
-                                menu={userNames.filter(name => {
-                                  const selectedIdsOtherDays = Object.entries(assignedUsers)
-                                    .filter(([d]) => d !== day)
-                                    .flatMap(([, ids]) => ids);
-                                  const id = userMap[name];
-                                  const isSelectedInThisDay = (assignedUsers[day] || []).includes(id);
-                                  if (isSelectedInThisDay) return true;
-                                  return !selectedIdsOtherDays.includes(id);
-                                })}
-                                title='Select Member'
-                                value={(assignedUsers[day] || []).map(id => {
-                                  const name = Object.keys(userMap).find(key => userMap[key] === id);
-                                  return name || '';
-                                }).filter(Boolean)}
-                                displayValue={(() => {
-                                  const names = (assignedUsers[day] || []).map(id => {
-                                    const name = Object.keys(userMap).find(key => userMap[key] === id);
-                                    return name || '';
-                                  }).filter(Boolean);
-                                  if (names.length > maxNames) {
-                                    return [...names.slice(0, maxNames), '...'];
-                                  }
-                                  return names;
-                                })()}
-                                onChange={(selectedNames: string[]) => {
-                                  setAssignedUsers(prev => ({
-                                    ...prev,
-                                    [day]: selectedNames.map(name => userMap[name]).filter(Boolean)
-                                  }));
-                                }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <label
+                        htmlFor="picket-schedule-file"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={handlePicketFileDrop}
+                        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-secondary/30 px-4 py-10 text-center transition-colors hover:bg-secondary/50"
+                      >
+                        <CloudArrowUpIcon className="size-10 text-primary" />
+                        <p className="text-sm font-medium">Drag your file(s)</p>
+                        <p className="text-xs text-muted-foreground">
+                          {pickedFileName ? `Loaded: ${pickedFileName}` : '.xlsx (filled-in template)'}
+                        </p>
+                        <input
+                          id="picket-schedule-file"
+                          type="file"
+                          accept=".xlsx"
+                          onChange={handlePicketFileChange}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {unmatchedNames.length > 0 && (
+                        <p className="mt-2 text-xs text-destructive">
+                          Not found in the member list, skipped: {unmatchedNames.join(', ')}
+                        </p>
+                      )}
+
+                      {ambiguousNames.length > 0 && (
+                        <p className="mt-2 text-xs text-destructive">
+                          Multiple members share this name, skipped: {ambiguousNames.join(', ')}
+                        </p>
+                      )}
+
+                      {duplicateDayNames.length > 0 && (
+                        <p className="mt-2 text-xs text-destructive">
+                          Assigned to more than one day, skipped from all of them: {duplicateDayNames.join(', ')}
+                        </p>
+                      )}
+
+                      {days.some(day => (assignedUsers[day] || []).length > 0) && (
+                        <div className="mt-3 space-y-2">
+                          {days.map(day => {
+                            const ids = assignedUsers[day] || [];
+                            if (ids.length === 0) return null;
+                            const names = ids.map(getUserLabel).filter((n): n is string => !!n);
+                            return (
+                              <div key={day} className="flex flex-col gap-1 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
+                                <p className="shrink-0 text-sm font-medium sm:w-28">{day}</p>
+                                <p className="min-w-0 flex-1 text-sm text-muted-foreground">{names.join(', ')}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -308,9 +459,7 @@ const Schedule = () => {
                         .filter((_, i) => i !== idx)
                         .map(e => e.date)
                         .filter((d): d is string => !!d);
-                      const selectedNames = entry.assignedUsers
-                        .map(id => Object.keys(userMap).find(key => userMap[key] === id))
-                        .filter((n): n is string => !!n);
+                      const selectedNames = entry.assignedUsers.map(getUserLabel).filter((n): n is string => !!n);
                       return (
                         <div key={idx} className="space-y-3 rounded-xl border px-4 py-3">
                           <div className="flex items-center justify-between">
@@ -336,17 +485,15 @@ const Schedule = () => {
                             onSelect={(value) => updateThematicEntryCategory(idx, value)}
                           />
                           <MultiSelectDropdownField
-                            menu={userNames}
+                            options={userOptions}
                             title='Select Member'
-                            value={selectedNames}
+                            value={entry.assignedUsers}
                             displayValue={
                               selectedNames.length > maxNames
                                 ? [...selectedNames.slice(0, maxNames), '...']
                                 : selectedNames
                             }
-                            onChange={(selectedName: string[]) => {
-                              updateThematicEntryUsers(idx, selectedName.map(name => userMap[name]).filter(Boolean));
-                            }}
+                            onChange={(ids: string[]) => updateThematicEntryUsers(idx, ids)}
                           />
                         </div>
                       );
