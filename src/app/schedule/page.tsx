@@ -1,5 +1,6 @@
 "use client";
 import DatePicker from '@/components/custom-ui/DatePicker';
+import DateRangePicker from '@/components/custom-ui/DateRangePicker';
 import DialogField from '@/components/custom-ui/DialogField';
 import { Menubar } from '@/components/custom-ui/MenuBar';
 import PicketScheduleTable from '@/features/picket/components/PicketScheduleTable'
@@ -26,6 +27,15 @@ const SCHEDULE_MENUS: ScheduleTab[] = ['Picket', 'Thematic'];
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
+// Matches how dates are formatted elsewhere on this page (the schedule list
+// rows below) — avoids showing a raw ISO string like "2026-09-25". Parses
+// the y/m/d parts directly (rather than `new Date(isoDate)`) so the
+// displayed date can't shift a day depending on the browser's timezone.
+const formatFriendlyDate = (isoDate: string) => {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
 const Schedule = () => {
   const [activeTab, setActiveTab] = useState<ScheduleTab>('Picket');
   const [viewDate, setViewDate] = useState<string>(todayIso);
@@ -38,6 +48,10 @@ const Schedule = () => {
   type User = { _id: string; name: string; nim: string };
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [futureSchedules, setFutureSchedules] = useState<{ _id: string, date: string, description: string }[]>([]);
+  const [deleteRangeStart, setDeleteRangeStart] = useState<string | null>(null);
+  const [deleteRangeEnd, setDeleteRangeEnd] = useState<string | null>(null);
+  const [showDeleteRangeModal, setShowDeleteRangeModal] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const [maxNames, setMaxNames] = useState(5);
   const [fetchTrigger, setFetchTrigger] = useState(0);
@@ -123,6 +137,9 @@ const Schedule = () => {
     setUnmatchedNames([]);
     setAmbiguousNames([]);
     setDuplicateDayNames([]);
+    setDeleteRangeStart(null);
+    setDeleteRangeEnd(null);
+    setShowDeleteRangeModal(false);
     setThematicEntries([{ date: null, assignedUsers: [], category: null }]);
   }, [activeTab]);
 
@@ -271,10 +288,43 @@ const Schedule = () => {
           date: item.date,
           description: item.description
         })));
+        setDeleteRangeStart(null);
+        setDeleteRangeEnd(null);
       } catch {}
     }
     fetchSchedules();
   }, [activeTab, fetchTrigger]);
+
+  const schedulesInDeleteRange = deleteRangeStart && deleteRangeEnd
+    ? futureSchedules.filter((sch) => {
+        const d = sch.date.slice(0, 10);
+        return d >= deleteRangeStart && d <= deleteRangeEnd;
+      })
+    : [];
+  const deleteRangeIds = new Set(schedulesInDeleteRange.map((s) => s._id));
+
+  const handleBulkDeleteRange = async () => {
+    if (schedulesInDeleteRange.length === 0) return;
+    setIsBulkDeleting(true);
+    const ids = schedulesInDeleteRange.map((s) => s._id);
+    const results = await Promise.allSettled(
+      ids.map(id => (activeTab === 'Picket' ? deleteSchedulePicket(id) : deleteScheduleThematic(id)))
+    );
+    const succeededIds = ids.filter((_, i) => results[i].status === 'fulfilled');
+    const failedCount = ids.length - succeededIds.length;
+
+    setFutureSchedules(prev => prev.filter(s => !succeededIds.includes(s._id)));
+    setDeleteRangeStart(null);
+    setDeleteRangeEnd(null);
+    setFetchTrigger(Date.now());
+    setIsBulkDeleting(false);
+
+    if (failedCount > 0) {
+      toast.error(`${succeededIds.length} deleted, ${failedCount} failed.`);
+    } else {
+      toast.success(`${succeededIds.length} schedule(s) deleted!`);
+    }
+  };
 
   return (
     <ProtectedRoute roles={['admin', 'minister of operation']}>
@@ -505,48 +555,110 @@ const Schedule = () => {
                 )}
               </DialogField>
               <DialogField title={`Delete ${activeTab} Schedule`} name="Delete Schedule" variant='destructive'>
-                <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-none">
-                  {futureSchedules.length === 0 && (
-                    <EmptyState message={`No future ${activeTab.toLowerCase()} schedules.`} className="py-8" />
-                  )}
-                  {futureSchedules.map(sch => {
-                    const dateObj = new Date(sch.date);
-                    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-                    const dateStr = dateObj.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
-                    return (
-                      <div
-                        key={sch._id}
-                        className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-destructive/40 hover:bg-destructive/5"
-                      >
-                        <div>
-                          <p className="text-sm font-medium">{dayName}</p>
-                          <p className="text-xs text-muted-foreground">{dateStr}</p>
-                          {activeTab === 'Thematic' && sch.description && (
-                            <p className="text-xs text-primary">{sch.description}</p>
-                          )}
-                        </div>
+                <div className="flex flex-col gap-3">
+                  {futureSchedules.length > 0 && (
+                    <div className="rounded-xl border bg-secondary/30 p-4">
+                      <p className="mb-3 font-semibold">Delete a Date Range</p>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <Button
-                          variant='destructive'
-                          size='sm'
-                          className="shrink-0"
-                          onClick={async () => {
-                            try {
-                              if (activeTab === 'Picket') {
-                                await deleteSchedulePicket(sch._id);
-                              } else {
-                                await deleteScheduleThematic(sch._id);
-                              }
-                              setFutureSchedules(prev => prev.filter(s => s._id !== sch._id));
-                              toast.success('Schedule deleted!');
-                              setFetchTrigger(Date.now());
-                            } catch {
-                              toast.error('Failed to delete schedule!');
-                            }
-                          }}
-                        >Delete</Button>
+                          type="button"
+                          className="min-w-0 flex-1 rounded-full border border-muted-foreground bg-white px-2 py-4 text-base font-light text-black hover:bg-primary hover:text-white"
+                          onClick={() => { if (!showDeleteRangeModal) setShowDeleteRangeModal(true); }}
+                        >
+                          {deleteRangeStart && deleteRangeEnd && deleteRangeStart !== deleteRangeEnd
+                            ? `${formatFriendlyDate(deleteRangeStart)} – ${formatFriendlyDate(deleteRangeEnd)}`
+                            : deleteRangeStart
+                            ? formatFriendlyDate(deleteRangeStart)
+                            : 'Select Date Range'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="shrink-0 text-sm"
+                          disabled={isBulkDeleting || schedulesInDeleteRange.length === 0}
+                          onClick={handleBulkDeleteRange}
+                        >
+                          Delete All in Range ({schedulesInDeleteRange.length})
+                        </Button>
                       </div>
-                    );
-                  })}
+                      {showDeleteRangeModal && (
+                        <div
+                          className="fixed inset-0 z-50 flex items-center justify-center"
+                          style={{ background: 'transparent' }}
+                          onClick={() => setShowDeleteRangeModal(false)}
+                        >
+                          <div className="rounded bg-white p-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
+                            <DateRangePicker
+                              startDate={deleteRangeStart}
+                              endDate={deleteRangeEnd}
+                              minDate={todayIso()}
+                              onChange={(start, end) => {
+                                setDeleteRangeStart(start);
+                                setDeleteRangeEnd(end);
+                              }}
+                            />
+                            <div className="mt-4 flex justify-end gap-2">
+                              <Button
+                                type="button"
+                                onClick={() => { if (deleteRangeStart) setShowDeleteRangeModal(false); }}
+                              >
+                                Select
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-none">
+                    {futureSchedules.length === 0 && (
+                      <EmptyState message={`No future ${activeTab.toLowerCase()} schedules.`} className="py-8" />
+                    )}
+                    {futureSchedules.map(sch => {
+                      const dateObj = new Date(sch.date);
+                      const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                      const dateStr = dateObj.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+                      const isInDeleteRange = deleteRangeIds.has(sch._id);
+                      return (
+                        <div
+                          key={sch._id}
+                          className={
+                            isInDeleteRange
+                              ? 'flex items-center gap-3 rounded-xl border border-primary/20 border-l-4 border-l-primary bg-primary/5 px-4 py-3 transition-colors'
+                              : 'flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-destructive/40 hover:bg-destructive/5'
+                          }
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium">{dayName}</p>
+                            <p className="text-xs text-muted-foreground">{dateStr}</p>
+                            {activeTab === 'Thematic' && sch.description && (
+                              <p className="text-xs text-primary">{sch.description}</p>
+                            )}
+                          </div>
+                          <Button
+                            variant='destructive'
+                            size='sm'
+                            className="shrink-0"
+                            onClick={async () => {
+                              try {
+                                if (activeTab === 'Picket') {
+                                  await deleteSchedulePicket(sch._id);
+                                } else {
+                                  await deleteScheduleThematic(sch._id);
+                                }
+                                setFutureSchedules(prev => prev.filter(s => s._id !== sch._id));
+                                toast.success('Schedule deleted!');
+                                setFetchTrigger(Date.now());
+                              } catch {
+                                toast.error('Failed to delete schedule!');
+                              }
+                            }}
+                          >Delete</Button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </DialogField>
             </div>
