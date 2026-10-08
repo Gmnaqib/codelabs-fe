@@ -62,6 +62,7 @@ const Schedule = () => {
   const [unmatchedNames, setUnmatchedNames] = useState<string[]>([]);
   const [ambiguousNames, setAmbiguousNames] = useState<string[]>([]);
   const [duplicateDayNames, setDuplicateDayNames] = useState<string[]>([]);
+  const [duplicateWithinDayNames, setDuplicateWithinDayNames] = useState<string[]>([]);
 
   // Dropdown options identify members by ID, not name — a name alone isn't
   // unique, so two members sharing a name get a NIM suffix to tell them apart.
@@ -137,6 +138,7 @@ const Schedule = () => {
     setUnmatchedNames([]);
     setAmbiguousNames([]);
     setDuplicateDayNames([]);
+    setDuplicateWithinDayNames([]);
     setDeleteRangeStart(null);
     setDeleteRangeEnd(null);
     setShowDeleteRangeModal(false);
@@ -219,10 +221,28 @@ const Schedule = () => {
         resolved[day] = ids;
       }
 
-      // Assigning the same person to more than one weekday is treated as a
-      // mistake (most likely a copy-paste slip) — we can't tell which day was
-      // intended, so exclude them from all of the affected days rather than
-      // guessing.
+      // Same person listed more than once in the SAME day's column (e.g. a
+      // copy-paste slip) — the intended day isn't ambiguous here, so just
+      // keep them once instead of excluding them like the cross-day case
+      // below. Also closes off a path that could otherwise store the same
+      // userId twice in one day's assignedUsers on the backend.
+      const duplicateWithinDay: string[] = [];
+      for (const day of Object.keys(resolved)) {
+        const seen = new Set<string>();
+        resolved[day] = resolved[day].filter((id) => {
+          if (seen.has(id)) {
+            duplicateWithinDay.push(`${getUserLabel(id) ?? id} (${day})`);
+            return false;
+          }
+          seen.add(id);
+          return true;
+        });
+      }
+
+      // Assigning the same person to more than one DIFFERENT weekday is
+      // treated as a mistake (most likely a copy-paste slip) — we can't tell
+      // which day was intended, so exclude them from all of the affected
+      // days rather than guessing.
       const daysByUserId: Record<string, string[]> = {};
       for (const day of Object.keys(resolved)) {
         for (const id of resolved[day]) {
@@ -248,13 +268,15 @@ const Schedule = () => {
       setUnmatchedNames(unmatched);
       setAmbiguousNames(ambiguous);
       setDuplicateDayNames(duplicateAcrossDays);
+      setDuplicateWithinDayNames(duplicateWithinDay);
       setPickedFileName(file.name);
 
-      if (unmatched.length > 0 || ambiguous.length > 0 || duplicateIds.size > 0) {
+      if (unmatched.length > 0 || ambiguous.length > 0 || duplicateIds.size > 0 || duplicateWithinDay.length > 0) {
         const parts: string[] = [];
         if (unmatched.length > 0) parts.push(`${unmatched.length} not found`);
         if (ambiguous.length > 0) parts.push(`${ambiguous.length} ambiguous (duplicate name)`);
         if (duplicateIds.size > 0) parts.push(`${duplicateIds.size} assigned to multiple days`);
+        if (duplicateWithinDay.length > 0) parts.push(`${duplicateWithinDay.length} listed twice on the same day (counted once)`);
         toast.error(`${parts.join(', ')} — skipped.`);
       } else {
         toast.success('Schedule file loaded successfully!');
@@ -482,6 +504,12 @@ const Schedule = () => {
                       {duplicateDayNames.length > 0 && (
                         <p className="mt-2 text-xs text-destructive">
                           Assigned to more than one day, skipped from all of them: {duplicateDayNames.join(', ')}
+                        </p>
+                      )}
+
+                      {duplicateWithinDayNames.length > 0 && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Listed twice on the same day, counted once: {duplicateWithinDayNames.join(', ')}
                         </p>
                       )}
 
