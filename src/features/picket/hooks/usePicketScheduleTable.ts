@@ -7,8 +7,11 @@ import {
   deleteOperationalRecord,
   getUpcomingPicketScheduleForSwap,
   swapPicketUsers,
+  addPicketMembers,
 } from '@/services/picket/picketService';
+import { getAllUsers } from '@/services/users/userService';
 import type { PicketRow, PicketSwapSchedule } from '@/features/picket/types';
+import { wibTodayDateString } from '@/shared/utils';
 
 interface RawOperationalRecord {
   _id: string;
@@ -31,6 +34,14 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
   const [recordIds, setRecordIds] = useState<Record<string, string>>({});
   const [scheduleId, setScheduleId] = useState('');
   const [rangeSchedules, setRangeSchedules] = useState<PicketSwapSchedule[]>([]);
+  const [activeUsers, setActiveUsers] = useState<{ _id: string; name: string; nim?: string }[]>([]);
+  const [isAddingMembers, setIsAddingMembers] = useState(false);
+
+  useEffect(() => {
+    getAllUsers({ activeOnly: true })
+      .then(setActiveUsers)
+      .catch(() => setActiveUsers([]));
+  }, []);
 
   const fetchSchedules = useCallback(async () => {
     setLoading(true);
@@ -149,5 +160,23 @@ export function usePicketScheduleTable({ fetchTrigger, date }: UsePicketSchedule
     [scheduleId, fetchSchedules]
   );
 
-  return { picketData, loading, checkedUsers, rangeSchedules, handleToggle, handleSwap };
+  const handleAddMembers = useCallback(
+    async (userIds: string[]) => {
+      if (userIds.length === 0) return;
+      setIsAddingMembers(true);
+      try {
+        await addPicketMembers(date ?? wibTodayDateString(), userIds);
+        await fetchSchedules();
+        toast.success('Member(s) added to the picket team!');
+      } catch (err) {
+        console.error('Add picket members failed', err);
+        toast.error(err instanceof Error ? err.message : 'Failed to add member(s)!');
+      } finally {
+        setIsAddingMembers(false);
+      }
+    },
+    [date, fetchSchedules]
+  );
+
+  return { picketData, loading, checkedUsers, rangeSchedules, activeUsers, isAddingMembers, handleToggle, handleSwap, handleAddMembers };
 }

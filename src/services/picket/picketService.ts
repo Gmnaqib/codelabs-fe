@@ -155,3 +155,14 @@ export const deleteSchedulePicket = async (id: string): Promise<unknown> => {
 		throw handleError(error);
 	}
 };
+
+// Adds member(s) to a specific day's picket team (creating that day's
+// schedule first if it doesn't exist yet) without touching any other day.
+export const addPicketMembers = async (date: string, userIds: string[]): Promise<RawPicketSchedule> => {
+	try {
+		const res = await axiosClient.post('/schedules/picket/add-members', { date, userIds });
+		return res.data.data;
+	} catch (error) {
+		throw handleError(error);
+	}
+};
