@@ -9,13 +9,12 @@ import { useMonthlyThematicSchedule } from '@/features/thematic/hooks/useMonthly
 import { Card } from '@/components/ui/card'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import React, { useState, useEffect, useMemo } from 'react'
-import { MultiSelectDropdownField } from '@/components/custom-ui/MultiSelectDropdownField';
-import { DropdownField } from '@/components/custom-ui/DropdownField';
 import { THEMATIC_CATEGORIES } from '@/features/thematic/config/categories';
 import { getAllUsers } from '@/services/users/userService';
 import { postSchedulePicket, getUpcomingPicketSchedules, deleteSchedulePicket } from '@/services/picket/picketService';
 import { downloadPicketScheduleTemplate, parsePicketScheduleExcel } from '@/features/picket/utils/picketScheduleExcel';
 import { postScheduleThematicBatch, getUpcomingThematicSchedules, deleteScheduleThematic } from '@/services/thematic/thematicService';
+import { downloadThematicScheduleTemplate, parseThematicScheduleExcel } from '@/features/thematic/utils/thematicScheduleExcel';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/custom-ui/EmptyState';
@@ -53,7 +52,6 @@ const Schedule = () => {
   const [showDeleteRangeModal, setShowDeleteRangeModal] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-  const [maxNames, setMaxNames] = useState(5);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [assignedUsers, setAssignedUsers] = useState<Record<string, string[]>>({});
   const [dateDisabled, setDateDisabled] = useState(false);
@@ -63,6 +61,12 @@ const Schedule = () => {
   const [ambiguousNames, setAmbiguousNames] = useState<string[]>([]);
   const [duplicateDayNames, setDuplicateDayNames] = useState<string[]>([]);
   const [duplicateWithinDayNames, setDuplicateWithinDayNames] = useState<string[]>([]);
+  const [pickedThematicFileName, setPickedThematicFileName] = useState<string | null>(null);
+  const [unmatchedThematicNames, setUnmatchedThematicNames] = useState<string[]>([]);
+  const [ambiguousThematicNames, setAmbiguousThematicNames] = useState<string[]>([]);
+  const [duplicateWithinEntryNames, setDuplicateWithinEntryNames] = useState<string[]>([]);
+  const [duplicateThematicDates, setDuplicateThematicDates] = useState<string[]>([]);
+  const [invalidThematicRows, setInvalidThematicRows] = useState<string[]>([]);
 
   // Dropdown options identify members by ID, not name — a name alone isn't
   // unique, so two members sharing a name get a NIM suffix to tell them apart.
@@ -110,22 +114,6 @@ const Schedule = () => {
   type ThematicEntry = { date: string | null; assignedUsers: string[]; category: string | null };
   const [thematicEntries, setThematicEntries] = useState<ThematicEntry[]>([{ date: null, assignedUsers: [], category: null }]);
 
-  const addThematicEntry = () => {
-    setThematicEntries(prev => [...prev, { date: null, assignedUsers: [], category: null }]);
-  };
-  const removeThematicEntry = (idx: number) => {
-    setThematicEntries(prev => prev.filter((_, i) => i !== idx));
-  };
-  const updateThematicEntryDate = (idx: number, date: string | null) => {
-    setThematicEntries(prev => prev.map((e, i) => (i === idx ? { ...e, date } : e)));
-  };
-  const updateThematicEntryUsers = (idx: number, userIds: string[]) => {
-    setThematicEntries(prev => prev.map((e, i) => (i === idx ? { ...e, assignedUsers: userIds } : e)));
-  };
-  const updateThematicEntryCategory = (idx: number, category: string) => {
-    setThematicEntries(prev => prev.map((e, i) => (i === idx ? { ...e, category } : e)));
-  };
-
   // Picket and Thematic are separate schedule types, so the "add schedule"
   // form starts fresh whenever the tab changes.
   useEffect(() => {
@@ -143,22 +131,13 @@ const Schedule = () => {
     setDeleteRangeEnd(null);
     setShowDeleteRangeModal(false);
     setThematicEntries([{ date: null, assignedUsers: [], category: null }]);
+    setPickedThematicFileName(null);
+    setUnmatchedThematicNames([]);
+    setAmbiguousThematicNames([]);
+    setDuplicateWithinEntryNames([]);
+    setDuplicateThematicDates([]);
+    setInvalidThematicRows([]);
   }, [activeTab]);
-
-  useEffect(() => {
-    function updateMaxNames() {
-      if (window.matchMedia('(max-width: 640px)').matches) {
-        setMaxNames(3);
-      } else if (window.matchMedia('(max-width: 1024px)').matches) {
-        setMaxNames(5);
-      } else {
-        setMaxNames(5);
-      }
-    }
-    updateMaxNames();
-    window.addEventListener('resize', updateMaxNames);
-    return () => window.removeEventListener('resize', updateMaxNames);
-  }, []);
 
   const dayLabels: Record<string, string> = {
     Monday: 'Team Monday',
@@ -300,6 +279,118 @@ const Schedule = () => {
     await processPicketFile(file);
   };
 
+  const processThematicFile = async (file: File) => {
+    try {
+      const rows = await parseThematicScheduleExcel(file);
+      const unmatched: string[] = [];
+      const ambiguous: string[] = [];
+      const duplicateWithinEntry: string[] = [];
+      const invalidRows: string[] = [];
+      const parsedEntries: ThematicEntry[] = [];
+
+      rows.forEach((r) => {
+        const rowLabel = `Row ${r.row}`;
+        const normalizedDate = r.date.trim();
+        const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(normalizedDate) && !isNaN(new Date(`${normalizedDate}T00:00:00`).getTime());
+        const matchedCategory = THEMATIC_CATEGORIES.find((c) => c.toLowerCase() === r.category.trim().toLowerCase());
+
+        if (!isValidDate) {
+          invalidRows.push(`${rowLabel}: invalid or missing date`);
+          return;
+        }
+        if (!matchedCategory) {
+          invalidRows.push(`${rowLabel}: invalid or missing category${r.category ? ` "${r.category}"` : ''}`);
+          return;
+        }
+        if (r.memberNames.length === 0) {
+          invalidRows.push(`${rowLabel}: no members listed`);
+          return;
+        }
+
+        // Same person listed more than once in this row's Member columns —
+        // the intended entry isn't ambiguous (it's this row), so just keep
+        // them once instead of discarding the row.
+        const seen = new Set<string>();
+        const ids: string[] = [];
+        for (const name of r.memberNames) {
+          const matches = nameLookup[name.trim().toLowerCase()] ?? [];
+          if (matches.length === 1) {
+            const id = matches[0];
+            if (seen.has(id)) {
+              duplicateWithinEntry.push(`${getUserLabel(id) ?? name} (${rowLabel})`);
+              continue;
+            }
+            seen.add(id);
+            ids.push(id);
+          } else if (matches.length > 1) {
+            ambiguous.push(`${name} (${rowLabel})`);
+          } else {
+            unmatched.push(`${name} (${rowLabel})`);
+          }
+        }
+
+        if (ids.length === 0) {
+          invalidRows.push(`${rowLabel}: no valid members after resolving names`);
+          return;
+        }
+
+        parsedEntries.push({ date: normalizedDate, assignedUsers: ids, category: matchedCategory });
+      });
+
+      // Same date used on more than one row — each date can only have one
+      // thematic schedule, and we can't tell which row was intended, so
+      // exclude every row sharing that date rather than letting the last
+      // one silently overwrite the others.
+      const dateCounts: Record<string, number> = {};
+      parsedEntries.forEach((e) => {
+        const key = e.date as string;
+        dateCounts[key] = (dateCounts[key] ?? 0) + 1;
+      });
+      const duplicateDates = Object.entries(dateCounts)
+        .filter(([, count]) => count > 1)
+        .map(([d]) => d);
+      const finalEntries = duplicateDates.length > 0
+        ? parsedEntries.filter((e) => !duplicateDates.includes(e.date as string))
+        : parsedEntries;
+
+      setThematicEntries(finalEntries.length > 0 ? finalEntries : [{ date: null, assignedUsers: [], category: null }]);
+      setUnmatchedThematicNames(unmatched);
+      setAmbiguousThematicNames(ambiguous);
+      setDuplicateWithinEntryNames(duplicateWithinEntry);
+      setDuplicateThematicDates(duplicateDates.map(formatFriendlyDate));
+      setInvalidThematicRows(invalidRows);
+      setPickedThematicFileName(file.name);
+
+      if (unmatched.length > 0 || ambiguous.length > 0 || duplicateWithinEntry.length > 0 || invalidRows.length > 0 || duplicateDates.length > 0) {
+        const parts: string[] = [];
+        if (invalidRows.length > 0) parts.push(`${invalidRows.length} row(s) invalid`);
+        if (unmatched.length > 0) parts.push(`${unmatched.length} not found`);
+        if (ambiguous.length > 0) parts.push(`${ambiguous.length} ambiguous (duplicate name)`);
+        if (duplicateWithinEntry.length > 0) parts.push(`${duplicateWithinEntry.length} listed twice in the same row (counted once)`);
+        if (duplicateDates.length > 0) parts.push(`${duplicateDates.length} date(s) repeated, skipped`);
+        toast.error(`${parts.join(', ')}.`);
+      } else {
+        toast.success('Schedule file loaded successfully!');
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to read the file.');
+    }
+  };
+
+  const handleThematicFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    await processThematicFile(file);
+  };
+
+  const handleThematicFileDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await processThematicFile(file);
+  };
+
   type Schedule = { _id: string; date: string; description: string };
   useEffect(() => {
     async function fetchSchedules() {
@@ -375,15 +466,16 @@ const Schedule = () => {
           />
           <div className="flex justify-end items-center gap-3 flex-col lg:flex-row lg:gap-2">
             <div className="flex gap-3 flex-col lg:flex-row lg:gap-2">
-              {activeTab === 'Picket' && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => downloadPicketScheduleTemplate().catch(() => toast.error('Failed to generate the template.'))}
-                >
-                  Template
-                </Button>
-              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const download = activeTab === 'Picket' ? downloadPicketScheduleTemplate() : downloadThematicScheduleTemplate();
+                  download.catch(() => toast.error('Failed to generate the template.'));
+                }}
+              >
+                Template
+              </Button>
               <DialogField
                 name="Add Schedule"
                 title={`Add ${activeTab} Schedule`}
@@ -531,54 +623,75 @@ const Schedule = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {thematicEntries.map((entry, idx) => {
-                      const otherDates = thematicEntries
-                        .filter((_, i) => i !== idx)
-                        .map(e => e.date)
-                        .filter((d): d is string => !!d);
-                      const selectedNames = entry.assignedUsers.map(getUserLabel).filter((n): n is string => !!n);
-                      return (
-                        <div key={idx} className="space-y-3 rounded-xl border px-4 py-3">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium">Date {idx + 1}</p>
-                            {thematicEntries.length > 1 && (
-                              <Button type="button" variant="ghost" size="sm" onClick={() => removeThematicEntry(idx)}>
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                          <DatePicker
-                            value={entry.date}
-                            onChange={(d) => updateThematicEntryDate(idx, d)}
-                            minDate={todayIso()}
-                            disabledDaysOfWeek={[0]}
-                            disabledDates={otherDates}
-                          />
-                          <DropdownField
-                            label="Category"
-                            title="Select Category"
-                            menu={THEMATIC_CATEGORIES}
-                            value={entry.category || undefined}
-                            onSelect={(value) => updateThematicEntryCategory(idx, value)}
-                          />
-                          <MultiSelectDropdownField
-                            options={userOptions}
-                            title='Select Member'
-                            value={entry.assignedUsers}
-                            displayValue={
-                              selectedNames.length > maxNames
-                                ? [...selectedNames.slice(0, maxNames), '...']
-                                : selectedNames
-                            }
-                            onChange={(ids: string[]) => updateThematicEntryUsers(idx, ids)}
-                          />
-                        </div>
-                      );
-                    })}
-                    <Button type="button" variant="outline" size="sm" onClick={addThematicEntry}>
-                      + Add Another Date
-                    </Button>
+                  <div>
+                    <p className="mb-3 font-semibold">Schedules Thematic</p>
+                    <label
+                      htmlFor="thematic-schedule-file"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={handleThematicFileDrop}
+                      className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-primary/40 bg-secondary/30 px-4 py-10 text-center transition-colors hover:bg-secondary/50"
+                    >
+                      <CloudArrowUpIcon className="size-10 text-primary" />
+                      <p className="text-sm font-medium">Drag your file(s)</p>
+                      <p className="text-xs text-muted-foreground">
+                        {pickedThematicFileName ? `Loaded: ${pickedThematicFileName}` : '.xlsx (filled-in template)'}
+                      </p>
+                      <input
+                        id="thematic-schedule-file"
+                        type="file"
+                        accept=".xlsx"
+                        onChange={handleThematicFileChange}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {invalidThematicRows.length > 0 && (
+                      <p className="mt-2 text-xs text-destructive">
+                        Invalid rows, skipped: {invalidThematicRows.join(', ')}
+                      </p>
+                    )}
+
+                    {unmatchedThematicNames.length > 0 && (
+                      <p className="mt-2 text-xs text-destructive">
+                        Not found in the member list, skipped: {unmatchedThematicNames.join(', ')}
+                      </p>
+                    )}
+
+                    {ambiguousThematicNames.length > 0 && (
+                      <p className="mt-2 text-xs text-destructive">
+                        Multiple members share this name, skipped: {ambiguousThematicNames.join(', ')}
+                      </p>
+                    )}
+
+                    {duplicateThematicDates.length > 0 && (
+                      <p className="mt-2 text-xs text-destructive">
+                        Same date used on more than one row, skipped: {duplicateThematicDates.join(', ')}
+                      </p>
+                    )}
+
+                    {duplicateWithinEntryNames.length > 0 && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Listed twice in the same row, counted once: {duplicateWithinEntryNames.join(', ')}
+                      </p>
+                    )}
+
+                    {thematicEntries.some(e => e.date && e.category && e.assignedUsers.length > 0) && (
+                      <div className="mt-3 space-y-2">
+                        {thematicEntries.map((entry, idx) => {
+                          if (!entry.date || !entry.category || entry.assignedUsers.length === 0) return null;
+                          const names = entry.assignedUsers.map(getUserLabel).filter((n): n is string => !!n);
+                          return (
+                            <div key={idx} className="flex flex-col gap-1 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
+                              <div className="shrink-0 sm:w-36">
+                                <p className="text-sm font-medium">{formatFriendlyDate(entry.date)}</p>
+                                <p className="text-xs text-primary">{entry.category}</p>
+                              </div>
+                              <p className="min-w-0 flex-1 text-sm text-muted-foreground">{names.join(', ')}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
               </DialogField>
