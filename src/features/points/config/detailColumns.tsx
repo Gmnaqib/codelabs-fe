@@ -34,7 +34,12 @@ export function createPointsDetailColumns({ onEdit, onDelete }: CreatePointsDeta
             </Button>
           )}
           {onDelete && (
-            <Button variant="destructive" size="sm" onClick={() => onDelete(row)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+              onClick={() => onDelete(row)}
+            >
               Delete
             </Button>
           )}
