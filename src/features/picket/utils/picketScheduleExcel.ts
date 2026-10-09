@@ -2,7 +2,7 @@ import ExcelJS from 'exceljs';
 import { downloadWorkbookBuffer } from '@/shared/utils';
 import { getAllUsers } from '@/services/users/userService';
 
-export const PICKET_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const;
+export const PICKET_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
 
 // How many assignment rows per day get the member-name dropdown — generous
 // headroom above what a single day's picket duty would ever need.
@@ -70,7 +70,7 @@ export async function parsePicketScheduleExcel(file: File): Promise<Record<strin
   });
 
   if (Object.keys(dayColumns).length === 0) {
-    throw new Error('No valid day columns found. Expected headers: Monday, Tuesday, Wednesday, Thursday, Friday.');
+    throw new Error(`No valid day columns found. Expected headers: ${PICKET_DAYS.join(', ')}.`);
   }
 
   const assignments: Record<string, string[]> = {};

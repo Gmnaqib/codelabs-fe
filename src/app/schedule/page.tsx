@@ -12,7 +12,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { THEMATIC_CATEGORIES } from '@/features/thematic/config/categories';
 import { getAllUsers } from '@/services/users/userService';
 import { postSchedulePicket, getUpcomingPicketSchedules, deleteSchedulePicket } from '@/services/picket/picketService';
-import { downloadPicketScheduleTemplate, parsePicketScheduleExcel } from '@/features/picket/utils/picketScheduleExcel';
+import { downloadPicketScheduleTemplate, parsePicketScheduleExcel, PICKET_DAYS } from '@/features/picket/utils/picketScheduleExcel';
 import { postScheduleThematicBatch, getUpcomingThematicSchedules, deleteScheduleThematic } from '@/services/thematic/thematicService';
 import { downloadThematicScheduleTemplate, parseThematicScheduleExcel } from '@/features/thematic/utils/thematicScheduleExcel';
 import { toast } from 'sonner';
@@ -51,7 +51,7 @@ const Schedule = () => {
   const [deleteRangeEnd, setDeleteRangeEnd] = useState<string | null>(null);
   const [showDeleteRangeModal, setShowDeleteRangeModal] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const days: string[] = [...PICKET_DAYS];
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [assignedUsers, setAssignedUsers] = useState<Record<string, string[]>>({});
   const [dateDisabled, setDateDisabled] = useState(false);
@@ -145,6 +145,7 @@ const Schedule = () => {
     Wednesday: 'Team Wednesday',
     Thursday: 'Team Thursday',
     Friday: 'Team Friday',
+    Saturday: 'Team Saturday',
   };
   const dayNumbers: Record<string, number> = {
     Monday: 1,
