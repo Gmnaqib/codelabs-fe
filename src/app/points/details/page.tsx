@@ -8,7 +8,7 @@ import DialogField from '@/components/custom-ui/DialogField';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownField } from '@/components/custom-ui/DropdownField';
-import { createKPIDetail, updateKPIDetail } from '@/services/kpi/kpiService';
+import { createKPIDetail, updateKPIDetail, deleteKPIDetail } from '@/services/kpi/kpiService';
 import { handleError } from '@/shared/services';
 import { toast } from 'sonner';
 import MotionWrapper from '@/components/custom-ui/MotionWrapper'
@@ -71,6 +71,21 @@ const PointsDetailsContent = () => {
     setEditMaxActivity(String(kpiDetail.max_activity));
     setEditLabel(kpiDetail.label);
     setIsEditOpen(true);
+  };
+
+  const handleDeleteClick = async (item: unknown) => {
+    const kpiDetail = item as KPIDetailItem;
+    if (!window.confirm(`Delete "${kpiDetail.kpi_item}"? It will be hidden from this list, but already-recorded points for it are kept.`)) {
+      return;
+    }
+    try {
+      await deleteKPIDetail(kpiDetail._id);
+      toast.success('KPI detail deleted!');
+      setFetchTrigger(Date.now());
+    } catch (err) {
+      const appError = handleError(err);
+      toast.error(appError.message || 'Failed to delete KPI detail.');
+    }
   };
 
   const handleAdd = async () => {
@@ -178,6 +193,7 @@ const PointsDetailsContent = () => {
             <PointsDetailTable
               fetchTrigger={fetchTrigger}
               onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
             />
           </div>
         </Card>

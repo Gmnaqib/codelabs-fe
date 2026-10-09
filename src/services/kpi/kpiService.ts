@@ -300,6 +300,17 @@ export const updateKPIDetail = async (
   }
 };
 
+// Soft delete — hides the item from listings/selection but keeps its
+// already-recorded history intact (see the backend's KPIRepository.deactivateDetail).
+export const deleteKPIDetail = async (id: string): Promise<unknown> => {
+  try {
+    const res = await axiosClient.delete(`/kpi/detail/${id}`);
+    return res.data;
+  } catch (error) {
+    throw handleError(error);
+  }
+};
+
 export interface RawKPIRankingItem {
   userId: string;
   name: string;

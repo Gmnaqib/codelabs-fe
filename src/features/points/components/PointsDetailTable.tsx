@@ -9,12 +9,13 @@ import type { PointsDetailRow } from '@/features/points/types';
 interface PointsDetailTableProps {
   fetchTrigger?: number;
   onEdit?: (item: PointsDetailRow) => void;
+  onDelete?: (item: PointsDetailRow) => void;
   [key: string]: unknown;
 }
 
-export default function PointsDetailTable({ fetchTrigger, onEdit }: PointsDetailTableProps) {
+export default function PointsDetailTable({ fetchTrigger, onEdit, onDelete }: PointsDetailTableProps) {
   const { data, loading, error } = usePointsDetailTable({ fetchTrigger });
-  const columns = useMemo(() => createPointsDetailColumns({ onEdit }), [onEdit]);
+  const columns = useMemo(() => createPointsDetailColumns({ onEdit, onDelete }), [onEdit, onDelete]);
 
   if (error) {
     return <div className="text-destructive p-4">{error.message}</div>;
