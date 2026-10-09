@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "@/components/custom-ui/InputField";
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { profileSchema, type ProfileForm as ProfileFormValues } from "@/features/profile/config/schemas";
 import { handleError } from "@/shared/services";
+import { getMyWallet, type PointWallet } from "@/services/wallet/walletService";
 
 const MAX_SIZE_BYTES = 500 * 1024; // 500KB
 
@@ -51,6 +52,16 @@ export default function ProfileForm() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
+  const [wallet, setWallet] = useState<PointWallet | null>(null);
+  const [walletLoading, setWalletLoading] = useState(true);
+
+  useEffect(() => {
+    getMyWallet()
+      .then(setWallet)
+      .catch(() => setWallet(null))
+      .finally(() => setWalletLoading(false));
+  }, []);
 
   const {
     control,
@@ -199,6 +210,21 @@ export default function ProfileForm() {
         </div>
         <p className="text-lg mt-2">{user?.name}</p>
         <p className="capitalize font-semibold text-xl md:text-2xl">{user?.role}</p>
+        {!walletLoading && wallet && (
+          <div className="mt-4 w-full max-w-80 rounded-2xl border bg-background p-4 shadow-sm">
+            <div className="mx-auto flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 w-fit">
+              <span className="text-sm font-medium">Points Wallet</span>
+            </div>
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <span className="text-3xl font-bold text-primary">{wallet.balance}</span>
+              {wallet.totalEarned > 0 && (
+                <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                  +{wallet.totalEarned} earned
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Crop Dialog */}
