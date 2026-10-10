@@ -14,6 +14,7 @@ import { useProfile } from "@/features/profile/hooks/useProfile";
 import { profileSchema, type ProfileForm as ProfileFormValues } from "@/features/profile/config/schemas";
 import { handleError } from "@/shared/services";
 import { getMyWallet, type PointWallet } from "@/services/wallet/walletService";
+import { getMyBanners } from "@/services/banner/bannerService";
 import { getCroppedImg, DEFAULT_MAX_CROPPED_IMAGE_BYTES } from "@/shared/utils";
 
 const MAX_SIZE_BYTES = DEFAULT_MAX_CROPPED_IMAGE_BYTES;
@@ -33,12 +34,20 @@ export default function ProfileForm() {
 
   const [wallet, setWallet] = useState<PointWallet | null>(null);
   const [walletLoading, setWalletLoading] = useState(true);
+  const [activeFrame, setActiveFrame] = useState<string | null>(null);
 
   useEffect(() => {
     getMyWallet()
       .then(setWallet)
       .catch(() => setWallet(null))
       .finally(() => setWalletLoading(false));
+
+    getMyBanners()
+      .then((data) => {
+        const frame = data.owned.find((o) => o.type === "profile_frame" && o.active);
+        setActiveFrame(frame?.image ?? null);
+      })
+      .catch(() => setActiveFrame(null));
   }, []);
 
   const {
@@ -129,7 +138,11 @@ export default function ProfileForm() {
         setUploadingPhoto(false);
         return;
       }
-      const file = new File([croppedBlob], "profile.jpg", { type: "image/jpeg" });
+      // Respect whatever getCroppedImg actually produced — it auto-switches
+      // to PNG when the crop has transparent pixels, so a hardcoded .jpg
+      // label here would mismatch the real content for those uploads.
+      const ext = croppedBlob.type === "image/png" ? "png" : "jpg";
+      const file = new File([croppedBlob], `profile.${ext}`, { type: croppedBlob.type });
       const formData = new FormData();
       formData.append("image", file);
       await uploadPhoto(formData);
@@ -151,11 +164,22 @@ export default function ProfileForm() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-col items-center">
         <div className="relative w-32.5 h-32.5">
+          {activeFrame && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={resolveImageUrl(activeFrame)}
+              alt="frame"
+              className="pointer-events-none absolute -inset-5 h-[calc(100%+2.5rem)] w-[calc(100%+2.5rem)] max-w-none object-contain"
+            />
+          )}
+          {/* On top of the frame, not behind it — so the photo is always
+              fully visible even if the frame's center cutout isn't
+              perfectly transparent. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={resolveImageUrl(user?.image)}
             alt="profile"
-            className="rounded-full object-cover w-full h-full"
+            className="relative rounded-full object-cover w-full h-full"
           />
           <div className="relative">
             <button

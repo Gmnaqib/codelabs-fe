@@ -319,6 +319,7 @@ export interface RawKPIRankingItem {
   month?: number;
   image?: string | null;
   banner?: string | null;
+  frame?: string | null;
   monthly?: number | string;
   [key: string]: unknown;
 }

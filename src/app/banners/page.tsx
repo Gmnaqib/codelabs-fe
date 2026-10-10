@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/custom-ui/InputField";
 import DialogField from "@/components/custom-ui/DialogField";
+import { DropdownField } from "@/components/custom-ui/DropdownField";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EmptyState from "@/components/custom-ui/EmptyState";
 import BannerImagePicker from "@/features/banners/components/BannerImagePicker";
@@ -25,8 +26,17 @@ import {
   unequipBanner,
   type RawBanner,
   type MyBanners,
+  type BannerType,
 } from "@/services/banner/bannerService";
 import { getMyWallet, type PointWallet } from "@/services/wallet/walletService";
+
+const TYPE_LABELS: Record<BannerType, string> = {
+  name_background: "BG Name",
+  profile_frame: "Profile Frame",
+};
+const TYPE_OPTIONS = Object.values(TYPE_LABELS);
+const labelToType = (label: string): BannerType =>
+  (Object.entries(TYPE_LABELS).find(([, l]) => l === label)?.[0] as BannerType) ?? "name_background";
 
 export default function BannersPage() {
   const isAdmin = useAuthStore((s) => s.hasRole(["admin"]));
@@ -39,6 +49,7 @@ export default function BannersPage() {
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [name, setName] = useState("");
+  const [type, setType] = useState<BannerType>("name_background");
   const [pointCost, setPointCost] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -47,6 +58,7 @@ export default function BannersPage() {
   const [editingBanner, setEditingBanner] = useState<RawBanner | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editType, setEditType] = useState<BannerType>("name_background");
   const [editPointCost, setEditPointCost] = useState("");
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
@@ -63,7 +75,7 @@ export default function BannersPage() {
       setMine(m);
       setWallet(w);
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to load banners.");
+      toast.error(handleError(err).message || "Failed to load items.");
     } finally {
       setLoading(false);
     }
@@ -75,6 +87,7 @@ export default function BannersPage() {
 
   const resetAddForm = () => {
     setName("");
+    setType("name_background");
     setPointCost("");
     setImageFile(null);
     setImagePreview(null);
@@ -86,15 +99,16 @@ export default function BannersPage() {
     try {
       const formData = new FormData();
       formData.append("name", name.trim());
+      formData.append("type", type);
       formData.append("point_cost", pointCost);
       formData.append("image", imageFile);
       await createBanner(formData);
-      toast.success("Banner created successfully!");
+      toast.success("Item created successfully!");
       setIsAddOpen(false);
       resetAddForm();
       fetchAll();
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to create banner.");
+      toast.error(handleError(err).message || "Failed to create item.");
     } finally {
       setSubmitting(false);
     }
@@ -103,6 +117,7 @@ export default function BannersPage() {
   const handleEditClick = (banner: RawBanner) => {
     setEditingBanner(banner);
     setEditName(banner.name);
+    setEditType(banner.type);
     setEditPointCost(String(banner.point_cost));
     setEditImageFile(null);
     setEditImagePreview(resolveImageUrl(banner.image));
@@ -115,15 +130,16 @@ export default function BannersPage() {
     try {
       const formData = new FormData();
       formData.append("name", editName.trim());
+      formData.append("type", editType);
       formData.append("point_cost", editPointCost);
       if (editImageFile) formData.append("image", editImageFile);
       await updateBanner(editingBanner._id, formData);
-      toast.success("Banner updated successfully!");
+      toast.success("Item updated successfully!");
       setIsEditOpen(false);
       setEditingBanner(null);
       fetchAll();
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to update banner.");
+      toast.error(handleError(err).message || "Failed to update item.");
     } finally {
       setEditSubmitting(false);
     }
@@ -139,27 +155,29 @@ export default function BannersPage() {
     setActioningId(deletingBanner._id);
     try {
       await deleteBanner(deletingBanner._id);
-      toast.success("Banner deleted!");
+      toast.success("Item deleted!");
       setIsDeleteOpen(false);
       setDeletingBanner(null);
       fetchAll();
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to delete banner.");
+      toast.error(handleError(err).message || "Failed to delete item.");
     } finally {
       setActioningId(null);
     }
   };
 
   const ownedIds = new Set((mine?.owned ?? []).map((o) => o._id));
+  const isActiveItem = (banner: RawBanner) =>
+    banner.type === "profile_frame" ? mine?.activeFrameId === banner._id : mine?.activeBannerId === banner._id;
 
   const handleBuy = async (id: string) => {
     setActioningId(id);
     try {
       await buyBanner(id);
-      toast.success("Banner purchased!");
+      toast.success("Purchased!");
       fetchAll();
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to buy banner.");
+      toast.error(handleError(err).message || "Failed to buy item.");
     } finally {
       setActioningId(null);
     }
@@ -169,27 +187,84 @@ export default function BannersPage() {
     setActioningId(id);
     try {
       await equipBanner(id);
-      toast.success("Banner equipped!");
+      toast.success("Equipped!");
       fetchAll();
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to equip banner.");
+      toast.error(handleError(err).message || "Failed to equip item.");
     } finally {
       setActioningId(null);
     }
   };
 
-  const handleUnequip = async () => {
-    setActioningId("unequip");
+  const handleUnequip = async (bannerType: BannerType) => {
+    const key = `unequip-${bannerType}`;
+    setActioningId(key);
     try {
-      await unequipBanner();
-      toast.success("Banner unequipped!");
+      await unequipBanner(bannerType);
+      toast.success("Unequipped!");
       fetchAll();
     } catch (err) {
-      toast.error(handleError(err).message || "Failed to unequip banner.");
+      toast.error(handleError(err).message || "Failed to unequip item.");
     } finally {
       setActioningId(null);
     }
   };
+
+  const renderGrid = (items: RawBanner[]) => (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((banner) => {
+        const owned = ownedIds.has(banner._id);
+        const active = isActiveItem(banner);
+        const isActioning = actioningId === banner._id || actioningId === `unequip-${banner.type}`;
+        return (
+          <div key={banner._id} className="overflow-hidden rounded-xl border">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={resolveImageUrl(banner.image)} alt={banner.name} className="h-32 w-full object-cover" />
+            <div className="flex flex-col gap-2 p-4">
+              <p className="font-medium">{banner.name}</p>
+              <p className="text-sm text-muted-foreground">{banner.point_cost} points</p>
+              {active ? (
+                <Button size="sm" className="text-sm" disabled={isActioning} onClick={() => handleUnequip(banner.type)}>
+                  Unequip
+                </Button>
+              ) : owned ? (
+                <Button variant="outline" size="sm" disabled={isActioning} onClick={() => handleEquip(banner._id)}>
+                  Equip
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  disabled={isActioning || (wallet ? wallet.balance < banner.point_cost : false)}
+                  onClick={() => handleBuy(banner._id)}
+                >
+                  Buy
+                </Button>
+              )}
+              {isAdmin && (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditClick(banner)}>
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 border-destructive text-destructive hover:bg-destructive hover:text-white"
+                    disabled={isActioning}
+                    onClick={() => handleDeleteClick(banner)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const nameBackgrounds = banners.filter((b) => b.type === "name_background");
+  const profileFrames = banners.filter((b) => b.type === "profile_frame");
 
   return (
     <ProtectedRoute>
@@ -221,6 +296,13 @@ export default function BannersPage() {
                   value={name}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                 />
+                <DropdownField
+                  label="Category"
+                  title="Select Category"
+                  menu={TYPE_OPTIONS}
+                  value={TYPE_LABELS[type]}
+                  onSelect={(label) => setType(labelToType(label))}
+                />
                 <InputField
                   type="number"
                   placeholder="Ex: 50"
@@ -232,6 +314,7 @@ export default function BannersPage() {
                   <label className="text-sm font-medium">Image</label>
                   <BannerImagePicker
                     previewUrl={imagePreview}
+                    aspect={type === "profile_frame" ? 1 : 3}
                     onChange={(file) => { setImageFile(file); setImagePreview(URL.createObjectURL(file)); }}
                   />
                 </div>
@@ -242,62 +325,25 @@ export default function BannersPage() {
 
         <Card className="p-5">
           {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
-          {!loading && banners.length === 0 && <EmptyState message="No banners available yet." className="py-8" />}
+          {!loading && banners.length === 0 && <EmptyState message="No items available yet." className="py-8" />}
           {!loading && banners.length > 0 && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {banners.map((banner) => {
-                const owned = ownedIds.has(banner._id);
-                const active = mine?.activeBannerId === banner._id;
-                const isActioning = actioningId === banner._id;
-                return (
-                  <div key={banner._id} className="overflow-hidden rounded-xl border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={resolveImageUrl(banner.image)} alt={banner.name} className="h-32 w-full object-cover" />
-                    <div className="flex flex-col gap-2 p-4">
-                      <p className="font-medium">{banner.name}</p>
-                      <p className="text-sm text-muted-foreground">{banner.point_cost} points</p>
-                      {active ? (
-                        <Button
-                          size="sm"
-                          className="text-sm"
-                          disabled={actioningId === "unequip"}
-                          onClick={handleUnequip}
-                        >
-                          Unequip
-                        </Button>
-                      ) : owned ? (
-                        <Button variant="outline" size="sm" disabled={isActioning} onClick={() => handleEquip(banner._id)}>
-                          Equip
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          disabled={isActioning || (wallet ? wallet.balance < banner.point_cost : false)}
-                          onClick={() => handleBuy(banner._id)}
-                        >
-                          Buy
-                        </Button>
-                      )}
-                      {isAdmin && (
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditClick(banner)}>
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 border-destructive text-destructive hover:bg-destructive hover:text-white"
-                            disabled={isActioning}
-                            onClick={() => handleDeleteClick(banner)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex flex-col gap-8">
+              <div>
+                <p className="mb-3 font-semibold">BG Name</p>
+                {nameBackgrounds.length === 0 ? (
+                  <EmptyState message="No name backgrounds yet." className="py-6" />
+                ) : (
+                  renderGrid(nameBackgrounds)
+                )}
+              </div>
+              <div>
+                <p className="mb-3 font-semibold">Profile Frame</p>
+                {profileFrames.length === 0 ? (
+                  <EmptyState message="No profile frames yet." className="py-6" />
+                ) : (
+                  renderGrid(profileFrames)
+                )}
+              </div>
             </div>
           )}
         </Card>
@@ -316,6 +362,13 @@ export default function BannersPage() {
                   value={editName}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
                 />
+                <DropdownField
+                  label="Category"
+                  title="Select Category"
+                  menu={TYPE_OPTIONS}
+                  value={TYPE_LABELS[editType]}
+                  onSelect={(label) => setEditType(labelToType(label))}
+                />
                 <InputField
                   type="number"
                   placeholder="Ex: 50"
@@ -328,6 +381,7 @@ export default function BannersPage() {
                   <BannerImagePicker
                     previewUrl={editImagePreview}
                     placeholderText="Click or drag to replace"
+                    aspect={editType === "profile_frame" ? 1 : 3}
                     onChange={(file) => { setEditImageFile(file); setEditImagePreview(URL.createObjectURL(file)); }}
                   />
                 </div>
@@ -347,7 +401,7 @@ export default function BannersPage() {
                 <DialogTitle>Delete {deletingBanner?.name}</DialogTitle>
               </DialogHeader>
               <p className="text-sm text-muted-foreground">
-                Anyone who owns or has this banner equipped will lose it. This can&apos;t be undone.
+                Anyone who owns or has this equipped will lose it. This can&apos;t be undone.
               </p>
               <div className="mt-2 flex justify-center gap-4">
                 <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>

@@ -9,6 +9,7 @@ export interface KPIRankingUser {
   month: number;
   image?: string | null;
   banner?: string | null;
+  frame?: string | null;
 }
 
 export function useKpiRankingsCard() {

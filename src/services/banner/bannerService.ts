@@ -1,9 +1,12 @@
 import { axiosClient } from "@/lib/axiosClient";
 import { handleError } from "@/shared/services";
 
+export type BannerType = "name_background" | "profile_frame";
+
 export interface RawBanner {
   _id: string;
   name: string;
+  type: BannerType;
   point_cost: number;
   image: string;
 }
@@ -14,6 +17,7 @@ export interface OwnedBanner extends RawBanner {
 
 export interface MyBanners {
   activeBannerId: string | null;
+  activeFrameId: string | null;
   owned: OwnedBanner[];
 }
 
@@ -84,9 +88,9 @@ export const equipBanner = async (id: string): Promise<unknown> => {
   }
 };
 
-export const unequipBanner = async (): Promise<unknown> => {
+export const unequipBanner = async (type: BannerType): Promise<unknown> => {
   try {
-    const res = await axiosClient.post("/banners/unequip");
+    const res = await axiosClient.post("/banners/unequip", { type });
     return res.data.data;
   } catch (error) {
     throw handleError(error);

@@ -26,18 +26,29 @@ const KPIRangkings = () => {
         />
       </div>
 
-      <div className="max-h-80 overflow-y-auto flex flex-col gap-4 scrollbar-none ">
+      <div className="max-h-80 overflow-y-auto flex flex-col gap-4 scrollbar-none pt-2 ps-2">
         {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
         {!loading && sortedUsers.map((user, index) => (
           <div key={user.name + '-' + user.totalPoints + '-' + index} className="flex w-full gap-3 items-center border-b pb-2">
             <div className="relative shrink-0">
+              {user.frame && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={resolveImageUrl(user.frame)}
+                  alt="frame"
+                  className="pointer-events-none absolute -inset-2 h-[calc(100%+1rem)] w-[calc(100%+1rem)] max-w-none object-contain"
+                />
+              )}
+              {/* On top of the frame, not behind it — so the photo is
+                  always fully visible even if the frame's center cutout
+                  isn't perfectly transparent. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={resolveImageUrl(user.image)}
                 alt="profile"
                 height={50}
                 width={50}
-                className="rounded-full object-cover"
+                className="relative rounded-full object-cover"
               />
               <div className="absolute flex justify-center items-center top-0 right-0 -mr-1.5 bg-[#2080D9] w-5 h-5 rounded-full">
                 <p className="text-xs text-white font-semibold">

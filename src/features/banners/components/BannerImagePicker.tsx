@@ -7,20 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getCroppedImg, type PixelCropArea } from "@/shared/utils";
 
-// Matches the banner's wide-format display (dashboard row background, shop
-// card thumbnail) — cropping to this ratio up front keeps every stored
-// banner image consistent, instead of leaving it to whatever the admin's
-// original upload happened to be shaped like.
-const BANNER_ASPECT = 3;
-
 interface BannerImagePickerProps {
   previewUrl: string | null;
   onChange: (file: File) => void;
   placeholderText?: string;
+  // 3 (wide) for a name-background banner, 1 (square) for a profile frame
+  // ring — cropping to this ratio up front keeps stored images consistent
+  // instead of leaving it to whatever the admin's original upload was
+  // shaped like.
+  aspect?: number;
 }
 
-export default function BannerImagePicker({ previewUrl, onChange, placeholderText = "Click or drag to upload" }: BannerImagePickerProps) {
+export default function BannerImagePicker({ previewUrl, onChange, placeholderText = "Click or drag to upload", aspect = 3 }: BannerImagePickerProps) {
   const inputId = useId();
+  const isSquare = aspect === 1;
 
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
@@ -69,8 +69,11 @@ export default function BannerImagePicker({ previewUrl, onChange, placeholderTex
 
   const handleCropConfirm = async () => {
     if (!cropSrc || !croppedAreaPixels) return;
-    const blob = await getCroppedImg(cropSrc, croppedAreaPixels);
-    onChange(new File([blob], "banner.jpg", { type: "image/jpeg" }));
+    // PNG, not JPEG — these overlay other content (name text, a profile
+    // photo), so a transparent background has to survive the crop. JPEG has
+    // no alpha channel and would flatten it to an opaque fill.
+    const blob = await getCroppedImg(cropSrc, croppedAreaPixels, { format: "image/png" });
+    onChange(new File([blob], "banner.png", { type: "image/png" }));
     setShowCropDialog(false);
     setCropSrc(null);
   };
@@ -81,11 +84,11 @@ export default function BannerImagePicker({ previewUrl, onChange, placeholderTex
         htmlFor={inputId}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
-        className="flex cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed border-primary/40 bg-secondary/30 text-center transition-colors hover:bg-secondary/50"
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed border-primary/40 bg-secondary/30 text-center transition-colors hover:bg-secondary/50 ${isSquare ? 'mx-auto w-28' : 'w-full'}`}
       >
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt="preview" className="h-28 w-full object-cover" />
+          <img src={previewUrl} alt="preview" className={`w-full object-cover ${isSquare ? 'aspect-square' : 'h-28'}`} />
         ) : (
           <div className="flex flex-col items-center gap-2 px-4 py-8">
             <CloudArrowUpIcon className="size-10 text-primary" />
@@ -113,7 +116,7 @@ export default function BannerImagePicker({ previewUrl, onChange, placeholderTex
                 image={cropSrc}
                 crop={crop}
                 zoom={zoom}
-                aspect={BANNER_ASPECT}
+                aspect={aspect}
                 mediaProps={{ crossOrigin: "anonymous" }}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
