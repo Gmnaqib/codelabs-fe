@@ -4,6 +4,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { menuNavbar } from '@/config/menu'
 import { getMe } from '@/services/users/userService'
+import { getMyBanners } from '@/services/banner/bannerService'
 import { UserType } from '@/types/user'
 import { resolveImageUrl } from '@/lib/utils'
 
@@ -17,12 +18,20 @@ const Navbar = ({ isActive }: NavbarProps) => {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [showBar, setShowBar] = useState(false);
+  const [activeFrame, setActiveFrame] = useState<string | null>(null);
 
   useEffect(() => {
     getMe().then((res) => {
       setUser(res);
       setLoading(false);
     }).catch(() => setLoading(false));
+
+    getMyBanners()
+      .then((data) => {
+        const frame = data.owned.find((o) => o.type === "profile_frame" && o.active);
+        setActiveFrame(frame?.image ?? null);
+      })
+      .catch(() => setActiveFrame(null));
 
     const handlePhotoUpdate = () => {
       getMe().then(setUser).catch(() => {});
@@ -78,9 +87,17 @@ const Navbar = ({ isActive }: NavbarProps) => {
         </div>
         <Link href="/profile">
           <div className="flex items-center gap-3">
-            <div>
+            <div className="relative" style={{ width: 35, height: 35 }}>
+              {activeFrame && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={resolveImageUrl(activeFrame)}
+                  alt="frame"
+                  className="pointer-events-none absolute -inset-1.5 h-[calc(100%+0.75rem)] w-[calc(100%+0.75rem)] max-w-none object-contain"
+                />
+              )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={resolveImageUrl(user?.image)} alt="profile" className='rounded-full object-cover' style={{ width: 35, height: 35 }} />
+              <img src={resolveImageUrl(user?.image)} alt="profile" className='relative rounded-full object-cover w-full h-full' />
             </div>
             <div className='hidden md:flex flex-col'>
               <p className='text-sm'>{user ? user.name : "Loading..."}</p>

@@ -31,7 +31,7 @@ import {
 import { getMyWallet, type PointWallet } from "@/services/wallet/walletService";
 
 const TYPE_LABELS: Record<BannerType, string> = {
-  name_background: "BG Name",
+  name_background: "Name Banner",
   profile_frame: "Profile Frame",
 };
 const TYPE_OPTIONS = Object.values(TYPE_LABELS);
@@ -329,9 +329,9 @@ export default function BannersPage() {
           {!loading && banners.length > 0 && (
             <div className="flex flex-col gap-8">
               <div>
-                <p className="mb-3 font-semibold">BG Name</p>
+                <p className="mb-3 font-semibold">Name Banner</p>
                 {nameBackgrounds.length === 0 ? (
-                  <EmptyState message="No name backgrounds yet." className="py-6" />
+                  <EmptyState message="No name banners yet." className="py-6" />
                 ) : (
                   renderGrid(nameBackgrounds)
                 )}
