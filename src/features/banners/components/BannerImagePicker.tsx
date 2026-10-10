@@ -84,7 +84,7 @@ export default function BannerImagePicker({ previewUrl, onChange, placeholderTex
         htmlFor={inputId}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed border-primary/40 bg-secondary/30 text-center transition-colors hover:bg-secondary/50 ${isSquare ? 'mx-auto w-28' : 'w-full'}`}
+        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed border-primary/40 bg-secondary/30 text-center transition-colors hover:bg-secondary/50"
       >
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

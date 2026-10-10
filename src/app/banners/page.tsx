@@ -210,8 +210,8 @@ export default function BannersPage() {
     }
   };
 
-  const renderGrid = (items: RawBanner[]) => (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  const renderGrid = (items: RawBanner[], columnsClassName: string) => (
+    <div className={`grid gap-4 ${columnsClassName}`}>
       {items.map((banner) => {
         const owned = ownedIds.has(banner._id);
         const active = isActiveItem(banner);
@@ -219,7 +219,11 @@ export default function BannersPage() {
         return (
           <div key={banner._id} className="overflow-hidden rounded-xl border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={resolveImageUrl(banner.image)} alt={banner.name} className="h-32 w-full object-cover" />
+            <img
+              src={resolveImageUrl(banner.image)}
+              alt={banner.name}
+              className={`w-full object-cover ${banner.type === "profile_frame" ? "aspect-square" : "h-32"}`}
+            />
             <div className="flex flex-col gap-2 p-4">
               <p className="font-medium">{banner.name}</p>
               <p className="text-sm text-muted-foreground">{banner.point_cost} points</p>
@@ -333,7 +337,7 @@ export default function BannersPage() {
                 {nameBackgrounds.length === 0 ? (
                   <EmptyState message="No name banners yet." className="py-6" />
                 ) : (
-                  renderGrid(nameBackgrounds)
+                  renderGrid(nameBackgrounds, "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")
                 )}
               </div>
               <div>
@@ -341,7 +345,7 @@ export default function BannersPage() {
                 {profileFrames.length === 0 ? (
                   <EmptyState message="No profile frames yet." className="py-6" />
                 ) : (
-                  renderGrid(profileFrames)
+                  renderGrid(profileFrames, "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6")
                 )}
               </div>
             </div>
