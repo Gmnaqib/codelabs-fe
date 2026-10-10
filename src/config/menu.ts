@@ -16,6 +16,7 @@ import {
   Cog6ToothIcon as CogSolid,
   FingerPrintIcon as FingerPrintSolid,
   ExclamationTriangleIcon as ExclamationTriangleSolid,
+  GiftIcon as GiftSolid,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -36,6 +37,7 @@ import {
   Cog6ToothIcon as CogOutline,
   FingerPrintIcon as FingerPrintOutline,
   ExclamationTriangleIcon as ExclamationTriangleOutline,
+  GiftIcon as GiftOutline,
 } from "@heroicons/react/24/outline";
 
 export const menuItems = [
@@ -158,6 +160,15 @@ export const menuItems = [
     roles: ["admin", "minister of operation"],
   },
   {
+    title: "Shop",
+    iconSolid: GiftSolid,
+    iconOutline: GiftOutline,
+    route: "/banners",
+    roles: [
+      "admin", "lecturer", "minister of research", "minister of competition", "minister of branding", "minister of operation", "president", "vice president", "user"
+    ],
+  },
+  {
     title: "Log Out",
     iconSolid: ArrowLeftSolid,
     iconOutline: ArrowLeftOutline,
@@ -185,6 +196,7 @@ export const menuNavbar = [
   { path: '/competition', title: 'Competition' },
   { path: '/branding', title: 'Branding' },
   { path: '/points', title: 'KPI Points' },
+  { path: '/banners', title: 'Shop' },
   { path: '/sp-setting', title: 'SP Setting' },
   { path: '/settings', title: 'Settings' },
   { path: '/check-in', title: 'Check In' },

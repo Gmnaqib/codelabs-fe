@@ -14,31 +14,9 @@ import { useProfile } from "@/features/profile/hooks/useProfile";
 import { profileSchema, type ProfileForm as ProfileFormValues } from "@/features/profile/config/schemas";
 import { handleError } from "@/shared/services";
 import { getMyWallet, type PointWallet } from "@/services/wallet/walletService";
+import { getCroppedImg, DEFAULT_MAX_CROPPED_IMAGE_BYTES } from "@/shared/utils";
 
-const MAX_SIZE_BYTES = 500 * 1024; // 500KB
-
-const getCroppedImg = async (imageSrc: string, pixelCrop: { x: number; y: number; width: number; height: number }): Promise<Blob> => {
-  const image = new Image();
-  image.src = imageSrc;
-  await new Promise<void>((resolve) => { image.onload = () => resolve(); });
-
-  const canvas = document.createElement("canvas");
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-  const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, pixelCrop.width, pixelCrop.height);
-
-  const toBlob = (quality: number): Promise<Blob> =>
-    new Promise((resolve) => canvas.toBlob((blob) => resolve(blob!), "image/jpeg", quality));
-
-  let quality = 0.9;
-  let blob = await toBlob(quality);
-  while (blob.size > MAX_SIZE_BYTES && quality > 0.1) {
-    quality -= 0.1;
-    blob = await toBlob(quality);
-  }
-  return blob;
-};
+const MAX_SIZE_BYTES = DEFAULT_MAX_CROPPED_IMAGE_BYTES;
 
 export default function ProfileForm() {
   const { user, loading, uploadPhoto, updatePassword, resetMacAddress } = useProfile();

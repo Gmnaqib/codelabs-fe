@@ -30,7 +30,7 @@ const KPIRangkings = () => {
         {loading && <p className="text-sm text-muted-foreground">Loading...</p>}
         {!loading && sortedUsers.map((user, index) => (
           <div key={user.name + '-' + user.totalPoints + '-' + index} className="flex w-full gap-3 items-center border-b pb-2">
-            <div className="relative">
+            <div className="relative shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={resolveImageUrl(user.image)}
@@ -46,9 +46,22 @@ const KPIRangkings = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center w-full">
-              <p className="text-base">{user.name.split(" ")[0]}</p>
-              <p className="font-normal text-primary text-base">{user.totalPoints}</p>
+            <div
+              className="flex justify-between items-center w-full rounded-lg px-3 py-2 bg-cover bg-center"
+              style={user.banner ? { backgroundImage: `url(${resolveImageUrl(user.banner)})` } : undefined}
+            >
+              <p
+                className="text-base"
+                style={user.banner ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)', color: '#fff' } : undefined}
+              >
+                {user.name.split(" ")[0]}
+              </p>
+              <p
+                className="font-normal text-primary text-base"
+                style={user.banner ? { textShadow: '0 1px 3px rgba(0,0,0,0.7)' } : undefined}
+              >
+                {user.totalPoints}
+              </p>
             </div>
           </div>
         ))}
