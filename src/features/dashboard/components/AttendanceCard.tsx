@@ -16,6 +16,7 @@ import LeaveRequestForm from '@/features/attendance/components/LeaveRequestForm'
 import { toast } from 'sonner';
 
 const toMin = (hhmm: string) => {
+  if (!hhmm) return 0
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + (m ?? 0);
 };

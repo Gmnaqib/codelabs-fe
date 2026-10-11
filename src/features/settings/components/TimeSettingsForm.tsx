@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -8,9 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Cog6ToothIcon } from '@heroicons/react/24/solid';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import { handleError } from '@/shared/services';
-import { timeSettingSchema, type TimeSettingForm as TimeSettingFormValues } from '@/features/settings/config/schemas';
+import {
+  timeSettingSchema,
+  type TimeSettingForm as TimeSettingFormValues,
+} from '@/features/settings/config/schemas';
 import type { TimeSetting } from '@/services/timeSetting/timeSettingService';
 
 const CHECKIN_KEYS = ['checkin', 'checkinlimit', 'checkinlatelimit'] as const;
@@ -24,7 +27,7 @@ const TIME_LABELS: Record<keyof TimeSettingFormValues, string> = {
   checkoutlate: 'Last Check-out',
 };
 
-const DAY_LABEL: Record<string, string> = {
+export const DAY_LABEL: Record<string, string> = {
   WEEKDAY: 'Weekday (Mon – Fri)',
   WEEKEND: 'Weekend (Sat)',
 };
@@ -59,7 +62,14 @@ const TimeInput = ({ label, value, onChange }: TimeInputProps) => {
   return (
     <div className="flex flex-col gap-2">
       <Label>{label}</Label>
-      <Input ref={ref} type="time" value={value} onChange={onChange} onClick={handleClick} className="cursor-pointer" />
+      <Input
+        ref={ref}
+        type="time"
+        value={value}
+        onChange={onChange}
+        onClick={handleClick}
+        className="cursor-pointer"
+      />
     </div>
   );
 };
@@ -69,13 +79,17 @@ interface TimeSettingsFormProps {
   onSave: (id: string, payload: TimeSettingFormValues) => Promise<void>;
 }
 
-export default function TimeSettingsForm({ setting, onSave }: TimeSettingsFormProps) {
+export default function TimeSettingsForm({
+  setting,
+  onSave,
+}: TimeSettingsFormProps) {
   const initial = settingToForm(setting);
 
   const {
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { isSubmitting },
   } = useForm<TimeSettingFormValues>({
     resolver: zodResolver(timeSettingSchema),
@@ -83,81 +97,101 @@ export default function TimeSettingsForm({ setting, onSave }: TimeSettingsFormPr
   });
 
   const values = watch();
-  const hasChanges = (Object.keys(initial) as (keyof TimeSettingFormValues)[]).some(
-    (key) => values[key] !== initial[key]
-  );
+  const hasChanges = (
+    Object.keys(initial) as (keyof TimeSettingFormValues)[]
+  ).some((key) => values[key] !== initial[key]);
 
   const onSubmit = async (data: TimeSettingFormValues) => {
     try {
       await onSave(setting._id, data);
-      toast.success(`${DAY_LABEL[setting.code] ?? setting.code} settings saved`);
+      toast.success(
+        `${DAY_LABEL[setting.code] ?? setting.code} settings saved`,
+      );
     } catch (err) {
       handleError(err);
-      toast.error('Failed to save settings');
+      toast.error("Failed to save settings");
     }
   };
 
+  const renderFields = (keys: readonly (keyof TimeSettingFormValues)[]) =>
+    keys.map((key) => (
+      <Controller
+        key={key}
+        control={control}
+        name={key}
+        render={({ field }) => (
+          <TimeInput
+            label={TIME_LABELS[key]}
+            value={field.value}
+            onChange={(e) => field.onChange(e.target.value)}
+          />
+        )}
+      />
+    ));
+
+  const Hint = ({ children }: { children: React.ReactNode }) => (
+    <div className="flex items-center gap-3 rounded-md bg-gray-50 px-4 py-3 text-sm text-gray-600">
+      <InformationCircleIcon className="size-5 shrink-0 text-primary" />
+      <p>{children}</p>
+    </div>
+  );
+
   return (
-    <Card>
-      <CardHeader className="bg-primary">
-        <CardTitle className="flex items-center gap-2 text-white text-base">
-          <div className="bg-white text-primary rounded-full p-1.5">
-            <Cog6ToothIcon className="size-4" />
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      <Card className="gap-4 pt-2">
+        <CardHeader>
+          <CardTitle className="text-lg font-xl font-semibold">
+            Check-in
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {renderFields(CHECKIN_KEYS)}
           </div>
-          {DAY_LABEL[setting.code] ?? setting.code}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-          <div className="flex flex-col gap-3">
-            <p className="font-semibold text-sm text-gray-500 uppercase tracking-wide">Check-in</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {CHECKIN_KEYS.map((key) => (
-                <Controller
-                  key={key}
-                  control={control}
-                  name={key}
-                  render={({ field }) => (
-                    <TimeInput
-                      label={TIME_LABELS[key]}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
-                  )}
-                />
-              ))}
-            </div>
-          </div>
+          <Hint>
+            Members can check in from <b>{values.checkin}</b> to{" "}
+            <b>{values.checkinlatelimit}</b>. After <b>{values.checkinlimit}</b>{" "}
+            they are marked late.
+          </Hint>
+        </CardContent>
+      </Card>
 
-          <hr className="border-gray-100" />
-
-          <div className="flex flex-col gap-3">
-            <p className="font-semibold text-sm text-gray-500 uppercase tracking-wide">Check-out</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {CHECKOUT_KEYS.map((key) => (
-                <Controller
-                  key={key}
-                  control={control}
-                  name={key}
-                  render={({ field }) => (
-                    <TimeInput
-                      label={TIME_LABELS[key]}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
-                  )}
-                />
-              ))}
-            </div>
+      <Card className="gap-4 pt-2">
+        <CardHeader>
+          <CardTitle className="text-lg font-xl font-semibold">
+            Check-out
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {renderFields(CHECKOUT_KEYS)}
           </div>
+          <Hint>
+            Members can check out from <b>{values.checkout}</b> to{" "}
+            <b>{values.checkoutlate}</b>.
+          </Hint>
+        </CardContent>
+      </Card>
 
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting || !hasChanges} className="md:w-fit" size="full">
-              {isSubmitting ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+      <div className="flex justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          disabled={isSubmitting || !hasChanges}
+          onClick={() => reset(initial)}
+        >
+          Reset
+        </Button>
+        <Button
+          type="submit"
+          size="lg"
+          className="font-medium"
+          disabled={isSubmitting || !hasChanges}
+        >
+          {isSubmitting ? "Saving..." : "Save Changes"}
+        </Button>
+      </div>
+    </form>
   );
 }
